@@ -1,0 +1,19 @@
+import express from 'express';
+import cors from 'cors';
+import syncRoutes from './routes/syncRoutes';
+
+const app = express();
+
+// Middlewares
+app.use(cors());
+app.use(express.json());
+
+// Routes
+app.use('/api', syncRoutes);
+
+// Base health route
+app.get('/', (req, res) => {
+  res.send('MathNova API server is running.');
+});
+
+export default app;
