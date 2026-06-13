@@ -29,6 +29,8 @@ function App() {
 
         {/* Perfil Alumno */}
         <Route path="/perfil-alumno" element={<PerfilAlumno />} />
+
+        {/* Ruta no encontrada */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

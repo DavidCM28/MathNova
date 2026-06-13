@@ -49,6 +49,11 @@ function PerfilAlumno() {
     };
   }, [menuOpen]);
 
+  const irARuta = (ruta: string) => {
+    setMenuOpen(false);
+    navigate(ruta);
+  };
+
   return (
     <main className="dashboard-page perfil-layout">
       <button
@@ -66,17 +71,17 @@ function PerfilAlumno() {
         <img src={logo} alt="MathNova" className="sidebar-logo" />
 
         <nav className="sidebar-menu">
-          <button className="menu-item" onClick={() => navigate("/")}>
+          <button className="menu-item" onClick={() => irARuta("/")}>
             <FiGrid />
             <span>Dashboard principal</span>
           </button>
 
-          <button className="menu-item" onClick={() => navigate("/temas/numeros")}>
+          <button className="menu-item" onClick={() => irARuta("/temas/numeros")}>
             <GiRingedPlanet />
             <span>Selección de mundos</span>
           </button>
 
-          <button className="menu-item" onClick={() => navigate("/temas/numeros")}>
+          <button className="menu-item" onClick={() => irARuta("/temas/numeros")}>
             <FiBookOpen />
             <span>Temas</span>
           </button>
@@ -86,7 +91,7 @@ function PerfilAlumno() {
             <span>Actividades</span>
           </button>
 
-          <button className="menu-item" onClick={() => navigate("/retroalimentacion")}>
+          <button className="menu-item" onClick={() => irARuta("/retroalimentacion")}>
             <FiMessageSquare />
             <span>Retroalimentación</span>
           </button>
@@ -101,7 +106,7 @@ function PerfilAlumno() {
             <span>Perfil del alumno</span>
           </button>
 
-          <button className="menu-item" onClick={() => navigate("/estadisticas")}>
+          <button className="menu-item" onClick={() => irARuta("/estadisticas")}>
             <FiBarChart2 />
             <span>Estadísticas</span>
           </button>
@@ -240,7 +245,9 @@ function PerfilAlumno() {
               </div>
             </div>
 
-            <button className="ver-link">Ver todos los mundos →</button>
+            <button className="ver-link" onClick={() => irARuta("/temas/numeros")}>
+              Ver todos los mundos →
+            </button>
           </article>
 
           <article className="perfil-panel insignias-panel">

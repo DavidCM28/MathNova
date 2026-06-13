@@ -42,9 +42,9 @@ function Dashboard() {
     };
   }, [menuOpen]);
 
-  const irAPerfilAlumno = () => {
+  const irARuta = (ruta: string) => {
     setMenuOpen(false);
-    navigate("/perfil-alumno");
+    navigate(ruta);
   };
 
   return (
@@ -69,12 +69,12 @@ function Dashboard() {
             <span>Dashboard principal</span>
           </button>
 
-          <button className="menu-item" onClick={() => navigate("/temas/numeros")}>
+          <button className="menu-item" onClick={() => irARuta("/temas/numeros")}>
             <GiRingedPlanet />
             <span>Selección de mundos</span>
           </button>
 
-          <button className="menu-item" onClick={() => navigate("/temas/numeros")}>
+          <button className="menu-item" onClick={() => irARuta("/temas/numeros")}>
             <FiBookOpen />
             <span>Temas</span>
           </button>
@@ -84,7 +84,7 @@ function Dashboard() {
             <span>Actividades</span>
           </button>
 
-          <button className="menu-item" onClick={() => navigate("/retroalimentacion")}>
+          <button className="menu-item" onClick={() => irARuta("/retroalimentacion")}>
             <FiMessageSquare />
             <span>Retroalimentación</span>
           </button>
@@ -94,12 +94,12 @@ function Dashboard() {
             <span>Recompensas</span>
           </button>
 
-          <button className="menu-item" onClick={irAPerfilAlumno}>
+          <button className="menu-item" onClick={() => irARuta("/perfil-alumno")}>
             <FiUser />
             <span>Perfil del alumno</span>
           </button>
 
-          <button className="menu-item" onClick={() => navigate("/estadisticas")}>
+          <button className="menu-item" onClick={() => irARuta("/estadisticas")}>
             <FiBarChart2 />
             <span>Estadísticas</span>
           </button>
@@ -130,11 +130,17 @@ function Dashboard() {
             </p>
 
             <div className="hero-actions">
-              <button className="primary-action">
+              <button
+                className="primary-action"
+                onClick={() => irARuta("/temas/numeros")}
+              >
                 Comenzar ahora <FiArrowRight />
               </button>
 
-              <button className="secondary-action">
+              <button
+                className="secondary-action"
+                onClick={() => irARuta("/estadisticas")}
+              >
                 Ver mi progreso <FiBarChart2 />
               </button>
             </div>
@@ -208,20 +214,32 @@ function Dashboard() {
             <h2>Módulos recomendados</h2>
 
             <div className="modules-list">
-              <div className="module-item">
+              <button
+                className="module-item"
+                type="button"
+                onClick={() => irARuta("/temas/geometria")}
+              >
                 <img src={geometriaIcon} alt="Geometría" />
                 <span>Geometría</span>
-              </div>
+              </button>
 
-              <div className="module-item">
+              <button
+                className="module-item"
+                type="button"
+                onClick={() => irARuta("/temas/numeros")}
+              >
                 <img src={numerosIcon} alt="Números" />
                 <span>Números</span>
-              </div>
+              </button>
 
-              <div className="module-item">
+              <button
+                className="module-item"
+                type="button"
+                onClick={() => irARuta("/estadisticas")}
+              >
                 <img src={estadisticaIcon} alt="Estadística" />
                 <span>Estadística</span>
-              </div>
+              </button>
             </div>
           </article>
         </section>
