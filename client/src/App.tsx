@@ -1,12 +1,23 @@
-import { AppProvider } from './context/AppContext';
-import Home from './pages/Home';
-import './styles/variables.css';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import Login from "./pages/Login/Login";
+import Dashboard from "./pages/Dashboard/Dashboard";
+import PerfilAlumno from "./pages/PerfilAlumno/PerfilAlumno";
 
 function App() {
   return (
-    <AppProvider>
-      <Home />
-    </AppProvider>
+    <BrowserRouter>
+      <Routes>
+        {/* Login */}
+        <Route path="/login" element={<Login />} />
+
+        {/* Dashboard */}
+        <Route path="/" element={<Dashboard />} />
+
+        {/* Perfil Alumno */}
+        <Route path="/perfil-alumno" element={<PerfilAlumno />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
