@@ -46,29 +46,29 @@ function Feedback() {
   ];
 
   return (
-    <main className="feedback-page">
+    <main className="fbk-page">
       <button
-        className={`hamburger-btn ${menuOpen ? "hamburger-open" : ""}`}
+        className={`fbk-hamburger-btn ${menuOpen ? "fbk-hamburger-open" : ""}`}
         onClick={() => setMenuOpen(!menuOpen)}
       >
         <img src={menuHamburguesa} alt="Menú" />
       </button>
 
       {menuOpen && (
-        <div className="menu-overlay" onClick={() => setMenuOpen(false)} />
+        <div className="fbk-menu-overlay" onClick={() => setMenuOpen(false)} />
       )}
 
-      <aside className={`sidebar ${menuOpen ? "sidebar-open" : ""}`}>
-        <img src={logo} alt="MathNova" className="sidebar-logo" />
+      <aside className={`fbk-sidebar ${menuOpen ? "fbk-sidebar-open" : ""}`}>
+        <img src={logo} alt="MathNova" className="fbk-sidebar-logo" />
 
-        <nav className="sidebar-menu">
-          <button className="menu-item" onClick={() => irARuta("/")}>
+        <nav className="fbk-sidebar-menu">
+          <button className="fbk-menu-item" onClick={() => irARuta("/")}>
             <FiGrid />
             <span>Dashboard principal</span>
           </button>
 
           <button
-            className="menu-item"
+            className="fbk-menu-item"
             onClick={() => irARuta("/seleccion-mundos")}
           >
             <GiRingedPlanet />
@@ -76,30 +76,33 @@ function Feedback() {
           </button>
 
           <button
-            className="menu-item"
+            className="fbk-menu-item"
             onClick={() => irARuta("/temas/numeros")}
           >
             <FiBookOpen />
             <span>Temas</span>
           </button>
 
-          <button className="menu-item">
+          <button className="fbk-menu-item">
             <FiEdit />
             <span>Actividades</span>
           </button>
 
-          <button className="menu-item active">
+          <button className="fbk-menu-item fbk-active">
             <FiMessageSquare />
             <span>Retroalimentación</span>
           </button>
 
-          <button className="menu-item" onClick={() => irARuta("/recompensas")}>
+          <button
+            className="fbk-menu-item"
+            onClick={() => irARuta("/recompensas")}
+          >
             <GiTrophyCup />
             <span>Recompensas</span>
           </button>
 
           <button
-            className="menu-item"
+            className="fbk-menu-item"
             onClick={() => irARuta("/perfil-alumno")}
           >
             <FiUser />
@@ -107,7 +110,7 @@ function Feedback() {
           </button>
 
           <button
-            className="menu-item"
+            className="fbk-menu-item"
             onClick={() => irARuta("/estadisticas")}
           >
             <FiBarChart2 />
@@ -115,23 +118,23 @@ function Feedback() {
           </button>
         </nav>
 
-        <div className="sidebar-bottom-card">
-          <div className="mini-fox-circle">
+        <div className="fbk-sidebar-bottom-card">
+          <div className="fbk-mini-fox-circle">
             <img src={zorritoRe} alt="Nova" />
           </div>
 
           <h3>¡Sigue así, Alex!</h3>
           <p>Cada paso te acerca a tus metas.</p>
 
-          <div className="mini-status">
+          <div className="fbk-mini-status">
             <img src={estrellaRe} alt="Estrella" />
             <span>Estás haciendo un gran trabajo</span>
           </div>
         </div>
       </aside>
 
-      <section className="feedback-content">
-        <header className="feedback-topbar">
+      <section className="fbk-content">
+        <header className="fbk-topbar">
           <div>
             <h1>Retroalimentación</h1>
             <p>
@@ -139,12 +142,12 @@ function Feedback() {
             </p>
           </div>
 
-          <div className="topbar-user-area">
-            <button className="bell-btn">
+          <div className="fbk-topbar-user-area">
+            <button className="fbk-bell-btn">
               <FiBell />
             </button>
 
-            <div className="profile-chip">
+            <div className="fbk-profile-chip">
               <img src={zorritoRe} alt="Alex" />
               <div>
                 <strong>Alex</strong>
@@ -155,29 +158,29 @@ function Feedback() {
           </div>
         </header>
 
-        <section className="feedback-grid">
-          <article className="feedback-card summary-card">
-            <div className="card-icon blue-icon">
+        <section className="fbk-grid">
+          <article className="fbk-card fbk-summary-card">
+            <div className="fbk-card-icon fbk-blue-icon">
               <FiBarChart2 />
             </div>
 
             <h2>Resumen de Desempeño</h2>
-            <span className="summary-badge">General</span>
+            <span className="fbk-summary-badge">General</span>
 
-            <div className="summary-box">
-              <div className="summary-row">
+            <div className="fbk-summary-box">
+              <div className="fbk-summary-row">
                 <FiCheck />
                 <span>Ejercicios Correctos:</span>
                 <strong>95%</strong>
               </div>
 
-              <div className="summary-row">
+              <div className="fbk-summary-row">
                 <FiCheck />
                 <span>Tiempo Promedio:</span>
                 <strong>45s</strong>
               </div>
 
-              <div className="summary-row">
+              <div className="fbk-summary-row">
                 <FiCheck />
                 <span>Mejor Tema:</span>
                 <strong>Álgebra</strong>
@@ -187,23 +190,23 @@ function Feedback() {
             <button>Ver Detalles →</button>
           </article>
 
-          <article className="feedback-card guide-card">
-            <div className="card-icon green-icon">
+          <article className="fbk-card fbk-guide-card">
+            <div className="fbk-card-icon fbk-green-icon">
               <FiBookOpen />
             </div>
 
             <h2>Tu Guía de Estudio</h2>
             <p>Recomendaciones basadas en tus últimas actividades, Alex.</p>
 
-            <div className="main-progress">
+            <div className="fbk-main-progress">
               <span style={{ width: "75%" }}></span>
             </div>
 
-            <strong className="percent-text">75% completado</strong>
+            <strong className="fbk-percent-text">75% completado</strong>
 
-            <div className="guide-list">
+            <div className="fbk-guide-list">
               {topics.map((topic) => (
-                <div className="guide-item" key={topic.label}>
+                <div className="fbk-guide-item" key={topic.label}>
                   <div>
                     <span>{topic.label}</span>
                     <b>{topic.level}</b>
@@ -219,14 +222,14 @@ function Feedback() {
             <button>Comenzar Guía →</button>
           </article>
 
-          <article className="feedback-card nova-card">
-            <div className="card-icon orange-icon">
+          <article className="fbk-card fbk-nova-card">
+            <div className="fbk-card-icon fbk-orange-icon">
               <img src={zorritoRe} alt="Nova" />
             </div>
 
             <h2>Mensaje de Nova</h2>
 
-            <div className="message-panel">
+            <div className="fbk-message-panel">
               <p>¡Estás haciendo un trabajo increíble, Alex!</p>
 
               <p>
@@ -243,17 +246,17 @@ function Feedback() {
             <button>Ver Historial →</button>
           </article>
 
-          <aside className="progress-panel">
+          <aside className="fbk-progress-panel">
             <h2>¡Progreso Constante!</h2>
             <p>Sigue las guías de Nova para avanzar.</p>
 
             <img
               src={zorritoRetroalimentacion}
               alt="Zorrito retroalimentación"
-              className="progress-fox"
+              className="fbk-progress-fox"
             />
 
-            <div className="progress-stats">
+            <div className="fbk-progress-stats">
               <div>
                 <img src={estrellaRe} alt="Estrella" />
                 <strong>4</strong>
