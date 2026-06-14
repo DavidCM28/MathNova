@@ -28,7 +28,7 @@ body {
   display: none;
 }
 
-/* SIDEBAR IGUAL AL DASHBOARD */
+/* SIDEBAR */
 .fbk-sidebar {
   width: 305px;
   min-width: 305px;
@@ -97,37 +97,44 @@ body {
   color: #ffffff;
 }
 
-/* TARJETA INFERIOR */
+/* TARJETA INFERIOR CORREGIDA */
 .fbk-sidebar-bottom-card {
   width: 100%;
   background: #f4f7ff;
   border-radius: 22px;
-  padding: 30px 18px 16px;
-  margin-top: auto;
+  padding: 42px 18px 16px;
+  margin-top: 58px;
   position: relative;
+  transition: all 0.3s ease;
+}
+
+.fbk-sidebar-bottom-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 88, 255, 0.12);
 }
 
 .fbk-mini-fox-circle {
   position: absolute;
-  top: -22px;
-  left: 20px;
-  width: 48px;
-  height: 48px;
+  top: -26px;
+  left: 22px;
+  width: 56px;
+  height: 56px;
   background: #ffffff;
   border-radius: 50%;
   display: grid;
   place-items: center;
   box-shadow: 0 8px 18px rgba(0, 88, 255, 0.12);
+  z-index: 2;
 }
 
 .fbk-mini-fox-circle img {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   object-fit: contain;
 }
 
 .fbk-sidebar-bottom-card h3 {
-  margin: 12px 0 7px;
+  margin: 0 0 7px;
   color: #0058ff;
   font-size: 15px;
   font-weight: 950;

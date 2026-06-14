@@ -794,3 +794,99 @@
     grid-column: 1 / 3;
   }
 }
+/* MOVIMIENTOS AL PASAR EL CURSOR */
+
+.estadisticas-explorer-box,
+.summary-card,
+.stats-panel,
+.idea,
+.idea button,
+.stats-footer button {
+  transition: all 0.3s ease;
+}
+
+.estadisticas-explorer-box img,
+.summary-card img,
+.panel-icon,
+.donut,
+.ideas-fox,
+.clean-line-chart circle,
+.weekly-bar {
+  transition: transform 0.3s ease;
+}
+
+/* CAJA EXPLORADOR */
+.estadisticas-explorer-box:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 34px rgba(0, 88, 255, 0.18);
+}
+
+.estadisticas-explorer-box:hover img {
+  transform: scale(1.12) rotate(-5deg);
+}
+
+/* TARJETAS SUPERIORES */
+.summary-card:hover {
+  transform: translateY(-8px) scale(1.015);
+  box-shadow: 0 18px 32px rgba(0, 88, 255, 0.16);
+}
+
+.summary-card:hover img {
+  transform: scale(1.08) rotate(4deg);
+}
+
+/* PANELES */
+.stats-panel:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 18px 34px rgba(0, 88, 255, 0.14);
+}
+
+.stats-panel:hover .panel-icon {
+  transform: scale(1.15) rotate(-5deg);
+}
+
+/* GRÁFICA SEMANAL */
+.weekly-column:hover .weekly-bar {
+  transform: scaleY(1.08);
+  transform-origin: bottom;
+}
+
+/* DONA */
+.stats-panel:hover .donut {
+  transform: scale(1.06) rotate(-3deg);
+}
+
+/* LÍNEA DE TIEMPO */
+.stats-panel:hover .clean-line-chart circle {
+  transform: scale(1.18);
+}
+
+/* IDEAS */
+.idea:hover {
+  transform: translateX(6px) scale(1.015);
+  box-shadow: 0 10px 22px rgba(0, 88, 255, 0.12);
+}
+
+.idea:hover .idea-icon {
+  transform: scale(1.12) rotate(-5deg);
+}
+
+.idea-icon {
+  transition: transform 0.3s ease;
+}
+
+.idea button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(0, 88, 255, 0.16);
+}
+
+/* ZORRITO */
+.ideas-panel:hover .ideas-fox {
+  transform: scale(1.08) rotate(-4deg);
+}
+
+/* FOOTER */
+.stats-footer button:hover {
+  transform: translateY(-5px) scale(1.15);
+  color: #003fc0;
+}
