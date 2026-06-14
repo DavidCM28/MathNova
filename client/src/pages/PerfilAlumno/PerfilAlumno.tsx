@@ -76,12 +76,18 @@ function PerfilAlumno() {
             <span>Dashboard principal</span>
           </button>
 
-          <button className="menu-item" onClick={() => irARuta("/temas/numeros")}>
+          <button
+            className="menu-item"
+            onClick={() => irARuta("/temas/numeros")}
+          >
             <GiRingedPlanet />
             <span>Selección de mundos</span>
           </button>
 
-          <button className="menu-item" onClick={() => irARuta("/temas/numeros")}>
+          <button
+            className="menu-item"
+            onClick={() => irARuta("/temas/numeros")}
+          >
             <FiBookOpen />
             <span>Temas</span>
           </button>
@@ -91,22 +97,27 @@ function PerfilAlumno() {
             <span>Actividades</span>
           </button>
 
-          <button className="menu-item" onClick={() => irARuta("/retroalimentacion")}>
+          <button
+            className="menu-item"
+            onClick={() => irARuta("/retroalimentacion")}
+          >
             <FiMessageSquare />
             <span>Retroalimentación</span>
           </button>
 
-          <button className="menu-item">
+          <button className="menu-item" onClick={() => irARuta("/recompensas")}>
             <GiTrophyCup />
             <span>Recompensas</span>
           </button>
-
           <button className="menu-item active">
             <FiUser />
             <span>Perfil del alumno</span>
           </button>
 
-          <button className="menu-item" onClick={() => irARuta("/estadisticas")}>
+          <button
+            className="menu-item"
+            onClick={() => irARuta("/estadisticas")}
+          >
             <FiBarChart2 />
             <span>Estadísticas</span>
           </button>
@@ -245,7 +256,10 @@ function PerfilAlumno() {
               </div>
             </div>
 
-            <button className="ver-link" onClick={() => irARuta("/temas/numeros")}>
+            <button
+              className="ver-link"
+              onClick={() => irARuta("/temas/numeros")}
+            >
               Ver todos los mundos →
             </button>
           </article>

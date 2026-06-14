@@ -69,12 +69,18 @@ function Dashboard() {
             <span>Dashboard principal</span>
           </button>
 
-          <button className="menu-item" onClick={() => irARuta("/temas/numeros")}>
+          <button
+            className="menu-item"
+            onClick={() => irARuta("/seleccion-mundos")}
+          >
             <GiRingedPlanet />
             <span>Selección de mundos</span>
           </button>
 
-          <button className="menu-item" onClick={() => irARuta("/temas/numeros")}>
+          <button
+            className="menu-item"
+            onClick={() => irARuta("/temas/numeros")}
+          >
             <FiBookOpen />
             <span>Temas</span>
           </button>
@@ -84,22 +90,31 @@ function Dashboard() {
             <span>Actividades</span>
           </button>
 
-          <button className="menu-item" onClick={() => irARuta("/retroalimentacion")}>
+          <button
+            className="menu-item"
+            onClick={() => irARuta("/retroalimentacion")}
+          >
             <FiMessageSquare />
             <span>Retroalimentación</span>
           </button>
 
-          <button className="menu-item">
+          <button className="menu-item" onClick={() => irARuta("/recompensas")}>
             <GiTrophyCup />
             <span>Recompensas</span>
           </button>
 
-          <button className="menu-item" onClick={() => irARuta("/perfil-alumno")}>
+          <button
+            className="menu-item"
+            onClick={() => irARuta("/perfil-alumno")}
+          >
             <FiUser />
             <span>Perfil del alumno</span>
           </button>
 
-          <button className="menu-item" onClick={() => irARuta("/estadisticas")}>
+          <button
+            className="menu-item"
+            onClick={() => irARuta("/estadisticas")}
+          >
             <FiBarChart2 />
             <span>Estadísticas</span>
           </button>
