@@ -7,7 +7,7 @@ Esta carpeta está dedicada a centralizar todos los recursos visuales, mockups, 
 Para mantener el orden, organiza los archivos en las siguientes carpetas:
 
 - `/designs/prototypes/`: Diseños en alta fidelidad o capturas de pantallas exportadas de herramientas como Figma, Adobe XD o Penpot.
-- `/designs/wireframes/`: Diagramas de baja fidelidad que muestren la disposición de los elementos en pantalla.
+- `/designs/activities/`: Contenido como redacciones de actividades realizadas por los pedagógicos y diseños hechos por UX 
 - `/designs/architecture/`: Diagramas de base de datos (Entidad-Relación), diagramas de flujo de datos y diagramas del flujo de sincronización local/remota.
 
 ## Visualización
