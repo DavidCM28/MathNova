@@ -1,0 +1,1 @@
+Aqui se subirán los diseños realizados por el equipo de mathgeometry, y la redacción de sus actividades.
