@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
 import zorritoLogin from "../../assets/zorrito_login.png";
@@ -12,10 +13,52 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import RegisterForm from "./RegisterForm";
 import ForgotPassword from "./ForgotPassword";
 
+import { iniciarSesion } from "../../services/authService";   
 function Login() {
+  const navigate = useNavigate();
+
   const [showPassword, setShowPassword] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
+
+  const [correoUsuario, setCorreoUsuario] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!correoUsuario.trim() || !loginPassword.trim()) {
+      alert("Ingresa tu correo/usuario y contraseña.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const data = await iniciarSesion({
+        correoUsuario,
+        password: loginPassword,
+      });
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("usuario", JSON.stringify(data.usuario));
+
+      console.log("Usuario logueado:", data.usuario);
+
+      navigate("/dashboard");
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+        console.error("Error al iniciar sesión:", error.message);
+      } else {
+        alert("No se pudo iniciar sesión.");
+        console.error("Error desconocido:", error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (showForgot) {
     return <ForgotPassword onBack={() => setShowForgot(false)} />;
@@ -43,7 +86,7 @@ function Login() {
             </section>
 
             <section className="login-right">
-              <form className="login-form">
+              <form className="login-form" onSubmit={handleLogin}>
                 <h1>¡Bienvenido de nuevo!</h1>
 
                 <p className="login-subtitle">
@@ -52,7 +95,13 @@ function Login() {
 
                 <div className="input-box">
                   <MdOutlineEmail className="input-icon" />
-                  <input type="text" placeholder="Correo o usuario" />
+
+                  <input
+                    type="text"
+                    placeholder="Correo o usuario"
+                    value={correoUsuario}
+                    onChange={(e) => setCorreoUsuario(e.target.value)}
+                  />
                 </div>
 
                 <div className="input-box">
@@ -61,6 +110,8 @@ function Login() {
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="Contraseña"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
                   />
 
                   {showPassword ? (
@@ -87,8 +138,8 @@ function Login() {
                   ¿Olvidaste tu contraseña?
                 </a>
 
-                <button type="submit" className="login-btn">
-                  Iniciar sesión
+                <button type="submit" className="login-btn" disabled={loading}>
+                  {loading ? "Iniciando sesión..." : "Iniciar sesión"}
                 </button>
 
                 <div className="divider">
