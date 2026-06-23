@@ -47,3 +47,14 @@ pnpm-debug.log*
 .tmp/
 tmp/
 temp/
+
+
+.env
+.env.local
+.env.*.local
+
+server/.env
+server/.env.local
+
+client/.env
+client/.env.local
