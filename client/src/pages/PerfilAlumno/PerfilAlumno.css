@@ -168,8 +168,6 @@
   font-weight: 900;
 }
 
-/* CARDS PEQUEÑAS ARREGLADAS */
-/* CARDS PEQUEÑAS ARREGLADAS */
 .mini-card {
   min-height: 210px;
   padding: 26px 24px;
@@ -610,6 +608,32 @@
   color: #111827;
 }
 
+/* ZORRITO PERFIL EN MENÚ */
+.perfil-menu-fox-box {
+  width: 100%;
+  margin-top: auto;
+  padding-top: 24px;
+  padding-bottom: 18px;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.perfil-menu-fox {
+  width: 250px;
+  max-width: 95%;
+  height: auto;
+  object-fit: contain;
+
+  filter: drop-shadow(0 12px 18px rgba(0, 88, 255, 0.15));
+  transition: transform 0.3s ease;
+}
+
+.perfil-menu-fox:hover {
+  transform: translateY(-5px) scale(1.05);
+}
+
 /* RESPONSIVE */
 @media (max-width: 1400px) {
   .perfil-content {
@@ -631,6 +655,12 @@
   .perfil-middle-grid,
   .perfil-bottom-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1200px) {
+  .perfil-menu-fox {
+    width: 220px;
   }
 }
 
@@ -710,12 +740,71 @@
     flex-wrap: wrap;
     justify-content: center;
   }
-}
 
-@media (max-width: 480px) {
-  .perfil-content {
-    padding-left: 14px;
-    padding-right: 14px;
+  /* ==========================
+   ZORRITO PERFIL EN MENÚ
+========================== */
+
+  .perfil-menu-fox-box {
+    width: 100%;
+    margin-top: auto;
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+
+    overflow: visible;
+
+    position: relative;
+  }
+
+  /* IMAGEN DEL ZORRITO */
+  .perfil-menu-fox {
+    width: 300px !important; /* AQUI CAMBIAS EL TAMAÑO */
+    height: auto;
+
+    max-width: none !important;
+
+    position: relative;
+
+    top: -40px; /* SUBE O BAJA */
+    left: 0px; /* IZQUIERDA / DERECHA */
+
+    z-index: 10;
+
+    object-fit: contain;
+
+    filter: drop-shadow(0 12px 20px rgba(0, 88, 255, 0.18));
+
+    transition: transform 0.3s ease;
+  }
+
+  .perfil-menu-fox:hover {
+    transform: scale(1.05);
+  }
+
+  /* TABLET */
+  @media (max-width: 1200px) {
+    .perfil-menu-fox {
+      width: 320px !important;
+      top: -30px;
+    }
+  }
+
+  /* MOVIL */
+  @media (max-width: 850px) {
+    .perfil-menu-fox {
+      width: 250px !important;
+      top: -15px;
+    }
+  }
+
+  /* MOVIL PEQUEÑO */
+  @media (max-width: 480px) {
+    .perfil-menu-fox {
+      width: 200px !important;
+      top: -10px;
+    }
   }
 
   .perfil-title h1 {
@@ -746,4 +835,80 @@
     width: 155px;
     height: 155px;
   }
+
+  .perfil-menu-fox {
+    width: 160px;
+  }
+}
+
+/* FORZAR ZORRITO GRANDE EN PERFIL */
+.sidebar .perfil-menu-fox-box {
+  width: 300px !important;
+  max-width: none !important;
+  margin-top: auto !important;
+  margin-left: -15px !important;
+  padding: 0 !important;
+
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-end !important;
+
+  overflow: visible !important;
+}
+
+.sidebar .perfil-menu-fox-box img.perfil-menu-fox {
+  width: 300px !important;
+  min-width: 230px !important;
+  max-width: none !important;
+  height: auto !important;
+
+  position: relative !important;
+  top: -140px !important;
+  left: 200 !important;
+
+  object-fit: contain !important;
+  display: block !important;
+}
+
+.dashboard-footer {
+  margin-top: 24px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+}
+
+.dashboard-footer p {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.footer-icons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.footer-icons svg {
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.footer-icon-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: flex;
+  cursor: pointer;
+}
+
+.logout-icon {
+  color: #ff4d4d;
+}
+
+.help-icon,
+.settings-icon {
+  color: #0058ff;
 }

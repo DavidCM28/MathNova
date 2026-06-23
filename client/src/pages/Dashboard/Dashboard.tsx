@@ -5,6 +5,7 @@ import "./Dashboard.css";
 import logo from "../../assets/logo_MathNova.png";
 import heroBanner from "../../assets/Hero-Banner.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
+import zorritoConsejo from "../../assets/zorrito-consejo-nova.png";
 
 import leccionesIcon from "../../assets/lecciones-completadas.png";
 import estrellasIcon from "../../assets/estrellas-totales.png";
@@ -17,7 +18,6 @@ import estadisticaIcon from "../../assets/estadistica.png";
 
 import {
   FiGrid,
-  FiBookOpen,
   FiEdit,
   FiMessageSquare,
   FiUser,
@@ -79,19 +79,6 @@ function Dashboard() {
 
           <button
             className="menu-item"
-            onClick={() => irARuta("/temas/numeros")}
-          >
-            <FiBookOpen />
-            <span>Temas</span>
-          </button>
-
-          <button className="menu-item">
-            <FiEdit />
-            <span>Actividades</span>
-          </button>
-
-          <button
-            className="menu-item"
             onClick={() => irARuta("/retroalimentacion")}
           >
             <FiMessageSquare />
@@ -120,18 +107,12 @@ function Dashboard() {
           </button>
         </nav>
 
-        <div className="weekly-progress">
-          <h3>Progreso semanal</h3>
-
-          <div className="bars">
-            <span className="bar red small"></span>
-            <span className="bar blue"></span>
-            <span className="bar yellow medium"></span>
-            <span className="bar blue tall"></span>
-            <span className="bar green"></span>
-            <span className="bar blue large"></span>
-            <span className="bar green tall"></span>
-          </div>
+        <div className="sidebar-fox-box">
+          <img
+            src={zorritoConsejo}
+            alt="Zorrito consejo MathNova"
+            className="sidebar-fox"
+          />
         </div>
       </aside>
 

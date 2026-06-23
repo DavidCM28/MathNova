@@ -22,13 +22,12 @@ import stickers from "../../assets/stickers.png";
 import trofeos from "../../assets/trofeos.png";
 import proximaRecompensa from "../../assets/proxima-recompensa.png";
 import avatarAstroNova from "../../assets/avatar-astro-nova.png";
-import avatarhola from "../../assets/zorrito-hola-explorador.png";
 import heroRecompensas from "../../assets/hero-banner-recompensas.png";
 import estrellaRe from "../../assets/estrella-re.png";
+import zorritoRecompensa from "../../assets/zorrito_recompensa.png";
 
 import {
   FiGrid,
-  FiBookOpen,
   FiEdit,
   FiMessageSquare,
   FiUser,
@@ -37,8 +36,6 @@ import {
   FiHelpCircle,
   FiSettings,
   FiArrowRight,
-  FiHome,
-  FiShield,
 } from "react-icons/fi";
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
@@ -90,19 +87,6 @@ function Recompensas() {
 
           <button
             className="menu-item"
-            onClick={() => irARuta("/temas/numeros")}
-          >
-            <FiBookOpen />
-            <span>Temas</span>
-          </button>
-
-          <button className="menu-item">
-            <FiEdit />
-            <span>Actividades</span>
-          </button>
-
-          <button
-            className="menu-item"
             onClick={() => irARuta("/retroalimentacion")}
           >
             <FiMessageSquare />
@@ -134,26 +118,12 @@ function Recompensas() {
           </button>
         </nav>
 
-        <div className="explorer-card">
-          <img src={avatarhola} alt="Explorador" />
-          <p>
-            ¡Hola,
-            <br />
-            explorador!
-          </p>
-        </div>
-
-        <div className="weekly-progress">
-          <h3>Progreso semanal</h3>
-          <div className="bars">
-            <span className="bar red small"></span>
-            <span className="bar blue"></span>
-            <span className="bar yellow medium"></span>
-            <span className="bar blue tall"></span>
-            <span className="bar green"></span>
-            <span className="bar blue large"></span>
-            <span className="bar green tall"></span>
-          </div>
+        <div className="recompensa-menu-fox-box">
+          <img
+            src={zorritoRecompensa}
+            alt="Zorrito recompensas"
+            className="recompensa-menu-fox"
+          />
         </div>
       </aside>
 
