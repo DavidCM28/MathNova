@@ -9,6 +9,7 @@ import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 
 import alexPerfil from "../../assets/alex-perfil.png";
 import estrellasPerfil from "../../assets/estrellas-totales-perfil.png";
+import zorritoPerfilAlumno from "../../assets/zorrito_perfil_alumno.png";
 
 import mundo1 from "../../assets/mundo-1-MathNumbers.png";
 import mundo2 from "../../assets/mundo-2-MathGeometry.png";
@@ -33,6 +34,9 @@ import {
   FiCheckCircle,
   FiAward,
   FiCheck,
+  FiHelpCircle,
+  FiSettings,
+  FiLogOut,
 } from "react-icons/fi";
 
 import { GiRingedPlanet, GiTrophyCup, GiFlame } from "react-icons/gi";
@@ -86,19 +90,6 @@ function PerfilAlumno() {
 
           <button
             className="menu-item"
-            onClick={() => irARuta("/temas/numeros")}
-          >
-            <FiBookOpen />
-            <span>Temas</span>
-          </button>
-
-          <button className="menu-item">
-            <FiEdit />
-            <span>Actividades</span>
-          </button>
-
-          <button
-            className="menu-item"
             onClick={() => irARuta("/retroalimentacion")}
           >
             <FiMessageSquare />
@@ -109,6 +100,7 @@ function PerfilAlumno() {
             <GiTrophyCup />
             <span>Recompensas</span>
           </button>
+
           <button className="menu-item active">
             <FiUser />
             <span>Perfil del alumno</span>
@@ -123,18 +115,12 @@ function PerfilAlumno() {
           </button>
         </nav>
 
-        <div className="weekly-progress">
-          <h3>Progreso semanal</h3>
-
-          <div className="bars">
-            <span className="bar red small"></span>
-            <span className="bar blue"></span>
-            <span className="bar yellow medium"></span>
-            <span className="bar yellow tall"></span>
-            <span className="bar green"></span>
-            <span className="bar blue large"></span>
-            <span className="bar green tall"></span>
-          </div>
+        <div className="perfil-menu-fox-box">
+          <img
+            src={zorritoPerfilAlumno}
+            alt="Zorrito perfil alumno"
+            className="perfil-menu-fox"
+          />
         </div>
       </aside>
 
@@ -365,6 +351,21 @@ function PerfilAlumno() {
             <button className="ver-link">Ver todas mis metas →</button>
           </article>
         </section>
+        <footer className="dashboard-footer">
+          <p>© MathNova. Todos los derechos reservados.</p>
+
+          <div className="footer-icons">
+            <button
+              className="footer-icon-btn"
+              onClick={() => navigate("/login")}
+            >
+              <FiLogOut className="logout-icon" />
+            </button>
+
+            <FiHelpCircle className="help-icon" />
+            <FiSettings className="settings-icon" />
+          </div>
+        </footer>
       </section>
     </main>
   );

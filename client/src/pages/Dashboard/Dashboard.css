@@ -779,3 +779,68 @@ body {
     font-size: 23px;
   }
 }
+
+.sidebar {
+  justify-content: flex-start;
+}
+
+/* CONTENEDOR DEL ZORRITO */
+.sidebar-fox-box {
+  width: 100%;
+  margin-top: auto;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+/* IMAGEN DEL ZORRITO */
+.sidebar-fox {
+  width: 500px;
+  max-width: 300%;
+  height: auto;
+  object-fit: contain;
+
+  filter: drop-shadow(0 12px 18px rgba(0, 88, 255, 0.15));
+
+  transition: transform 0.3s ease;
+}
+
+.sidebar-fox:hover {
+  transform: translateY(-5px) scale(1.05);
+}
+
+/* TABLETS GRANDES */
+@media (max-width: 1200px) {
+  .sidebar-fox {
+    width: 210px;
+  }
+}
+
+/* TABLETS */
+@media (max-width: 992px) {
+  .sidebar-fox {
+    width: 190px;
+  }
+}
+
+/* MÓVILES */
+@media (max-width: 768px) {
+  .sidebar-fox-box {
+    padding-bottom: 12px;
+  }
+
+  .sidebar-fox {
+    width: 170px;
+  }
+}
+
+/* MÓVILES PEQUEÑOS */
+@media (max-width: 480px) {
+  .sidebar-fox {
+    width: 140px;
+  }
+}

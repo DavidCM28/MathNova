@@ -97,7 +97,7 @@ body {
   color: #ffffff;
 }
 
-/* TARJETA INFERIOR CORREGIDA */
+/* TARJETA INFERIOR */
 .fbk-sidebar-bottom-card {
   width: 100%;
   background: #f4f7ff;
@@ -184,17 +184,18 @@ body {
 
 .fbk-topbar h1 {
   margin: 0;
-  color: #20264a;
-  font-size: 40px;
-  line-height: 1;
-  font-weight: 950;
+  color: #071120;
+  font-size: 82px;
+  line-height: 0.92;
+  font-weight: 900;
+  letter-spacing: -2px;
 }
 
 .fbk-topbar p {
-  margin: 12px 0 0;
-  color: #9aa8c4;
-  font-size: 15px;
-  font-weight: 650;
+  margin: 18px 0 0;
+  color: #1f2937;
+  font-size: 21px;
+  font-weight: 500;
 }
 
 .fbk-topbar-user-area {
@@ -590,6 +591,75 @@ body {
   font-weight: 650;
 }
 
+/* FOOTER FEEDBACK */
+.fbk-footer {
+  height: 72px;
+  margin: 0;
+  padding: 0 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: transparent;
+}
+
+.fbk-footer p {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 400;
+  color: #111827;
+}
+
+.fbk-footer-icons {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.fbk-footer-icon-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fbk-logout-icon,
+.fbk-help-icon,
+.fbk-settings-icon {
+  font-size: 34px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.fbk-logout-icon {
+  color: #ff4d4d;
+}
+
+.fbk-help-icon,
+.fbk-settings-icon {
+  color: #0058ff;
+}
+
+.fbk-logout-icon:hover {
+  transform: translateX(8px) scale(1.18);
+  color: #ff1f1f;
+}
+
+.fbk-help-icon:hover {
+  transform: translateY(-5px) scale(1.15);
+  color: #003fc0;
+}
+
+.fbk-settings-icon:hover {
+  transform: translateY(-5px) scale(1.15);
+  color: #003fc0;
+}
+
 /* RESPONSIVE */
 @media (max-width: 1450px) {
   .fbk-sidebar {
@@ -599,6 +669,14 @@ body {
 
   .fbk-content {
     padding: 28px 28px 24px;
+  }
+
+  .fbk-topbar h1 {
+    font-size: 68px;
+  }
+
+  .fbk-topbar p {
+    font-size: 19px;
   }
 
   .fbk-grid {
@@ -640,6 +718,14 @@ body {
   .fbk-menu-item {
     font-size: 15px;
     padding: 0 18px;
+  }
+
+  .fbk-topbar {
+    flex-direction: column;
+  }
+
+  .fbk-topbar h1 {
+    font-size: 58px;
   }
 
   .fbk-grid {
@@ -736,7 +822,13 @@ body {
   }
 
   .fbk-topbar h1 {
-    font-size: 34px;
+    font-size: 42px;
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+
+  .fbk-topbar p {
+    font-size: 17px;
   }
 
   .fbk-topbar-user-area {
@@ -760,5 +852,32 @@ body {
 
   .fbk-message-panel {
     min-height: auto;
+  }
+
+  .fbk-footer {
+    flex-direction: column;
+    height: auto;
+    padding: 24px;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .fbk-footer p {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .fbk-topbar h1 {
+    font-size: 36px;
+  }
+
+  .fbk-profile-chip {
+    min-width: 185px;
+  }
+
+  .fbk-card,
+  .fbk-progress-panel {
+    padding: 24px 20px;
   }
 }

@@ -96,23 +96,30 @@ body {
   color: #ffffff;
 }
 
-.sidebar-bottom {
+/* PARTE BAJA DEL SIDEBAR SOLO DE SELECCIÓN */
+.mundos-sidebar-bottom {
   width: 100%;
-  margin-top: auto;
-  padding-top: 60px;
+  margin-top: 10px;
+  padding-top: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .hello-box {
   width: 250px;
-  height: 82px;
+  min-height: 82px;
   background: #ffffff;
   border-radius: 24px;
   box-shadow: 0 15px 32px rgba(0, 0, 0, 0.15);
+
   display: flex;
   align-items: center;
   gap: 12px;
+
   padding: 8px 22px 8px 10px;
-  margin: 0 auto 42px;
+  margin: 0 auto 16px;
 }
 
 .hello-box img {
@@ -129,78 +136,25 @@ body {
   line-height: 1.2;
 }
 
-/* GRÁFICA */
-.weekly-progress {
+.mundos-sidebar-fox-box {
   width: 100%;
-}
-
-.weekly-progress h3 {
-  color: #111827;
-  font-size: 21px;
-  margin: 0 0 16px;
-  font-weight: 900;
-}
-
-.bars {
-  height: 82px;
-  width: 250px;
-  border-left: 2px solid #b8cce8;
-  border-bottom: 2px solid #b8cce8;
   display: flex;
-  align-items: flex-end;
-  gap: 11px;
-  padding-left: 16px;
-  overflow: hidden;
+  justify-content: center;
+  align-items: center;
 }
 
-.bar {
-  width: 15px;
-  height: 38px;
-  border-radius: 6px 6px 0 0;
-  animation: growBar 0.9s ease forwards;
-  transform-origin: bottom;
+.mundos-sidebar-fox {
+  width: 390px;
+  max-width: 190%;
+  height: auto;
+  object-fit: contain;
+
+  filter: drop-shadow(0 12px 18px rgba(0, 88, 255, 0.16));
+  transition: transform 0.3s ease;
 }
 
-.bar.small {
-  height: 22px;
-}
-
-.bar.medium {
-  height: 46px;
-}
-
-.bar.tall {
-  height: 60px;
-}
-
-.bar.large {
-  height: 70px;
-}
-
-.red {
-  background: #ff7b22;
-}
-
-.blue {
-  background: #4b91ff;
-}
-
-.yellow {
-  background: #ffc94d;
-}
-
-.green {
-  background: #1fbf75;
-}
-
-@keyframes growBar {
-  from {
-    transform: scaleY(0);
-  }
-
-  to {
-    transform: scaleY(1);
-  }
+.mundos-sidebar-fox:hover {
+  transform: translateY(-5px) scale(1.05);
 }
 
 /* CONTENIDO */
@@ -252,31 +206,25 @@ body {
   z-index: 1;
 }
 
-/* TARJETA ESTRELLAS SOLO PARA SELECCIÓN DE MUNDOS */
+/* TARJETA ESTRELLAS */
 .mundos-stars-card {
   position: absolute;
   right: 10px;
   top: 180px;
-
   width: 255px;
   min-height: 145px;
-
   background: rgba(255, 255, 255, 0.95);
   border: 2px solid #c8d7ec;
   border-radius: 26px;
-
   padding: 18px 20px;
-
   z-index: 15;
   box-shadow: 0 8px 18px rgba(0, 88, 255, 0.08);
 }
 
 .mundos-stars-card h3 {
   margin: 0 0 10px;
-
   font-size: 19px;
   line-height: 1.1;
-
   color: #111827;
   font-weight: 900;
 }
@@ -285,14 +233,12 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-
   margin-bottom: 10px;
 }
 
 .mundos-stars-row strong {
   font-size: 56px;
   line-height: 1;
-
   color: #e9a000;
   font-weight: 900;
 }
@@ -304,13 +250,12 @@ body {
 
 .mundos-stars-card p {
   margin: 0;
-
   font-size: 12px;
   line-height: 1.35;
-
   color: #111827;
   font-weight: 800;
 }
+
 /* MUNDOS */
 .worlds-grid {
   position: relative;
@@ -471,10 +416,12 @@ body {
   font-size: 18px;
   font-weight: 900;
   cursor: pointer;
+
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 14px;
+
   margin-top: 12px;
 }
 
@@ -493,11 +440,14 @@ body {
   min-height: 112px;
   background: linear-gradient(90deg, #ffffff 0%, #f3f9ff 55%, #eaf4ff 100%);
   border-radius: 26px;
+
   display: flex;
   align-items: center;
+
   padding: 18px 34px;
   position: relative;
   overflow: hidden;
+
   box-shadow: 0 12px 26px rgba(0, 88, 255, 0.08);
   border: 2px solid rgba(255, 255, 255, 0.9);
   animation: rewardFloat 3s ease-in-out infinite;
@@ -602,6 +552,7 @@ body {
 .mundos-footer {
   min-height: 62px;
   margin: 0 28px 0 34px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -643,6 +594,23 @@ body {
   .sidebar {
     width: 270px;
     min-width: 270px;
+  }
+
+  .sidebar-logo {
+    width: 180px;
+  }
+
+  .menu-item {
+    font-size: 15px;
+    padding: 0 14px;
+  }
+
+  .mundos-sidebar-fox {
+    width: 205px;
+  }
+
+  .hello-box {
+    width: 225px;
   }
 
   .mundos-hero {
@@ -758,18 +726,18 @@ body {
     width: 155px;
   }
 
-  .sidebar-bottom {
-    margin-top: 20px;
+  .mundos-sidebar-bottom {
+    margin-top: 22px;
     padding-top: 10px;
   }
 
-  .weekly-progress {
-    display: none;
+  .hello-box {
+    margin: 16px auto 12px;
+    width: 230px;
   }
 
-  .hello-box {
-    margin: 20px auto 0;
-    width: 230px;
+  .mundos-sidebar-fox {
+    width: 190px;
   }
 
   .mundos-hero {
@@ -849,9 +817,27 @@ body {
   }
 }
 
+/* MÓVIL PEQUEÑO */
 @media (max-width: 480px) {
   .mundos-title h1 {
     font-size: 36px;
+  }
+
+  .hello-box {
+    width: 220px;
+  }
+
+  .hello-box img {
+    width: 66px;
+    height: 66px;
+  }
+
+  .hello-box span {
+    font-size: 14px;
+  }
+
+  .mundos-sidebar-fox {
+    width: 165px;
   }
 
   .world-image {

@@ -9,7 +9,6 @@ import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 import zorroHola from "../../assets/zorrito-hola-explorador.png";
 import zorroIdeas from "../../assets/zorrito-ideas.png";
 import heroEstadisticas from "../../assets/hero-banner-estadisticas.png";
-import esquinaEstadisticas from "../../assets/esquina-estadisticas.png";
 
 import leccionesIcon from "../../assets/lecciones-completadas.png";
 import estrellasIcon from "../../assets/estrellas-totales.png";
@@ -18,17 +17,16 @@ import promedioIcon from "../../assets/promedio-general.png";
 
 import {
   FiGrid,
-  FiBookOpen,
   FiEdit,
   FiMessageSquare,
   FiUser,
   FiBarChart2,
-  FiHome,
-  FiShield,
-  FiSettings,
   FiTrendingUp,
   FiClock,
   FiZap,
+  FiLogOut,
+  FiHelpCircle,
+  FiSettings,
 } from "react-icons/fi";
 
 import { FaChartLine, FaChartPie, FaLightbulb, FaStar } from "react-icons/fa";
@@ -80,18 +78,6 @@ function Estadisticas() {
             <GiRingedPlanet />
             <span>Selección de mundos</span>
           </button>
-          <button
-            className="menu-item"
-            onClick={() => irARuta("/temas/numeros")}
-          >
-            <FiBookOpen />
-            <span>Temas</span>
-          </button>
-
-          <button className="menu-item" onClick={() => irARuta("/actividades")}>
-            <FiEdit />
-            <span>Actividades</span>
-          </button>
 
           <button
             className="menu-item"
@@ -126,20 +112,6 @@ function Estadisticas() {
         <div className="estadisticas-explorer-box">
           <img src={zorroHola} alt="Zorrito explorador" />
           <span>¡Hola, explorador!</span>
-        </div>
-
-        <div className="weekly-progress">
-          <h3>Progreso semanal</h3>
-
-          <div className="bars">
-            <span className="bar red small"></span>
-            <span className="bar blue"></span>
-            <span className="bar yellow medium"></span>
-            <span className="bar blue tall"></span>
-            <span className="bar green"></span>
-            <span className="bar blue large"></span>
-            <span className="bar green tall"></span>
-          </div>
         </div>
       </aside>
 
@@ -424,18 +396,20 @@ function Estadisticas() {
           </article>
         </section>
 
-        <img src={esquinaEstadisticas} alt="" className="corner-img" />
+        <footer className="dashboard-footer">
+          <p>© MathNova. Todos los derechos reservados.</p>
 
-        <footer className="stats-footer">
-          <button onClick={() => irARuta("/")}>
-            <FiHome />
-          </button>
-          <button>
-            <FiShield />
-          </button>
-          <button>
-            <FiSettings />
-          </button>
+          <div className="footer-icons">
+            <button
+              className="footer-icon-btn"
+              onClick={() => navigate("/login")}
+            >
+              <FiLogOut className="logout-icon" />
+            </button>
+
+            <FiHelpCircle className="help-icon" />
+            <FiSettings className="settings-icon" />
+          </div>
         </footer>
       </section>
     </main>

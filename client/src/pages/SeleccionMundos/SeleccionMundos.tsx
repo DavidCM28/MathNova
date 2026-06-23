@@ -12,16 +12,16 @@ import mundoGeometry from "../../assets/mundo-2-MathGeometry.png";
 import mundoData from "../../assets/mundo-3-MathData.png";
 import zorritoFooter from "../../assets/zorrito-footer.png";
 import zorritoHola from "../../assets/zorrito-hola-explorador.png";
+import zorritoSeleccion from "../../assets/zorrito_seleccion_mundo.png";
 
 import {
   FiGrid,
-  FiBookOpen,
   FiEdit,
   FiMessageSquare,
   FiUser,
   FiBarChart2,
-  FiHome,
-  FiShield,
+  FiLogOut,
+  FiHelpCircle,
   FiSettings,
 } from "react-icons/fi";
 
@@ -33,6 +33,7 @@ function SeleccionMundos() {
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "auto";
+
     return () => {
       document.body.style.overflow = "auto";
     };
@@ -72,19 +73,6 @@ function SeleccionMundos() {
 
           <button
             className="menu-item"
-            onClick={() => irARuta("/temas/numeros")}
-          >
-            <FiBookOpen />
-            <span>Temas</span>
-          </button>
-
-          <button className="menu-item">
-            <FiEdit />
-            <span>Actividades</span>
-          </button>
-
-          <button
-            className="menu-item"
             onClick={() => irARuta("/retroalimentacion")}
           >
             <FiMessageSquare />
@@ -113,24 +101,18 @@ function SeleccionMundos() {
           </button>
         </nav>
 
-        <div className="sidebar-bottom">
+        <div className="mundos-sidebar-bottom">
           <div className="hello-box">
             <img src={zorritoHola} alt="Zorrito explorador" />
             <span>¡Hola, explorador!</span>
           </div>
 
-          <div className="weekly-progress">
-            <h3>Progreso semanal</h3>
-            <div className="bars">
-              <span className="bar red small"></span>
-              <span className="bar blue"></span>
-              <span className="bar yellow medium"></span>
-              <span className="bar blue tall"></span>
-              <span className="bar yellow large"></span>
-              <span className="bar green"></span>
-              <span className="bar blue large"></span>
-              <span className="bar green tall"></span>
-            </div>
+          <div className="mundos-sidebar-fox-box">
+            <img
+              src={zorritoSeleccion}
+              alt="Zorrito selección de mundo"
+              className="mundos-sidebar-fox"
+            />
           </div>
         </div>
       </aside>
@@ -172,6 +154,7 @@ function SeleccionMundos() {
                 <strong>Nivel 4</strong>
                 <span>120</span>
               </div>
+
               <div className="progress-track">
                 <span className="progress-fill green-fill"></span>
               </div>
@@ -194,12 +177,13 @@ function SeleccionMundos() {
                 <strong>Intermedio</strong>
                 <span>150</span>
               </div>
+
               <div className="progress-track">
                 <span className="progress-fill orange-fill"></span>
               </div>
             </div>
 
-            <button onClick={() => irARuta("/temas/geometria")}>
+            <button onClick={() => irARuta("/actividades/geometria")}>
               <GiRocket />
               Explorar math Geometry
             </button>
@@ -216,12 +200,13 @@ function SeleccionMundos() {
                 <strong>Avanzado</strong>
                 <span>200</span>
               </div>
+
               <div className="progress-track">
                 <span className="progress-fill blue-fill"></span>
               </div>
             </div>
 
-            <button onClick={() => irARuta("/estadisticas")}>
+            <button onClick={() => irARuta("/actividades-math-data")}>
               <GiRocket />
               Explorar math Data
             </button>
@@ -250,15 +235,16 @@ function SeleccionMundos() {
           <p>© MathNova. Todos los derechos reservados.</p>
 
           <div className="footer-icons">
-            <button onClick={() => navigate("/")}>
-              <FiHome />
+            <button
+              className="footer-icon-btn"
+              onClick={() => navigate("/login")}
+            >
+              <FiLogOut className="logout-icon" />
             </button>
-            <button>
-              <FiShield />
-            </button>
-            <button>
-              <FiSettings />
-            </button>
+
+            <FiHelpCircle className="help-icon" />
+
+            <FiSettings className="settings-icon" />
           </div>
         </footer>
       </section>

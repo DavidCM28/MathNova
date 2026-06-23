@@ -19,6 +19,9 @@ import {
   FiGrid,
   FiMessageSquare,
   FiUser,
+  FiLogOut,
+  FiHelpCircle,
+  FiSettings,
 } from "react-icons/fi";
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
@@ -73,19 +76,6 @@ function Feedback() {
           >
             <GiRingedPlanet />
             <span>Selección de mundos</span>
-          </button>
-
-          <button
-            className="fbk-menu-item"
-            onClick={() => irARuta("/temas/numeros")}
-          >
-            <FiBookOpen />
-            <span>Temas</span>
-          </button>
-
-          <button className="fbk-menu-item">
-            <FiEdit />
-            <span>Actividades</span>
           </button>
 
           <button className="fbk-menu-item fbk-active">
@@ -271,6 +261,21 @@ function Feedback() {
             </div>
           </aside>
         </section>
+        <footer className="fbk-footer">
+          <p>© MathNova. Todos los derechos reservados.</p>
+
+          <div className="fbk-footer-icons">
+            <button
+              className="fbk-footer-icon-btn"
+              onClick={() => navigate("/login")}
+            >
+              <FiLogOut className="fbk-logout-icon" />
+            </button>
+
+            <FiHelpCircle className="fbk-help-icon" />
+            <FiSettings className="fbk-settings-icon" />
+          </div>
+        </footer>
       </section>
     </main>
   );
