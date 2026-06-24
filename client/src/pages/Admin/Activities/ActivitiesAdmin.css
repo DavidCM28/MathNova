@@ -1,0 +1,152 @@
+.admin-root /* Activities and evaluations */
+.activities-main { padding: 0 28px 20px; }
+.admin-root .activities-heading { min-height: 157px; padding: 8px 3px 18px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; background: #fff; }
+.admin-root .activities-heading::before { content: ""; position: absolute; left: 284px; right: 0; top: 73px; height: 157px; z-index: -1; background: #fff; }
+.admin-root .activities-heading h1 { margin: 0 0 7px; font-size: clamp(36px, 2.5vw, 46px); line-height: 1.1; letter-spacing: -1.7px; }
+.admin-root .activities-heading > div:first-child > p:not(.eyebrow) { margin: 0; color: #60708f; font-size: 14px; }
+.admin-root .activities-heading-actions { margin-top: 20px; display: flex; gap: 14px; }
+.admin-root .activities-heading .btn { height: 42px; min-width: 158px; }
+.admin-root .activity-stats { padding: 0 0 16px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.admin-root .activity-stats .stat-card { min-height: 126px; }
+.admin-root .stat-icon.yellow { color: #f4a900; background: #fff6d9; }
+.admin-root .activities-workspace { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(790px, 3.25fr) minmax(290px, .9fr); gap: 17px; }
+.admin-root .activities-table-panel { min-width: 0; padding: 14px 14px 10px; display: flex; flex-direction: column; overflow: hidden; }
+.admin-root .activity-tabs { display: flex; gap: 7px; }
+.admin-root .activity-tabs button { min-width: 78px; height: 34px; padding: 0 18px; border: 1px solid #dfe5ef; border-radius: 6px; color: #26365c; background: #f7f9fc; font-size: 11px; font-weight: 650; cursor: pointer; }
+.admin-root .activity-tabs button.active { color: #fff; border-color: #0867ed; background: #0867ed; box-shadow: 0 3px 8px rgba(8,103,237,.15); }
+.admin-root .activity-filters { margin: 13px 0 11px; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 10px; align-items: end; }
+.admin-root .activity-filters label { color: #58698c; font-size: 9px; }
+.admin-root .activity-filters select { width: 100%; height: 39px; margin-top: 5px; padding: 0 12px; border: 1px solid #dce3ed; border-radius: 6px; outline: none; color: #23335c; background: #fff; font-size: 10px; }
+.admin-root .activity-filters select:focus { border-color: #4389e7; box-shadow: 0 0 0 3px rgba(8,103,237,.08); }
+.admin-root .filter-button { height: 39px; padding: 0 15px; display: flex; align-items: center; gap: 8px; border: 1px solid #dce3ed; border-radius: 6px; color: #243457; background: #fff; font-size: 10px; font-weight: 650; cursor: pointer; }
+.admin-root .filter-button:hover { color: #0867ed; border-color: #8cb7ed; }
+.admin-root .filter-button svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.admin-root .activities-table-wrap { flex: 1; overflow: auto; border: 1px solid #e2e7ef; border-radius: 7px 7px 0 0; }
+.admin-root .activities-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 10px; }
+.admin-root .activities-table th { height: 39px; padding: 0 9px; color: #28375b; background: #f8fafd; border-bottom: 1px solid #e0e6ef; text-align: left; font-weight: 700; }
+.admin-root .activities-table td { height: 59px; padding: 5px 9px; border-bottom: 1px solid #e7ebf1; color: #243354; vertical-align: middle; }
+.admin-root .activities-table tbody tr:last-child td { border-bottom: 0; }
+.admin-root .activities-table tbody tr:hover { background: #f9fbff; }
+.admin-root .activities-table th:nth-child(1) { width: 29%; }
+.admin-root .activities-table th:nth-child(2) { width: 9%; }
+.admin-root .activities-table th:nth-child(3) { width: 8%; }
+.admin-root .activities-table th:nth-child(4) { width: 12%; }
+.admin-root .activities-table th:nth-child(5) { width: 13%; }
+.admin-root .activities-table th:nth-child(6) { width: 9%; }
+.admin-root .activities-table th:nth-child(7) { width: 16%; }
+.admin-root .activities-table th:nth-child(8) { width: 4%; }
+.admin-root .activity-title { display: flex; align-items: center; gap: 10px; }
+.admin-root .activity-title > div { min-width: 0; }
+.admin-root .activity-title strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
+.admin-root .activity-title small, .admin-root .activities-table td:nth-child(5) small { display: block; margin-top: 4px; overflow: hidden; color: #61718e; text-overflow: ellipsis; white-space: nowrap; font-size: 8px; }
+.admin-root .activities-table td:nth-child(5) strong { display: block; font-size: 10px; }
+.admin-root .item-icon { width: 35px; height: 35px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; }
+.admin-root .item-icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.admin-root .item-icon.green { color: #149d47; background: #e8f7eb; }
+.admin-root .item-icon.purple { color: #7b35dd; background: #f0e9ff; }
+.admin-root .item-icon.blue { color: #1c6de0; background: #e9f2ff; }
+.admin-root .type-pill { min-width: 58px; height: 24px; padding: 0 9px; display: inline-grid; place-items: center; border-radius: 14px; font-size: 9px; font-weight: 650; }
+.admin-root .type-pill.task { color: #159342; background: #e7f7ea; }
+.admin-root .type-pill.exam { color: #7230cf; background: #f0e8ff; }
+.admin-root .type-pill.project { color: #1767d3; background: #e8f1ff; }
+.admin-root .activities-table .status { min-width: 91px; height: 25px; padding: 0 9px; font-size: 8px; }
+.admin-root .status.draft, .admin-root .status.closed { color: #65718a; background: #eef1f5; }
+.admin-root .table-pagination { min-height: 37px; padding: 8px 3px 0; display: flex; align-items: center; justify-content: space-between; color: #687896; font-size: 9px; }
+.admin-root .table-pagination > div { display: flex; gap: 5px; }
+.admin-root .table-pagination button { width: 25px; height: 25px; border: 0; border-radius: 5px; color: #667793; background: transparent; cursor: pointer; }
+.admin-root .table-pagination button.active { color: #fff; background: #0867ed; }
+.admin-root .activities-sidepanels { min-width: 0; display: grid; grid-template-rows: 1.55fr .92fr; gap: 16px; }
+.admin-root .academic-calendar, .admin-root .review-load { padding: 0; overflow: hidden; }
+.admin-root .activities-sidepanels .sidepanel-title { min-height: 54px; padding: 0 16px; color: #0f1d46; border-bottom: 1px solid #e7ebf1; }
+.admin-root .activities-sidepanels .sidepanel-title h2 { flex: 1; }
+.admin-root .activities-sidepanels .sidepanel-title > span { font-size: 22px; }
+.admin-root .calendar-list { display: grid; grid-template-rows: repeat(5, 1fr); }
+.admin-root .calendar-event { min-height: 66px; padding: 8px 14px; display: grid; grid-template-columns: 43px 1fr; gap: 11px; align-items: center; border-bottom: 1px solid #e8ecf2; }
+.admin-root .event-date { width: 42px; height: 49px; overflow: hidden; border: 1px solid #d7e0ec; border-radius: 5px; text-align: center; box-shadow: 0 1px 3px rgba(20,40,80,.04); }
+.admin-root .event-date span { height: 20px; display: grid; place-items: center; color: #fff; font-size: 8px; font-weight: 700; }
+.admin-root .event-date strong { display: block; padding-top: 4px; font-size: 15px; }
+.admin-root .event-date.blue span { background: #086dee; }
+.admin-root .event-date.purple span { background: #7838dc; }
+.admin-root .event-date.green span { background: #10a142; }
+.admin-root .calendar-event > div:nth-child(2) > strong { display: block; font-size: 10px; }
+.admin-root .calendar-event small { display: block; margin-top: 4px; color: #536485; font-size: 8px; }
+.admin-root .calendar-event em { display: block; margin-top: 5px; color: #243456; font-size: 8px; font-style: normal; }
+.admin-root .calendar-event em i { width: 7px; height: 7px; margin-right: 6px; display: inline-block; border-radius: 50%; }
+.admin-root .green-dot { background: #12a244; }
+.admin-root .purple-dot { background: #7b36dc; }
+.admin-root .blue-dot { background: #0a6ce9; }
+.admin-root .calendar-footer { min-height: 43px; padding: 0 18px; display: flex; align-items: center; justify-content: flex-end; gap: 10px; color: #0868e3; font-size: 10px; font-weight: 650; }
+.admin-root .calendar-footer span { font-size: 17px; }
+.admin-root .review-head { padding: 12px 18px 6px; display: flex; justify-content: space-between; color: #697895; font-size: 9px; }
+.admin-root .teacher-row { min-height: 47px; padding: 4px 17px; display: grid; grid-template-columns: 29px minmax(80px, 1fr) 82px 20px; gap: 8px; align-items: center; }
+.admin-root .teacher-avatar { width: 29px; height: 29px; display: grid; place-items: center; border-radius: 50%; color: #fff; font-size: 7px; font-weight: 700; }
+.admin-root .teacher-avatar.t1 { background: #a65e37; }
+.admin-root .teacher-avatar.t2 { background: #3b78a9; }
+.admin-root .teacher-avatar.t3 { background: #c47c42; }
+.admin-root .teacher-avatar.t4 { background: #24596f; }
+.admin-root .teacher-row > strong { font-size: 9px; }
+.admin-root .teacher-row > div { height: 6px; overflow: hidden; border-radius: 6px; background: #e5eaf2; }
+.admin-root .teacher-row > div i { display: block; height: 100%; border-radius: inherit; background: #086ded; }
+.admin-root .teacher-row > b { font-size: 9px; text-align: right; }
+.admin-root .review-load .calendar-footer { margin-top: 4px; border-top: 1px solid #e8ecf2; }
+@media (min-width: 1700px) {
+.admin-root .activities-main { padding-left: 34px; padding-right: 34px; }
+.admin-root .activities-heading { min-height: 161px; }
+.admin-root .activities-heading::before { height: 161px; }
+.admin-root .activity-stats .stat-card { min-height: 135px; }
+.admin-root .activities-table td { height: 62px; font-size: 11px; }
+.admin-root .activities-table th { height: 43px; }
+.admin-root .calendar-event { min-height: 70px; }
+.admin-root .teacher-row { min-height: 50px; }
+
+}
+@media (min-width: 1201px) {
+.admin-root .activities-page .activities-main {
+    display: grid;
+    grid-template-columns: minmax(790px, 3.25fr) minmax(290px, .9fr);
+    grid-template-rows: 157px 142px minmax(0, 1fr);
+    column-gap: 17px;
+  }
+.admin-root .activities-page .activities-heading { grid-column: 1; grid-row: 1; min-height: 0; }
+.admin-root .activities-page .activity-stats { grid-column: 1; grid-row: 2; }
+.admin-root .activities-page .activities-workspace { display: contents; }
+.admin-root .activities-page .activities-table-panel { grid-column: 1; grid-row: 3; }
+.admin-root .activities-page .activities-sidepanels { grid-column: 2; grid-row: 1 / 4; }
+
+}
+@media (min-width: 1700px) {
+.admin-root .activities-page .activities-main { grid-template-rows: 161px 151px minmax(0, 1fr); }
+
+}
+@media (min-width: 1101px) {
+.admin-root .activities-page .main-wrap { height: 100vh; overflow: hidden; }
+.admin-root .activities-page .topbar { flex: 0 0 73px; }
+.admin-root .activities-page .activities-main { min-height: 0; }
+.admin-root .activities-page footer { flex: 0 0 53px; }
+
+}
+@media (max-width: 1200px) {
+.admin-root .activities-workspace { grid-template-columns: 1fr; }
+.admin-root .activities-sidepanels { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+
+}
+@media (max-width: 1100px) {
+.admin-root .activities-heading::before { left: 0; }
+.admin-root .activity-stats { grid-template-columns: repeat(2, 1fr); }
+
+}
+@media (max-width: 760px) {
+.admin-root .activities-main { padding: 0 14px 14px; }
+.admin-root .activities-heading { min-height: 250px; padding: 25px 6px; }
+.admin-root .activities-heading::before { height: 250px; top: 62px; }
+.admin-root .activities-heading h1 { font-size: 36px; white-space: normal; }
+.admin-root .activities-heading-actions { width: 100%; flex-direction: column; }
+.admin-root .activities-heading .btn { width: 100%; }
+.admin-root .activity-stats { grid-template-columns: 1fr; padding-top: 14px; }
+.admin-root .activity-tabs { overflow-x: auto; }
+.admin-root .activity-filters { grid-template-columns: 1fr 1fr; }
+.admin-root .filter-button { justify-content: center; }
+.admin-root .activities-table { min-width: 960px; }
+.admin-root .activities-sidepanels { grid-template-columns: 1fr; }
+
+}
