@@ -1,0 +1,99 @@
+.admin-root .nav-item.settings-active { color: #0867ed; background: #edf4ff; font-weight: 700; }
+.admin-root .settings-main { padding: 0 28px 20px; }
+.admin-root .settings-heading { min-height: 84px; display: flex; align-items: center; justify-content: space-between; }
+.admin-root .settings-heading h1 { margin: 0 0 7px; font-size: clamp(34px, 2.25vw, 43px); letter-spacing: -1.5px; }
+.admin-root .settings-heading p { margin: 0; color: #60708f; font-size: 13px; }
+.admin-root .settings-heading > div:last-child { display: flex; gap: 14px; }
+.admin-root .settings-heading .btn { min-width: 154px; height: 44px; }
+.admin-root .settings-save { color: #0867df; border: 1px solid #9fbee5; background: #fff; }
+.admin-root .settings-save svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.admin-root .settings-tabs { min-height: 48px; margin-bottom: 14px; display: flex; align-items: stretch; gap: 14px; border-bottom: 1px solid #e2e7ef; }
+.admin-root .settings-tabs button { position: relative; min-width: 118px; padding: 0 15px; border: 0; color: #50607e; background: transparent; font-size: 11px; font-weight: 600; cursor: pointer; }
+.admin-root .settings-tabs button.active { color: #0867ed; }
+.admin-root .settings-tabs button.active::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; background: #0867ed; }
+.admin-root .settings-stats { margin-bottom: 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.admin-root .settings-stats .stat-card { min-height: 116px; }
+.admin-root .settings-stats .stat-card small { color: #647492; font-size: 9px; font-weight: 500; }
+.admin-root .settings-stats .stat-icon svg { width: 39px; height: 39px; }
+.admin-root .settings-workspace { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(280px, .78fr) minmax(800px, 2.22fr); gap: 17px; }
+.admin-root .roles-panel { min-width: 0; padding: 14px 13px 0; display: flex; flex-direction: column; overflow: hidden; }
+.admin-root .settings-panel-head h2, .admin-root .permissions-heading h2 { margin: 0; font-size: 14px; }
+.admin-root .settings-panel-head p, .admin-root .permissions-heading p { margin: 6px 0 0; color: #677792; font-size: 9px; }
+.admin-root .role-list { margin-top: 12px; display: grid; gap: 6px; }
+.admin-root .role-list button { width: 100%; min-height: 52px; padding: 6px 9px; display: grid; grid-template-columns: 37px 1fr auto; gap: 10px; align-items: center; border: 1px solid #e2e7ef; border-radius: 7px; color: #243354; background: #fff; text-align: left; cursor: pointer; }
+.admin-root .role-list button:hover { background: #f8fbff; }
+.admin-root .role-list button.active { border-color: #438bf0; box-shadow: 0 0 0 1px rgba(8,103,237,.12); background: #f7faff; }
+.admin-root .role-icon { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; }
+.admin-root .role-icon svg { width: 19px; height: 19px; fill: currentColor; stroke: currentColor; }
+.admin-root .role-icon.blue { color: #0867ed; background: #e8f1ff; }
+.admin-root .role-icon.purple { color: #7432d7; background: #f0e8ff; }
+.admin-root .role-icon.orange { color: #ed741b; background: #fff0e6; }
+.admin-root .role-icon.teal { color: #159c91; background: #e5f8f5; }
+.admin-root .role-icon.yellow { color: #eba600; background: #fff6d9; }
+.admin-root .role-list button > span:nth-child(2) strong { display: block; font-size: 10px; }
+.admin-root .role-list button > span:nth-child(2) small { display: block; margin-top: 5px; color: #62718e; font-size: 8px; }
+.admin-root .role-list button em { padding: 5px 8px; border-radius: 12px; color: #168b3d; background: #e5f7e9; font-size: 8px; font-style: normal; }
+.admin-root .create-role-link { margin: 13px -13px 0; min-height: 46px; padding: 0 20px; display: flex; align-items: center; gap: 11px; border: 0; border-top: 1px solid #e3e8ef; color: #0867df; background: #fff; font-size: 10px; font-weight: 650; cursor: pointer; }
+.admin-root .create-role-link span { font-size: 21px; font-weight: 400; }
+.admin-root .settings-right { min-width: 0; display: grid; grid-template-rows: 1.05fr .72fr; gap: 16px; }
+.admin-root .permissions-panel { min-height: 0; padding: 14px 14px 10px; overflow: hidden; }
+.admin-root .permissions-heading { margin-bottom: 9px; display: flex; align-items: flex-start; justify-content: space-between; }
+.admin-root .permissions-heading > span { color: #657492; font-size: 9px; }
+.admin-root .permissions-heading > span strong { color: #0867df; font-size: 10px; }
+.admin-root .permissions-table-wrap { overflow: auto; border: 1px solid #e2e7ef; border-radius: 7px; }
+.admin-root .permissions-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 9px; }
+.admin-root .permissions-table th { height: 37px; padding: 0 11px; color: #253456; background: #f8fafd; border-bottom: 1px solid #e2e7ef; text-align: center; }
+.admin-root .permissions-table th:first-child { width: 24%; text-align: left; }
+.admin-root .permissions-table td { height: 37px; padding: 4px 11px; border-bottom: 1px solid #e8ecf2; text-align: center; }
+.admin-root .permissions-table tr:last-child td { border-bottom: 0; }
+.admin-root .permissions-table td:first-child { display: flex; align-items: center; gap: 10px; text-align: left; font-weight: 600; }
+.admin-root .permissions-table td:first-child svg { width: 19px; height: 19px; fill: none; stroke: #293b63; stroke-width: 1.8; }
+.admin-root .permissions-table input { width: 16px; height: 16px; accent-color: #0867ed; cursor: pointer; }
+.admin-root .settings-bottom-panels { min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.admin-root .toggle-panel { padding: 14px 16px 10px; overflow: hidden; }
+.admin-root .toggle-panel h2 { margin: 0 0 10px; display: flex; align-items: center; gap: 9px; font-size: 12px; }
+.admin-root .toggle-panel h2 svg { width: 18px; height: 18px; fill: none; stroke: #364968; stroke-width: 1.8; }
+.admin-root .toggle-row { min-height: 46px; display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
+.admin-root .toggle-row strong { display: block; font-size: 8px; }
+.admin-root .toggle-row small { display: block; margin-top: 4px; color: #697894; font-size: 7px; }
+.admin-root .switch { position: relative; width: 31px; height: 18px; border: 0; border-radius: 10px; background: #c9d2df; cursor: pointer; transition: .2s; }
+.admin-root .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.22); transition: .2s; }
+.admin-root .switch.on { background: #0867ed; }
+.admin-root .switch.on::after { left: 16px; }
+.admin-root .settings-footer-links { margin-left: auto; display: flex; gap: 40px; }
+.admin-root .settings-footer-links a { color: #7b8cac; }
+@media (min-width: 1700px) {
+.admin-root .settings-main { padding-left: 34px; padding-right: 34px; }
+.admin-root .settings-stats .stat-card { min-height: 124px; }
+.admin-root .role-list button { min-height: 57px; }
+.admin-root .permissions-table th, .admin-root .permissions-table td { height: 42px; }
+.admin-root .toggle-row { min-height: 50px; }
+
+}
+@media (min-width: 1101px) {
+.admin-root .settings-page .main-wrap { height: 100vh; overflow: hidden; }
+.admin-root .settings-page .topbar { flex: 0 0 73px; }
+.admin-root .settings-page .settings-main { min-height: 0; }
+.admin-root .settings-page footer { flex: 0 0 53px; display: flex; align-items: center; }
+
+}
+@media (max-width: 1100px) {
+.admin-root .settings-workspace { grid-template-columns: 1fr; }
+.admin-root .settings-right { grid-template-rows: auto; }
+.admin-root .roles-panel { max-height: 560px; }
+.admin-root .settings-footer-links { display: none; }
+
+}
+@media (max-width: 760px) {
+.admin-root .settings-main { padding: 0 14px 14px; }
+.admin-root .settings-heading { min-height: 235px; padding: 24px 6px; align-items: flex-start; flex-direction: column; }
+.admin-root .settings-heading h1 { font-size: 36px; }
+.admin-root .settings-heading > div:last-child { width: 100%; flex-direction: column; }
+.admin-root .settings-heading .btn { width: 100%; }
+.admin-root .settings-tabs { overflow-x: auto; }
+.admin-root .settings-tabs button { min-width: 135px; }
+.admin-root .settings-stats { grid-template-columns: 1fr; }
+.admin-root .permissions-table { min-width: 720px; }
+.admin-root .settings-bottom-panels { grid-template-columns: 1fr; }
+
+}

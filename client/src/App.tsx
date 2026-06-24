@@ -22,6 +22,14 @@ import RetroalimentacionDocente from "./pages/RetroalimentacionDocente/Retroalim
 import EvaluacionesDocente from "./pages/EvaluacionesDocente/EvaluacionesDocente";
 import EstadisticasDocente from "./pages/EstadisticasDocente/EstadisticasDocente";
 
+import DashboardAdmin from "./pages/Admin/Dashboard/DashboardAdmin";
+import GroupsAdmin from "./pages/Admin/Groups/GroupsAdmin";
+import ActivitiesAdmin from "./pages/Admin/Activities/ActivitiesAdmin";
+import ResourcesAdmin from "./pages/Admin/Resources/ResourcesAdmin";
+import ReportsAdmin from "./pages/Admin/Reports/ReportsAdmin";
+import RequestsAdmin from "./pages/Admin/Requests/RequestsAdmin";
+import SettingsAdmin from "./pages/Admin/Settings/SettingsAdmin";
+
 function App() {
   return (
     <BrowserRouter>
@@ -81,6 +89,16 @@ function App() {
 
         <Route path="/estadisticas-docente" element={<EstadisticasDocente />} />
 
+        <Route path="/admin" element={<DashboardAdmin />} />
+        <Route path="/dashboard-admin" element={<DashboardAdmin />} />
+        <Route path="/dashboard-administrador" element={<DashboardAdmin />} />
+
+        <Route path="/admin/grupos" element={<GroupsAdmin />} />
+        <Route path="/admin/actividades" element={<ActivitiesAdmin />} />
+        <Route path="/admin/recursos" element={<ResourcesAdmin />} />
+        <Route path="/admin/reportes" element={<ReportsAdmin />} />
+        <Route path="/admin/solicitudes" element={<RequestsAdmin />} />
+        <Route path="/admin/configuracion" element={<SettingsAdmin />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
