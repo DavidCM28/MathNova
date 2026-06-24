@@ -18,9 +18,7 @@ async function probarConexion() {
 
   try {
     client = await pool.connect();
-    const resultado = await client.query("SELECT NOW() AS fecha_actual");
     console.log("Base de datos Supabase conectada correctamente.");
-    console.log("Hora de Supabase:", resultado.rows[0].fecha_actual);
   } catch (error) {
     console.error("Error al conectar con Supabase:", error.message);
   } finally {
