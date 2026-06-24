@@ -1,17 +1,21 @@
+const alumnoRoutes = require("./routes/alumnoRoutes");
+
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config();
 
 const authRoutes = require("./routes/auth.routes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
+const PORT = process.env.PORT || 3001;
 
-app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true,
-}));
-
+app.use(cors());
 app.use(express.json());
+
+
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/alumno", alumnoRoutes);
 
 app.get("/", (req, res) => {
   res.json({
@@ -20,10 +24,6 @@ app.get("/", (req, res) => {
   });
 });
 
-app.use("/api/auth", authRoutes);
-
-const PORT = process.env.PORT || 3001;
-
-const newLocal = app.listen(PORT, "0.0.0.0", () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Servidor corriendo en http://0.0.0.0:${PORT}`);
 });
