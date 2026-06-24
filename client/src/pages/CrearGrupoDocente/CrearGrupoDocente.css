@@ -28,7 +28,10 @@ body {
   display: none;
 }
 
-/* SIDEBAR IGUAL AL DASHBOARD DOCENTE */
+/* ========================= */
+/* SIDEBAR */
+/* ========================= */
+
 .crear-docente-sidebar {
   width: 305px;
   min-width: 305px;
@@ -153,7 +156,6 @@ body {
   transform: rotate(180deg);
 }
 
-/* SUBMENÚ */
 .crear-docente-submenu {
   width: 100%;
   overflow: hidden;
@@ -258,7 +260,10 @@ body {
   font-weight: 800;
 }
 
+/* ========================= */
 /* CONTENIDO */
+/* ========================= */
+
 .crear-docente-content {
   flex: 1;
   min-width: 0;
@@ -279,13 +284,13 @@ body {
 }
 
 .crear-header {
-  margin-bottom: 13px;
+  margin-bottom: 16px;
 }
 
 .crear-header h1 {
   margin: 0;
   color: #061136;
-  font-size: 50px;
+  font-size: 54px;
   line-height: 1;
   font-weight: 900;
   letter-spacing: -0.7px;
@@ -298,119 +303,166 @@ body {
   font-weight: 500;
 }
 
-/* FORMULARIO */
+/* ========================= */
+/* CARD FORMULARIO */
+/* ========================= */
+
 .crear-form-card,
 .crear-students-card,
-.crear-config-card,
 .tips-card,
 .help-card {
   background: #ffffff;
   border: 1px solid #dce8f8;
-  border-radius: 16px;
+  border-radius: 18px;
   box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
 }
 
 .crear-form-card {
-  padding: 22px 20px;
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* QUITA LOS CÍRCULOS / MANCHAS DECORATIVAS DE LA CARD */
+.crear-form-card::before,
+.crear-form-card::after {
+  display: none;
+  content: none;
+}
+
+.crear-form-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 24px;
+}
+
+.crear-form-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: #eaf2ff;
+  color: #0058ff;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 10px 20px rgba(0, 88, 255, 0.12);
+}
+
+.crear-form-icon svg {
+  font-size: 31px;
+}
+
+.crear-form-header h2 {
+  margin: 0;
+  color: #061136;
+  font-size: 25px;
+  font-weight: 900;
+}
+
+.crear-form-header p {
+  margin: 5px 0 0;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .crear-form-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px 28px;
+  grid-template-columns: 1fr;
+  position: relative;
+  z-index: 1;
 }
 
 .crear-field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 9px;
 }
 
 .crear-field label {
   color: #07122e;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 900;
 }
 
-.crear-field label span {
-  color: #75839a;
-  font-weight: 700;
-}
-
-.crear-field input,
-.crear-field select,
-.crear-field textarea {
+.nombre-grupo-field input {
   width: 100%;
-  height: 46px;
+  height: 58px;
   border: 1px solid #cbdaf0;
-  border-radius: 6px;
+  border-radius: 12px;
   background: #ffffff;
   color: #1f2a44;
   outline: none;
   font-family: "Poppins", Arial, sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 0 14px;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 0 18px;
   transition: all 0.25s ease;
 }
 
-.crear-field input::placeholder,
-.crear-field textarea::placeholder {
-  color: #8190aa;
+/* TEXTO DEL PLACEHOLDER: Ej. 1°A, 1°B... */
+.nombre-grupo-field input::placeholder {
+  color: rgba(129, 144, 170, 0.65); /* más clarito */
+  font-weight: 500;
+  opacity: 1;
 }
 
-.crear-field input:focus,
-.crear-field select:focus,
-.crear-field textarea:focus {
+.nombre-grupo-field input:hover {
+  border-color: #8bb2ff;
+  box-shadow: 0 8px 18px rgba(0, 88, 255, 0.08);
+}
+
+.nombre-grupo-field input:focus {
   border-color: #0058ff;
-  box-shadow: 0 0 0 3px rgba(0, 88, 255, 0.1);
+  box-shadow: 0 0 0 4px rgba(0, 88, 255, 0.1);
 }
 
-.input-icon-box {
+.crear-name-examples {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
   position: relative;
-  width: 100%;
+  z-index: 1;
 }
 
-.input-icon-box svg {
-  position: absolute;
-  left: 13px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #7a8baa;
-  font-size: 18px;
-  pointer-events: none;
-}
-
-.input-icon-box input {
-  padding-left: 42px;
-}
-
-.description-field {
-  grid-column: span 2;
-  position: relative;
-}
-
-.description-field textarea {
-  height: 78px;
-  resize: none;
-  padding-top: 13px;
-  padding-right: 68px;
-}
-
-.description-field strong {
-  position: absolute;
-  right: 16px;
-  bottom: 12px;
+.crear-name-examples span {
+  color: #64748b;
   font-size: 13px;
-  color: #061136;
-  font-weight: 900;
+  font-weight: 800;
 }
 
+.crear-name-examples button {
+  height: 34px;
+  min-width: 58px;
+  border: 1px solid #bcd3ff;
+  background: #ffffff;
+  color: #0058ff;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.crear-name-examples button:hover {
+  background: #0058ff;
+  color: #ffffff;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 18px rgba(0, 88, 255, 0.18);
+}
+
+/* ========================= */
 /* AGREGAR ALUMNOS */
-.crear-students-card,
-.crear-config-card {
-  margin-top: 16px;
-  padding: 18px 20px;
+/* ========================= */
+
+.crear-students-card {
+  margin-top: 18px;
+  padding: 22px 24px;
 }
 
 .crear-section-title {
@@ -418,13 +470,13 @@ body {
   align-items: flex-start;
   justify-content: space-between;
   gap: 18px;
-  margin-bottom: 13px;
+  margin-bottom: 15px;
 }
 
 .crear-section-title h2 {
   margin: 0;
   color: #061136;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 900;
 }
 
@@ -436,12 +488,12 @@ body {
 }
 
 .add-student-btn {
-  height: 32px;
+  height: 38px;
   border: 2px solid #0058ff;
   background: #ffffff;
   color: #0058ff;
-  border-radius: 0;
-  padding: 0 12px;
+  border-radius: 10px;
+  padding: 0 14px;
   display: flex;
   align-items: center;
   gap: 7px;
@@ -455,20 +507,21 @@ body {
   background: #0058ff;
   color: #ffffff;
   transform: translateY(-3px);
+  box-shadow: 0 10px 18px rgba(0, 88, 255, 0.18);
 }
 
-/* BUSCADOR CORREGIDO */
 .crear-search-box {
   width: 100%;
-  height: 46px;
+  height: 48px;
   position: relative;
   display: flex;
   align-items: center;
   background: #ffffff;
   border: 1px solid #cbdaf0;
-  border-radius: 7px;
+  border-radius: 10px;
   overflow: hidden;
   box-shadow: none;
+  transition: all 0.25s ease;
 }
 
 .crear-search-box svg {
@@ -500,6 +553,7 @@ body {
   color: #8190aa;
 }
 
+.crear-search-box:hover,
 .crear-search-box:focus-within {
   border-color: #0058ff;
   box-shadow: 0 0 0 3px rgba(0, 88, 255, 0.1);
@@ -520,22 +574,29 @@ body {
 }
 
 .student-tags span {
-  min-height: 31px;
+  min-height: 33px;
   border: 1px solid #d8e4f4;
   background: #ffffff;
-  border-radius: 7px;
-  padding: 3px 8px 3px 4px;
+  border-radius: 9px;
+  padding: 4px 9px 4px 4px;
   display: flex;
   align-items: center;
   gap: 7px;
   color: #46546d;
   font-size: 12px;
   font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.student-tags span:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
+  border-color: #bcd3ff;
 }
 
 .student-tags b {
-  width: 23px;
-  height: 23px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: #0058ff;
   color: #ffffff;
@@ -567,109 +628,25 @@ body {
   color: #73809a;
   cursor: pointer;
   font-size: 13px;
-}
-
-/* CONFIGURACIÓN */
-.simple-title {
-  margin-bottom: 12px;
-}
-
-.config-list {
-  display: flex;
-  flex-direction: column;
-  gap: 11px;
-}
-
-.config-row {
-  min-height: 58px;
-  border: 1px solid #dce8f8;
-  border-radius: 9px;
-  display: grid;
-  grid-template-columns: 40px 1fr 56px;
-  align-items: center;
-  gap: 11px;
-  padding: 9px 10px;
-}
-
-.config-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: #eaf2ff;
-  color: #0058ff;
-  display: grid;
-  place-items: center;
-}
-
-.config-icon svg {
-  font-size: 18px;
-}
-
-.config-row h3 {
-  margin: 0;
-  color: #07122e;
-  font-size: 13px;
   font-weight: 900;
 }
 
-.config-row p {
-  margin: 4px 0 0;
-  color: #66758f;
-  font-size: 11px;
-  font-weight: 500;
-}
-
-.switch {
-  width: 48px;
-  height: 26px;
-  position: relative;
-  display: inline-block;
-}
-
-.switch input {
-  display: none;
-}
-
-.switch span {
-  position: absolute;
-  inset: 0;
-  background: #c8d4e6;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.switch span::before {
-  content: "";
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  left: 3px;
-  top: 3px;
-  background: #ffffff;
-  border-radius: 50%;
-  transition: all 0.25s ease;
-}
-
-.switch input:checked + span {
-  background: #0058ff;
-}
-
-.switch input:checked + span::before {
-  transform: translateX(22px);
-}
-
+/* ========================= */
 /* BOTONES ABAJO */
+/* ========================= */
+
 .crear-actions-bar {
-  min-height: 70px;
-  margin-top: 14px;
+  min-height: 78px;
+  margin-top: 18px;
   background: #ffffff;
-  border-top: 1px solid #dce8f8;
+  border: 1px solid #dce8f8;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 18px;
-  padding: 12px 20px;
+  padding: 16px 20px;
 }
 
 .cancel-btn,
@@ -677,7 +654,7 @@ body {
 .create-btn {
   height: 46px;
   min-width: 145px;
-  border-radius: 9px;
+  border-radius: 10px;
   font-size: 14px;
   font-weight: 900;
   font-family: "Poppins", Arial, sans-serif;
@@ -715,9 +692,9 @@ body {
   color: #ffffff !important;
 }
 
-.crear-actions-bar .create-btn:hover,
-.crear-actions-bar .create-btn:focus,
-.crear-actions-bar .create-btn:active {
+.create-btn:hover,
+.create-btn:focus,
+.create-btn:active {
   background: #0058ff !important;
   color: #ffffff !important;
   border: none !important;
@@ -725,13 +702,10 @@ body {
   box-shadow: 0 14px 26px rgba(0, 88, 255, 0.28) !important;
 }
 
-.crear-actions-bar .create-btn:hover svg,
-.crear-actions-bar .create-btn:focus svg,
-.crear-actions-bar .create-btn:active svg {
-  color: #ffffff !important;
-}
-
+/* ========================= */
 /* PANEL DERECHO */
+/* ========================= */
+
 .crear-right-panel {
   display: flex;
   flex-direction: column;
@@ -740,7 +714,7 @@ body {
 }
 
 .tips-card {
-  padding: 22px 22px 18px;
+  padding: 24px 22px 18px;
   overflow: hidden;
 }
 
@@ -764,6 +738,11 @@ body {
   grid-template-columns: 44px 1fr;
   gap: 12px;
   margin-bottom: 22px;
+  transition: all 0.25s ease;
+}
+
+.tip-item:hover {
+  transform: translateX(5px);
 }
 
 .tip-icon {
@@ -793,11 +772,6 @@ body {
   color: #f59e0b;
 }
 
-.purple-tip {
-  background: #f0e6ff;
-  color: #8b5cf6;
-}
-
 .tip-item h3 {
   margin: 0;
   color: #07122e;
@@ -815,7 +789,7 @@ body {
 
 .crear-teacher-img {
   width: 100%;
-  height: 230px;
+  height: 250px;
   display: block;
   object-fit: cover;
   object-position: center;
@@ -823,7 +797,10 @@ body {
   margin-top: 5px;
 }
 
+/* ========================= */
 /* AYUDA */
+/* ========================= */
+
 .help-card {
   min-height: 125px;
   padding: 20px;
@@ -875,7 +852,14 @@ body {
   cursor: pointer;
 }
 
-/* FOOTER IGUAL AL DASHBOARD */
+.help-card button:hover {
+  color: #003fc0;
+}
+
+/* ========================= */
+/* FOOTER */
+/* ========================= */
+
 .crear-docente-footer {
   height: 68px;
   margin: 10px 18px 0;
@@ -938,7 +922,10 @@ body {
   color: #003fc0;
 }
 
-/* TABLET */
+/* ========================= */
+/* RESPONSIVE */
+/* ========================= */
+
 @media (max-width: 1280px) {
   .crear-docente-sidebar {
     width: 270px;
@@ -962,20 +949,11 @@ body {
 }
 
 @media (max-width: 1000px) {
-  .crear-form-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .description-field {
-    grid-column: span 2;
-  }
-
   .crear-right-panel {
     grid-template-columns: 1fr;
   }
 }
 
-/* MÓVIL */
 @media (max-width: 850px) {
   .crear-docente-page {
     display: block;
@@ -1057,12 +1035,21 @@ body {
     font-size: 15px;
   }
 
-  .crear-form-grid {
-    grid-template-columns: 1fr;
+  .crear-form-card {
+    padding: 22px;
   }
 
-  .description-field {
-    grid-column: span 1;
+  .crear-form-header {
+    align-items: flex-start;
+  }
+
+  .crear-form-header h2 {
+    font-size: 21px;
+  }
+
+  .nombre-grupo-field input {
+    height: 52px;
+    font-size: 14px;
   }
 
   .crear-section-title {
@@ -1074,18 +1061,10 @@ body {
     justify-content: center;
   }
 
-  .config-row {
-    grid-template-columns: 38px 1fr;
-  }
-
-  .switch {
-    grid-column: 2;
-  }
-
   .crear-actions-bar {
     height: auto;
     flex-direction: column;
-    padding: 18px 0;
+    padding: 18px;
   }
 
   .cancel-btn,
@@ -1118,7 +1097,6 @@ body {
 
   .crear-form-card,
   .crear-students-card,
-  .crear-config-card,
   .tips-card,
   .help-card {
     padding: 16px;
@@ -1130,5 +1108,9 @@ body {
 
   .student-tags span {
     width: 100%;
+  }
+
+  .crear-name-examples button {
+    min-width: 52px;
   }
 }

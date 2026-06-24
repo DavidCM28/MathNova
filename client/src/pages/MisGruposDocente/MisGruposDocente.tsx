@@ -14,22 +14,21 @@ import {
   FiMessageSquare,
   FiBarChart2,
   FiClipboard,
-  FiBell,
   FiChevronDown,
   FiPlus,
   FiLogOut,
   FiHelpCircle,
   FiSettings,
   FiSearch,
-  FiCalendar,
   FiUserPlus,
   FiEye,
-  FiArrowRight,
   FiPieChart,
 } from "react-icons/fi";
 
 function MisGruposDocente() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [busqueda, setBusqueda] = useState("");
+  const [grupoSeleccionado, setGrupoSeleccionado] = useState("Todos");
 
   const [gruposOpen, setGruposOpen] = useState(() => {
     return localStorage.getItem("docente-grupos-open") !== "false";
@@ -72,40 +71,48 @@ function MisGruposDocente() {
     {
       nombre: "2°A",
       alumnos: "24 alumnos",
-      modulo: "Geometría",
       promedio: "85%",
       color: "blue",
-      actividad: "Triángulos y sus tipos",
-      fecha: "13 may 2025",
     },
     {
       nombre: "2°B",
       alumnos: "22 alumnos",
-      modulo: "Fracciones",
       promedio: "78%",
       color: "purple",
-      actividad: "Suma y resta de fracciones",
-      fecha: "14 may 2025",
     },
     {
       nombre: "1°C",
       alumnos: "26 alumnos",
-      modulo: "Números y operaciones",
       promedio: "88%",
       color: "green",
-      actividad: "Multiplicación por 2 cifras",
-      fecha: "13 may 2025",
     },
     {
       nombre: "3°A",
       alumnos: "24 alumnos",
-      modulo: "Álgebra",
       promedio: "76%",
       color: "orange",
-      actividad: "Expresiones algebraicas",
-      fecha: "15 may 2025",
     },
   ];
+
+  const gruposFiltrados = grupos.filter((grupo) => {
+    const textoBusqueda = busqueda.toLowerCase().trim();
+    const coincideBusqueda = grupo.nombre.toLowerCase().includes(textoBusqueda);
+    const coincideGrupo =
+      grupoSeleccionado === "Todos" || grupo.nombre === grupoSeleccionado;
+
+    return coincideBusqueda && coincideGrupo;
+  });
+
+  const totalAlumnos = grupos.reduce((total, grupo) => {
+    return total + Number(grupo.alumnos.split(" ")[0]);
+  }, 0);
+
+  const promedioGeneral = Math.round(
+    grupos.reduce(
+      (total, grupo) => total + Number(grupo.promedio.replace("%", "")),
+      0,
+    ) / grupos.length,
+  );
 
   return (
     <main className="mgd-page">
@@ -286,31 +293,29 @@ function MisGruposDocente() {
             <FiSearch />
             <input
               type="text"
-              placeholder="Buscar grupo por nombre o grado..."
+              placeholder="Buscar grupo por nombre..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
             />
           </div>
 
           <label className="mgd-filter-box">
-            <span>Filtrar por grado</span>
-            <select>
+            <span>Filtrar por grupo</span>
+            <select
+              value={grupoSeleccionado}
+              onChange={(e) => setGrupoSeleccionado(e.target.value)}
+            >
               <option>Todos</option>
-              <option>1°</option>
-              <option>2°</option>
-              <option>3°</option>
+              {grupos.map((grupo) => (
+                <option key={grupo.nombre}>{grupo.nombre}</option>
+              ))}
             </select>
           </label>
 
-          <label className="mgd-filter-box">
-            <span>Filtrar por módulo</span>
-            <select>
-              <option>Todos</option>
-              <option>Geometría</option>
-              <option>Fracciones</option>
-              <option>Álgebra</option>
-            </select>
-          </label>
-
-          <button className="mgd-create-btn">
+          <button
+            className="mgd-create-btn"
+            onClick={() => irARuta("/crear-grupo-docente")}
+          >
             <FiPlus />
             Crear grupo
           </button>
@@ -320,7 +325,7 @@ function MisGruposDocente() {
           <article className="mgd-stat-card blue-card">
             <div>
               <h3>Total de grupos</h3>
-              <strong>4</strong>
+              <strong>{grupos.length}</strong>
               <p>Activos este ciclo</p>
             </div>
 
@@ -332,7 +337,7 @@ function MisGruposDocente() {
           <article className="mgd-stat-card green-card">
             <div>
               <h3>Alumnos totales</h3>
-              <strong>96</strong>
+              <strong>{totalAlumnos}</strong>
               <p>En todos tus grupos</p>
             </div>
 
@@ -344,7 +349,7 @@ function MisGruposDocente() {
           <article className="mgd-stat-card orange-card">
             <div>
               <h3>Promedio general</h3>
-              <strong>82%</strong>
+              <strong>{promedioGeneral}%</strong>
               <p>Rendimiento promedio</p>
             </div>
 
@@ -356,139 +361,63 @@ function MisGruposDocente() {
 
         <section className="mgd-main-grid">
           <section className="mgd-groups-grid">
-            {grupos.map((grupo, index) => (
-              <article className="mgd-group-card" key={index}>
-                <div className="mgd-group-top">
-                  <h2 className={`mgd-title-${grupo.color}`}>{grupo.nombre}</h2>
+            {gruposFiltrados.length > 0 ? (
+              gruposFiltrados.map((grupo, index) => (
+                <article className="mgd-group-card" key={index}>
+                  <div className="mgd-group-top">
+                    <h2 className={`mgd-title-${grupo.color}`}>
+                      {grupo.nombre}
+                    </h2>
 
-                  <span className="mgd-students-pill">
-                    <FiUsers />
-                    {grupo.alumnos}
-                  </span>
-                </div>
-
-                <div className="mgd-group-info">
-                  <div>
-                    <span>Módulo principal</span>
-                    <strong>{grupo.modulo}</strong>
+                    <span className="mgd-students-pill">
+                      <FiUsers />
+                      {grupo.alumnos}
+                    </span>
                   </div>
 
-                  <div>
-                    <span>Promedio del grupo</span>
-                    <strong className={`mgd-average-${grupo.color}`}>
-                      {grupo.promedio}
-                    </strong>
+                  <div className="mgd-group-average-block">
+                    <div className={`mgd-average-icon icon-${grupo.color}`}>
+                      <FiPieChart />
+                    </div>
+
+                    <div>
+                      <span>Promedio del grupo</span>
+                      <strong className={`mgd-average-${grupo.color}`}>
+                        {grupo.promedio}
+                      </strong>
+                    </div>
                   </div>
-                </div>
 
-                <div className="mgd-next-activity">
-                  <FiCalendar />
-                  <span>
-                    Próxima actividad: <b>{grupo.actividad}</b>
-                  </span>
-                  <small>{grupo.fecha}</small>
-                </div>
+                  <div className="mgd-card-actions">
+                    <button onClick={() => irARuta("/lista-alumnos-docente")}>
+                      <FiEye />
+                      Ver detalle
+                    </button>
 
-                <div className="mgd-card-actions">
-                  <button>
-                    <FiEye />
-                    Ver detalle
-                  </button>
+                    <button onClick={() => irARuta("/crear-grupo-docente")}>
+                      <FiEdit />
+                      Editar
+                    </button>
 
-                  <button>
-                    <FiEdit />
-                    Editar
-                  </button>
-
-                  <button className="enter-btn">
-                    <FiArrowRight />
-                    Entrar
-                  </button>
-                </div>
+                    <button
+                      className="stats-btn"
+                      onClick={() => irARuta("/estadisticas-docente")}
+                    >
+                      <FiBarChart2 />
+                      Ver estadísticas
+                    </button>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <article className="mgd-empty-card">
+                <h3>No se encontraron grupos</h3>
+                <p>
+                  Intenta buscar otro nombre o cambia el filtro seleccionado.
+                </p>
               </article>
-            ))}
+            )}
           </section>
-
-          <aside className="mgd-right-column">
-            <article className="mgd-side-card mgd-sessions-card">
-              <div className="mgd-side-title">
-                <h2>
-                  <FiCalendar />
-                  Próximas sesiones
-                </h2>
-
-                <button>Ver calendario</button>
-              </div>
-
-              <div className="mgd-session-item">
-                <span className="session-dot green">A</span>
-                <div>
-                  <strong>2°A Geometría</strong>
-                  <p>Triángulos y sus tipos</p>
-                </div>
-                <small>
-                  13 may
-                  <br />
-                  10:00 a. m.
-                </small>
-              </div>
-
-              <div className="mgd-session-item">
-                <span className="session-dot purple">B</span>
-                <div>
-                  <strong>2°B Fracciones</strong>
-                  <p>Suma y resta</p>
-                </div>
-                <small>
-                  14 may
-                  <br />
-                  11:00 a. m.
-                </small>
-              </div>
-
-              <div className="mgd-session-item">
-                <span className="session-dot orange">C</span>
-                <div>
-                  <strong>3°A Álgebra</strong>
-                  <p>Expresiones algebraicas</p>
-                </div>
-                <small>
-                  15 may
-                  <br />
-                  9:00 a. m.
-                </small>
-              </div>
-            </article>
-
-            <article className="mgd-side-card mgd-reminders-card">
-              <h2>
-                <FiBell />
-                Recordatorios del grupo
-              </h2>
-
-              <p>
-                <span className="mini-dot green"></span>
-                <b>2°A</b> 3 actividades pendientes de revisión.
-              </p>
-
-              <p>
-                <span className="mini-dot purple"></span>
-                <b>2°B</b> 2 alumnos sin entregar la tarea.
-              </p>
-
-              <p>
-                <span className="mini-dot orange"></span>
-                <b>3°A</b> Evaluación diagnóstica disponible.
-              </p>
-
-              <p>
-                <span className="mini-dot blue"></span>
-                <b>1°C</b> Revisar resultados del quiz semanal.
-              </p>
-
-              <button>Ver todos los recordatorios</button>
-            </article>
-          </aside>
         </section>
 
         <footer className="mgd-footer">

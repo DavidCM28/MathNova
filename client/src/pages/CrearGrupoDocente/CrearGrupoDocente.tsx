@@ -14,16 +14,13 @@ import {
   FiMessageSquare,
   FiBarChart2,
   FiClipboard,
-  FiBell,
   FiChevronDown,
   FiLogOut,
   FiHelpCircle,
   FiSettings,
   FiSearch,
-  FiCalendar,
   FiPlus,
   FiUser,
-  FiSend,
   FiCheckCircle,
   FiInfo,
   FiStar,
@@ -31,6 +28,7 @@ import {
 
 function CrearGrupoDocente() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [nombreGrupo, setNombreGrupo] = useState("");
 
   const [gruposOpen, setGruposOpen] = useState(() => {
     return localStorage.getItem("docente-grupos-open") !== "false";
@@ -59,10 +57,6 @@ function CrearGrupoDocente() {
   useEffect(() => {
     localStorage.setItem("docente-alumnos-open", String(alumnosOpen));
   }, [alumnosOpen]);
-
-  const seleccionarMenu = (menu: string) => {
-    setSelectedMenu(menu);
-  };
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
@@ -249,76 +243,51 @@ function CrearGrupoDocente() {
           <div className="crear-left-content">
             <header className="crear-header">
               <h1>Crear grupo</h1>
-              <p>Registra un nuevo grupo para organizar a los alumnos.</p>
+              <p>Registra un nuevo grupo para organizar a tus alumnos.</p>
             </header>
 
             <section className="crear-form-card">
+              <div className="crear-form-header">
+                <div className="crear-form-icon">
+                  <FiUsers />
+                </div>
+
+                <div>
+                  <h2>Información del grupo</h2>
+                  <p>Escribe el nombre del grupo que deseas crear.</p>
+                </div>
+              </div>
+
               <div className="crear-form-grid">
-                <div className="crear-field">
+                <div className="crear-field nombre-grupo-field">
                   <label>Nombre del grupo</label>
-                  <input type="text" placeholder="Ej. 2°A - Matemáticas" />
+                  <input
+                    type="text"
+                    placeholder="Ej. 1°A, 1°B, 2°A..."
+                    value={nombreGrupo}
+                    onChange={(e) => setNombreGrupo(e.target.value)}
+                  />
                 </div>
+              </div>
 
-                <div className="crear-field">
-                  <label>Grado</label>
-                  <select>
-                    <option>Selecciona un grado</option>
-                    <option>1°</option>
-                    <option>2°</option>
-                    <option>3°</option>
-                  </select>
-                </div>
+              <div className="crear-name-examples">
+                <span>Ejemplos rápidos:</span>
 
-                <div className="crear-field">
-                  <label>Sección</label>
-                  <input type="text" placeholder="Ej. A, B, C" />
-                </div>
+                <button type="button" onClick={() => setNombreGrupo("1°A")}>
+                  1°A
+                </button>
 
-                <div className="crear-field">
-                  <label>Ciclo escolar</label>
-                  <select>
-                    <option>Selecciona el ciclo escolar</option>
-                    <option>2025 - 2026</option>
-                    <option>2026 - 2027</option>
-                  </select>
-                </div>
+                <button type="button" onClick={() => setNombreGrupo("1°B")}>
+                  1°B
+                </button>
 
-                <div className="crear-field">
-                  <label>Módulo principal</label>
-                  <select>
-                    <option>Selecciona un módulo</option>
-                    <option>Álgebra</option>
-                    <option>Geometría</option>
-                    <option>Estadística</option>
-                  </select>
-                </div>
+                <button type="button" onClick={() => setNombreGrupo("2°A")}>
+                  2°A
+                </button>
 
-                <div className="crear-field calendar-field">
-                  <label>Horario</label>
-                  <div className="input-icon-box">
-                    <FiCalendar />
-                    <input
-                      type="text"
-                      placeholder="Selecciona días y horario"
-                    />
-                  </div>
-                </div>
-
-                <div className="crear-field">
-                  <label>Cupo máximo</label>
-                  <input type="number" placeholder="Ej. 30" />
-                </div>
-
-                <div className="crear-field description-field">
-                  <label>
-                    Descripción <span>(opcional)</span>
-                  </label>
-                  <textarea
-                    maxLength={250}
-                    placeholder="Describe el propósito del grupo, metas o información relevante..."
-                  ></textarea>
-                  <strong>0 / 250</strong>
-                </div>
+                <button type="button" onClick={() => setNombreGrupo("3°A")}>
+                  3°A
+                </button>
               </div>
             </section>
 
@@ -375,77 +344,16 @@ function CrearGrupoDocente() {
               </div>
             </section>
 
-            <section className="crear-config-card">
-              <div className="crear-section-title simple-title">
-                <div>
-                  <h2>Configuración</h2>
-                  <p>Ajusta las opciones del grupo según tus necesidades.</p>
-                </div>
-              </div>
-
-              <div className="config-list">
-                <div className="config-row">
-                  <div className="config-icon">
-                    <FiUser />
-                  </div>
-
-                  <div>
-                    <h3>Permitir autoincripción</h3>
-                    <p>
-                      Permite que los alumnos se puedan unir al grupo con un
-                      código o enlace.
-                    </p>
-                  </div>
-
-                  <label className="switch">
-                    <input type="checkbox" defaultChecked />
-                    <span></span>
-                  </label>
-                </div>
-
-                <div className="config-row">
-                  <div className="config-icon">
-                    <FiSend />
-                  </div>
-
-                  <div>
-                    <h3>Enviar invitación a alumnos</h3>
-                    <p>
-                      Envía una invitación por correo o código de acceso a los
-                      alumnos seleccionados.
-                    </p>
-                  </div>
-
-                  <label className="switch">
-                    <input type="checkbox" defaultChecked />
-                    <span></span>
-                  </label>
-                </div>
-
-                <div className="config-row">
-                  <div className="config-icon">
-                    <FiBell />
-                  </div>
-
-                  <div>
-                    <h3>Activar recordatorios</h3>
-                    <p>
-                      Recibe recordatorios sobre actividades pendientes y
-                      seguimiento del grupo.
-                    </p>
-                  </div>
-
-                  <label className="switch">
-                    <input type="checkbox" defaultChecked />
-                    <span></span>
-                  </label>
-                </div>
-              </div>
-            </section>
-
             <div className="crear-actions-bar">
-              <button className="cancel-btn">Cancelar</button>
+              <button
+                className="cancel-btn"
+                onClick={() => irARuta("/mis-grupos-docente")}
+              >
+                Cancelar
+              </button>
+
               <button className="draft-btn">Guardar borrador</button>
+
               <button className="create-btn">
                 <FiUsers />
                 Crear grupo
@@ -465,21 +373,18 @@ function CrearGrupoDocente() {
                   <FiUser />
                 </div>
                 <div>
-                  <h3>Asigna un nombre claro</h3>
-                  <p>
-                    Usa un nombre que sea fácil de identificar para ti y tus
-                    alumnos.
-                  </p>
+                  <h3>Usa un nombre claro</h3>
+                  <p>Escribe nombres cortos como 1°A, 1°B, 2°A o 3°A.</p>
                 </div>
               </div>
 
               <div className="tip-item">
                 <div className="tip-icon blue-tip">
-                  <FiCalendar />
+                  <FiUsers />
                 </div>
                 <div>
-                  <h3>Define el horario</h3>
-                  <p>Establece días y horarios para una mejor organización.</p>
+                  <h3>Agrega tus alumnos</h3>
+                  <p>Selecciona los alumnos que pertenecerán a este grupo.</p>
                 </div>
               </div>
 
@@ -488,21 +393,8 @@ function CrearGrupoDocente() {
                   <FiStar />
                 </div>
                 <div>
-                  <h3>Selecciona el módulo adecuado</h3>
-                  <p>Elige el módulo que mejor se adapte a tus objetivos.</p>
-                </div>
-              </div>
-
-              <div className="tip-item">
-                <div className="tip-icon purple-tip">
-                  <FiBell />
-                </div>
-                <div>
-                  <h3>Mantén a tus alumnos informados</h3>
-                  <p>
-                    Activa notificaciones y envía invitaciones para mayor
-                    participación.
-                  </p>
+                  <h3>Revisa antes de crear</h3>
+                  <p>Verifica que el nombre y los alumnos estén correctos.</p>
                 </div>
               </div>
 
