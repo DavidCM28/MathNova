@@ -10,6 +10,7 @@ import Recompensas from "./pages/Recompensas/Recompensas";
 import Estadisticas from "./pages/Estadisticas/Estadisticas";
 import ActividadesMathGeometry from "./pages/ActividadesMathGeometry/ActividadesMathGeometry";
 import ActividadesMathData from "./pages/ActividadesMathData/ActividadesMathData";
+import ActividadesMathNumbers from "./pages/ActividadesMathNumbers/ActividadesMathNumbers";
 
 import DashboardDocente from "./pages/DashboardDocente/DashboardDocente";
 import MisGruposDocente from "./pages/MisGruposDocente/MisGruposDocente";
@@ -50,6 +51,16 @@ function App() {
           path="/actividades-math-data"
           element={<ActividadesMathData />}
         />
+        
+        <Route
+           path="/actividades-math-numbers"
+          element={<ActividadesMathNumbers />}
+          />
+
+          <Route
+  path="/temas/numeros"
+  element={<ActividadesMathNumbers />}
+          />
 
         <Route path="/retroalimentacion" element={<Feedback />} />
         <Route path="/recompensas" element={<Recompensas />} />

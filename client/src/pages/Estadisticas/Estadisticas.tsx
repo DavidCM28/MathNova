@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../Dashboard/Dashboard.css";
 import "./Estadisticas.css";
@@ -16,8 +16,19 @@ import rachaIcon from "../../assets/racha.png";
 import promedioIcon from "../../assets/promedio-general.png";
 
 import {
+  obtenerEstadisticasAlumno,
+  obtenerPerfilAlumno,
+  obtenerProgresoAlumno,
+} from "../../services/alumnoService";
+
+import type {
+  Alumno,
+  Actividad,
+  EstadisticasAlumno,
+} from "../../services/alumnoService";
+
+import {
   FiGrid,
-  FiEdit,
   FiMessageSquare,
   FiUser,
   FiBarChart2,
@@ -30,24 +41,189 @@ import {
 } from "react-icons/fi";
 
 import { FaChartLine, FaChartPie, FaLightbulb, FaStar } from "react-icons/fa";
-
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
 function Estadisticas() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [alumno, setAlumno] = useState<Alumno | null>(null);
+  const [estadisticas, setEstadisticas] =
+    useState<EstadisticasAlumno | null>(null);
+  const [actividades, setActividades] = useState<Actividad[]>([]);
+  const [cargando, setCargando] = useState(true);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "auto";
+
     return () => {
       document.body.style.overflow = "auto";
     };
   }, [menuOpen]);
 
+  useEffect(() => {
+    const cargarEstadisticas = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        navigate("/login", { replace: true });
+        return;
+      }
+
+      try {
+        setCargando(true);
+
+        const [perfilData, estadisticasData, actividadesData] =
+          await Promise.all([
+            obtenerPerfilAlumno(),
+            obtenerEstadisticasAlumno(),
+            obtenerProgresoAlumno(),
+          ]);
+
+        setAlumno(perfilData);
+        setEstadisticas(estadisticasData);
+        setActividades(actividadesData);
+      } catch (error) {
+        console.error("Error al cargar estadísticas:", error);
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    cargarEstadisticas();
+  }, [navigate]);
+
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
     navigate(ruta);
   };
+
+  const cerrarSesion = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    navigate("/login", { replace: true });
+  };
+
+  const numero = (valor: number | string | null | undefined) => {
+    return Number(valor ?? 0);
+  };
+
+  const leccionesCompletadas = numero(estadisticas?.completadas);
+  const estrellasGanadas = numero(alumno?.estrellas_totales);
+  const rachaActual = numero(alumno?.racha_actual);
+  const promedioGeneral = numero(estadisticas?.promedio);
+  const progresoGeneral = numero(estadisticas?.progreso_general);
+  const tiempoEstudio = estadisticas?.tiempo_formateado || "0m";
+
+  const progresoSemanal = useMemo(() => {
+    const dias = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+    const total = leccionesCompletadas;
+    const base = Math.floor(total / dias.length);
+    const sobrante = total % dias.length;
+
+    const valores = dias.map((dia, index) => ({
+      dia,
+      valor: base + (index < sobrante ? 1 : 0),
+    }));
+
+    const maximo = Math.max(...valores.map((item) => item.valor), 1);
+
+    return valores.map((item, index) => ({
+      ...item,
+      altura: `${Math.max((item.valor / maximo) * 88, item.valor > 0 ? 18 : 4)}%`,
+      index,
+    }));
+  }, [leccionesCompletadas]);
+
+  const rendimientoPorTema = useMemo(() => {
+    const grupos = actividades.reduce<Record<string, { total: number; suma: number }>>(
+      (acumulador, actividad) => {
+        const tema = actividad.tema || actividad.modulo || "General";
+
+        if (!acumulador[tema]) {
+          acumulador[tema] = {
+            total: 0,
+            suma: 0,
+          };
+        }
+
+        acumulador[tema].total += 1;
+        acumulador[tema].suma += numero(actividad.porcentaje);
+
+        return acumulador;
+      },
+      {}
+    );
+
+    const colores = ["blue", "green", "purple", "orange", "cyan"];
+
+    const temas = Object.entries(grupos).map(([tema, datos], index) => ({
+      tema,
+      porcentaje:
+        datos.total > 0 ? Math.round(datos.suma / datos.total) : 0,
+      color: colores[index % colores.length],
+    }));
+
+    if (temas.length === 0) {
+      return [
+        { tema: "MathNumbers", porcentaje: 0, color: "blue" },
+        { tema: "MathGeometry", porcentaje: 0, color: "green" },
+        { tema: "MathData", porcentaje: 0, color: "purple" },
+      ];
+    }
+
+    return temas.slice(0, 5);
+  }, [actividades]);
+
+  const dominioPorMundo = useMemo(() => {
+    const nombres: Record<string, string> = {
+      MathNumbers: "Planeta Números",
+      MathGeometry: "Mundo Geometría",
+      MathData: "Galaxia Datos",
+    };
+
+    const grupos = actividades.reduce<Record<string, { total: number; suma: number }>>(
+      (acumulador, actividad) => {
+        const modulo = actividad.modulo || "General";
+
+        if (!acumulador[modulo]) {
+          acumulador[modulo] = {
+            total: 0,
+            suma: 0,
+          };
+        }
+
+        acumulador[modulo].total += 1;
+        acumulador[modulo].suma += numero(actividad.porcentaje);
+
+        return acumulador;
+      },
+      {}
+    );
+
+    const mundos = Object.entries(grupos).map(([modulo, datos]) => ({
+      nombre: nombres[modulo] || modulo,
+      porcentaje:
+        datos.total > 0 ? Math.round(datos.suma / datos.total) : 0,
+    }));
+
+    if (mundos.length === 0) {
+      return [
+        { nombre: "Planeta Números", porcentaje: 0 },
+        { nombre: "Mundo Geometría", porcentaje: 0 },
+        { nombre: "Galaxia Datos", porcentaje: 0 },
+      ];
+    }
+
+    return mundos;
+  }, [actividades]);
+
+  const textoPromedio =
+    promedioGeneral >= 80
+      ? "Buen trabajo"
+      : promedioGeneral >= 60
+      ? "Vas mejorando"
+      : "Sigue practicando";
 
   return (
     <main className="estadisticas-page">
@@ -66,7 +242,7 @@ function Estadisticas() {
         <img src={logo} alt="MathNova" className="sidebar-logo" />
 
         <nav className="sidebar-menu">
-          <button className="menu-item" onClick={() => irARuta("/")}>
+          <button className="menu-item" onClick={() => irARuta("/dashboard")}>
             <FiGrid />
             <span>Dashboard principal</span>
           </button>
@@ -127,8 +303,12 @@ function Estadisticas() {
           <article className="summary-card estadisticas-green-card">
             <div>
               <h3>Lecciones completadas</h3>
-              <strong>12</strong>
-              <p>+3 esta semana</p>
+              <strong>{cargando ? "..." : leccionesCompletadas}</strong>
+              <p>
+                {leccionesCompletadas > 0
+                  ? "Actividades completadas"
+                  : "Sin actividades todavía"}
+              </p>
             </div>
             <img src={leccionesIcon} alt="Lecciones" />
           </article>
@@ -136,8 +316,8 @@ function Estadisticas() {
           <article className="summary-card estadisticas-yellow-card">
             <div>
               <h3>Estrellas ganadas</h3>
-              <strong>850</strong>
-              <p>+120 esta semana</p>
+              <strong>{cargando ? "..." : estrellasGanadas}</strong>
+              <p>Se calculan con tu progreso</p>
             </div>
             <img src={estrellasIcon} alt="Estrellas" />
           </article>
@@ -145,8 +325,8 @@ function Estadisticas() {
           <article className="summary-card estadisticas-red-card">
             <div>
               <h3>Racha actual</h3>
-              <strong>5</strong>
-              <p>¡Sigue así!</p>
+              <strong>{cargando ? "..." : rachaActual}</strong>
+              <p>{rachaActual > 0 ? "¡Sigue así!" : "Inicia una actividad"}</p>
             </div>
             <img src={rachaIcon} alt="Racha" />
           </article>
@@ -154,8 +334,8 @@ function Estadisticas() {
           <article className="summary-card estadisticas-blue-card">
             <div>
               <h3>Promedio general</h3>
-              <strong>78%</strong>
-              <p>Buen trabajo</p>
+              <strong>{cargando ? "..." : `${promedioGeneral}%`}</strong>
+              <p>{textoPromedio}</p>
             </div>
             <img src={promedioIcon} alt="Promedio" />
           </article>
@@ -182,22 +362,14 @@ function Estadisticas() {
               </div>
 
               <div className="weekly-chart">
-                {[
-                  ["Lun", "4", "25%"],
-                  ["Mar", "7", "44%"],
-                  ["Mié", "9", "56%"],
-                  ["Jue", "13", "81%"],
-                  ["Vie", "11", "69%"],
-                  ["Sáb", "14", "88%"],
-                  ["Dom", "8", "50%"],
-                ].map((item, index) => (
-                  <div className="weekly-column" key={item[0]}>
-                    <strong>{item[1]}</strong>
+                {progresoSemanal.map((item) => (
+                  <div className="weekly-column" key={item.dia}>
+                    <strong>{item.valor}</strong>
                     <span
-                      className={`weekly-bar weekly-bar-${index}`}
-                      style={{ height: item[2] }}
+                      className={`weekly-bar weekly-bar-${item.index}`}
+                      style={{ height: item.altura }}
                     ></span>
-                    <p>{item[0]}</p>
+                    <p>{item.dia}</p>
                   </div>
                 ))}
               </div>
@@ -209,14 +381,14 @@ function Estadisticas() {
                   <FiTrendingUp />
                 </span>
                 <div>
-                  <b>66 lecciones</b>
-                  <p>totales esta semana</p>
+                  <b>{leccionesCompletadas} lecciones</b>
+                  <p>registradas actualmente</p>
                 </div>
               </div>
 
               <div className="weekly-note-right">
-                <b>+18%</b>
-                <p>vs. semana anterior</p>
+                <b>{progresoGeneral}%</b>
+                <p>avance total</p>
               </div>
             </div>
           </article>
@@ -229,22 +401,16 @@ function Estadisticas() {
               <h2>Rendimiento por tema</h2>
             </div>
 
-            {[
-              ["Álgebra Básica", "85%", "blue"],
-              ["Números y Operaciones", "72%", "green"],
-              ["Geometría", "68%", "purple"],
-              ["Estadística y Probabilidad", "60%", "orange"],
-              ["Medición", "55%", "cyan"],
-            ].map((item) => (
-              <div className="topic-row" key={item[0]}>
+            {rendimientoPorTema.map((item) => (
+              <div className="topic-row" key={item.tema}>
                 <div>
-                  <span>{item[0]}</span>
-                  <b>{item[1]}</b>
+                  <span>{item.tema}</span>
+                  <b>{item.porcentaje}%</b>
                 </div>
                 <div className="topic-line">
                   <span
-                    className={`topic-fill ${item[2]}`}
-                    style={{ width: item[1] }}
+                    className={`topic-fill ${item.color}`}
+                    style={{ width: `${item.porcentaje}%` }}
                   ></span>
                 </div>
               </div>
@@ -269,32 +435,18 @@ function Estadisticas() {
             <div className="world-content">
               <div className="donut">
                 <div className="donut-inner">
-                  <strong>72%</strong>
+                  <strong>{progresoGeneral}%</strong>
                   <span>Promedio</span>
                 </div>
               </div>
 
               <div className="world-list">
-                <p>
-                  <b>Planeta Números</b>
-                  <strong>85%</strong>
-                </p>
-                <p>
-                  <b>Mundo Geometría</b>
-                  <strong>70%</strong>
-                </p>
-                <p>
-                  <b>Isla Álgebra</b>
-                  <strong>72%</strong>
-                </p>
-                <p>
-                  <b>Galaxia Datos</b>
-                  <strong>60%</strong>
-                </p>
-                <p>
-                  <b>Mundo Medición</b>
-                  <strong>58%</strong>
-                </p>
+                {dominioPorMundo.map((mundo) => (
+                  <p key={mundo.nombre}>
+                    <b>{mundo.nombre}</b>
+                    <strong>{mundo.porcentaje}%</strong>
+                  </p>
+                ))}
               </div>
             </div>
           </article>
@@ -311,12 +463,12 @@ function Estadisticas() {
 
             <div className="study-info">
               <div className="study-summary">
-                <strong>4h 32m</strong>
-                <p>esta semana</p>
+                <strong>{cargando ? "..." : tiempoEstudio}</strong>
+                <p>tiempo acumulado</p>
                 <span>
-                  +45 min
+                  {leccionesCompletadas}
                   <br />
-                  vs. semana anterior
+                  actividades completas
                 </span>
               </div>
 
@@ -366,10 +518,16 @@ function Estadisticas() {
                 <FiZap />
               </span>
               <div>
-                <b>Practica Geometría para mejorar tu dominio.</b>
-                <p>Tu rendimiento en este tema puede mejorar.</p>
+                <b>
+                  {progresoGeneral >= 70
+                    ? "Sigue practicando para dominar todos los mundos."
+                    : "Practica Geometría para mejorar tu dominio."}
+                </b>
+                <p>Tu progreso se actualiza al completar actividades.</p>
               </div>
-              <button>Practicar ahora</button>
+              <button onClick={() => irARuta("/temas/geometria")}>
+                Practicar ahora
+              </button>
             </div>
 
             <div className="idea green">
@@ -378,9 +536,13 @@ function Estadisticas() {
               </span>
               <div>
                 <b>Mantén tu racha activa cada día.</b>
-                <p>¡5 días seguidos! Intenta llegar a 7.</p>
+                <p>
+                  {rachaActual > 0
+                    ? `¡${rachaActual} actividades completadas!`
+                    : "Completa tu primera actividad para iniciar tu racha."}
+                </p>
               </div>
-              <button>Ver racha</button>
+              <button onClick={() => irARuta("/recompensas")}>Ver racha</button>
             </div>
 
             <div className="idea orange">
@@ -391,7 +553,7 @@ function Estadisticas() {
                 <b>¡Estás en el camino correcto!</b>
                 <p>Sigue así y alcanza nuevas metas.</p>
               </div>
-              <button>Ver metas</button>
+              <button onClick={() => irARuta("/recompensas")}>Ver metas</button>
             </div>
           </article>
         </section>
@@ -400,10 +562,7 @@ function Estadisticas() {
           <p>© MathNova. Todos los derechos reservados.</p>
 
           <div className="footer-icons">
-            <button
-              className="footer-icon-btn"
-              onClick={() => navigate("/login")}
-            >
+            <button className="footer-icon-btn" onClick={cerrarSesion}>
               <FiLogOut className="logout-icon" />
             </button>
 

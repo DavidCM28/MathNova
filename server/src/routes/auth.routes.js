@@ -46,9 +46,12 @@ router.post("/register", async (req, res) => {
       });
     }
 
+    const correoLimpio = correoFinal.trim().toLowerCase();
+    const usuarioLimpio = usuario && usuario.trim() !== "" ? usuario.trim() : null;
+
     const usuarioExiste = await pool.query(
       "SELECT id_usuario FROM registro WHERE correo = $1 OR usuario = $2",
-      [correoFinal, usuario || null]
+      [correoLimpio, usuarioLimpio]
     );
 
     if (usuarioExiste.rows.length > 0) {
@@ -62,16 +65,17 @@ router.post("/register", async (req, res) => {
 
     const nuevoUsuario = await pool.query(
       `INSERT INTO registro 
-        (nombre_completo, correo, usuario, password_hash, rol, acepto_terminos)
+        (nombre_completo, correo, usuario, password_hash, rol, estado, acepto_terminos)
        VALUES 
-        ($1, $2, $3, $4, $5, $6)
-       RETURNING id_usuario, nombre_completo, correo, usuario, rol, fecha_registro`,
+        ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING id_usuario, nombre_completo, correo, usuario, rol, estado, fecha_registro`,
       [
-        nombreFinal,
-        correoFinal,
-        usuario || null,
+        nombreFinal.trim(),
+        correoLimpio,
+        usuarioLimpio,
         passwordHash,
         "estudiante",
+        true,
         acepto_terminos ?? true,
       ]
     );
@@ -82,7 +86,7 @@ router.post("/register", async (req, res) => {
       usuario: nuevoUsuario.rows[0],
     });
   } catch (error) {
-    console.error("Error en registro:", error);
+    console.error("Error en registro:", error.message);
 
     return res.status(500).json({
       ok: false,
@@ -112,6 +116,8 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    const identificadorLimpio = identificador.trim().toLowerCase();
+
     const usuarioEncontrado = await pool.query(
       `SELECT 
           id_usuario, 
@@ -124,7 +130,7 @@ router.post("/login", async (req, res) => {
        FROM registro
        WHERE correo = $1 OR usuario = $1
        LIMIT 1`,
-      [identificador]
+      [identificadorLimpio]
     );
 
     if (usuarioEncontrado.rows.length === 0) {
@@ -194,7 +200,7 @@ router.post("/login", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error en login:", error);
+    console.error("Error en login:", error.message);
 
     return res.status(500).json({
       ok: false,

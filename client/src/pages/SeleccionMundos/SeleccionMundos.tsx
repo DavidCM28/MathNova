@@ -16,7 +16,6 @@ import zorritoSeleccion from "../../assets/zorrito_seleccion_mundo.png";
 
 import {
   FiGrid,
-  FiEdit,
   FiMessageSquare,
   FiUser,
   FiBarChart2,
@@ -27,8 +26,14 @@ import {
 
 import { GiRingedPlanet, GiTrophyCup, GiRocket } from "react-icons/gi";
 
+import { obtenerPerfilAlumno } from "../../services/alumnoService";
+import type { Alumno } from "../../services/alumnoService";
+
 function SeleccionMundos() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [alumno, setAlumno] = useState<Alumno | null>(null);
+  const [cargandoAlumno, setCargandoAlumno] = useState(true);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,10 +44,46 @@ function SeleccionMundos() {
     };
   }, [menuOpen]);
 
+  useEffect(() => {
+    const cargarAlumno = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        navigate("/login", { replace: true });
+        return;
+      }
+
+      try {
+        setCargandoAlumno(true);
+        const perfilData = await obtenerPerfilAlumno();
+        setAlumno(perfilData);
+      } catch (error) {
+        console.error("Error al cargar datos del alumno:", error);
+      } finally {
+        setCargandoAlumno(false);
+      }
+    };
+
+    cargarAlumno();
+  }, [navigate]);
+
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
     navigate(ruta);
   };
+
+  const cerrarSesion = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    navigate("/login", { replace: true });
+  };
+
+  const estrellasTotales = Number(alumno?.estrellas_totales ?? 0);
+
+  const nombreAlumno =
+    alumno?.nombre_completo?.split(" ")[0] ||
+    alumno?.usuario ||
+    "explorador";
 
   return (
     <main className="mundos-page">
@@ -61,7 +102,7 @@ function SeleccionMundos() {
         <img src={logo} alt="MathNova" className="sidebar-logo" />
 
         <nav className="sidebar-menu">
-          <button className="menu-item" onClick={() => irARuta("/")}>
+          <button className="menu-item" onClick={() => irARuta("/dashboard")}>
             <FiGrid />
             <span>Dashboard principal</span>
           </button>
@@ -104,7 +145,7 @@ function SeleccionMundos() {
         <div className="mundos-sidebar-bottom">
           <div className="hello-box">
             <img src={zorritoHola} alt="Zorrito explorador" />
-            <span>¡Hola, explorador!</span>
+            <span>¡Hola, {nombreAlumno}!</span>
           </div>
 
           <div className="mundos-sidebar-fox-box">
@@ -134,11 +175,15 @@ function SeleccionMundos() {
             <h3>Estrellas totales</h3>
 
             <div className="mundos-stars-row">
-              <strong>850</strong>
+              <strong>{cargandoAlumno ? "..." : estrellasTotales}</strong>
               <span>⭐</span>
             </div>
 
-            <p>Sigue explorando y gana más estrellas</p>
+            <p>
+              {estrellasTotales > 0
+                ? "Sigue explorando y gana más estrellas"
+                : "Completa actividades para ganar estrellas"}
+            </p>
           </article>
         </section>
 
@@ -235,10 +280,7 @@ function SeleccionMundos() {
           <p>© MathNova. Todos los derechos reservados.</p>
 
           <div className="footer-icons">
-            <button
-              className="footer-icon-btn"
-              onClick={() => navigate("/login")}
-            >
+            <button className="footer-icon-btn" onClick={cerrarSesion}>
               <FiLogOut className="logout-icon" />
             </button>
 

@@ -21,23 +21,33 @@ const obtenerDashboardAdmin = async (req, res) => {
     );
 
     const docentesResult = await pool.query(
-      "SELECT COUNT(*)::int AS total FROM public.registro WHERE rol = 'docente' AND estado = true"
+      `SELECT COUNT(*)::int AS total 
+       FROM public.registro 
+       WHERE rol = 'docente' AND estado = true`
     );
 
     const alumnosResult = await pool.query(
-      "SELECT COUNT(*)::int AS total FROM public.registro WHERE rol = 'estudiante' AND estado = true"
+      `SELECT COUNT(*)::int AS total 
+       FROM public.registro 
+       WHERE rol = 'estudiante' AND estado = true`
     );
 
-    const loginsResult = await pool.query(
-      "SELECT COUNT(*)::int AS total FROM public.login"
-    );
+    let iniciosSesion = 0;
+
+    if (await existeTabla("login")) {
+      const loginsResult = await pool.query(
+        "SELECT COUNT(*)::int AS total FROM public.login"
+      );
+
+      iniciosSesion = loginsResult.rows[0].total;
+    }
 
     let gruposActivos = 0;
     let alertasPendientes = 0;
 
     if (await existeTabla("grupos")) {
       const gruposResult = await pool.query(
-        "SELECT COUNT(*)::int AS total FROM public.grupos WHERE estado = true"
+        "SELECT COUNT(*)::int AS total FROM public.grupos"
       );
 
       gruposActivos = gruposResult.rows[0].total;
@@ -60,7 +70,7 @@ const obtenerDashboardAdmin = async (req, res) => {
           alumnos_activos: alumnosResult.rows[0].total,
           grupos_activos: gruposActivos,
           alertas_pendientes: alertasPendientes,
-          inicios_sesion: loginsResult.rows[0].total,
+          inicios_sesion: iniciosSesion,
         },
         rendimiento_academico: {
           porcentaje_general: 87,

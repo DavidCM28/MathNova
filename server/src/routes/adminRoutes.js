@@ -7,9 +7,30 @@ const {
   crearUsuarioAdmin,
 } = require("../controllers/adminController");
 
-router.get("/dashboard", obtenerDashboardAdmin);
-router.get("/usuarios", obtenerUsuariosAdmin);
-router.post("/usuarios", crearUsuarioAdmin);
+const {
+  verificarToken,
+  permitirRoles,
+} = require("../middlewares/authMiddleware");
+
+router.get(
+  "/dashboard",
+  verificarToken,
+  permitirRoles("admin"),
+  obtenerDashboardAdmin
+);
+
+router.get(
+  "/usuarios",
+  verificarToken,
+  permitirRoles("admin"),
+  obtenerUsuariosAdmin
+);
+
+router.post(
+  "/usuarios",
+  verificarToken,
+  permitirRoles("admin"),
+  crearUsuarioAdmin
+);
 
 module.exports = router;
-

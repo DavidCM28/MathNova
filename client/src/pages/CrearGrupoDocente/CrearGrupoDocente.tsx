@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CrearGrupoDocente.css";
 
+import { crearGrupo } from "../../services/groupService";
+
 import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 import holaProfe from "../../assets/hola-profe-docente.png";
@@ -14,23 +16,26 @@ import {
   FiMessageSquare,
   FiBarChart2,
   FiClipboard,
-  FiBell,
   FiChevronDown,
   FiLogOut,
   FiHelpCircle,
   FiSettings,
   FiSearch,
-  FiCalendar,
   FiPlus,
   FiUser,
-  FiSend,
   FiCheckCircle,
   FiInfo,
   FiStar,
 } from "react-icons/fi";
 
 function CrearGrupoDocente() {
+  const navigate = useNavigate();
+
   const [menuOpen, setMenuOpen] = useState(false);
+  const [nombreGrupo, setNombreGrupo] = useState("");
+  const [guardando, setGuardando] = useState(false);
+  const [mensaje, setMensaje] = useState("");
+  const [error, setError] = useState("");
 
   const [gruposOpen, setGruposOpen] = useState(() => {
     return localStorage.getItem("docente-grupos-open") !== "false";
@@ -40,9 +45,7 @@ function CrearGrupoDocente() {
     return localStorage.getItem("docente-alumnos-open") !== "false";
   });
 
-  const [selectedMenu, setSelectedMenu] = useState("crear-grupo");
-
-  const navigate = useNavigate();
+  const [selectedMenu] = useState("crear-grupo");
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "auto";
@@ -60,18 +63,61 @@ function CrearGrupoDocente() {
     localStorage.setItem("docente-alumnos-open", String(alumnosOpen));
   }, [alumnosOpen]);
 
-  const seleccionarMenu = (menu: string) => {
-    setSelectedMenu(menu);
-  };
-
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
     navigate(ruta);
   };
 
+  const handleCrearGrupo = async () => {
+    const nombreLimpio = nombreGrupo.trim();
+
+    if (!nombreLimpio) {
+      setError("Escribe el nombre del grupo.");
+      setMensaje("");
+      return;
+    }
+
+    if (nombreLimpio.length > 100) {
+      setError("El nombre no puede superar los 100 caracteres.");
+      setMensaje("");
+      return;
+    }
+
+    if (!localStorage.getItem("token")) {
+      setError("Debes iniciar sesión para crear un grupo.");
+      setMensaje("");
+      return;
+    }
+
+    try {
+      setGuardando(true);
+      setError("");
+      setMensaje("");
+
+      const resultado = await crearGrupo(nombreLimpio);
+
+      setMensaje(
+        `${resultado.mensaje} Identificador: ${resultado.grupo.id_grupo}.`,
+      );
+
+      setNombreGrupo("");
+
+      setTimeout(() => {
+        navigate("/mis-grupos-docente");
+      }, 1200);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "No se pudo crear el grupo.",
+      );
+    } finally {
+      setGuardando(false);
+    }
+  };
+
   return (
     <main className="crear-docente-page">
       <button
+        type="button"
         className={`crear-docente-hamburger-btn ${
           menuOpen ? "hamburger-open" : ""
         }`}
@@ -99,6 +145,7 @@ function CrearGrupoDocente() {
 
           <nav className="crear-docente-sidebar-menu">
             <button
+              type="button"
               className={`crear-docente-menu-item ${
                 selectedMenu === "dashboard" ? "active" : ""
               }`}
@@ -110,11 +157,13 @@ function CrearGrupoDocente() {
 
             <div className="crear-docente-menu-group">
               <button
+                type="button"
                 className="crear-docente-menu-item group-title"
                 onClick={() => setGruposOpen(!gruposOpen)}
               >
                 <FiUsers />
                 <span>Mis grupos</span>
+
                 <FiChevronDown
                   className={`chevron ${gruposOpen ? "chevron-open" : ""}`}
                 />
@@ -124,36 +173,40 @@ function CrearGrupoDocente() {
                 className={`crear-docente-submenu ${gruposOpen ? "open" : ""}`}
               >
                 <button
+                  type="button"
                   className={`crear-docente-submenu-item ${
                     selectedMenu === "ver-grupos" ? "sub-active" : ""
                   }`}
                   onClick={() => irARuta("/mis-grupos-docente")}
                 >
-                  <span></span>
+                  <span />
                   Ver grupos
                 </button>
 
                 <button
+                  type="button"
                   className={`crear-docente-submenu-item ${
                     selectedMenu === "crear-grupo" ? "sub-active" : ""
                   }`}
                   onClick={() => irARuta("/crear-grupo-docente")}
                 >
-                  <span></span>
+                  <span />
                   Crear grupo
                 </button>
               </div>
             </div>
 
-            <div className="crear-docente-menu-divider"></div>
+            <div className="crear-docente-menu-divider" />
 
             <div className="crear-docente-menu-group">
               <button
+                type="button"
                 className="crear-docente-menu-item group-title"
                 onClick={() => setAlumnosOpen(!alumnosOpen)}
               >
                 <FiUsers />
                 <span>Alumnos</span>
+
                 <FiChevronDown
                   className={`chevron ${alumnosOpen ? "chevron-open" : ""}`}
                 />
@@ -163,40 +216,44 @@ function CrearGrupoDocente() {
                 className={`crear-docente-submenu ${alumnosOpen ? "open" : ""}`}
               >
                 <button
+                  type="button"
                   className={`crear-docente-submenu-item ${
                     selectedMenu === "administrar-alumnos" ? "sub-active" : ""
                   }`}
                   onClick={() => irARuta("/administrar-alumnos-docente")}
                 >
-                  <span></span>
+                  <span />
                   Administrar alumnos
                 </button>
 
                 <button
+                  type="button"
                   className={`crear-docente-submenu-item small-sub ${
                     selectedMenu === "lista" ? "sub-active" : ""
                   }`}
                   onClick={() => irARuta("/lista-alumnos-docente")}
                 >
-                  <span></span>
+                  <span />
                   Lista
                 </button>
 
                 <button
+                  type="button"
                   className={`crear-docente-submenu-item ${
                     selectedMenu === "calificaciones" ? "sub-active" : ""
                   }`}
                   onClick={() => irARuta("/calificaciones-docente")}
                 >
-                  <span></span>
+                  <span />
                   Calificaciones
                 </button>
               </div>
             </div>
 
-            <div className="crear-docente-menu-divider"></div>
+            <div className="crear-docente-menu-divider" />
 
             <button
+              type="button"
               className={`crear-docente-menu-item ${
                 selectedMenu === "actividades" ? "active-soft" : ""
               }`}
@@ -207,6 +264,7 @@ function CrearGrupoDocente() {
             </button>
 
             <button
+              type="button"
               className={`crear-docente-menu-item ${
                 selectedMenu === "retroalimentacion" ? "active-soft" : ""
               }`}
@@ -217,6 +275,7 @@ function CrearGrupoDocente() {
             </button>
 
             <button
+              type="button"
               className={`crear-docente-menu-item ${
                 selectedMenu === "evaluaciones" ? "active-soft" : ""
               }`}
@@ -227,6 +286,7 @@ function CrearGrupoDocente() {
             </button>
 
             <button
+              type="button"
               className={`crear-docente-menu-item ${
                 selectedMenu === "estadisticas" ? "active-soft" : ""
               }`}
@@ -249,77 +309,115 @@ function CrearGrupoDocente() {
           <div className="crear-left-content">
             <header className="crear-header">
               <h1>Crear grupo</h1>
-              <p>Registra un nuevo grupo para organizar a los alumnos.</p>
+              <p>Registra un nuevo grupo para organizar a tus alumnos.</p>
             </header>
 
             <section className="crear-form-card">
-              <div className="crear-form-grid">
-                <div className="crear-field">
-                  <label>Nombre del grupo</label>
-                  <input type="text" placeholder="Ej. 2°A - Matemáticas" />
+              <div className="crear-form-header">
+                <div className="crear-form-icon">
+                  <FiUsers />
                 </div>
 
-                <div className="crear-field">
-                  <label>Grado</label>
-                  <select>
-                    <option>Selecciona un grado</option>
-                    <option>1°</option>
-                    <option>2°</option>
-                    <option>3°</option>
-                  </select>
-                </div>
-
-                <div className="crear-field">
-                  <label>Sección</label>
-                  <input type="text" placeholder="Ej. A, B, C" />
-                </div>
-
-                <div className="crear-field">
-                  <label>Ciclo escolar</label>
-                  <select>
-                    <option>Selecciona el ciclo escolar</option>
-                    <option>2025 - 2026</option>
-                    <option>2026 - 2027</option>
-                  </select>
-                </div>
-
-                <div className="crear-field">
-                  <label>Módulo principal</label>
-                  <select>
-                    <option>Selecciona un módulo</option>
-                    <option>Álgebra</option>
-                    <option>Geometría</option>
-                    <option>Estadística</option>
-                  </select>
-                </div>
-
-                <div className="crear-field calendar-field">
-                  <label>Horario</label>
-                  <div className="input-icon-box">
-                    <FiCalendar />
-                    <input
-                      type="text"
-                      placeholder="Selecciona días y horario"
-                    />
-                  </div>
-                </div>
-
-                <div className="crear-field">
-                  <label>Cupo máximo</label>
-                  <input type="number" placeholder="Ej. 30" />
-                </div>
-
-                <div className="crear-field description-field">
-                  <label>
-                    Descripción <span>(opcional)</span>
-                  </label>
-                  <textarea
-                    maxLength={250}
-                    placeholder="Describe el propósito del grupo, metas o información relevante..."
-                  ></textarea>
-                  <strong>0 / 250</strong>
+                <div>
+                  <h2>Información del grupo</h2>
+                  <p>Escribe el nombre del grupo que deseas crear.</p>
                 </div>
               </div>
+
+              <div className="crear-form-grid">
+                <div className="crear-field nombre-grupo-field">
+                  <label htmlFor="nombre-grupo">Nombre del grupo</label>
+
+                  <input
+                    id="nombre-grupo"
+                    type="text"
+                    placeholder="Ej. 1°A, 1°B, 2°A..."
+                    maxLength={100}
+                    value={nombreGrupo}
+                    disabled={guardando}
+                    onChange={(event) => {
+                      setNombreGrupo(event.target.value);
+                      setError("");
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        void handleCrearGrupo();
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="crear-name-examples">
+                <span>Ejemplos rápidos:</span>
+
+                <button
+                  type="button"
+                  disabled={guardando}
+                  onClick={() => setNombreGrupo("1°A")}
+                >
+                  1°A
+                </button>
+
+                <button
+                  type="button"
+                  disabled={guardando}
+                  onClick={() => setNombreGrupo("1°B")}
+                >
+                  1°B
+                </button>
+
+                <button
+                  type="button"
+                  disabled={guardando}
+                  onClick={() => setNombreGrupo("2°A")}
+                >
+                  2°A
+                </button>
+
+                <button
+                  type="button"
+                  disabled={guardando}
+                  onClick={() => setNombreGrupo("3°A")}
+                >
+                  3°A
+                </button>
+              </div>
+
+              {error && (
+                <div
+                  role="alert"
+                  style={{
+                    marginTop: "16px",
+                    padding: "12px 14px",
+                    border: "1px solid #fecaca",
+                    borderRadius: "8px",
+                    background: "#fff1f2",
+                    color: "#b42318",
+                    fontWeight: 700,
+                  }}
+                >
+                  {error}
+                </div>
+              )}
+
+              {mensaje && (
+                <div
+                  role="status"
+                  style={{
+                    marginTop: "16px",
+                    padding: "12px 14px",
+                    border: "1px solid #bbf7d0",
+                    borderRadius: "8px",
+                    background: "#f0fdf4",
+                    color: "#15803d",
+                    fontWeight: 700,
+                  }}
+                >
+                  {mensaje}
+                </div>
+              )}
             </section>
 
             <section className="crear-students-card">
@@ -329,7 +427,7 @@ function CrearGrupoDocente() {
                   <p>Busca y agrega alumnos para incluirlos en el grupo.</p>
                 </div>
 
-                <button className="add-student-btn">
+                <button type="button" className="add-student-btn">
                   <FiPlus />
                   Agregar alumnos
                 </button>
@@ -337,7 +435,11 @@ function CrearGrupoDocente() {
 
               <div className="crear-search-box">
                 <FiSearch />
-                <input type="text" placeholder="Buscar alumnos por nombre" />
+
+                <input
+                  type="text"
+                  placeholder="Buscar alumnos por nombre"
+                />
               </div>
 
               <p className="selected-count">5 alumnos seleccionados</p>
@@ -346,109 +448,62 @@ function CrearGrupoDocente() {
                 <span>
                   <b>OM</b>
                   Orelana Martínez
-                  <button>x</button>
+                  <button type="button">×</button>
                 </span>
 
                 <span>
                   <b className="purple">VS</b>
                   Valeria Sánchez
-                  <button>x</button>
+                  <button type="button">×</button>
                 </span>
 
                 <span>
                   <b className="dark">JR</b>
                   Juan Ramírez
-                  <button>x</button>
+                  <button type="button">×</button>
                 </span>
 
                 <span>
                   <b className="green">CT</b>
                   Carina Torres
-                  <button>x</button>
+                  <button type="button">×</button>
                 </span>
 
                 <span>
                   <b className="orange">OL</b>
                   Óscar López
-                  <button>x</button>
+                  <button type="button">×</button>
                 </span>
               </div>
             </section>
 
-            <section className="crear-config-card">
-              <div className="crear-section-title simple-title">
-                <div>
-                  <h2>Configuración</h2>
-                  <p>Ajusta las opciones del grupo según tus necesidades.</p>
-                </div>
-              </div>
-
-              <div className="config-list">
-                <div className="config-row">
-                  <div className="config-icon">
-                    <FiUser />
-                  </div>
-
-                  <div>
-                    <h3>Permitir autoincripción</h3>
-                    <p>
-                      Permite que los alumnos se puedan unir al grupo con un
-                      código o enlace.
-                    </p>
-                  </div>
-
-                  <label className="switch">
-                    <input type="checkbox" defaultChecked />
-                    <span></span>
-                  </label>
-                </div>
-
-                <div className="config-row">
-                  <div className="config-icon">
-                    <FiSend />
-                  </div>
-
-                  <div>
-                    <h3>Enviar invitación a alumnos</h3>
-                    <p>
-                      Envía una invitación por correo o código de acceso a los
-                      alumnos seleccionados.
-                    </p>
-                  </div>
-
-                  <label className="switch">
-                    <input type="checkbox" defaultChecked />
-                    <span></span>
-                  </label>
-                </div>
-
-                <div className="config-row">
-                  <div className="config-icon">
-                    <FiBell />
-                  </div>
-
-                  <div>
-                    <h3>Activar recordatorios</h3>
-                    <p>
-                      Recibe recordatorios sobre actividades pendientes y
-                      seguimiento del grupo.
-                    </p>
-                  </div>
-
-                  <label className="switch">
-                    <input type="checkbox" defaultChecked />
-                    <span></span>
-                  </label>
-                </div>
-              </div>
-            </section>
-
             <div className="crear-actions-bar">
-              <button className="cancel-btn">Cancelar</button>
-              <button className="draft-btn">Guardar borrador</button>
-              <button className="create-btn">
+              <button
+                type="button"
+                className="cancel-btn"
+                disabled={guardando}
+                onClick={() => irARuta("/mis-grupos-docente")}
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                className="draft-btn"
+                disabled
+                title="La tabla todavía no tiene una columna para borradores"
+              >
+                Guardar borrador
+              </button>
+
+              <button
+                type="button"
+                className="create-btn"
+                disabled={guardando}
+                onClick={() => void handleCrearGrupo()}
+              >
                 <FiUsers />
-                Crear grupo
+                {guardando ? "Creando grupo..." : "Crear grupo"}
               </button>
             </div>
           </div>
@@ -464,22 +519,21 @@ function CrearGrupoDocente() {
                 <div className="tip-icon green-tip">
                   <FiUser />
                 </div>
+
                 <div>
-                  <h3>Asigna un nombre claro</h3>
-                  <p>
-                    Usa un nombre que sea fácil de identificar para ti y tus
-                    alumnos.
-                  </p>
+                  <h3>Usa un nombre claro</h3>
+                  <p>Escribe nombres cortos como 1°A, 1°B, 2°A o 3°A.</p>
                 </div>
               </div>
 
               <div className="tip-item">
                 <div className="tip-icon blue-tip">
-                  <FiCalendar />
+                  <FiUsers />
                 </div>
+
                 <div>
-                  <h3>Define el horario</h3>
-                  <p>Establece días y horarios para una mejor organización.</p>
+                  <h3>Agrega tus alumnos</h3>
+                  <p>Selecciona los alumnos que pertenecerán a este grupo.</p>
                 </div>
               </div>
 
@@ -487,22 +541,10 @@ function CrearGrupoDocente() {
                 <div className="tip-icon orange-tip">
                   <FiStar />
                 </div>
-                <div>
-                  <h3>Selecciona el módulo adecuado</h3>
-                  <p>Elige el módulo que mejor se adapte a tus objetivos.</p>
-                </div>
-              </div>
 
-              <div className="tip-item">
-                <div className="tip-icon purple-tip">
-                  <FiBell />
-                </div>
                 <div>
-                  <h3>Mantén a tus alumnos informados</h3>
-                  <p>
-                    Activa notificaciones y envía invitaciones para mayor
-                    participación.
-                  </p>
+                  <h3>Revisa antes de crear</h3>
+                  <p>Verifica que el nombre y los alumnos estén correctos.</p>
                 </div>
               </div>
 
@@ -522,7 +564,7 @@ function CrearGrupoDocente() {
                 <h3>¿Necesitas ayuda?</h3>
                 <p>Consulta nuestra guía para crear y gestionar grupos.</p>
 
-                <button>
+                <button type="button">
                   Ver guía completa
                   <FiCheckCircle />
                 </button>
@@ -535,15 +577,15 @@ function CrearGrupoDocente() {
           <p>© MathNova. Todos los derechos reservados.</p>
 
           <div className="crear-docente-footer-icons">
-            <button onClick={() => irARuta("/login")}>
+            <button type="button" onClick={() => irARuta("/login")}>
               <FiLogOut className="logout-icon" />
             </button>
 
-            <button>
+            <button type="button">
               <FiHelpCircle className="help-icon" />
             </button>
 
-            <button>
+            <button type="button">
               <FiSettings className="settings-icon" />
             </button>
           </div>

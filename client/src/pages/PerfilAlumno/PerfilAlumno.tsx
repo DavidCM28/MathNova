@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { obtenerPerfilAlumno } from "../../services/alumnoService";
+import {
+  obtenerPerfilAlumno,
+  obtenerProgresoAlumno,
+} from "../../services/alumnoService";
+
+import type { Alumno, Actividad } from "../../services/alumnoService";
 
 import "../Dashboard/Dashboard.css";
 import "./PerfilAlumno.css";
@@ -33,7 +38,6 @@ import {
   FiClock,
   FiArrowUpRight,
   FiCheckCircle,
-  FiAward,
   FiCheck,
   FiHelpCircle,
   FiSettings,
@@ -54,31 +58,30 @@ type InsigniaAlumno = {
   estado: string;
 };
 
-type AlumnoPerfil = {
-  id_usuario: number;
-  nombre_completo: string;
-  correo: string;
-  usuario: string | null;
-  rol: string;
-  estado: boolean;
-  miembro_desde: string;
-  grado: string;
-  escuela: string;
-  nivel: number;
-  titulo: string;
-  estrellas_totales: number;
-  racha_actual: number;
-  lecciones_completadas: number;
-  tiempo_estudio_minutos: number;
-  tiempo_estudio: string;
-  progreso_general: number;
-  mundos_completados: MundoCompletado[];
-  insignias: InsigniaAlumno[];
+type AlumnoPerfil = Alumno & {
+  miembro_desde?: string;
+  grado?: string;
+  escuela?: string;
+  nivel?: number;
+  titulo?: string;
+  estrellas_totales?: number;
+  racha_actual?: number;
+  lecciones_completadas?: number;
+  tiempo_estudio_segundos?: number;
+  tiempo_estudio?: string;
+  progreso_general?: number;
+  mundos_completados?: MundoCompletado[];
+  insignias?: InsigniaAlumno[];
+};
+
+type ActividadPerfil = Actividad & {
+  updated_at?: string | number | Date | null;
 };
 
 function PerfilAlumno() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [alumno, setAlumno] = useState<AlumnoPerfil | null>(null);
+  const [actividades, setActividades] = useState<ActividadPerfil[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 
@@ -95,17 +98,23 @@ function PerfilAlumno() {
   useEffect(() => {
     const cargarPerfil = async () => {
       try {
-        const usuarioGuardado = localStorage.getItem("usuario");
+        const token = localStorage.getItem("token");
 
-        if (!usuarioGuardado) {
-          navigate("/login");
+        if (!token) {
+          navigate("/login", { replace: true });
           return;
         }
 
-        const usuario = JSON.parse(usuarioGuardado);
-        const data = await obtenerPerfilAlumno(usuario.id_usuario);
+        setCargando(true);
+        setError("");
 
-        setAlumno(data);
+        const [perfilData, actividadesData] = await Promise.all([
+          obtenerPerfilAlumno(),
+          obtenerProgresoAlumno(),
+        ]);
+
+        setAlumno(perfilData as AlumnoPerfil);
+        setActividades(actividadesData as ActividadPerfil[]);
       } catch (error) {
         console.error("Error al cargar perfil del alumno:", error);
         setError("No se pudo cargar el perfil del alumno.");
@@ -125,7 +134,7 @@ function PerfilAlumno() {
   const cerrarSesion = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("usuario");
-    navigate("/login");
+    navigate("/login", { replace: true });
   };
 
   const formatearFecha = (fecha?: string) => {
@@ -133,9 +142,36 @@ function PerfilAlumno() {
       return "Sin fecha";
     }
 
-    return new Date(fecha).toLocaleDateString("es-MX", {
+    const fechaConvertida = new Date(fecha);
+
+    if (Number.isNaN(fechaConvertida.getTime())) {
+      return "Sin fecha";
+    }
+
+    return fechaConvertida.toLocaleDateString("es-MX", {
       month: "long",
       year: "numeric",
+    });
+  };
+
+  const formatearFechaActividad = (
+    fecha: string | number | Date | null | undefined
+  ) => {
+    if (!fecha) {
+      return "Reciente";
+    }
+
+    const fechaConvertida = new Date(fecha);
+
+    if (Number.isNaN(fechaConvertida.getTime())) {
+      return "Reciente";
+    }
+
+    return fechaConvertida.toLocaleString("es-MX", {
+      day: "2-digit",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -159,6 +195,42 @@ function PerfilAlumno() {
 
     return imagenes[nombre] || primerosPasos;
   };
+
+  const actividadReciente = actividades
+    .filter(
+      (actividad) =>
+        actividad.estado === "completada" || actividad.estado === "en_curso"
+    )
+    .slice(0, 3);
+
+  const textoActividad = (actividad: ActividadPerfil) => {
+    if (actividad.estado === "completada") {
+      return `Completaste la actividad “${actividad.titulo}”`;
+    }
+
+    return `Iniciaste la actividad “${actividad.titulo}”`;
+  };
+
+  const iconoActividad = (actividad: ActividadPerfil) => {
+    if (actividad.estado === "completada") {
+      return <FiCheckCircle className="green-icon" />;
+    }
+
+    return <FiBookOpen className="blue-icon" />;
+  };
+
+  const mundosCompletados: MundoCompletado[] =
+  alumno?.mundos_completados ?? [];
+
+const insignias: InsigniaAlumno[] =
+  alumno?.insignias ?? [];
+
+  const segundosEstudio = alumno?.tiempo_estudio_segundos ?? 0;
+  const leccionesCompletadas = alumno?.lecciones_completadas ?? 0;
+  const progresoGeneral = alumno?.progreso_general ?? 0;
+
+  const progresoMetaHoras = Math.min((segundosEstudio / 18000) * 100, 100);
+  const progresoMetaActividades = Math.min((progresoGeneral / 100) * 100, 100);
 
   if (cargando) {
     return (
@@ -203,14 +275,14 @@ function PerfilAlumno() {
         <img src={logo} alt="MathNova" className="sidebar-logo" />
 
         <nav className="sidebar-menu">
-          <button className="menu-item" onClick={() => irARuta("/")}>
+          <button className="menu-item" onClick={() => irARuta("/dashboard")}>
             <FiGrid />
             <span>Dashboard principal</span>
           </button>
 
           <button
             className="menu-item"
-            onClick={() => irARuta("/temas/numeros")}
+            onClick={() => irARuta("/seleccion-mundos")}
           >
             <GiRingedPlanet />
             <span>Selección de mundos</span>
@@ -268,8 +340,10 @@ function PerfilAlumno() {
 
             <div className="perfil-name">
               <h2>{alumno?.nombre_completo ?? "Alumno"}</h2>
+
               <span>
-                ⭐ Nivel {alumno?.nivel ?? 1} • {alumno?.titulo ?? "Explorador Estelar"}
+                ⭐ Nivel {alumno?.nivel ?? 1} •{" "}
+                {alumno?.titulo ?? "Aprendiz Nova"}
               </span>
 
               <div className="racha-box">
@@ -285,17 +359,23 @@ function PerfilAlumno() {
 
             <div className="estrellas-box">
               <p>Estrellas totales</p>
+
               <div>
                 <img src={estrellasPerfil} alt="Estrellas" />
                 <strong>{alumno?.estrellas_totales ?? 0}</strong>
               </div>
-              <span>¡Sigue así, vas increíble!</span>
+
+              <span>
+                {(alumno?.estrellas_totales ?? 0) > 0
+                  ? "¡Sigue así, vas increíble!"
+                  : "Completa actividades para ganar estrellas"}
+              </span>
             </div>
           </article>
 
           <article className="mini-card green-mini">
             <h3>Lecciones completadas</h3>
-            <strong>{alumno?.lecciones_completadas ?? 0}</strong>
+            <strong>{leccionesCompletadas}</strong>
             <FiBookOpen className="card-icon" />
           </article>
 
@@ -307,7 +387,7 @@ function PerfilAlumno() {
 
           <article className="mini-card purple-mini">
             <h3>Progreso general</h3>
-            <strong>{alumno?.progreso_general ?? 0}%</strong>
+            <strong>{progresoGeneral}%</strong>
             <FiArrowUpRight />
           </article>
         </section>
@@ -345,16 +425,21 @@ function PerfilAlumno() {
             <h2>Mundos completados</h2>
 
             <div className="mundos-list">
-              {(alumno?.mundos_completados ?? []).map((mundo) => (
+              {mundosCompletados.map((mundo) => (
                 <div className="mundo-item" key={mundo.id}>
                   <div className="mundo-img-box">
-                    <img src={obtenerImagenMundo(mundo.nombre)} alt={mundo.nombre} />
+                    <img
+                      src={obtenerImagenMundo(mundo.nombre)}
+                      alt={mundo.nombre}
+                    />
+
                     {mundo.completado && (
                       <span className="check-badge">
                         <FiCheck />
                       </span>
                     )}
                   </div>
+
                   <span>{mundo.nombre}</span>
                 </div>
               ))}
@@ -362,7 +447,7 @@ function PerfilAlumno() {
 
             <button
               className="ver-link"
-              onClick={() => irARuta("/temas/numeros")}
+              onClick={() => irARuta("/seleccion-mundos")}
             >
               Ver todos los mundos →
             </button>
@@ -371,16 +456,23 @@ function PerfilAlumno() {
           <article className="perfil-panel insignias-panel">
             <div className="panel-header">
               <h2>Insignias destacadas</h2>
-              <button className="ver-link">Ver todas</button>
+
+              <button
+                className="ver-link"
+                onClick={() => irARuta("/recompensas")}
+              >
+                Ver todas
+              </button>
             </div>
 
             <div className="insignias-list">
-              {(alumno?.insignias ?? []).map((insignia) => (
+              {insignias.map((insignia) => (
                 <div className="insignia-item" key={insignia.id}>
                   <img
                     src={obtenerImagenInsignia(insignia.nombre)}
                     alt={insignia.nombre}
                   />
+
                   <strong>{insignia.nombre}</strong>
                   <span>{insignia.estado}</span>
                 </div>
@@ -393,66 +485,69 @@ function PerfilAlumno() {
           <article className="perfil-panel actividad-panel">
             <h2>Actividad reciente</h2>
 
-            <div className="actividad-row">
-              <FiCheckCircle className="green-icon" />
-              <span>Completaste la lección “Suma de fracciones”</span>
-              <small>Hoy, 10:30 a.m.</small>
-              <strong>⭐ +20</strong>
-            </div>
+            {actividadReciente.length > 0 ? (
+              actividadReciente.map((actividad) => (
+                <div className="actividad-row" key={actividad.id}>
+                  {iconoActividad(actividad)}
 
-            <div className="actividad-row">
-              <FiAward className="purple-icon" />
-              <span>Ganaste la insignia “Cálculo Ágil”</span>
-              <small>Ayer, 4:15 p.m.</small>
-              <strong>⭐ +50</strong>
-            </div>
+                  <span>{textoActividad(actividad)}</span>
 
-            <div className="actividad-row">
-              <FiBookOpen className="blue-icon" />
-              <span>Iniciaste la lección “Ángulos y triángulos”</span>
-              <small>Ayer, 11:20 a.m.</small>
-              <strong>⭐ +10</strong>
-            </div>
+                  <small>{formatearFechaActividad(actividad.updated_at)}</small>
 
-            <button className="ver-link">Ver toda tu actividad →</button>
+                  <strong>⭐ +{actividad.puntaje || 0}</strong>
+                </div>
+              ))
+            ) : (
+              <div className="recent-empty-box">
+                <p>Aún no tienes actividad reciente.</p>
+                <span>
+                  Cuando inicies o completes actividades, aparecerán aquí
+                  automáticamente.
+                </span>
+              </div>
+            )}
+
+            <button
+              className="ver-link"
+              onClick={() => irARuta("/seleccion-mundos")}
+            >
+              Ver toda tu actividad →
+            </button>
           </article>
 
           <article className="perfil-panel metas-panel">
             <div className="panel-header">
               <h2>Metas de la semana</h2>
-              <span>Semana 20–26 de mayo</span>
+              <span>Semana actual</span>
             </div>
 
             <div className="meta-row">
               <FiBookOpen />
               <span>Completa 10 lecciones</span>
+
               <div className="meta-bar">
                 <span
                   style={{
                     width: `${Math.min(
-                      ((alumno?.lecciones_completadas ?? 0) / 10) * 100,
+                      (leccionesCompletadas / 10) * 100,
                       100
                     )}%`,
                   }}
                 ></span>
               </div>
-              <strong>{alumno?.lecciones_completadas ?? 0}/10</strong>
+
+              <strong>{leccionesCompletadas}/10</strong>
               <b>⭐ +100</b>
             </div>
 
             <div className="meta-row">
               <FiClock />
               <span>Estudia 5 horas esta semana</span>
+
               <div className="meta-bar">
-                <span
-                  style={{
-                    width: `${Math.min(
-                      ((alumno?.tiempo_estudio_minutos ?? 0) / 300) * 100,
-                      100
-                    )}%`,
-                  }}
-                ></span>
+                <span style={{ width: `${progresoMetaHoras}%` }}></span>
               </div>
+
               <strong>{alumno?.tiempo_estudio ?? "0m"} / 5h</strong>
               <b>⭐ +100</b>
             </div>
@@ -460,18 +555,21 @@ function PerfilAlumno() {
             <div className="meta-row">
               <FiEdit />
               <span>Resuelve 20 actividades</span>
+
               <div className="meta-bar">
-                <span
-                  style={{
-                    width: `${Math.min((alumno?.progreso_general ?? 0), 100)}%`,
-                  }}
-                ></span>
+                <span style={{ width: `${progresoMetaActividades}%` }}></span>
               </div>
-              <strong>{Math.round(((alumno?.progreso_general ?? 0) / 100) * 20)}/20</strong>
+
+              <strong>{Math.round((progresoGeneral / 100) * 20)}/20</strong>
               <b>⭐ +100</b>
             </div>
 
-            <button className="ver-link">Ver todas mis metas →</button>
+            <button
+              className="ver-link"
+              onClick={() => irARuta("/estadisticas")}
+            >
+              Ver todas mis metas →
+            </button>
           </article>
         </section>
 

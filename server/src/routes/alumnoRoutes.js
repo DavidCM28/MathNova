@@ -3,10 +3,42 @@ const router = express.Router();
 
 const {
   obtenerPerfilAlumno,
-  actualizarProgresoAlumno,
+  obtenerProgresoAlumno,
+  obtenerEstadisticasAlumno,
+  guardarProgresoActividad,
 } = require("../controllers/alumnoController");
 
-router.get("/perfil/:id_usuario", obtenerPerfilAlumno);
-router.patch("/progreso/:id_usuario", actualizarProgresoAlumno);
+const {
+  verificarToken,
+  permitirRoles,
+} = require("../middlewares/authMiddleware");
+
+router.get(
+  "/perfil",
+  verificarToken,
+  permitirRoles("estudiante"),
+  obtenerPerfilAlumno
+);
+
+router.get(
+  "/progreso",
+  verificarToken,
+  permitirRoles("estudiante"),
+  obtenerProgresoAlumno
+);
+
+router.get(
+  "/estadisticas",
+  verificarToken,
+  permitirRoles("estudiante"),
+  obtenerEstadisticasAlumno
+);
+
+router.post(
+  "/progreso",
+  verificarToken,
+  permitirRoles("estudiante"),
+  guardarProgresoActividad
+);
 
 module.exports = router;

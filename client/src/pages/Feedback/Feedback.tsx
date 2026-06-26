@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Feedback.css";
 
@@ -15,7 +15,6 @@ import {
   FiBookOpen,
   FiCheck,
   FiChevronDown,
-  FiEdit,
   FiGrid,
   FiMessageSquare,
   FiUser,
@@ -23,30 +22,190 @@ import {
   FiHelpCircle,
   FiSettings,
 } from "react-icons/fi";
+
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
+
+import {
+  obtenerEstadisticasAlumno,
+  obtenerPerfilAlumno,
+  obtenerProgresoAlumno,
+} from "../../services/alumnoService";
+
+import type {
+  Alumno,
+  Actividad,
+  EstadisticasAlumno,
+} from "../../services/alumnoService";
 
 function Feedback() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [alumno, setAlumno] = useState<Alumno | null>(null);
+  const [estadisticas, setEstadisticas] =
+    useState<EstadisticasAlumno | null>(null);
+  const [actividades, setActividades] = useState<Actividad[]>([]);
+  const [cargando, setCargando] = useState(true);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "auto";
+
     return () => {
       document.body.style.overflow = "auto";
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+    const cargarRetroalimentacion = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        navigate("/login", { replace: true });
+        return;
+      }
+
+      try {
+        setCargando(true);
+
+        const [perfilData, estadisticasData, actividadesData] =
+          await Promise.all([
+            obtenerPerfilAlumno(),
+            obtenerEstadisticasAlumno(),
+            obtenerProgresoAlumno(),
+          ]);
+
+        setAlumno(perfilData);
+        setEstadisticas(estadisticasData);
+        setActividades(actividadesData);
+      } catch (error) {
+        console.error("Error al cargar retroalimentación:", error);
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    cargarRetroalimentacion();
+  }, [navigate]);
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
     navigate(ruta);
   };
 
-  const topics = [
-    { label: "Álgebra", level: "Básico", value: 75 },
-    { label: "Geometría", level: "Intermedio", value: 60 },
-    { label: "Fracciones", level: "Intermedio", value: 45 },
-    { label: "Estadística", level: "Básico", value: 50 },
-  ];
+  const cerrarSesion = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    navigate("/login", { replace: true });
+  };
+
+  const numero = (valor: number | string | null | undefined) => {
+    return Number(valor ?? 0);
+  };
+
+  const nombreAlumno =
+    alumno?.nombre_completo?.split(" ")[0] ||
+    alumno?.usuario ||
+    "explorador";
+
+  const gradoAlumno = alumno?.grado || "Estudiante";
+
+  const promedioGeneral = numero(estadisticas?.promedio);
+  const progresoGeneral = numero(estadisticas?.progreso_general);
+  const leccionesCompletadas = numero(estadisticas?.completadas);
+  const estrellasGanadas = numero(alumno?.estrellas_totales);
+  const tiempoTotal = numero(estadisticas?.tiempo_total);
+
+  const tiempoPromedio =
+    leccionesCompletadas > 0
+      ? Math.round(tiempoTotal / leccionesCompletadas)
+      : 0;
+
+  const tiempoPromedioTexto =
+    tiempoPromedio >= 60
+      ? `${Math.floor(tiempoPromedio / 60)}m ${tiempoPromedio % 60}s`
+      : `${tiempoPromedio}s`;
+
+  const topics = useMemo(() => {
+    const grupos = actividades.reduce<
+      Record<string, { total: number; suma: number }>
+    >((acumulador, actividad) => {
+      const tema = actividad.tema || actividad.modulo || "General";
+
+      if (!acumulador[tema]) {
+        acumulador[tema] = {
+          total: 0,
+          suma: 0,
+        };
+      }
+
+      acumulador[tema].total += 1;
+      acumulador[tema].suma += numero(actividad.porcentaje);
+
+      return acumulador;
+    }, {});
+
+    const lista = Object.entries(grupos).map(([label, datos]) => {
+      const value =
+        datos.total > 0 ? Math.round(datos.suma / datos.total) : 0;
+
+      let level = "Pendiente";
+
+      if (value >= 80) {
+        level = "Avanzado";
+      } else if (value >= 50) {
+        level = "Intermedio";
+      } else if (value > 0) {
+        level = "Básico";
+      }
+
+      return {
+        label,
+        level,
+        value,
+      };
+    });
+
+    if (lista.length === 0) {
+      return [
+        { label: "MathNumbers", level: "Pendiente", value: 0 },
+        { label: "MathGeometry", level: "Pendiente", value: 0 },
+        { label: "MathData", level: "Pendiente", value: 0 },
+      ];
+    }
+
+    return lista.slice(0, 4);
+  }, [actividades]);
+
+  const mejorTema = useMemo(() => {
+    const temaConProgreso = topics
+      .filter((topic) => topic.value > 0)
+      .sort((a, b) => b.value - a.value)[0];
+
+    return temaConProgreso?.label || "Sin datos";
+  }, [topics]);
+
+  const temaPorPracticar = useMemo(() => {
+    const temaPendiente = topics
+      .filter((topic) => topic.value < 100)
+      .sort((a, b) => a.value - b.value)[0];
+
+    return temaPendiente?.label || "nuevas actividades";
+  }, [topics]);
+
+  const mensajeNova =
+    leccionesCompletadas > 0
+      ? `¡Estás haciendo un gran trabajo, ${nombreAlumno}!`
+      : `¡Hola, ${nombreAlumno}! Es momento de comenzar tu aventura.`;
+
+  const consejoNova =
+    leccionesCompletadas > 0
+      ? `Tus habilidades en ${mejorTema} están avanzando.`
+      : "Completa tu primera actividad para generar tu progreso.";
+
+  const sugerenciaNova =
+    leccionesCompletadas > 0
+      ? `Te sugiero que practiques un poco más ${temaPorPracticar} esta semana.`
+      : "Cuando completes actividades, Nova te dará consejos personalizados.";
 
   return (
     <main className="fbk-page">
@@ -65,7 +224,10 @@ function Feedback() {
         <img src={logo} alt="MathNova" className="fbk-sidebar-logo" />
 
         <nav className="fbk-sidebar-menu">
-          <button className="fbk-menu-item" onClick={() => irARuta("/")}>
+          <button
+            className="fbk-menu-item"
+            onClick={() => irARuta("/dashboard")}
+          >
             <FiGrid />
             <span>Dashboard principal</span>
           </button>
@@ -113,12 +275,16 @@ function Feedback() {
             <img src={zorritoRe} alt="Nova" />
           </div>
 
-          <h3>¡Sigue así, Alex!</h3>
+          <h3>¡Sigue así, {nombreAlumno}!</h3>
           <p>Cada paso te acerca a tus metas.</p>
 
           <div className="fbk-mini-status">
             <img src={estrellaRe} alt="Estrella" />
-            <span>Estás haciendo un gran trabajo</span>
+            <span>
+              {leccionesCompletadas > 0
+                ? "Estás haciendo un gran trabajo"
+                : "Comienza una actividad para avanzar"}
+            </span>
           </div>
         </div>
       </aside>
@@ -138,10 +304,10 @@ function Feedback() {
             </button>
 
             <div className="fbk-profile-chip">
-              <img src={zorritoRe} alt="Alex" />
+              <img src={zorritoRe} alt={nombreAlumno} />
               <div>
-                <strong>Alex</strong>
-                <span>1° Secundaria</span>
+                <strong>{cargando ? "..." : nombreAlumno}</strong>
+                <span>{gradoAlumno}</span>
               </div>
               <FiChevronDown />
             </div>
@@ -161,23 +327,25 @@ function Feedback() {
               <div className="fbk-summary-row">
                 <FiCheck />
                 <span>Ejercicios Correctos:</span>
-                <strong>95%</strong>
+                <strong>{cargando ? "..." : `${promedioGeneral}%`}</strong>
               </div>
 
               <div className="fbk-summary-row">
                 <FiCheck />
                 <span>Tiempo Promedio:</span>
-                <strong>45s</strong>
+                <strong>{cargando ? "..." : tiempoPromedioTexto}</strong>
               </div>
 
               <div className="fbk-summary-row">
                 <FiCheck />
                 <span>Mejor Tema:</span>
-                <strong>Álgebra</strong>
+                <strong>{cargando ? "..." : mejorTema}</strong>
               </div>
             </div>
 
-            <button>Ver Detalles →</button>
+            <button onClick={() => irARuta("/estadisticas")}>
+              Ver Detalles →
+            </button>
           </article>
 
           <article className="fbk-card fbk-guide-card">
@@ -186,13 +354,17 @@ function Feedback() {
             </div>
 
             <h2>Tu Guía de Estudio</h2>
-            <p>Recomendaciones basadas en tus últimas actividades, Alex.</p>
+            <p>
+              Recomendaciones basadas en tus últimas actividades, {nombreAlumno}.
+            </p>
 
             <div className="fbk-main-progress">
-              <span style={{ width: "75%" }}></span>
+              <span style={{ width: `${progresoGeneral}%` }}></span>
             </div>
 
-            <strong className="fbk-percent-text">75% completado</strong>
+            <strong className="fbk-percent-text">
+              {cargando ? "..." : `${progresoGeneral}% completado`}
+            </strong>
 
             <div className="fbk-guide-list">
               {topics.map((topic) => (
@@ -209,7 +381,9 @@ function Feedback() {
               ))}
             </div>
 
-            <button>Comenzar Guía →</button>
+            <button onClick={() => irARuta("/seleccion-mundos")}>
+              Comenzar Guía →
+            </button>
           </article>
 
           <article className="fbk-card fbk-nova-card">
@@ -220,20 +394,16 @@ function Feedback() {
             <h2>Mensaje de Nova</h2>
 
             <div className="fbk-message-panel">
-              <p>¡Estás haciendo un trabajo increíble, Alex!</p>
+              <p>{mensajeNova}</p>
 
-              <p>
-                Tus habilidades en <strong>Geometría</strong> han mejorado
-                mucho.
-              </p>
+              <p>{consejoNova}</p>
 
-              <p>
-                Te sugiero que practiques un poco más las{" "}
-                <strong>Fracciones</strong> esta semana.
-              </p>
+              <p>{sugerenciaNova}</p>
             </div>
 
-            <button>Ver Historial →</button>
+            <button onClick={() => irARuta("/estadisticas")}>
+              Ver Historial →
+            </button>
           </article>
 
           <aside className="fbk-progress-panel">
@@ -249,26 +419,24 @@ function Feedback() {
             <div className="fbk-progress-stats">
               <div>
                 <img src={estrellaRe} alt="Estrella" />
-                <strong>4</strong>
+                <strong>{cargando ? "..." : leccionesCompletadas}</strong>
                 <span>Guías completadas</span>
               </div>
 
               <div>
                 <img src={estrellaRe} alt="Estrella" />
-                <strong>22</strong>
+                <strong>{cargando ? "..." : estrellasGanadas}</strong>
                 <span>Estrellas ganadas por feedback</span>
               </div>
             </div>
           </aside>
         </section>
+
         <footer className="fbk-footer">
           <p>© MathNova. Todos los derechos reservados.</p>
 
           <div className="fbk-footer-icons">
-            <button
-              className="fbk-footer-icon-btn"
-              onClick={() => navigate("/login")}
-            >
+            <button className="fbk-footer-icon-btn" onClick={cerrarSesion}>
               <FiLogOut className="fbk-logout-icon" />
             </button>
 
