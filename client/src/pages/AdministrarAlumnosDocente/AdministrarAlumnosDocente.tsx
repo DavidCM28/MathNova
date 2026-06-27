@@ -11,10 +11,7 @@ import {
   FiGrid,
   FiUsers,
   FiEdit,
-  FiMessageSquare,
   FiBarChart2,
-  FiClipboard,
-  FiBell,
   FiChevronDown,
   FiLogOut,
   FiHelpCircle,
@@ -31,8 +28,6 @@ import {
   FiStar,
   FiCheckCircle,
   FiInfo,
-  FiCalendar,
-  FiPieChart,
 } from "react-icons/fi";
 
 function AdministrarAlumnosDocente() {
@@ -66,11 +61,11 @@ function AdministrarAlumnosDocente() {
     localStorage.setItem("docente-alumnos-open", String(alumnosOpen));
   }, [alumnosOpen]);
 
-  const seleccionarMenu = (menu: string) => {
-    setSelectedMenu(menu);
-  };
+  const irARuta = (ruta: string, menu?: string) => {
+    if (menu) {
+      setSelectedMenu(menu);
+    }
 
-  const irARuta = (ruta: string) => {
     setMenuOpen(false);
     navigate(ruta);
   };
@@ -134,39 +129,43 @@ function AdministrarAlumnosDocente() {
   ];
 
   return (
-    <main className="admin-page">
+    <main className="docente-page">
       <button
-        className={`admin-hamburger-btn ${menuOpen ? "hamburger-open" : ""}`}
+        type="button"
+        className={`docente-hamburger-btn ${menuOpen ? "hamburger-open" : ""}`}
         onClick={() => setMenuOpen(!menuOpen)}
+        aria-label="Abrir menú"
       >
         <img src={menuHamburguesa} alt="Menú" />
       </button>
 
       {menuOpen && (
         <div
-          className="admin-menu-overlay"
+          className="docente-menu-overlay"
           onClick={() => setMenuOpen(false)}
         />
       )}
 
-      <aside className={`admin-sidebar ${menuOpen ? "sidebar-open" : ""}`}>
-        <div className="admin-sidebar-scroll">
-          <img src={logo} alt="MathNova" className="admin-sidebar-logo" />
+      <aside className={`docente-sidebar ${menuOpen ? "sidebar-open" : ""}`}>
+        <div className="docente-sidebar-scroll">
+          <img src={logo} alt="MathNova" className="docente-sidebar-logo" />
 
-          <nav className="admin-sidebar-menu">
+          <nav className="docente-sidebar-menu">
             <button
-              className={`admin-menu-item ${
+              type="button"
+              className={`docente-menu-item ${
                 selectedMenu === "dashboard" ? "active" : ""
               }`}
-              onClick={() => irARuta("/dashboard-docente")}
+              onClick={() => irARuta("/dashboard-docente", "dashboard")}
             >
               <FiGrid />
               <span>Dashboard principal</span>
             </button>
 
-            <div className="admin-menu-group">
+            <div className="docente-menu-group">
               <button
-                className="admin-menu-item group-title"
+                type="button"
+                className="docente-menu-item group-title"
                 onClick={() => setGruposOpen(!gruposOpen)}
               >
                 <FiUsers />
@@ -176,22 +175,24 @@ function AdministrarAlumnosDocente() {
                 />
               </button>
 
-              <div className={`admin-submenu ${gruposOpen ? "open" : ""}`}>
+              <div className={`docente-submenu ${gruposOpen ? "open" : ""}`}>
                 <button
-                  className={`admin-submenu-item ${
+                  type="button"
+                  className={`docente-submenu-item ${
                     selectedMenu === "ver-grupos" ? "sub-active" : ""
                   }`}
-                  onClick={() => irARuta("/mis-grupos-docente")}
+                  onClick={() => irARuta("/mis-grupos-docente", "ver-grupos")}
                 >
                   <span></span>
                   Ver grupos
                 </button>
 
                 <button
-                  className={`admin-submenu-item ${
+                  type="button"
+                  className={`docente-submenu-item ${
                     selectedMenu === "crear-grupo" ? "sub-active" : ""
                   }`}
-                  onClick={() => irARuta("/crear-grupo-docente")}
+                  onClick={() => irARuta("/crear-grupo-docente", "crear-grupo")}
                 >
                   <span></span>
                   Crear grupo
@@ -199,46 +200,57 @@ function AdministrarAlumnosDocente() {
               </div>
             </div>
 
-            <div className="admin-menu-divider"></div>
+            <div className="docente-menu-divider"></div>
 
-            <div className="admin-menu-group">
+            <div className="docente-menu-group">
               <button
-                className="admin-menu-item group-title"
+                className="docente-menu-item group-title"
                 onClick={() => setAlumnosOpen(!alumnosOpen)}
+                type="button"
               >
-                <FiUser />
+                <FiUsers />
                 <span>Alumnos</span>
                 <FiChevronDown
                   className={`chevron ${alumnosOpen ? "chevron-open" : ""}`}
                 />
               </button>
 
-              <div className={`admin-submenu ${alumnosOpen ? "open" : ""}`}>
+              <div className={`docente-submenu ${alumnosOpen ? "open" : ""}`}>
                 <button
-                  className={`admin-submenu-item ${
+                  type="button"
+                  className={`docente-submenu-item ${
                     selectedMenu === "administrar-alumnos" ? "sub-active" : ""
                   }`}
-                  onClick={() => irARuta("/administrar-alumnos-docente")}
+                  onClick={() =>
+                    irARuta(
+                      "/administrar-alumnos-docente",
+                      "administrar-alumnos",
+                    )
+                  }
                 >
                   <span></span>
                   Administrar alumnos
                 </button>
 
                 <button
-                  className={`admin-submenu-item ${
+                  type="button"
+                  className={`docente-submenu-item ${
                     selectedMenu === "lista" ? "sub-active" : ""
                   }`}
-                  onClick={() => irARuta("/lista-alumnos-docente")}
+                  onClick={() => irARuta("/lista-alumnos-docente", "lista")}
                 >
                   <span></span>
                   Lista
                 </button>
 
                 <button
-                  className={`admin-submenu-item ${
+                  type="button"
+                  className={`docente-submenu-item ${
                     selectedMenu === "calificaciones" ? "sub-active" : ""
                   }`}
-                  onClick={() => irARuta("/calificaciones-docente")}
+                  onClick={() =>
+                    irARuta("/calificaciones-docente", "calificaciones")
+                  }
                 >
                   <span></span>
                   Calificaciones
@@ -246,43 +258,25 @@ function AdministrarAlumnosDocente() {
               </div>
             </div>
 
-            <div className="admin-menu-divider"></div>
+            <div className="docente-menu-divider"></div>
 
             <button
-              className={`admin-menu-item ${
+              type="button"
+              className={`docente-menu-item ${
                 selectedMenu === "actividades" ? "active-soft" : ""
               }`}
-              onClick={() => irARuta("/actividades-docente")}
+              onClick={() => irARuta("/actividades-docente", "actividades")}
             >
               <FiEdit />
               <span>Actividades</span>
             </button>
 
             <button
-              className={`admin-menu-item ${
-                selectedMenu === "retroalimentacion" ? "active-soft" : ""
-              }`}
-              onClick={() => irARuta("/retroalimentacion-docente")}
-            >
-              <FiMessageSquare />
-              <span>Retroalimentación</span>
-            </button>
-
-            <button
-              className={`admin-menu-item ${
-                selectedMenu === "evaluaciones" ? "active-soft" : ""
-              }`}
-              onClick={() => irARuta("/evaluaciones-docente")}
-            >
-              <FiClipboard />
-              <span>Evaluaciones</span>
-            </button>
-
-            <button
-              className={`admin-menu-item ${
+              type="button"
+              className={`docente-menu-item ${
                 selectedMenu === "estadisticas" ? "active-soft" : ""
               }`}
-              onClick={() => irARuta("/estadisticas-docente")}
+              onClick={() => irARuta("/estadisticas-docente", "estadisticas")}
             >
               <FiBarChart2 />
               <span>Estadísticas</span>
@@ -290,7 +284,7 @@ function AdministrarAlumnosDocente() {
           </nav>
         </div>
 
-        <div className="admin-fox-card">
+        <div className="docente-fox-card">
           <img src={holaProfe} alt="Hola profe" />
           <span>¡Hola, profe!</span>
         </div>
@@ -315,17 +309,17 @@ function AdministrarAlumnosDocente() {
 
         <section className="admin-toolbar">
           <div className="admin-toolbar-buttons">
-            <button className="admin-action-btn primary">
+            <button type="button" className="admin-action-btn primary">
               <FiPlus />
               Agregar alumno
             </button>
 
-            <button className="admin-action-btn">
+            <button type="button" className="admin-action-btn">
               <FiUpload />
               Importar lista
             </button>
 
-            <button className="admin-action-btn">
+            <button type="button" className="admin-action-btn">
               <FiUserPlus />
               Asignar grupo
             </button>
@@ -344,6 +338,7 @@ function AdministrarAlumnosDocente() {
               <strong>148</strong>
               <p>+8 respecto al mes anterior</p>
             </div>
+
             <div className="admin-stat-icon">
               <FiUsers />
             </div>
@@ -355,6 +350,7 @@ function AdministrarAlumnosDocente() {
               <strong>132</strong>
               <p>89% del total</p>
             </div>
+
             <div className="admin-stat-icon">
               <FiCheckCircle />
             </div>
@@ -366,6 +362,7 @@ function AdministrarAlumnosDocente() {
               <strong>16</strong>
               <p>11% del total</p>
             </div>
+
             <div className="admin-stat-icon">
               <FiAlertTriangle />
             </div>
@@ -377,6 +374,7 @@ function AdministrarAlumnosDocente() {
               <strong>7.8</strong>
               <p>+0.4 respecto al mes anterior</p>
             </div>
+
             <div className="admin-stat-icon">
               <FiStar />
             </div>
@@ -431,13 +429,19 @@ function AdministrarAlumnosDocente() {
                 </span>
 
                 <span className="actions-cell">
-                  <button>
+                  <button type="button" aria-label="Ver alumno">
                     <FiEye />
                   </button>
-                  <button>
+
+                  <button type="button" aria-label="Editar alumno">
                     <FiEdit2 />
                   </button>
-                  <button className="delete">
+
+                  <button
+                    type="button"
+                    className="delete"
+                    aria-label="Eliminar alumno"
+                  >
                     <FiTrash2 />
                   </button>
                 </span>
@@ -449,11 +453,13 @@ function AdministrarAlumnosDocente() {
             <p>Mostrando 1 a 5 de 148 alumnos</p>
 
             <div className="pagination">
-              <button>{"<"}</button>
-              <button className="current">1</button>
-              <button>2</button>
-              <button>3</button>
-              <button>{">"}</button>
+              <button type="button">{"<"}</button>
+              <button type="button" className="current">
+                1
+              </button>
+              <button type="button">2</button>
+              <button type="button">3</button>
+              <button type="button">{">"}</button>
             </div>
           </div>
         </section>
@@ -483,7 +489,7 @@ function AdministrarAlumnosDocente() {
               <b>9 may. 2025</b>
             </div>
 
-            <button className="link-btn">
+            <button type="button" className="link-btn">
               Ver todos los alumnos
               <span>→</span>
             </button>
@@ -498,57 +504,23 @@ function AdministrarAlumnosDocente() {
             <div className="alert-line alert-red">
               <span></span>
               <p>16 alumnos presentan rezago en uno o más módulos.</p>
-              <button>Ver detalles</button>
+              <button type="button">Ver detalles</button>
             </div>
 
             <div className="alert-line alert-orange">
               <span></span>
               <p>5 alumnos tienen asistencia menor al 70%.</p>
-              <button>Ver detalles</button>
+              <button type="button">Ver detalles</button>
             </div>
 
             <div className="alert-line alert-blue">
               <span></span>
               <p>3 módulos próximos a evaluación final.</p>
-              <button>Ver calendario</button>
+              <button type="button">Ver calendario</button>
             </div>
-            <button className="link-btn">
+
+            <button type="button" className="link-btn">
               Ver todas las alertas
-              <span>→</span>
-            </button>
-          </article>
-
-          <article className="admin-small-card distribution-card">
-            <h2>
-              <FiPieChart />
-              Distribución por grupo
-            </h2>
-
-            <div className="distribution-content">
-              <div className="donut-chart"></div>
-
-              <div className="group-list">
-                <p>
-                  <span className="dot blue"></span>
-                  2°B <b>34 alumnos</b>
-                </p>
-                <p>
-                  <span className="dot green"></span>
-                  2°A <b>32 alumnos</b>
-                </p>
-                <p>
-                  <span className="dot purple"></span>
-                  1°C <b>31 alumnos</b>
-                </p>
-                <p>
-                  <span className="dot orange"></span>
-                  1°A <b>27 alumnos</b>
-                </p>
-              </div>
-            </div>
-
-            <button className="link-btn">
-              Ver reporte completo
               <span>→</span>
             </button>
           </article>
@@ -558,15 +530,19 @@ function AdministrarAlumnosDocente() {
           <p>© MathNova. Todos los derechos reservados.</p>
 
           <div className="admin-footer-icons">
-            <button onClick={() => irARuta("/login")}>
+            <button
+              type="button"
+              onClick={() => irARuta("/login", "logout")}
+              aria-label="Cerrar sesión"
+            >
               <FiLogOut className="logout-icon" />
             </button>
 
-            <button>
+            <button type="button" aria-label="Ayuda">
               <FiHelpCircle className="help-icon" />
             </button>
 
-            <button>
+            <button type="button" aria-label="Configuración">
               <FiSettings className="settings-icon" />
             </button>
           </div>

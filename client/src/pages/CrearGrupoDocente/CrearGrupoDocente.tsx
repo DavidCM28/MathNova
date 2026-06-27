@@ -13,9 +13,7 @@ import {
   FiGrid,
   FiUsers,
   FiEdit,
-  FiMessageSquare,
   FiBarChart2,
-  FiClipboard,
   FiChevronDown,
   FiLogOut,
   FiHelpCircle,
@@ -115,38 +113,31 @@ function CrearGrupoDocente() {
   };
 
   return (
-    <main className="crear-docente-page">
+    <main className="docente-page">
       <button
         type="button"
-        className={`crear-docente-hamburger-btn ${
-          menuOpen ? "hamburger-open" : ""
-        }`}
+        className={`docente-hamburger-btn ${menuOpen ? "hamburger-open" : ""}`}
         onClick={() => setMenuOpen(!menuOpen)}
+        aria-label="Abrir menú"
       >
         <img src={menuHamburguesa} alt="Menú" />
       </button>
 
       {menuOpen && (
         <div
-          className="crear-docente-menu-overlay"
+          className="docente-menu-overlay"
           onClick={() => setMenuOpen(false)}
         />
       )}
 
-      <aside
-        className={`crear-docente-sidebar ${menuOpen ? "sidebar-open" : ""}`}
-      >
-        <div className="crear-docente-sidebar-scroll">
-          <img
-            src={logo}
-            alt="MathNova"
-            className="crear-docente-sidebar-logo"
-          />
+      <aside className={`docente-sidebar ${menuOpen ? "sidebar-open" : ""}`}>
+        <div className="docente-sidebar-scroll">
+          <img src={logo} alt="MathNova" className="docente-sidebar-logo" />
 
-          <nav className="crear-docente-sidebar-menu">
+          <nav className="docente-sidebar-menu">
             <button
               type="button"
-              className={`crear-docente-menu-item ${
+              className={`docente-menu-item ${
                 selectedMenu === "dashboard" ? "active" : ""
               }`}
               onClick={() => irARuta("/dashboard-docente")}
@@ -155,10 +146,10 @@ function CrearGrupoDocente() {
               <span>Dashboard principal</span>
             </button>
 
-            <div className="crear-docente-menu-group">
+            <div className="docente-menu-group">
               <button
                 type="button"
-                className="crear-docente-menu-item group-title"
+                className="docente-menu-item group-title"
                 onClick={() => setGruposOpen(!gruposOpen)}
               >
                 <FiUsers />
@@ -169,12 +160,10 @@ function CrearGrupoDocente() {
                 />
               </button>
 
-              <div
-                className={`crear-docente-submenu ${gruposOpen ? "open" : ""}`}
-              >
+              <div className={`docente-submenu ${gruposOpen ? "open" : ""}`}>
                 <button
                   type="button"
-                  className={`crear-docente-submenu-item ${
+                  className={`docente-submenu-item ${
                     selectedMenu === "ver-grupos" ? "sub-active" : ""
                   }`}
                   onClick={() => irARuta("/mis-grupos-docente")}
@@ -185,7 +174,7 @@ function CrearGrupoDocente() {
 
                 <button
                   type="button"
-                  className={`crear-docente-submenu-item ${
+                  className={`docente-submenu-item ${
                     selectedMenu === "crear-grupo" ? "sub-active" : ""
                   }`}
                   onClick={() => irARuta("/crear-grupo-docente")}
@@ -196,12 +185,12 @@ function CrearGrupoDocente() {
               </div>
             </div>
 
-            <div className="crear-docente-menu-divider" />
+            <div className="docente-menu-divider" />
 
-            <div className="crear-docente-menu-group">
+            <div className="docente-menu-group">
               <button
                 type="button"
-                className="crear-docente-menu-item group-title"
+                className="docente-menu-item group-title"
                 onClick={() => setAlumnosOpen(!alumnosOpen)}
               >
                 <FiUsers />
@@ -212,12 +201,10 @@ function CrearGrupoDocente() {
                 />
               </button>
 
-              <div
-                className={`crear-docente-submenu ${alumnosOpen ? "open" : ""}`}
-              >
+              <div className={`docente-submenu ${alumnosOpen ? "open" : ""}`}>
                 <button
                   type="button"
-                  className={`crear-docente-submenu-item ${
+                  className={`docente-submenu-item ${
                     selectedMenu === "administrar-alumnos" ? "sub-active" : ""
                   }`}
                   onClick={() => irARuta("/administrar-alumnos-docente")}
@@ -228,7 +215,7 @@ function CrearGrupoDocente() {
 
                 <button
                   type="button"
-                  className={`crear-docente-submenu-item small-sub ${
+                  className={`docente-submenu-item small-sub ${
                     selectedMenu === "lista" ? "sub-active" : ""
                   }`}
                   onClick={() => irARuta("/lista-alumnos-docente")}
@@ -239,7 +226,7 @@ function CrearGrupoDocente() {
 
                 <button
                   type="button"
-                  className={`crear-docente-submenu-item ${
+                  className={`docente-submenu-item ${
                     selectedMenu === "calificaciones" ? "sub-active" : ""
                   }`}
                   onClick={() => irARuta("/calificaciones-docente")}
@@ -250,11 +237,11 @@ function CrearGrupoDocente() {
               </div>
             </div>
 
-            <div className="crear-docente-menu-divider" />
+            <div className="docente-menu-divider" />
 
             <button
               type="button"
-              className={`crear-docente-menu-item ${
+              className={`docente-menu-item ${
                 selectedMenu === "actividades" ? "active-soft" : ""
               }`}
               onClick={() => irARuta("/actividades-docente")}
@@ -265,29 +252,7 @@ function CrearGrupoDocente() {
 
             <button
               type="button"
-              className={`crear-docente-menu-item ${
-                selectedMenu === "retroalimentacion" ? "active-soft" : ""
-              }`}
-              onClick={() => irARuta("/retroalimentacion-docente")}
-            >
-              <FiMessageSquare />
-              <span>Retroalimentación</span>
-            </button>
-
-            <button
-              type="button"
-              className={`crear-docente-menu-item ${
-                selectedMenu === "evaluaciones" ? "active-soft" : ""
-              }`}
-              onClick={() => irARuta("/evaluaciones-docente")}
-            >
-              <FiClipboard />
-              <span>Evaluaciones</span>
-            </button>
-
-            <button
-              type="button"
-              className={`crear-docente-menu-item ${
+              className={`docente-menu-item ${
                 selectedMenu === "estadisticas" ? "active-soft" : ""
               }`}
               onClick={() => irARuta("/estadisticas-docente")}
@@ -298,7 +263,7 @@ function CrearGrupoDocente() {
           </nav>
         </div>
 
-        <div className="crear-docente-fox-card">
+        <div className="docente-fox-card">
           <img src={holaProfe} alt="Hola profe" />
           <span>¡Hola, profe!</span>
         </div>
@@ -386,35 +351,13 @@ function CrearGrupoDocente() {
               </div>
 
               {error && (
-                <div
-                  role="alert"
-                  style={{
-                    marginTop: "16px",
-                    padding: "12px 14px",
-                    border: "1px solid #fecaca",
-                    borderRadius: "8px",
-                    background: "#fff1f2",
-                    color: "#b42318",
-                    fontWeight: 700,
-                  }}
-                >
+                <div role="alert" className="crear-alert crear-alert-error">
                   {error}
                 </div>
               )}
 
               {mensaje && (
-                <div
-                  role="status"
-                  style={{
-                    marginTop: "16px",
-                    padding: "12px 14px",
-                    border: "1px solid #bbf7d0",
-                    borderRadius: "8px",
-                    background: "#f0fdf4",
-                    color: "#15803d",
-                    fontWeight: 700,
-                  }}
-                >
+                <div role="status" className="crear-alert crear-alert-success">
                   {mensaje}
                 </div>
               )}
@@ -436,10 +379,7 @@ function CrearGrupoDocente() {
               <div className="crear-search-box">
                 <FiSearch />
 
-                <input
-                  type="text"
-                  placeholder="Buscar alumnos por nombre"
-                />
+                <input type="text" placeholder="Buscar alumnos por nombre" />
               </div>
 
               <p className="selected-count">5 alumnos seleccionados</p>

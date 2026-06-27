@@ -10,10 +10,7 @@ import {
   FiGrid,
   FiUsers,
   FiEdit,
-  FiMessageSquare,
   FiBarChart2,
-  FiClipboard,
-  FiBell,
   FiChevronDown,
   FiLogOut,
   FiHelpCircle,
@@ -173,7 +170,7 @@ function ListaAlumnosDocente() {
     return localStorage.getItem("docente-alumnos-open") !== "false";
   });
 
-  const [selectedMenu, setSelectedMenu] = useState("lista");
+  const [selectedMenu] = useState("lista");
 
   const navigate = useNavigate();
 
@@ -193,20 +190,18 @@ function ListaAlumnosDocente() {
     localStorage.setItem("docente-alumnos-open", String(alumnosOpen));
   }, [alumnosOpen]);
 
-  const seleccionarMenu = (menu: string) => {
-    setSelectedMenu(menu);
-  };
-
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
     navigate(ruta);
   };
 
   return (
-    <main className="lista-page">
+    <main className="docente-page lista-page">
       <button
+        type="button"
         className={`docente-hamburger-btn ${menuOpen ? "hamburger-open" : ""}`}
         onClick={() => setMenuOpen(!menuOpen)}
+        aria-label="Abrir menú"
       >
         <img src={menuHamburguesa} alt="Menú" />
       </button>
@@ -224,6 +219,7 @@ function ListaAlumnosDocente() {
 
           <nav className="docente-sidebar-menu">
             <button
+              type="button"
               className={`docente-menu-item ${
                 selectedMenu === "dashboard" ? "active" : ""
               }`}
@@ -235,6 +231,7 @@ function ListaAlumnosDocente() {
 
             <div className="docente-menu-group">
               <button
+                type="button"
                 className="docente-menu-item group-title"
                 onClick={() => setGruposOpen(!gruposOpen)}
               >
@@ -247,6 +244,7 @@ function ListaAlumnosDocente() {
 
               <div className={`docente-submenu ${gruposOpen ? "open" : ""}`}>
                 <button
+                  type="button"
                   className={`docente-submenu-item ${
                     selectedMenu === "ver-grupos" ? "sub-active" : ""
                   }`}
@@ -257,6 +255,7 @@ function ListaAlumnosDocente() {
                 </button>
 
                 <button
+                  type="button"
                   className={`docente-submenu-item ${
                     selectedMenu === "crear-grupo" ? "sub-active" : ""
                   }`}
@@ -272,6 +271,7 @@ function ListaAlumnosDocente() {
 
             <div className="docente-menu-group">
               <button
+                type="button"
                 className="docente-menu-item group-title"
                 onClick={() => setAlumnosOpen(!alumnosOpen)}
               >
@@ -284,6 +284,7 @@ function ListaAlumnosDocente() {
 
               <div className={`docente-submenu ${alumnosOpen ? "open" : ""}`}>
                 <button
+                  type="button"
                   className={`docente-submenu-item ${
                     selectedMenu === "administrar-alumnos" ? "sub-active" : ""
                   }`}
@@ -294,6 +295,7 @@ function ListaAlumnosDocente() {
                 </button>
 
                 <button
+                  type="button"
                   className={`docente-submenu-item small-sub ${
                     selectedMenu === "lista" ? "sub-active" : ""
                   }`}
@@ -304,6 +306,7 @@ function ListaAlumnosDocente() {
                 </button>
 
                 <button
+                  type="button"
                   className={`docente-submenu-item ${
                     selectedMenu === "calificaciones" ? "sub-active" : ""
                   }`}
@@ -318,6 +321,7 @@ function ListaAlumnosDocente() {
             <div className="docente-menu-divider"></div>
 
             <button
+              type="button"
               className={`docente-menu-item ${
                 selectedMenu === "actividades" ? "active-soft" : ""
               }`}
@@ -328,26 +332,7 @@ function ListaAlumnosDocente() {
             </button>
 
             <button
-              className={`docente-menu-item ${
-                selectedMenu === "retroalimentacion" ? "active-soft" : ""
-              }`}
-              onClick={() => irARuta("/retroalimentacion-docente")}
-            >
-              <FiMessageSquare />
-              <span>Retroalimentación</span>
-            </button>
-
-            <button
-              className={`docente-menu-item ${
-                selectedMenu === "evaluaciones" ? "active-soft" : ""
-              }`}
-              onClick={() => irARuta("/evaluaciones-docente")}
-            >
-              <FiClipboard />
-              <span>Evaluaciones</span>
-            </button>
-
-            <button
+              type="button"
               className={`docente-menu-item ${
                 selectedMenu === "estadisticas" ? "active-soft" : ""
               }`}
@@ -367,11 +352,13 @@ function ListaAlumnosDocente() {
 
       <section className="lista-content">
         <header className="lista-header">
-          <h1>Lista de alumnos</h1>
-          <p>
-            Consulta la lista completa del grupo y la información académica de
-            tus alumnos.
-          </p>
+          <div className="lista-header-text">
+            <h1>Lista de alumnos</h1>
+            <p>
+              Consulta la lista completa del grupo y la información académica de
+              tus alumnos.
+            </p>
+          </div>
         </header>
 
         <section className="lista-toolbar">
@@ -400,12 +387,12 @@ function ListaAlumnosDocente() {
             </select>
           </div>
 
-          <button className="lista-outline-btn">
+          <button type="button" className="lista-outline-btn">
             <FiDownload />
             Exportar
           </button>
 
-          <button className="lista-blue-btn">
+          <button type="button" className="lista-blue-btn">
             <FiPrinter />
             Imprimir
           </button>
@@ -446,7 +433,7 @@ function ListaAlumnosDocente() {
 
                   <span className="lista-assistance">
                     <span
-                      className={`dot ${
+                      className={`lista-dot ${
                         alumno.asistencia < 65
                           ? "red"
                           : alumno.asistencia < 80
@@ -469,7 +456,11 @@ function ListaAlumnosDocente() {
                     </span>
                   </span>
 
-                  <button className="lista-more-btn">
+                  <button
+                    type="button"
+                    className="lista-more-btn"
+                    aria-label="Más opciones"
+                  >
                     <FiMoreVertical />
                   </button>
                 </div>
@@ -513,79 +504,43 @@ function ListaAlumnosDocente() {
                 <FiCalendar />
               </div>
 
-              <div className="bar-chart">
-                <div className="chart-lines">
+              <div className="lista-chart">
+                <div className="lista-chart-labels">
                   <span>100</span>
                   <span>50</span>
                   <span>0</span>
                 </div>
 
-                <div className="bars">
-                  <div className="bar-item">
+                <div className="lista-chart-bars">
+                  <div className="lista-chart-item">
                     <strong>85</strong>
-                    <span className="bar blue-bar"></span>
+                    <span className="lista-bar lista-blue-bar"></span>
                     <small>Lun</small>
                   </div>
 
-                  <div className="bar-item">
+                  <div className="lista-chart-item">
                     <strong>82</strong>
-                    <span className="bar green-bar"></span>
+                    <span className="lista-bar lista-green-bar"></span>
                     <small>Mar</small>
                   </div>
 
-                  <div className="bar-item">
+                  <div className="lista-chart-item">
                     <strong>79</strong>
-                    <span className="bar yellow-bar"></span>
+                    <span className="lista-bar lista-yellow-bar"></span>
                     <small>Mié</small>
                   </div>
 
-                  <div className="bar-item">
+                  <div className="lista-chart-item">
                     <strong>83</strong>
-                    <span className="bar purple-bar"></span>
+                    <span className="lista-bar lista-purple-bar"></span>
                     <small>Jue</small>
                   </div>
 
-                  <div className="bar-item">
+                  <div className="lista-chart-item">
                     <strong>86</strong>
-                    <span className="bar red-bar"></span>
+                    <span className="lista-bar lista-red-bar"></span>
                     <small>Vie</small>
                   </div>
-                </div>
-              </div>
-            </article>
-
-            <article className="lista-side-card desempeño-card">
-              <h2>Distribución por desempeño</h2>
-
-              <div className="donut-area">
-                <div className="donut">
-                  <span>28</span>
-                </div>
-
-                <div className="donut-legend">
-                  <p>
-                    <span className="legend-dot green-dot"></span>
-                    Excelente (9)
-                    <strong>32%</strong>
-                  </p>
-
-                  <p>
-                    <span className="legend-dot blue-dot"></span>
-                    Bueno (8)
-                    <strong>29%</strong>
-                  </p>
-
-                  <p>
-                    <span className="legend-dot orange-dot"></span>
-                    Regular (7)
-                    <strong>25%</strong>
-                  </p>
-
-                  <p>
-                    <span className="legend-dot red-dot"></span>
-                    En riesgo (4)
-                    <strong>14%</strong>
-                  </p>
                 </div>
               </div>
             </article>
@@ -596,15 +551,15 @@ function ListaAlumnosDocente() {
           <p>© MathNova. Todos los derechos reservados.</p>
 
           <div className="docente-footer-icons">
-            <button onClick={() => irARuta("/login")}>
+            <button type="button" onClick={() => irARuta("/login")}>
               <FiLogOut className="logout-icon" />
             </button>
 
-            <button>
+            <button type="button">
               <FiHelpCircle className="help-icon" />
             </button>
 
-            <button>
+            <button type="button">
               <FiSettings className="settings-icon" />
             </button>
           </div>

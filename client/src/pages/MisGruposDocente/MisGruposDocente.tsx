@@ -11,9 +11,7 @@ import {
   FiGrid,
   FiUsers,
   FiEdit,
-  FiMessageSquare,
   FiBarChart2,
-  FiClipboard,
   FiChevronDown,
   FiPlus,
   FiLogOut,
@@ -62,7 +60,11 @@ function MisGruposDocente() {
     setSelectedMenu(menu);
   };
 
-  const irARuta = (ruta: string) => {
+  const irARuta = (ruta: string, menu?: string) => {
+    if (menu) {
+      setSelectedMenu(menu);
+    }
+
     setMenuOpen(false);
     navigate(ruta);
   };
@@ -115,37 +117,44 @@ function MisGruposDocente() {
   );
 
   return (
-    <main className="mgd-page">
+    <main className="docente-page">
       <button
-        className={`mgd-hamburger-btn ${menuOpen ? "hamburger-open" : ""}`}
+        className={`docente-hamburger-btn ${menuOpen ? "hamburger-open" : ""}`}
         onClick={() => setMenuOpen(!menuOpen)}
+        type="button"
+        aria-label="Abrir menú"
       >
         <img src={menuHamburguesa} alt="Menú" />
       </button>
 
       {menuOpen && (
-        <div className="mgd-menu-overlay" onClick={() => setMenuOpen(false)} />
+        <div
+          className="docente-menu-overlay"
+          onClick={() => setMenuOpen(false)}
+        />
       )}
 
-      <aside className={`mgd-sidebar ${menuOpen ? "sidebar-open" : ""}`}>
-        <div className="mgd-sidebar-scroll">
-          <img src={logo} alt="MathNova" className="mgd-sidebar-logo" />
+      <aside className={`docente-sidebar ${menuOpen ? "sidebar-open" : ""}`}>
+        <div className="docente-sidebar-scroll">
+          <img src={logo} alt="MathNova" className="docente-sidebar-logo" />
 
-          <nav className="mgd-sidebar-menu">
+          <nav className="docente-sidebar-menu">
             <button
-              className={`mgd-menu-item ${
+              className={`docente-menu-item ${
                 selectedMenu === "dashboard" ? "active" : ""
               }`}
-              onClick={() => irARuta("/dashboard-docente")}
+              onClick={() => irARuta("/dashboard-docente", "dashboard")}
+              type="button"
             >
               <FiGrid />
               <span>Dashboard principal</span>
             </button>
 
-            <div className="mgd-menu-group">
+            <div className="docente-menu-group">
               <button
-                className="mgd-menu-item group-title"
+                className="docente-menu-item group-title"
                 onClick={() => setGruposOpen(!gruposOpen)}
+                type="button"
               >
                 <FiUsers />
                 <span>Mis grupos</span>
@@ -154,22 +163,24 @@ function MisGruposDocente() {
                 />
               </button>
 
-              <div className={`mgd-submenu ${gruposOpen ? "open" : ""}`}>
+              <div className={`docente-submenu ${gruposOpen ? "open" : ""}`}>
                 <button
-                  className={`mgd-submenu-item ${
+                  className={`docente-submenu-item ${
                     selectedMenu === "ver-grupos" ? "sub-active" : ""
                   }`}
                   onClick={() => seleccionarMenu("ver-grupos")}
+                  type="button"
                 >
                   <span></span>
                   Ver grupos
                 </button>
 
                 <button
-                  className={`mgd-submenu-item ${
+                  className={`docente-submenu-item ${
                     selectedMenu === "crear-grupo" ? "sub-active" : ""
                   }`}
-                  onClick={() => irARuta("/crear-grupo-docente")}
+                  onClick={() => irARuta("/crear-grupo-docente", "crear-grupo")}
+                  type="button"
                 >
                   <span></span>
                   Crear grupo
@@ -177,12 +188,13 @@ function MisGruposDocente() {
               </div>
             </div>
 
-            <div className="mgd-menu-divider"></div>
+            <div className="docente-menu-divider"></div>
 
-            <div className="mgd-menu-group">
+            <div className="docente-menu-group">
               <button
-                className="mgd-menu-item group-title"
+                className="docente-menu-item group-title"
                 onClick={() => setAlumnosOpen(!alumnosOpen)}
+                type="button"
               >
                 <FiUsers />
                 <span>Alumnos</span>
@@ -191,32 +203,42 @@ function MisGruposDocente() {
                 />
               </button>
 
-              <div className={`mgd-submenu ${alumnosOpen ? "open" : ""}`}>
+              <div className={`docente-submenu ${alumnosOpen ? "open" : ""}`}>
                 <button
-                  className={`mgd-submenu-item ${
+                  className={`docente-submenu-item ${
                     selectedMenu === "administrar-alumnos" ? "sub-active" : ""
                   }`}
-                  onClick={() => irARuta("/administrar-alumnos-docente")}
+                  onClick={() =>
+                    irARuta(
+                      "/administrar-alumnos-docente",
+                      "administrar-alumnos",
+                    )
+                  }
+                  type="button"
                 >
                   <span></span>
                   Administrar alumnos
                 </button>
 
                 <button
-                  className={`mgd-submenu-item small-sub ${
+                  className={`docente-submenu-item small-sub ${
                     selectedMenu === "lista" ? "sub-active" : ""
                   }`}
-                  onClick={() => irARuta("/lista-alumnos-docente")}
+                  onClick={() => irARuta("/lista-alumnos-docente", "lista")}
+                  type="button"
                 >
                   <span></span>
                   Lista
                 </button>
 
                 <button
-                  className={`mgd-submenu-item ${
+                  className={`docente-submenu-item ${
                     selectedMenu === "calificaciones" ? "sub-active" : ""
                   }`}
-                  onClick={() => irARuta("/calificaciones-docente")}
+                  onClick={() =>
+                    irARuta("/calificaciones-docente", "calificaciones")
+                  }
+                  type="button"
                 >
                   <span></span>
                   Calificaciones
@@ -224,43 +246,25 @@ function MisGruposDocente() {
               </div>
             </div>
 
-            <div className="mgd-menu-divider"></div>
+            <div className="docente-menu-divider"></div>
 
             <button
-              className={`mgd-menu-item ${
+              className={`docente-menu-item ${
                 selectedMenu === "actividades" ? "active-soft" : ""
               }`}
-              onClick={() => irARuta("/actividades-docente")}
+              onClick={() => irARuta("/actividades-docente", "actividades")}
+              type="button"
             >
               <FiEdit />
               <span>Actividades</span>
             </button>
 
             <button
-              className={`mgd-menu-item ${
-                selectedMenu === "retroalimentacion" ? "active-soft" : ""
-              }`}
-              onClick={() => irARuta("/retroalimentacion-docente")}
-            >
-              <FiMessageSquare />
-              <span>Retroalimentación</span>
-            </button>
-
-            <button
-              className={`mgd-menu-item ${
-                selectedMenu === "evaluaciones" ? "active-soft" : ""
-              }`}
-              onClick={() => irARuta("/evaluaciones-docente")}
-            >
-              <FiClipboard />
-              <span>Evaluaciones</span>
-            </button>
-
-            <button
-              className={`mgd-menu-item ${
+              className={`docente-menu-item ${
                 selectedMenu === "estadisticas" ? "active-soft" : ""
               }`}
-              onClick={() => irARuta("/estadisticas-docente")}
+              onClick={() => irARuta("/estadisticas-docente", "estadisticas")}
+              type="button"
             >
               <FiBarChart2 />
               <span>Estadísticas</span>
@@ -268,7 +272,7 @@ function MisGruposDocente() {
           </nav>
         </div>
 
-        <div className="mgd-fox-card">
+        <div className="docente-fox-card">
           <img src={holaProfe} alt="Hola profe" />
           <span>¡Hola, profe!</span>
         </div>
@@ -314,7 +318,8 @@ function MisGruposDocente() {
 
           <button
             className="mgd-create-btn"
-            onClick={() => irARuta("/crear-grupo-docente")}
+            onClick={() => irARuta("/crear-grupo-docente", "crear-grupo")}
+            type="button"
           >
             <FiPlus />
             Crear grupo
@@ -362,8 +367,8 @@ function MisGruposDocente() {
         <section className="mgd-main-grid">
           <section className="mgd-groups-grid">
             {gruposFiltrados.length > 0 ? (
-              gruposFiltrados.map((grupo, index) => (
-                <article className="mgd-group-card" key={index}>
+              gruposFiltrados.map((grupo) => (
+                <article className="mgd-group-card" key={grupo.nombre}>
                   <div className="mgd-group-top">
                     <h2 className={`mgd-title-${grupo.color}`}>
                       {grupo.nombre}
@@ -389,19 +394,30 @@ function MisGruposDocente() {
                   </div>
 
                   <div className="mgd-card-actions">
-                    <button onClick={() => irARuta("/lista-alumnos-docente")}>
+                    <button
+                      onClick={() => irARuta("/lista-alumnos-docente", "lista")}
+                      type="button"
+                    >
                       <FiEye />
                       Ver detalle
                     </button>
 
-                    <button onClick={() => irARuta("/crear-grupo-docente")}>
+                    <button
+                      onClick={() =>
+                        irARuta("/crear-grupo-docente", "crear-grupo")
+                      }
+                      type="button"
+                    >
                       <FiEdit />
                       Editar
                     </button>
 
                     <button
                       className="stats-btn"
-                      onClick={() => irARuta("/estadisticas-docente")}
+                      onClick={() =>
+                        irARuta("/estadisticas-docente", "estadisticas")
+                      }
+                      type="button"
                     >
                       <FiBarChart2 />
                       Ver estadísticas
@@ -424,15 +440,19 @@ function MisGruposDocente() {
           <p>© MathNova. Todos los derechos reservados.</p>
 
           <div className="mgd-footer-icons">
-            <button onClick={() => irARuta("/login")}>
+            <button
+              onClick={() => irARuta("/login", "logout")}
+              type="button"
+              aria-label="Cerrar sesión"
+            >
               <FiLogOut className="logout-icon" />
             </button>
 
-            <button>
+            <button type="button" aria-label="Ayuda">
               <FiHelpCircle className="help-icon" />
             </button>
 
-            <button>
+            <button type="button" aria-label="Configuración">
               <FiSettings className="settings-icon" />
             </button>
           </div>

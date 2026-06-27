@@ -11,7 +11,6 @@ import {
   FiGrid,
   FiUsers,
   FiEdit,
-  FiMessageSquare,
   FiBarChart2,
   FiClipboard,
   FiChevronDown,
@@ -61,11 +60,11 @@ function CalificacionesDocente() {
     localStorage.setItem("docente-alumnos-open", String(alumnosOpen));
   }, [alumnosOpen]);
 
-  const seleccionarMenu = (menu: string) => {
-    setSelectedMenu(menu);
-  };
+  const irARuta = (ruta: string, menu?: string) => {
+    if (menu) {
+      setSelectedMenu(menu);
+    }
 
-  const irARuta = (ruta: string) => {
     setMenuOpen(false);
     navigate(ruta);
   };
@@ -76,10 +75,10 @@ function CalificacionesDocente() {
       iniciales: "MF",
       nombre: "Mariana Fuentes Ruiz",
       color: "blue",
-      tarea1: "9.2",
-      tarea2: "9.5",
-      examen: "9.8",
-      proyecto: "9.5",
+      actividad1: "9.2",
+      actividad2: "9.5",
+      actividad3: "9.8",
+      actividad4: "9.5",
       promedio: "9.5",
       estado: "excelente",
     },
@@ -88,10 +87,10 @@ function CalificacionesDocente() {
       iniciales: "SJ",
       nombre: "Santiago Jiménez López",
       color: "purple",
-      tarea1: "8.5",
-      tarea2: "8.8",
-      examen: "8.0",
-      proyecto: "9.0",
+      actividad1: "8.5",
+      actividad2: "8.8",
+      actividad3: "8.0",
+      actividad4: "9.0",
       promedio: "8.6",
       estado: "bien",
     },
@@ -100,10 +99,10 @@ function CalificacionesDocente() {
       iniciales: "SA",
       nombre: "Ana Sofía García",
       color: "orange",
-      tarea1: "8.0",
-      tarea2: "9.0",
-      examen: "7.5",
-      proyecto: "8.8",
+      actividad1: "8.0",
+      actividad2: "9.0",
+      actividad3: "7.5",
+      actividad4: "8.8",
       promedio: "8.3",
       estado: "bien",
     },
@@ -112,10 +111,10 @@ function CalificacionesDocente() {
       iniciales: "DG",
       nombre: "Diego Hernández",
       color: "gray",
-      tarea1: "7.0",
-      tarea2: "8.0",
-      examen: "6.5",
-      proyecto: "8.0",
+      actividad1: "7.0",
+      actividad2: "8.0",
+      actividad3: "6.5",
+      actividad4: "8.0",
       promedio: "7.4",
       estado: "pendiente",
     },
@@ -124,10 +123,10 @@ function CalificacionesDocente() {
       iniciales: "LM",
       nombre: "Lucía Medina",
       color: "silver",
-      tarea1: "7.5",
-      tarea2: "7.0",
-      examen: "7.0",
-      proyecto: "7.5",
+      actividad1: "7.5",
+      actividad2: "7.0",
+      actividad3: "7.0",
+      actividad4: "7.5",
       promedio: "7.3",
       estado: "pendiente",
     },
@@ -136,10 +135,10 @@ function CalificacionesDocente() {
       iniciales: "CT",
       nombre: "Carla Torres",
       color: "green",
-      tarea1: "8.8",
-      tarea2: "9.0",
-      examen: "9.0",
-      proyecto: "9.2",
+      actividad1: "8.8",
+      actividad2: "9.0",
+      actividad3: "9.0",
+      actividad4: "9.2",
       promedio: "9.0",
       estado: "bien",
     },
@@ -148,10 +147,10 @@ function CalificacionesDocente() {
       iniciales: "OL",
       nombre: "Óscar López",
       color: "yellow",
-      tarea1: "6.0",
-      tarea2: "6.5",
-      examen: "6.0",
-      proyecto: "6.8",
+      actividad1: "6.0",
+      actividad2: "6.5",
+      actividad3: "6.0",
+      actividad4: "6.8",
       promedio: "6.3",
       estado: "alerta",
     },
@@ -160,10 +159,10 @@ function CalificacionesDocente() {
       iniciales: "VS",
       nombre: "Valeria Sánchez",
       color: "violet",
-      tarea1: "7.8",
-      tarea2: "8.2",
-      examen: "7.5",
-      proyecto: "8.0",
+      actividad1: "7.8",
+      actividad2: "8.2",
+      actividad3: "7.5",
+      actividad4: "8.0",
       promedio: "7.9",
       estado: "pendiente",
     },
@@ -172,8 +171,10 @@ function CalificacionesDocente() {
   return (
     <main className="docente-page">
       <button
+        type="button"
         className={`docente-hamburger-btn ${menuOpen ? "hamburger-open" : ""}`}
         onClick={() => setMenuOpen(!menuOpen)}
+        aria-label="Abrir menú"
       >
         <img src={menuHamburguesa} alt="Menú" />
       </button>
@@ -191,10 +192,11 @@ function CalificacionesDocente() {
 
           <nav className="docente-sidebar-menu">
             <button
+              type="button"
               className={`docente-menu-item ${
                 selectedMenu === "dashboard" ? "active" : ""
               }`}
-              onClick={() => irARuta("/dashboard-docente")}
+              onClick={() => irARuta("/dashboard-docente", "dashboard")}
             >
               <FiGrid />
               <span>Dashboard principal</span>
@@ -202,6 +204,7 @@ function CalificacionesDocente() {
 
             <div className="docente-menu-group">
               <button
+                type="button"
                 className="docente-menu-item group-title"
                 onClick={() => setGruposOpen(!gruposOpen)}
               >
@@ -214,20 +217,22 @@ function CalificacionesDocente() {
 
               <div className={`docente-submenu ${gruposOpen ? "open" : ""}`}>
                 <button
+                  type="button"
                   className={`docente-submenu-item ${
                     selectedMenu === "ver-grupos" ? "sub-active" : ""
                   }`}
-                  onClick={() => irARuta("/mis-grupos-docente")}
+                  onClick={() => irARuta("/mis-grupos-docente", "ver-grupos")}
                 >
                   <span></span>
                   Ver grupos
                 </button>
 
                 <button
+                  type="button"
                   className={`docente-submenu-item ${
                     selectedMenu === "crear-grupo" ? "sub-active" : ""
                   }`}
-                  onClick={() => irARuta("/crear-grupo-docente")}
+                  onClick={() => irARuta("/crear-grupo-docente", "crear-grupo")}
                 >
                   <span></span>
                   Crear grupo
@@ -239,6 +244,7 @@ function CalificacionesDocente() {
 
             <div className="docente-menu-group">
               <button
+                type="button"
                 className="docente-menu-item group-title"
                 onClick={() => setAlumnosOpen(!alumnosOpen)}
               >
@@ -251,30 +257,40 @@ function CalificacionesDocente() {
 
               <div className={`docente-submenu ${alumnosOpen ? "open" : ""}`}>
                 <button
+                  type="button"
                   className={`docente-submenu-item ${
                     selectedMenu === "administrar-alumnos" ? "sub-active" : ""
                   }`}
-                  onClick={() => irARuta("/administrar-alumnos-docente")}
+                  onClick={() =>
+                    irARuta(
+                      "/administrar-alumnos-docente",
+                      "administrar-alumnos",
+                    )
+                  }
                 >
                   <span></span>
                   Administrar alumnos
                 </button>
 
                 <button
+                  type="button"
                   className={`docente-submenu-item small-sub ${
                     selectedMenu === "lista" ? "sub-active" : ""
                   }`}
-                  onClick={() => irARuta("/lista-alumnos-docente")}
+                  onClick={() => irARuta("/lista-alumnos-docente", "lista")}
                 >
                   <span></span>
                   Lista
                 </button>
 
                 <button
+                  type="button"
                   className={`docente-submenu-item ${
                     selectedMenu === "calificaciones" ? "sub-active" : ""
                   }`}
-                  onClick={() => irARuta("/calificaciones-docente")}
+                  onClick={() =>
+                    irARuta("/calificaciones-docente", "calificaciones")
+                  }
                 >
                   <span></span>
                   Calificaciones
@@ -285,40 +301,22 @@ function CalificacionesDocente() {
             <div className="docente-menu-divider"></div>
 
             <button
+              type="button"
               className={`docente-menu-item ${
                 selectedMenu === "actividades" ? "active-soft" : ""
               }`}
-              onClick={() => irARuta("/actividades-docente")}
+              onClick={() => irARuta("/actividades-docente", "actividades")}
             >
               <FiEdit />
               <span>Actividades</span>
             </button>
 
             <button
-              className={`docente-menu-item ${
-                selectedMenu === "retroalimentacion" ? "active-soft" : ""
-              }`}
-              onClick={() => irARuta("/retroalimentacion-docente")}
-            >
-              <FiMessageSquare />
-              <span>Retroalimentación</span>
-            </button>
-
-            <button
-              className={`docente-menu-item ${
-                selectedMenu === "evaluaciones" ? "active-soft" : ""
-              }`}
-              onClick={() => irARuta("/evaluaciones-docente")}
-            >
-              <FiClipboard />
-              <span>Evaluaciones</span>
-            </button>
-
-            <button
+              type="button"
               className={`docente-menu-item ${
                 selectedMenu === "estadisticas" ? "active-soft" : ""
               }`}
-              onClick={() => irARuta("/estadisticas-docente")}
+              onClick={() => irARuta("/estadisticas-docente", "estadisticas")}
             >
               <FiBarChart2 />
               <span>Estadísticas</span>
@@ -332,11 +330,14 @@ function CalificacionesDocente() {
         </div>
       </aside>
 
-      <section className="docente-content calificaciones-content">
-        <section className="calif-header">
-          <div className="calif-title-box">
+      <section className="calificaciones-content">
+        <section className="calif-hero-card">
+          <div className="calif-hero-text">
             <h1>Calificaciones</h1>
-            <p>Revisa y actualiza el rendimiento académico de tus alumnos.</p>
+            <p>
+              Revisa, registra y da seguimiento al rendimiento de tus alumnos en
+              sus actividades.
+            </p>
           </div>
 
           <img
@@ -347,7 +348,7 @@ function CalificacionesDocente() {
         </section>
 
         <section className="calif-filters">
-          <button className="calif-filter-card">
+          <button type="button" className="calif-filter-card">
             <FiUsers />
             <div>
               <small>Grupo</small>
@@ -356,7 +357,7 @@ function CalificacionesDocente() {
             <FiChevronDown className="filter-chevron" />
           </button>
 
-          <button className="calif-filter-card">
+          <button type="button" className="calif-filter-card">
             <FiBookOpen />
             <div>
               <small>Módulo</small>
@@ -365,7 +366,7 @@ function CalificacionesDocente() {
             <FiChevronDown className="filter-chevron" />
           </button>
 
-          <button className="calif-filter-card">
+          <button type="button" className="calif-filter-card">
             <FiCalendar />
             <div>
               <small>Periodo</small>
@@ -379,7 +380,7 @@ function CalificacionesDocente() {
             <input type="text" placeholder="Buscar alumno..." />
           </label>
 
-          <button className="calif-register-btn">
+          <button type="button" className="calif-register-btn">
             <FiPlus />
             Registrar calificación
           </button>
@@ -391,6 +392,7 @@ function CalificacionesDocente() {
               <h3>Promedio del grupo</h3>
               <strong>8.2</strong>
             </div>
+
             <span className="calif-stat-icon">
               <FiBarChart2 />
             </span>
@@ -398,11 +400,12 @@ function CalificacionesDocente() {
 
           <article className="calif-stat-card blue">
             <div>
-              <h3>Aprobados</h3>
+              <h3>Alumnos aprobados</h3>
               <strong>
-                26 <small>(86.7%)</small>
+                26 <small>86.7%</small>
               </strong>
             </div>
+
             <span className="calif-stat-icon">
               <FiUserCheck />
             </span>
@@ -410,11 +413,12 @@ function CalificacionesDocente() {
 
           <article className="calif-stat-card orange">
             <div>
-              <h3>Pendientes de evaluar</h3>
+              <h3>Actividades pendientes</h3>
               <strong>
-                8 <small>(13.3%)</small>
+                8 <small>por revisar</small>
               </strong>
             </div>
+
             <span className="calif-stat-icon">
               <FiClipboard />
             </span>
@@ -424,9 +428,10 @@ function CalificacionesDocente() {
             <div>
               <h3>Mejor promedio</h3>
               <strong>
-                9.8 <small>Mariana Fuentes Ruiz</small>
+                9.5 <small>Mariana</small>
               </strong>
             </div>
+
             <span className="calif-stat-icon">
               <FiAward />
             </span>
@@ -440,19 +445,19 @@ function CalificacionesDocente() {
                 <span>#</span>
                 <span>Alumno</span>
                 <span>
-                  Tarea 1 <small>(20%)</small>
+                  Actividad 1 <small>25%</small>
                 </span>
                 <span>
-                  Tarea 2 <small>(20%)</small>
+                  Actividad 2 <small>25%</small>
                 </span>
                 <span>
-                  Examen <small>(30%)</small>
+                  Actividad 3 <small>25%</small>
                 </span>
                 <span>
-                  Proyecto <small>(30%)</small>
+                  Actividad 4 <small>25%</small>
                 </span>
                 <span>
-                  Promedio <small>(100%)</small>
+                  Promedio <small>100%</small>
                 </span>
                 <span></span>
               </div>
@@ -462,16 +467,16 @@ function CalificacionesDocente() {
                   <span className="calif-number">{alumno.numero}</span>
 
                   <span className="calif-student">
-                    <b className={`student-avatar ${alumno.color}`}>
+                    <b className={`calif-student-avatar ${alumno.color}`}>
                       {alumno.iniciales}
                     </b>
                     {alumno.nombre}
                   </span>
 
-                  <span>{alumno.tarea1}</span>
-                  <span>{alumno.tarea2}</span>
-                  <span>{alumno.examen}</span>
-                  <span>{alumno.proyecto}</span>
+                  <span>{alumno.actividad1}</span>
+                  <span>{alumno.actividad2}</span>
+                  <span>{alumno.actividad3}</span>
+                  <span>{alumno.actividad4}</span>
 
                   <span>
                     <b
@@ -501,14 +506,16 @@ function CalificacionesDocente() {
               <p>Mostrando 1 a 8 de 30 alumnos</p>
 
               <div className="calif-pagination">
-                <button>
+                <button type="button">
                   <FiChevronLeft />
                 </button>
-                <button className="active-page">1</button>
-                <button>2</button>
-                <button>3</button>
-                <button>4</button>
-                <button>
+                <button type="button" className="active-page">
+                  1
+                </button>
+                <button type="button">2</button>
+                <button type="button">3</button>
+                <button type="button">4</button>
+                <button type="button">
                   <FiChevronRight />
                 </button>
               </div>
@@ -519,43 +526,29 @@ function CalificacionesDocente() {
             <article className="calif-chart-card">
               <h2>Promedio por actividad</h2>
 
-              <div className="bar-chart">
-                <div className="bar-item">
+              <div className="calif-bar-chart">
+                <div className="calif-bar-item">
                   <strong>8.1</strong>
-                  <span className="bar blue-bar"></span>
-                  <small>
-                    Tarea 1<br />
-                    (20%)
-                  </small>
+                  <span className="calif-bar blue-bar"></span>
+                  <small>Act. 1</small>
                 </div>
 
-                <div className="bar-item">
+                <div className="calif-bar-item">
                   <strong>8.4</strong>
-                  <span className="bar green-bar"></span>
-                  <small>
-                    Tarea 2<br />
-                    (20%)
-                  </small>
+                  <span className="calif-bar green-bar"></span>
+                  <small>Act. 2</small>
                 </div>
 
-                <div className="bar-item">
+                <div className="calif-bar-item">
                   <strong>7.8</strong>
-                  <span className="bar orange-bar"></span>
-                  <small>
-                    Examen
-                    <br />
-                    (30%)
-                  </small>
+                  <span className="calif-bar orange-bar"></span>
+                  <small>Act. 3</small>
                 </div>
 
-                <div className="bar-item">
+                <div className="calif-bar-item">
                   <strong>8.3</strong>
-                  <span className="bar purple-bar"></span>
-                  <small>
-                    Proyecto
-                    <br />
-                    (30%)
-                  </small>
+                  <span className="calif-bar purple-bar"></span>
+                  <small>Act. 4</small>
                 </div>
               </div>
             </article>
@@ -584,15 +577,19 @@ function CalificacionesDocente() {
           <p>© MathNova. Todos los derechos reservados.</p>
 
           <div className="docente-footer-icons">
-            <button onClick={() => irARuta("/login")}>
+            <button
+              type="button"
+              onClick={() => irARuta("/login", "logout")}
+              aria-label="Cerrar sesión"
+            >
               <FiLogOut className="logout-icon" />
             </button>
 
-            <button>
+            <button type="button" aria-label="Ayuda">
               <FiHelpCircle className="help-icon" />
             </button>
 
-            <button>
+            <button type="button" aria-label="Configuración">
               <FiSettings className="settings-icon" />
             </button>
           </div>

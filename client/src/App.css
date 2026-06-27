@@ -1,184 +1,1328 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
+/* =========================================================
+   APP.CSS GENERAL - MATHNOVA
+   Menú docente + responsive general para laptops/tablets/móvil
+   ========================================================= */
 
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+* {
+  box-sizing: border-box;
 }
 
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
 }
 
-#center {
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #eef5ff;
+  overflow-x: hidden;
+  font-family: "Poppins", Arial, sans-serif;
+  color: #111827;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+:root {
+  --mn-bg: #eef5ff;
+  --mn-white: #ffffff;
+  --mn-blue: #0058ff;
+  --mn-blue-dark: #003fc0;
+  --mn-text: #111827;
+  --mn-soft-text: #41506b;
+  --mn-border: #e4eaf5;
+  --mn-border-soft: #edf1f8;
+  --mn-shadow: 0 12px 28px rgba(15, 23, 42, 0.09);
+  --mn-blue-shadow: 0 12px 24px rgba(0, 88, 255, 0.22);
+
+  /* AQUÍ CONTROLAS EL ANCHO GENERAL DEL MENÚ */
+  --sidebar-width: clamp(275px, 21vw, 305px);
+
+  /* AQUÍ CONTROLAS LOS ESPACIOS DEL CONTENIDO */
+  --content-x: clamp(18px, 2vw, 32px);
+}
+
+/* =========================================================
+   LAYOUT GENERAL PARA PÁGINAS DEL DASHBOARD
+   ========================================================= */
+
+.docente-page {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--mn-bg);
+  display: flex;
+  color: var(--mn-text);
+}
+
+/* Botón hamburguesa oculto en desktop */
+.docente-hamburger-btn {
+  display: none;
+}
+
+/* Contenido general de cualquier página docente */
+.docente-content {
+  flex: 1;
+  min-width: 0;
+  overflow-x: hidden;
+  padding: 0 var(--content-x);
+}
+
+/* Contenedor general opcional para páginas */
+.docente-container {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* Tarjeta general reutilizable */
+.docente-card {
+  background: var(--mn-white);
+  border-radius: 16px;
+  box-shadow: var(--mn-shadow);
+  padding: clamp(16px, 1.6vw, 26px);
+  transition:
+    transform 0.28s ease,
+    box-shadow 0.28s ease;
+}
+
+.docente-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 34px rgba(0, 88, 255, 0.13);
+}
+
+.docente-card h2 {
+  margin: 0 0 16px;
+  font-size: clamp(18px, 1.5vw, 22px);
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #07122e;
+}
+
+/* =========================================================
+   SIDEBAR GENERAL DOCENTE
+   ========================================================= */
+
+.docente-sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  height: 100vh;
+  background: var(--mn-white);
+  border-radius: 0 34px 34px 0;
+  padding: 42px 28px 22px;
   display: flex;
   flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
+  align-items: center;
+  z-index: 20;
+  box-shadow: 12px 0 28px rgba(15, 23, 42, 0.05);
+  position: sticky;
+  top: 0;
+  overflow: hidden;
 }
 
-#next-steps {
+/* Línea azul del scroll del menú */
+.docente-sidebar::after {
+  content: "";
+  position: absolute;
+  top: 40px;
+  right: 25px;
+  width: 5px;
+  height: calc(100vh - 160px);
+  background: rgba(0, 88, 255, 0.22);
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.docente-sidebar-scroll {
+  width: 100%;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 22px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.docente-sidebar-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.docente-sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.docente-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+.docente-sidebar-scroll::-webkit-scrollbar-button,
+.docente-sidebar-scroll::-webkit-scrollbar-button:single-button,
+.docente-sidebar-scroll::-webkit-scrollbar-button:vertical,
+.docente-sidebar-scroll::-webkit-scrollbar-button:horizontal {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+.docente-sidebar-scroll::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Logo del menú */
+.docente-sidebar-logo {
+  width: clamp(150px, 13vw, 185px);
+  display: block;
+  margin: 0 auto 34px;
+}
+
+/* Menú */
+.docente-sidebar-menu {
+  width: 100%;
   display: flex;
-  border-top: 1px solid var(--border);
+  flex-direction: column;
+  gap: 12px;
+}
+
+.docente-menu-item {
+  width: 100%;
+  min-height: 58px;
+  border: none;
+  background: transparent;
+  color: var(--mn-text);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: clamp(14px, 1.05vw, 16px);
+  font-weight: 900;
+  border-radius: 15px;
+  padding: 0 20px;
+  cursor: pointer;
   text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
+  transition: all 0.28s ease;
 }
 
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
+.docente-menu-item span {
+  line-height: 1.2;
 }
 
-#next-steps ul {
-  list-style: none;
+.docente-menu-item svg {
+  font-size: clamp(22px, 1.9vw, 26px);
+  flex-shrink: 0;
+  transition: transform 0.28s ease;
+  color: currentColor;
+}
+
+/* HOVER SOLO PARA LOS QUE NO ESTÁN ACTIVOS */
+.docente-menu-item:not(.active):not(.active-soft):hover {
+  background: #eef5ff;
+  color: var(--mn-blue);
+  transform: translateX(7px) scale(1.02);
+  box-shadow: 0 8px 18px rgba(0, 88, 255, 0.12);
+}
+
+.docente-menu-item:not(.active):not(.active-soft):hover svg {
+  transform: scale(1.15) rotate(-4deg);
+}
+
+/* BOTÓN ACTIVO AZUL */
+.docente-menu-item.active {
+  background: var(--mn-blue);
+  color: #ffffff;
+  box-shadow: var(--mn-blue-shadow);
+}
+
+/* CUANDO PASAS EL CURSOR SOBRE EL ACTIVO, SE QUEDA AZUL */
+.docente-menu-item.active:hover {
+  background: var(--mn-blue);
+  color: #ffffff;
+  transform: none;
+  box-shadow: var(--mn-blue-shadow);
+}
+
+/* ACTIVO SUAVE */
+.docente-menu-item.active-soft {
+  background: #eef5ff;
+  color: var(--mn-blue);
+}
+
+/* CUANDO PASAS EL CURSOR SOBRE ACTIVO SUAVE, NO SE PONE BLANCO */
+.docente-menu-item.active-soft:hover {
+  background: #eaf2ff;
+  color: var(--mn-blue);
+  transform: translateX(4px);
+  box-shadow: 0 8px 18px rgba(0, 88, 255, 0.12);
+}
+
+.docente-menu-group {
+  width: 100%;
+}
+
+.group-title {
+  justify-content: flex-start;
+}
+
+.group-title .chevron {
+  margin-left: auto;
+  font-size: 21px;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.chevron-open {
+  transform: rotate(180deg);
+}
+
+/* Submenú */
+.docente-submenu {
+  width: 100%;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
   padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
+  transition:
+    max-height 0.45s ease,
+    opacity 0.35s ease,
+    transform 0.35s ease,
+    padding 0.35s ease;
+}
 
-  .logo {
+.docente-submenu.open {
+  max-height: 260px;
+  opacity: 1;
+  transform: translateY(0);
+  padding: 7px 0 8px;
+}
+
+.docente-submenu-item {
+  width: 100%;
+  min-height: 38px;
+  border: none;
+  background: transparent;
+  color: #1f2a44;
+  font-size: clamp(13px, 1vw, 15px);
+  font-weight: 700;
+  text-align: left;
+  padding: 8px 0 8px 52px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  border-radius: 12px;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.28s ease;
+}
+
+.docente-submenu.open .docente-submenu-item {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.docente-submenu-item span {
+  width: 6px;
+  height: 6px;
+  background: var(--mn-blue);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.docente-submenu-item:hover {
+  background: #eef5ff;
+  color: var(--mn-blue);
+  transform: translateX(5px);
+}
+
+.docente-submenu-item.sub-active {
+  background: #eaf2ff;
+  color: var(--mn-blue);
+  font-weight: 900;
+}
+
+.docente-submenu-item.small-sub {
+  padding-left: 52px;
+}
+
+.docente-menu-divider {
+  width: 78%;
+  height: 1px;
+  background: var(--mn-border-soft);
+  margin: 18px auto 8px;
+}
+
+/* Card del zorrito del menú */
+.docente-fox-card {
+  width: 100%;
+  min-height: 66px;
+  margin-top: 18px;
+  background: var(--mn-white);
+  border: 1px solid var(--mn-border);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 9px 16px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  flex-shrink: 0;
+}
+
+.docente-fox-card img {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+}
+
+.docente-fox-card span {
+  color: var(--mn-blue);
+  font-size: clamp(15px, 1.35vw, 19px);
+  font-weight: 800;
+}
+
+/* Fondo oscuro cuando se abre el menú en celular */
+.docente-menu-overlay {
+  display: none;
+}
+
+/* =========================================================
+   HERO GENERAL
+   ========================================================= */
+
+.docente-hero {
+  min-height: clamp(360px, 29vw, 430px);
+  position: relative;
+  overflow: hidden;
+  padding: clamp(28px, 3vw, 40px) 0 0 clamp(12px, 1.5vw, 20px);
+}
+
+.docente-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(238, 245, 255, 0.97) 0%,
+    rgba(238, 245, 255, 0.88) 35%,
+    rgba(238, 245, 255, 0.38) 56%,
+    rgba(238, 245, 255, 0) 79%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+.docente-hero-text {
+  width: min(650px, 58vw);
+  position: relative;
+  z-index: 3;
+}
+
+.docente-hero-text h1 {
+  margin: 0;
+  font-size: clamp(34px, 4vw, 56px);
+  line-height: 1.1;
+  font-weight: 900;
+  color: #070d2b;
+  letter-spacing: -1px;
+}
+
+.docente-hero-text p {
+  width: min(560px, 52vw);
+  font-size: clamp(16px, 1.45vw, 20px);
+  line-height: 1.45;
+  color: var(--mn-soft-text);
+  margin: 24px 0 28px;
+}
+
+.docente-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.docente-primary-btn,
+.docente-secondary-btn {
+  min-height: 54px;
+  border-radius: 10px;
+  font-size: clamp(14px, 1vw, 16px);
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  white-space: nowrap;
+  transition: all 0.28s ease;
+}
+
+.docente-primary-btn {
+  border: none;
+  background: var(--mn-blue);
+  color: #ffffff;
+  padding: 0 clamp(22px, 2vw, 32px);
+  box-shadow: 0 12px 24px rgba(0, 88, 255, 0.24);
+}
+
+.docente-secondary-btn {
+  border: 2px solid var(--mn-blue);
+  background: #ffffff;
+  color: var(--mn-blue);
+  padding: 0 clamp(22px, 2vw, 32px);
+}
+
+.docente-primary-btn:hover,
+.docente-secondary-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 22px rgba(0, 88, 255, 0.22);
+}
+
+.docente-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: clamp(360px, 29vw, 430px);
+  object-fit: cover;
+  object-position: right center;
+  z-index: 0;
+}
+
+/* =========================================================
+   GRIDS GENERALES RESPONSIVE
+   ========================================================= */
+
+.docente-stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
+  gap: clamp(16px, 1.7vw, 24px);
+  margin-top: -45px;
+  position: relative;
+  z-index: 5;
+  padding: 0 clamp(12px, 1.3vw, 18px);
+}
+
+.docente-stat-card {
+  min-height: 112px;
+  border-radius: 14px;
+  padding: clamp(16px, 1.8vw, 30px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--mn-shadow);
+  transition: all 0.28s ease;
+}
+
+.docente-stat-card:hover {
+  transform: translateY(-7px) scale(1.015);
+}
+
+.docente-stat-card h3 {
+  margin: 0;
+  font-size: clamp(16px, 1.4vw, 20px);
+  font-weight: 900;
+}
+
+.docente-stat-card strong {
+  display: block;
+  font-size: clamp(36px, 3.6vw, 50px);
+  line-height: 1;
+  margin-top: 10px;
+  font-weight: 900;
+}
+
+.docente-stat-card.green-card {
+  background: #f4fff8;
+  color: #0d943f;
+}
+
+.docente-stat-card.yellow-card {
+  background: #fffaf0;
+  color: #e89500;
+}
+
+.docente-stat-card.red-card {
+  background: #fff6f6;
+  color: #d9302c;
+}
+
+.stat-icon-circle {
+  width: clamp(54px, 4.5vw, 66px);
+  height: clamp(54px, 4.5vw, 66px);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.stat-icon-circle svg {
+  font-size: clamp(28px, 2.5vw, 35px);
+}
+
+.docente-main-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(300px, 1.15fr)
+    minmax(300px, 1fr)
+    minmax(280px, 0.95fr);
+  gap: clamp(16px, 1.6vw, 22px);
+  margin-top: 28px;
+  padding: 0 clamp(12px, 1.3vw, 18px);
+}
+
+.docente-right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* =========================================================
+   TABLAS GENERALES
+   ========================================================= */
+
+.docente-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 1.4fr 0.6fr 0.7fr 1fr;
+  align-items: center;
+  min-height: 43px;
+  border-bottom: 1px solid #edf0f5;
+  font-size: clamp(10px, 0.9vw, 12px);
+  color: #263249;
+  gap: 8px;
+}
+
+.table-head {
+  min-height: 30px;
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 800;
+}
+
+.student-name {
+  position: relative;
+  padding-left: 30px;
+  font-weight: 800;
+}
+
+.student-name::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.blue-dot::before {
+  background: #1264e8;
+}
+
+.light-dot::before {
+  background: #e8eef8;
+}
+
+.gray-dot::before {
+  background: #6b7280;
+}
+
+.green-dot::before {
+  background: #168a39;
+}
+
+.yellow-dot::before {
+  background: #ffc928;
+}
+
+.tag {
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.red-tag {
+  background: #ffdcdc;
+  color: #ef4444;
+}
+
+.orange-tag {
+  background: #ffe6b8;
+  color: #f59e0b;
+}
+
+.strong-red-tag {
+  background: #e53935;
+  color: #ffffff;
+}
+
+.green-tag {
+  background: #dff8eb;
+  color: #18a957;
+}
+
+/* =========================================================
+   LISTAS / RANKING
+   ========================================================= */
+
+.performance-list {
+  width: 100%;
+}
+
+.performance-row {
+  display: grid;
+  grid-template-columns: 32px 1.5fr 0.5fr 0.5fr 32px;
+  align-items: center;
+  min-height: 39px;
+  border-bottom: 1px solid #edf0f5;
+  font-size: clamp(10px, 0.9vw, 12px);
+  color: #111827;
+  gap: 8px;
+}
+
+.performance-head {
+  min-height: 30px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.performance-head span {
+  font-weight: 800;
+}
+
+.rank {
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 900;
+  background: #e8eef8;
+  color: #111827;
+}
+
+.rank-1 {
+  background: #ffc928;
+}
+
+.rank-2 {
+  background: #dbe4ef;
+}
+
+.rank-3 {
+  background: #e89500;
+  color: #ffffff;
+}
+
+.performance-row img {
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+}
+
+/* =========================================================
+   RECURSOS / BOTONES INTERNOS
+   ========================================================= */
+
+.resources-card {
+  min-height: 136px;
+}
+
+.resources-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 14px;
+}
+
+.resources-list button {
+  min-height: 86px;
+  background: #ffffff;
+  border: 1px solid #edf0f5;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.28s ease;
+}
+
+.resources-list button:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 88, 255, 0.12);
+}
+
+.resources-list img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.resources-list span {
+  font-size: 14px;
+  font-weight: 900;
+  color: #111827;
+}
+
+.notices-card {
+  min-height: 122px;
+}
+
+.notices-card h2 {
+  color: var(--mn-blue);
+}
+
+.notices-card p {
+  margin: 9px 0;
+  font-size: 15px;
+  color: var(--mn-soft-text);
+}
+
+/* =========================================================
+   FOOTER GENERAL
+   ========================================================= */
+
+.docente-footer {
+  min-height: 68px;
+  margin: 10px clamp(12px, 1.3vw, 18px) 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.docente-footer p {
+  margin: 0;
+  font-size: 15px;
+  color: #1f2a44;
+}
+
+.docente-footer-icons {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.docente-footer-icons button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.docente-footer-icons svg {
+  font-size: 33px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-icon {
+  color: #ff4d4d;
+}
+
+.logout-icon:hover {
+  transform: translateX(8px) scale(1.18);
+  color: #ff1f1f;
+}
+
+.help-icon {
+  color: var(--mn-blue);
+}
+
+.help-icon:hover {
+  transform: translateY(-5px) scale(1.15);
+  color: var(--mn-blue-dark);
+}
+
+.settings-icon {
+  color: var(--mn-blue);
+}
+
+.settings-icon:hover {
+  transform: rotate(180deg) scale(1.2);
+  color: var(--mn-blue-dark);
+}
+
+/* =========================================================
+   RESPONSIVE - LAPTOPS MEDIANAS
+   992px a 1199px
+   ========================================================= */
+
+@media (max-width: 1199px) {
+  :root {
+    --sidebar-width: 270px;
+    --content-x: 22px;
+  }
+
+  .docente-sidebar {
+    padding: 38px 24px 22px;
+  }
+
+  .docente-sidebar::after {
+    right: 22px;
+  }
+
+  .docente-menu-item {
+    min-height: 54px;
+    padding: 0 17px;
+    gap: 14px;
+  }
+
+  .docente-submenu-item {
+    padding-left: 46px;
+  }
+
+  .docente-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .docente-stats-row {
+    margin-top: -35px;
+  }
+
+  .docente-hero-text {
+    width: 60vw;
+  }
+
+  .docente-hero-text p {
+    width: 50vw;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - TABLET
+   768px a 991px
+   ========================================================= */
+
+@media (max-width: 991px) {
+  .docente-page {
+    display: block;
+  }
+
+  .docente-hamburger-btn {
+    display: flex;
+    position: fixed;
+    top: 22px;
+    left: 22px;
+    width: 70px;
+    height: 70px;
+    border: none;
+    background: #ffffff;
+    border-radius: 20px;
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 22px rgba(0, 88, 255, 0.2);
+    cursor: pointer;
+    transition:
+      transform 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+
+  .docente-hamburger-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 26px rgba(0, 88, 255, 0.25);
+  }
+
+  .docente-hamburger-btn.hamburger-open {
+    display: none;
+  }
+
+  .docente-hamburger-btn img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+  }
+
+  .docente-sidebar {
+    position: fixed;
+    top: 0;
+    left: -330px;
+    width: 295px;
+    min-width: 295px;
+    height: 100dvh;
+    min-height: 100dvh;
+    border-radius: 0 28px 28px 0;
+    padding: 45px 24px 28px;
+    z-index: 90;
+    transition: left 0.3s ease;
+  }
+
+  .docente-sidebar::after {
+    top: 55px;
+    right: 22px;
+    height: calc(100dvh - 120px);
+    width: 3px;
+  }
+
+  .docente-sidebar.sidebar-open {
+    left: 0;
+  }
+
+  .docente-menu-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.28);
+    z-index: 80;
+  }
+
+  .docente-content {
+    padding: 0;
+  }
+
+  .docente-hero {
+    min-height: 540px;
+    padding: 125px 24px 0;
+  }
+
+  .docente-hero::before {
+    background: rgba(238, 245, 255, 0.78);
+  }
+
+  .docente-hero-text {
+    width: 100%;
+  }
+
+  .docente-hero-text p {
+    width: 100%;
+  }
+
+  .docente-hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .docente-primary-btn,
+  .docente-secondary-btn {
+    width: 100%;
+  }
+
+  .docente-stats-row {
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    margin-top: 20px;
+    padding: 0 18px;
+  }
+
+  .docente-main-grid {
+    grid-template-columns: 1fr;
+    padding: 0 18px;
+  }
+
+  .docente-footer {
+    padding: 22px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - CELULAR GRANDE
+   576px a 767px
+   ========================================================= */
+
+@media (max-width: 767px) {
+  .docente-hamburger-btn {
+    width: 66px;
+    height: 66px;
+    top: 20px;
+    left: 18px;
+  }
+
+  .docente-hamburger-btn img {
+    width: 44px;
+    height: 44px;
+  }
+
+  .docente-sidebar {
+    width: 285px;
+    min-width: 285px;
+    left: -320px;
+  }
+
+  .docente-sidebar-logo {
+    width: 165px;
+  }
+
+  .docente-hero {
+    min-height: 520px;
+    padding: 120px 20px 0;
+  }
+
+  .docente-hero-text h1 {
+    letter-spacing: -0.5px;
+  }
+
+  .docente-stats-row {
+    grid-template-columns: 1fr;
+    padding: 0 18px;
+  }
+
+  .docente-stat-card {
+    min-height: 105px;
+  }
+
+  .docente-main-grid {
+    padding: 0 18px;
+  }
+
+  .table-row {
+    grid-template-columns: 1.2fr 0.5fr 0.45fr 0.9fr;
+    font-size: 10px;
+  }
+
+  .performance-row {
+    grid-template-columns: 28px 1.3fr 0.45fr 0.45fr 26px;
+    font-size: 10px;
+  }
+
+  .resources-list {
+    grid-template-columns: 1fr;
+  }
+
+  .docente-footer {
+    min-height: auto;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    gap: 16px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - CELULAR CHIQUITO
+   Hasta 575px
+   ========================================================= */
+
+@media (max-width: 575px) {
+  .docente-hamburger-btn {
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+    top: 16px;
+    left: 16px;
+  }
+
+  .docente-hamburger-btn img {
+    width: 38px;
+    height: 38px;
+  }
+
+  .docente-sidebar {
+    width: 270px;
+    min-width: 270px;
+    left: -305px;
+    padding: 36px 20px 24px;
+  }
+
+  .docente-sidebar::after {
+    right: 18px;
+  }
+
+  .docente-sidebar-scroll {
+    padding-right: 18px;
+  }
+
+  .docente-sidebar-logo {
+    width: 150px;
+    margin-bottom: 26px;
+  }
+
+  .docente-menu-item {
+    min-height: 50px;
+    font-size: 14px;
+    padding: 0 14px;
+    gap: 12px;
+  }
+
+  .docente-menu-item svg {
+    font-size: 22px;
+  }
+
+  .docente-submenu-item {
+    font-size: 13px;
+    padding-left: 38px;
+  }
+
+  .docente-fox-card {
+    padding: 8px 12px;
+    gap: 9px;
+  }
+
+  .docente-fox-card img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .docente-fox-card span {
+    font-size: 14px;
+  }
+
+  .docente-hero {
+    min-height: 500px;
+    padding: 105px 18px 0;
+  }
+
+  .docente-hero-text h1 {
+    font-size: 32px;
+  }
+
+  .docente-hero-text p {
+    font-size: 16px;
+    margin: 18px 0 24px;
+  }
+
+  .docente-primary-btn,
+  .docente-secondary-btn {
+    min-height: 50px;
+    font-size: 14px;
+    padding: 0 18px;
+  }
+
+  .docente-stats-row,
+  .docente-main-grid {
+    padding: 0 14px;
+  }
+
+  .docente-card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .docente-card h2 {
+    font-size: 18px;
+  }
+
+  .docente-stat-card strong {
+    font-size: 38px;
+  }
+
+  .docente-stat-card h3 {
+    font-size: 17px;
+  }
+
+  .stat-icon-circle {
+    width: 52px;
+    height: 52px;
+  }
+
+  .stat-icon-circle svg {
+    font-size: 28px;
+  }
+
+  .table-row {
+    grid-template-columns: 1.1fr 0.45fr 0.35fr 0.8fr;
+    gap: 5px;
+  }
+
+  .student-name {
+    padding-left: 24px;
+  }
+
+  .student-name::before {
+    width: 18px;
     height: 18px;
   }
 
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
+  .tag {
+    padding: 5px 7px;
+    font-size: 9px;
   }
 
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
+  .docente-footer-icons svg {
+    font-size: 29px;
   }
 }
 
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
+/* =========================================================
+   PANTALLAS MUY GRANDES
+   ========================================================= */
+
+@media (min-width: 1500px) {
+  .docente-content {
+    padding-left: 34px;
+    padding-right: 34px;
+  }
+
+  .docente-main-grid {
+    gap: 26px;
+  }
+
+  .docente-stats-row {
+    gap: 26px;
   }
 }
 
-.ticks {
-  position: relative;
-  width: 100%;
+/* =========================================================
+   CORRECCIÓN: TÍTULOS DESPLEGABLES DEL MENÚ
+   Mis grupos / Alumnos NO deben verse como seleccionados
+   ========================================================= */
 
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
+.docente-menu-item.group-title {
+  background: transparent;
+  color: var(--mn-text);
+  box-shadow: none;
+}
 
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
+/* Hover suave, pero sin parecer seleccionado */
+.docente-menu-item.group-title:not(.active):not(.active-soft):hover {
+  background: #f4f8ff;
+  color: var(--mn-text);
+  transform: translateX(4px);
+  box-shadow: 0 8px 18px rgba(0, 88, 255, 0.07);
+}
+
+.docente-menu-item.group-title:not(.active):not(.active-soft):hover svg {
+  color: var(--mn-text);
+  transform: scale(1.08);
+}
+
+/* Quita que se quede pintado después de dar clic */
+.docente-menu-item.group-title:focus,
+.docente-menu-item.group-title:focus-visible {
+  outline: none;
+  background: transparent;
+  color: var(--mn-text);
+  box-shadow: none;
+}
+
+/* La flecha sí puede girar, pero sin cambiar el color */
+.docente-menu-item.group-title .chevron {
+  color: var(--mn-text);
+}
+
+/* El elemento realmente seleccionado seguirá siendo el submenú */
+.docente-submenu-item.sub-active {
+  background: #eaf2ff;
+  color: var(--mn-blue);
+  font-weight: 900;
 }

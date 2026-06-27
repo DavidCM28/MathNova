@@ -64,20 +64,52 @@ function DashboardDocente() {
     localStorage.setItem("docente-alumnos-open", String(alumnosOpen));
   }, [alumnosOpen]);
 
-  const seleccionarMenu = (menu: string) => {
+  const irARuta = (ruta: string, menu: string) => {
     setSelectedMenu(menu);
-  };
-
-  const irARuta = (ruta: string) => {
     setMenuOpen(false);
     navigate(ruta);
   };
+
+  const alumnosMejorDesempeno = [
+    {
+      lugar: "1",
+      nombre: "Mariana Fernanda Ruiz",
+      grupo: "2°A",
+      puntos: "320",
+    },
+    {
+      lugar: "2",
+      nombre: "Santiago Jiménez",
+      grupo: "1°B",
+      puntos: "250",
+    },
+    {
+      lugar: "3",
+      nombre: "Ana Sofía García",
+      grupo: "3°A",
+      puntos: "210",
+    },
+    {
+      lugar: "4",
+      nombre: "Diego Hernández",
+      grupo: "1°C",
+      puntos: "129",
+    },
+    {
+      lugar: "5",
+      nombre: "Lucía Medina",
+      grupo: "3°B",
+      puntos: "90",
+    },
+  ];
 
   return (
     <main className="docente-page">
       <button
         className={`docente-hamburger-btn ${menuOpen ? "hamburger-open" : ""}`}
         onClick={() => setMenuOpen(!menuOpen)}
+        type="button"
+        aria-label="Abrir menú"
       >
         <img src={menuHamburguesa} alt="Menú" />
       </button>
@@ -98,7 +130,8 @@ function DashboardDocente() {
               className={`docente-menu-item ${
                 selectedMenu === "dashboard" ? "active" : ""
               }`}
-              onClick={() => irARuta("/dashboard-docente")}
+              onClick={() => irARuta("/dashboard-docente", "dashboard")}
+              type="button"
             >
               <FiGrid />
               <span>Dashboard principal</span>
@@ -108,6 +141,7 @@ function DashboardDocente() {
               <button
                 className="docente-menu-item group-title"
                 onClick={() => setGruposOpen(!gruposOpen)}
+                type="button"
               >
                 <FiUsers />
                 <span>Mis grupos</span>
@@ -121,7 +155,8 @@ function DashboardDocente() {
                   className={`docente-submenu-item ${
                     selectedMenu === "ver-grupos" ? "sub-active" : ""
                   }`}
-                  onClick={() => irARuta("/mis-grupos-docente")}
+                  onClick={() => irARuta("/mis-grupos-docente", "ver-grupos")}
+                  type="button"
                 >
                   <span></span>
                   Ver grupos
@@ -131,7 +166,8 @@ function DashboardDocente() {
                   className={`docente-submenu-item ${
                     selectedMenu === "crear-grupo" ? "sub-active" : ""
                   }`}
-                  onClick={() => irARuta("/crear-grupo-docente")}
+                  onClick={() => irARuta("/crear-grupo-docente", "crear-grupo")}
+                  type="button"
                 >
                   <span></span>
                   Crear grupo
@@ -145,6 +181,7 @@ function DashboardDocente() {
               <button
                 className="docente-menu-item group-title"
                 onClick={() => setAlumnosOpen(!alumnosOpen)}
+                type="button"
               >
                 <FiUsers />
                 <span>Alumnos</span>
@@ -158,7 +195,13 @@ function DashboardDocente() {
                   className={`docente-submenu-item ${
                     selectedMenu === "administrar-alumnos" ? "sub-active" : ""
                   }`}
-                  onClick={() => irARuta("/administrar-alumnos-docente")}
+                  onClick={() =>
+                    irARuta(
+                      "/administrar-alumnos-docente",
+                      "administrar-alumnos",
+                    )
+                  }
+                  type="button"
                 >
                   <span></span>
                   Administrar alumnos
@@ -168,7 +211,8 @@ function DashboardDocente() {
                   className={`docente-submenu-item small-sub ${
                     selectedMenu === "lista" ? "sub-active" : ""
                   }`}
-                  onClick={() => irARuta("/lista-alumnos-docente")}
+                  onClick={() => irARuta("/lista-alumnos-docente", "lista")}
+                  type="button"
                 >
                   <span></span>
                   Lista
@@ -178,7 +222,10 @@ function DashboardDocente() {
                   className={`docente-submenu-item ${
                     selectedMenu === "calificaciones" ? "sub-active" : ""
                   }`}
-                  onClick={() => irARuta("/calificaciones-docente")}
+                  onClick={() =>
+                    irARuta("/calificaciones-docente", "calificaciones")
+                  }
+                  type="button"
                 >
                   <span></span>
                   Calificaciones
@@ -192,7 +239,8 @@ function DashboardDocente() {
               className={`docente-menu-item ${
                 selectedMenu === "actividades" ? "active-soft" : ""
               }`}
-              onClick={() => irARuta("/actividades-docente")}
+              onClick={() => irARuta("/actividades-docente", "actividades")}
+              type="button"
             >
               <FiEdit />
               <span>Actividades</span>
@@ -200,29 +248,10 @@ function DashboardDocente() {
 
             <button
               className={`docente-menu-item ${
-                selectedMenu === "retroalimentacion" ? "active-soft" : ""
-              }`}
-              onClick={() => irARuta("/retroalimentacion-docente")}
-            >
-              <FiMessageSquare />
-              <span>Retroalimentación</span>
-            </button>
-
-            <button
-              className={`docente-menu-item ${
-                selectedMenu === "evaluaciones" ? "active-soft" : ""
-              }`}
-              onClick={() => irARuta("/evaluaciones-docente")}
-            >
-              <FiClipboard />
-              <span>Evaluaciones</span>
-            </button>
-
-            <button
-              className={`docente-menu-item ${
                 selectedMenu === "estadisticas" ? "active-soft" : ""
               }`}
-              onClick={() => irARuta("/estadisticas-docente")}
+              onClick={() => irARuta("/estadisticas-docente", "estadisticas")}
+              type="button"
             >
               <FiBarChart2 />
               <span>Estadísticas</span>
@@ -240,6 +269,7 @@ function DashboardDocente() {
         <section className="docente-hero">
           <div className="docente-hero-text">
             <h1>Bienvenido al Dashboard Docente</h1>
+
             <p>
               Gestiona tus grupos, revisa actividades y da seguimiento al
               progreso de tus alumnos.
@@ -248,7 +278,8 @@ function DashboardDocente() {
             <div className="docente-hero-actions">
               <button
                 className="docente-primary-btn"
-                onClick={() => seleccionarMenu("crear-grupo")}
+                onClick={() => irARuta("/crear-grupo-docente", "crear-grupo")}
+                type="button"
               >
                 <FiPlus />
                 Crear grupo
@@ -256,7 +287,8 @@ function DashboardDocente() {
 
               <button
                 className="docente-secondary-btn"
-                onClick={() => irARuta("/mis-grupos-docente")}
+                onClick={() => irARuta("/mis-grupos-docente", "ver-grupos")}
+                type="button"
               >
                 <FiUserPlus />
                 Ver mis grupos
@@ -277,6 +309,7 @@ function DashboardDocente() {
               <h3>Grupos activos</h3>
               <strong>6</strong>
             </div>
+
             <div className="stat-icon-circle">
               <FiUsers />
             </div>
@@ -287,6 +320,7 @@ function DashboardDocente() {
               <h3>Alumnos registrados</h3>
               <strong>148</strong>
             </div>
+
             <div className="stat-icon-circle">
               <FiUser />
             </div>
@@ -297,6 +331,7 @@ function DashboardDocente() {
               <h3>Actividades por revisar</h3>
               <strong>12</strong>
             </div>
+
             <div className="stat-icon-circle">
               <FiClipboard />
             </div>
@@ -318,38 +353,38 @@ function DashboardDocente() {
                 <span>Situación</span>
               </div>
 
-              <div className="table-row">
+              <div className="table-row dashboard-row-hover">
                 <span className="student-name blue-dot">Emiliano Morales</span>
                 <span>2°B</span>
-                <span></span>
+                <span className="dashboard-empty">—</span>
                 <span className="tag red-tag">Bajo rendimiento</span>
               </div>
 
-              <div className="table-row">
+              <div className="table-row dashboard-row-hover">
                 <span className="student-name light-dot">Valeria Sánchez</span>
                 <span>1°C</span>
-                <span></span>
+                <span className="dashboard-empty">—</span>
                 <span className="tag orange-tag">Tareas pendientes</span>
               </div>
 
-              <div className="table-row">
+              <div className="table-row dashboard-row-hover">
                 <span className="student-name gray-dot">Jose Ramírez</span>
                 <span>2°A</span>
-                <span></span>
+                <span className="dashboard-empty">—</span>
                 <span className="tag strong-red-tag">Sin entregar</span>
               </div>
 
-              <div className="table-row">
+              <div className="table-row dashboard-row-hover">
                 <span className="student-name green-dot">Camila Torres</span>
                 <span>1°C</span>
-                <span></span>
+                <span className="dashboard-empty">—</span>
                 <span className="tag red-tag">Bajo rendimiento</span>
               </div>
 
-              <div className="table-row">
+              <div className="table-row dashboard-row-hover">
                 <span className="student-name yellow-dot">Oscar López</span>
                 <span>2°B</span>
-                <span></span>
+                <span className="dashboard-empty">—</span>
                 <span className="tag green-tag">Asistencia baja</span>
               </div>
             </div>
@@ -366,23 +401,24 @@ function DashboardDocente() {
                 <span>#</span>
                 <span>Alumno</span>
                 <span>Grupo</span>
-                <span>Puntos/Estrellas</span>
-                <span></span>
+                <span>Puntos</span>
+                <span>Estrellas</span>
               </div>
 
-              {[
-                ["1", "Mariana Fernanda Ruiz", "2°A", "320"],
-                ["2", "Santiago Jiménez", "1°B", "250"],
-                ["3", "Ana Sofía García", "3°A", "210"],
-                ["4", "Diego Hernández", "1°C", "129"],
-                ["5", "Lucía Medina", "3°B", "90"],
-              ].map((item, index) => (
-                <div className="performance-row" key={index}>
-                  <span className={`rank rank-${index + 1}`}>{item[0]}</span>
-                  <span>{item[1]}</span>
-                  <span>{item[2]}</span>
-                  <span>{item[3]}</span>
-                  <img src={puntosEstrellas} alt="Estrella" />
+              {alumnosMejorDesempeno.map((alumno, index) => (
+                <div
+                  className="performance-row dashboard-row-hover"
+                  key={alumno.nombre}
+                >
+                  <span className={`rank rank-${index + 1}`}>
+                    {alumno.lugar}
+                  </span>
+                  <span>{alumno.nombre}</span>
+                  <span>{alumno.grupo}</span>
+                  <span>{alumno.puntos}</span>
+                  <span className="stars-cell">
+                    <img src={puntosEstrellas} alt="Estrella" />
+                  </span>
                 </div>
               ))}
             </div>
@@ -393,17 +429,17 @@ function DashboardDocente() {
               <h2>Recursos recomendados</h2>
 
               <div className="resources-list">
-                <button>
+                <button type="button">
                   <img src={algebraDocente} alt="Álgebra" />
                   <span>Álgebra</span>
                 </button>
 
-                <button>
+                <button type="button">
                   <img src={geometriaDocente} alt="Geometría" />
                   <span>Geometría</span>
                 </button>
 
-                <button>
+                <button type="button">
                   <img src={estadisticaDocente} alt="Estadística" />
                   <span>Estadística</span>
                 </button>
@@ -426,15 +462,19 @@ function DashboardDocente() {
           <p>© MathNova. Todos los derechos reservados.</p>
 
           <div className="docente-footer-icons">
-            <button onClick={() => irARuta("/login")}>
+            <button
+              onClick={() => irARuta("/login", "logout")}
+              type="button"
+              aria-label="Cerrar sesión"
+            >
               <FiLogOut className="logout-icon" />
             </button>
 
-            <button>
+            <button type="button" aria-label="Ayuda">
               <FiHelpCircle className="help-icon" />
             </button>
 
-            <button>
+            <button type="button" aria-label="Configuración">
               <FiSettings className="settings-icon" />
             </button>
           </div>
