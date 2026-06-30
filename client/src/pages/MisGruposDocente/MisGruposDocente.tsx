@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./MisGruposDocente.css";
 
+import {
+  obtenerGrupos,
+  actualizarGrupo,
+  type Grupo,
+} from "../../services/groupService";
+
 import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 import holaProfe from "../../assets/hola-profe-docente.png";
@@ -23,10 +29,17 @@ import {
   FiPieChart,
 } from "react-icons/fi";
 
+const coloresGrupo = ["blue", "purple", "green", "orange"];
+
 function MisGruposDocente() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [grupoSeleccionado, setGrupoSeleccionado] = useState("Todos");
+
+  const [grupos, setGrupos] = useState<Grupo[]>([]);
+  const [cargandoGrupos, setCargandoGrupos] = useState(true);
+  const [errorGrupos, setErrorGrupos] = useState("");
+  const [editandoId, setEditandoId] = useState<number | null>(null);
 
   const [gruposOpen, setGruposOpen] = useState(() => {
     return localStorage.getItem("docente-grupos-open") !== "false";
@@ -56,6 +69,28 @@ function MisGruposDocente() {
     localStorage.setItem("docente-alumnos-open", String(alumnosOpen));
   }, [alumnosOpen]);
 
+  useEffect(() => {
+    const cargarGrupos = async () => {
+      try {
+        setCargandoGrupos(true);
+        setErrorGrupos("");
+
+        const gruposBD = await obtenerGrupos();
+        setGrupos(gruposBD);
+      } catch (error) {
+        setErrorGrupos(
+          error instanceof Error
+            ? error.message
+            : "No se pudieron cargar los grupos.",
+        );
+      } finally {
+        setCargandoGrupos(false);
+      }
+    };
+
+    void cargarGrupos();
+  }, []);
+
   const seleccionarMenu = (menu: string) => {
     setSelectedMenu(menu);
   };
@@ -69,52 +104,70 @@ function MisGruposDocente() {
     navigate(ruta);
   };
 
-  const grupos = [
-    {
-      nombre: "2°A",
-      alumnos: "24 alumnos",
-      promedio: "85%",
-      color: "blue",
-    },
-    {
-      nombre: "2°B",
-      alumnos: "22 alumnos",
-      promedio: "78%",
-      color: "purple",
-    },
-    {
-      nombre: "1°C",
-      alumnos: "26 alumnos",
-      promedio: "88%",
-      color: "green",
-    },
-    {
-      nombre: "3°A",
-      alumnos: "24 alumnos",
-      promedio: "76%",
-      color: "orange",
-    },
-  ];
+  const editarGrupo = async (grupo: Grupo) => {
+    const nuevoNombre = window.prompt(
+      "Escribe el nuevo nombre del grupo:",
+      grupo.nombre_grupo,
+    );
+
+    if (nuevoNombre === null) return;
+
+    const nombreLimpio = nuevoNombre.trim();
+
+    if (!nombreLimpio) {
+      setErrorGrupos("El nombre del grupo no puede estar vacío.");
+      return;
+    }
+
+    if (nombreLimpio.length > 100) {
+      setErrorGrupos("El nombre no puede superar los 100 caracteres.");
+      return;
+    }
+
+    try {
+      setEditandoId(grupo.id_grupo);
+      setErrorGrupos("");
+
+      const resultado = await actualizarGrupo(grupo.id_grupo, nombreLimpio);
+
+      setGrupos((gruposActuales) =>
+        gruposActuales.map((grupoActual) =>
+          grupoActual.id_grupo === grupo.id_grupo
+            ? {
+                ...grupoActual,
+                nombre_grupo: resultado.grupo.nombre_grupo,
+              }
+            : grupoActual,
+        ),
+      );
+    } catch (error) {
+      setErrorGrupos(
+        error instanceof Error ? error.message : "No se pudo editar el grupo.",
+      );
+    } finally {
+      setEditandoId(null);
+    }
+  };
 
   const gruposFiltrados = grupos.filter((grupo) => {
     const textoBusqueda = busqueda.toLowerCase().trim();
-    const coincideBusqueda = grupo.nombre.toLowerCase().includes(textoBusqueda);
+
+    const coincideBusqueda = grupo.nombre_grupo
+      .toLowerCase()
+      .includes(textoBusqueda);
+
     const coincideGrupo =
-      grupoSeleccionado === "Todos" || grupo.nombre === grupoSeleccionado;
+      grupoSeleccionado === "Todos" ||
+      String(grupo.id_grupo) === grupoSeleccionado;
 
     return coincideBusqueda && coincideGrupo;
   });
 
   const totalAlumnos = grupos.reduce((total, grupo) => {
-    return total + Number(grupo.alumnos.split(" ")[0]);
+    return total + (grupo.total_alumnos ?? 0);
   }, 0);
 
-  const promedioGeneral = Math.round(
-    grupos.reduce(
-      (total, grupo) => total + Number(grupo.promedio.replace("%", "")),
-      0,
-    ) / grupos.length,
-  );
+  const promedioGeneral = 0;
 
   return (
     <main className="docente-page">
@@ -309,9 +362,12 @@ function MisGruposDocente() {
               value={grupoSeleccionado}
               onChange={(e) => setGrupoSeleccionado(e.target.value)}
             >
-              <option>Todos</option>
+              <option value="Todos">Todos</option>
+
               {grupos.map((grupo) => (
-                <option key={grupo.nombre}>{grupo.nombre}</option>
+                <option key={grupo.id_grupo} value={grupo.id_grupo}>
+                  {grupo.nombre_grupo}
+                </option>
               ))}
             </select>
           </label>
@@ -325,6 +381,13 @@ function MisGruposDocente() {
             Crear grupo
           </button>
         </section>
+
+        {errorGrupos && (
+          <article className="mgd-empty-card">
+            <h3>{errorGrupos}</h3>
+            <p>Revisa que el backend esté encendido y que tu sesión siga activa.</p>
+          </article>
+        )}
 
         <section className="mgd-stats-row">
           <article className="mgd-stat-card blue-card">
@@ -366,70 +429,85 @@ function MisGruposDocente() {
 
         <section className="mgd-main-grid">
           <section className="mgd-groups-grid">
-            {gruposFiltrados.length > 0 ? (
-              gruposFiltrados.map((grupo) => (
-                <article className="mgd-group-card" key={grupo.nombre}>
-                  <div className="mgd-group-top">
-                    <h2 className={`mgd-title-${grupo.color}`}>
-                      {grupo.nombre}
-                    </h2>
+            {cargandoGrupos ? (
+              <article className="mgd-empty-card">
+                <h3>Cargando grupos...</h3>
+                <p>Estamos buscando los grupos registrados en la base de datos.</p>
+              </article>
+            ) : gruposFiltrados.length > 0 ? (
+              gruposFiltrados.map((grupo, index) => {
+                const color = coloresGrupo[index % coloresGrupo.length];
+                const alumnosTexto = `${grupo.total_alumnos ?? 0} alumnos`;
+                const promedioTexto = "0%";
 
-                    <span className="mgd-students-pill">
-                      <FiUsers />
-                      {grupo.alumnos}
-                    </span>
-                  </div>
+                return (
+                  <article className="mgd-group-card" key={grupo.id_grupo}>
+                    <div className="mgd-group-top">
+                      <h2 className={`mgd-title-${color}`}>
+                        {grupo.nombre_grupo}
+                      </h2>
 
-                  <div className="mgd-group-average-block">
-                    <div className={`mgd-average-icon icon-${grupo.color}`}>
-                      <FiPieChart />
+                      <span className="mgd-students-pill">
+                        <FiUsers />
+                        {alumnosTexto}
+                      </span>
                     </div>
 
-                    <div>
-                      <span>Promedio del grupo</span>
-                      <strong className={`mgd-average-${grupo.color}`}>
-                        {grupo.promedio}
-                      </strong>
+                    <div className="mgd-group-average-block">
+                      <div className={`mgd-average-icon icon-${color}`}>
+                        <FiPieChart />
+                      </div>
+
+                      <div>
+                        <span>Promedio del grupo</span>
+                        <strong className={`mgd-average-${color}`}>
+                          {promedioTexto}
+                        </strong>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="mgd-card-actions">
-                    <button
-                      onClick={() => irARuta("/lista-alumnos-docente", "lista")}
-                      type="button"
-                    >
-                      <FiEye />
-                      Ver detalle
-                    </button>
+                    <div className="mgd-card-actions">
+                      <button
+                        onClick={() =>
+                          irARuta("/lista-alumnos-docente", "lista")
+                        }
+                        type="button"
+                      >
+                        <FiEye />
+                        Ver detalle
+                      </button>
 
-                    <button
-                      onClick={() =>
-                        irARuta("/crear-grupo-docente", "crear-grupo")
-                      }
-                      type="button"
-                    >
-                      <FiEdit />
-                      Editar
-                    </button>
+                      <button
+                        onClick={() => void editarGrupo(grupo)}
+                        type="button"
+                        disabled={editandoId === grupo.id_grupo}
+                      >
+                        <FiEdit />
+                        {editandoId === grupo.id_grupo
+                          ? "Guardando..."
+                          : "Editar"}
+                      </button>
 
-                    <button
-                      className="stats-btn"
-                      onClick={() =>
-                        irARuta("/estadisticas-docente", "estadisticas")
-                      }
-                      type="button"
-                    >
-                      <FiBarChart2 />
-                      Ver estadísticas
-                    </button>
-                  </div>
-                </article>
-              ))
+                      <button
+                        className="stats-btn"
+                        onClick={() =>
+                          irARuta("/estadisticas-docente", "estadisticas")
+                        }
+                        type="button"
+                      >
+                        <FiBarChart2 />
+                        Ver estadísticas
+                      </button>
+                    </div>
+                  </article>
+                );
+              })
             ) : (
               <article className="mgd-empty-card">
                 <h3>No se encontraron grupos</h3>
                 <p>
-                  Intenta buscar otro nombre o cambia el filtro seleccionado.
+                  Intenta buscar otro nombre, cambia el filtro o crea un nuevo
+                  grupo.
                 </p>
               </article>
             )}
