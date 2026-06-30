@@ -301,14 +301,21 @@ function ActividadesMathData() {
                       {item.tiempo}
                     </small>
 
-                    <button>Iniciar</button>
+                    <button
+                      onClick={() => {
+                        if (index === 0) {
+                          navigate("/actividades-math-data/generador-energia");
+                        }
+                      }}
+                    >
+                      Iniciar
+                    </button>
                   </div>
                 </div>
               </article>
             ))}
           </div>
         </section>
-
         <footer className="mathdatax-footer">
           <div className="mathdatax-footer-icons">
             <button onClick={() => navigate("/login")}>

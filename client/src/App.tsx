@@ -10,6 +10,7 @@ import Recompensas from "./pages/Recompensas/Recompensas";
 import Estadisticas from "./pages/Estadisticas/Estadisticas";
 import ActividadesMathGeometry from "./pages/ActividadesMathGeometry/ActividadesMathGeometry";
 import ActividadesMathData from "./pages/ActividadesMathData/ActividadesMathData";
+import GeneradorEnergiaInversa from "./pages/ActividadesMathData/GeneradorEnergiaInversa";
 import ActividadesMathNumbers from "./pages/ActividadesMathNumbers/ActividadesMathNumbers";
 
 import DashboardDocente from "./pages/DashboardDocente/DashboardDocente";
@@ -50,6 +51,10 @@ function App() {
         <Route
           path="/actividades-math-data"
           element={<ActividadesMathData />}
+        />
+        <Route
+        path="/actividades-math-data/generador-energia"
+        element={<GeneradorEnergiaInversa />}
         />
         
         <Route
