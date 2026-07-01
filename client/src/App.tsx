@@ -8,7 +8,10 @@ import Feedback from "./pages/Feedback/Feedback";
 import SeleccionMundos from "./pages/SeleccionMundos/SeleccionMundos";
 import Recompensas from "./pages/Recompensas/Recompensas";
 import Estadisticas from "./pages/Estadisticas/Estadisticas";
+
 import ActividadesMathGeometry from "./pages/ActividadesMathGeometry/ActividadesMathGeometry";
+import Actividad1MathGeometry from "./pages/ActividadesMathGeometry/Actividad1MathGeometry";
+
 import ActividadesMathData from "./pages/ActividadesMathData/ActividadesMathData";
 import GeneradorEnergiaInversa from "./pages/ActividadesMathData/GeneradorEnergiaInversa";
 import ActividadesMathNumbers from "./pages/ActividadesMathNumbers/ActividadesMathNumbers";
@@ -49,23 +52,26 @@ function App() {
         />
 
         <Route
+          path="/actividades/geometria/actividad-1"
+          element={<Actividad1MathGeometry />}
+        />
+
+        <Route
           path="/actividades-math-data"
           element={<ActividadesMathData />}
         />
-        <Route
-        path="/actividades-math-data/generador-energia"
-        element={<GeneradorEnergiaInversa />}
-        />
-        
-        <Route
-           path="/actividades-math-numbers"
-          element={<ActividadesMathNumbers />}
-          />
 
-          <Route
-  path="/temas/numeros"
-  element={<ActividadesMathNumbers />}
-          />
+        <Route
+          path="/actividades-math-data/generador-energia"
+          element={<GeneradorEnergiaInversa />}
+        />
+
+        <Route
+          path="/actividades-math-numbers"
+          element={<ActividadesMathNumbers />}
+        />
+
+        <Route path="/temas/numeros" element={<ActividadesMathNumbers />} />
 
         <Route path="/retroalimentacion" element={<Feedback />} />
         <Route path="/recompensas" element={<Recompensas />} />
@@ -105,6 +111,7 @@ function App() {
 
         <Route path="/estadisticas-docente" element={<EstadisticasDocente />} />
 
+        {/* Admin */}
         <Route path="/admin" element={<DashboardAdmin />} />
         <Route path="/dashboard-admin" element={<DashboardAdmin />} />
         <Route path="/dashboard-administrador" element={<DashboardAdmin />} />
@@ -115,6 +122,7 @@ function App() {
         <Route path="/admin/reportes" element={<ReportsAdmin />} />
         <Route path="/admin/solicitudes" element={<RequestsAdmin />} />
         <Route path="/admin/configuracion" element={<SettingsAdmin />} />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
