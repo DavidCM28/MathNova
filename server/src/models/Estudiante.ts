@@ -50,10 +50,6 @@ Estudiante.init(
     id_grupo: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'grupo',
-        key: 'id_grupo',
-      },
     },
     grado_escolar: {
       type: DataTypes.STRING(20),
@@ -66,10 +62,6 @@ Estudiante.init(
     id_nivel: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: {
-        model: 'nivel',
-        key: 'id_nivel',
-      },
     },
     experiencia_acumulada: {
       type: DataTypes.INTEGER,
