@@ -5,8 +5,8 @@ import User from './User';
 import Estudiante from './Estudiante';
 import Teacher from './Teacher';
 import Admin from './Admin';
+import ProporcionalidadInversa from './ProporcionalidadInversa';
 
-// Relaciones
 User.hasOne(Estudiante, { foreignKey: 'id_usuario' });
 Estudiante.belongsTo(User, { foreignKey: 'id_usuario' });
 
@@ -16,6 +16,9 @@ Teacher.belongsTo(User, { foreignKey: 'id_usuario' });
 User.hasOne(Admin, { foreignKey: 'id_usuario' });
 Admin.belongsTo(User, { foreignKey: 'id_usuario' });
 
+User.hasMany(ProporcionalidadInversa, { foreignKey: 'id_estudiante' });
+ProporcionalidadInversa.belongsTo(User, { foreignKey: 'id_estudiante' });
+
 export {
   sequelize,
   Student,
@@ -24,6 +27,7 @@ export {
   Estudiante,
   Teacher,
   Admin,
+  ProporcionalidadInversa,
 };
 
 export const initDb = async (force = false) => {
