@@ -11,6 +11,7 @@ import Estadisticas from "./pages/Estadisticas/Estadisticas";
 
 import ActividadesMathGeometry from "./pages/ActividadesMathGeometry/ActividadesMathGeometry";
 import Actividad1MathGeometry from "./pages/ActividadesMathGeometry/Actividad1MathGeometry";
+import Actividad2MathGeometry from "./pages/ActividadesMathGeometry/Actividad2MathGeometry";
 
 import ActividadesMathData from "./pages/ActividadesMathData/ActividadesMathData";
 import GeneradorEnergiaInversa from "./pages/ActividadesMathData/GeneradorEnergiaInversa";
@@ -54,6 +55,11 @@ function App() {
         <Route
           path="/actividades/geometria/actividad-1"
           element={<Actividad1MathGeometry />}
+        />
+
+        <Route
+          path="/actividades/geometria/actividad-2"
+          element={<Actividad2MathGeometry />}
         />
 
         <Route

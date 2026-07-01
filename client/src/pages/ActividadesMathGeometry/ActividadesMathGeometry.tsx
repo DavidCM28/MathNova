@@ -60,6 +60,7 @@ function ActividadesMathGeometry() {
       nivel: "Fácil",
       tiempo: "10 min",
       estado: "Pendiente",
+      ruta: "/actividades/geometria/actividad-1",
     },
     {
       img: actividad2,
@@ -69,6 +70,7 @@ function ActividadesMathGeometry() {
       nivel: "Fácil",
       tiempo: "10 min",
       estado: "Pendiente",
+      ruta: "/actividades/geometria/actividad-2",
     },
   ];
 
@@ -151,7 +153,6 @@ function ActividadesMathGeometry() {
         <img src={heroBanner} alt="Banner Geometry" className="geomx-bg" />
 
         <section className="geomx-main">
-          {/* AQUI AGREGUÉ DE NUEVO LO DE MUNDOS / ACTIVIDADES */}
           <div className="geomx-breadcrumb">
             <button type="button" onClick={() => irARuta("/seleccion-mundos")}>
               Mundos
@@ -273,13 +274,7 @@ function ActividadesMathGeometry() {
                           {item.tiempo}
                         </small>
 
-                        <button
-                          onClick={() => {
-                            if (item.numero === "01") {
-                              irARuta("/actividades/geometria/actividad-1");
-                            }
-                          }}
-                        >
+                        <button onClick={() => irARuta(item.ruta)}>
                           <FiPlayCircle />
                           Iniciar
                         </button>
