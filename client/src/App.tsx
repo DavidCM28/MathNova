@@ -19,6 +19,7 @@ import Actividad2MathGeometry from "./pages/ActividadesMathGeometry/Actividad2Ma
 import ActividadesMathData from "./pages/ActividadesMathData/ActividadesMathData";
 import GeneradorEnergiaInversa from "./pages/ActividadesMathData/GeneradorEnergiaInversa";
 import ActividadesMathNumbers from "./pages/ActividadesMathNumbers/ActividadesMathNumbers";
+import MathNumbersActivityRouter from "./pages/MathNumbersActivities/MathNumbersActivityRouter";
 
 import DashboardDocente from "./pages/DashboardDocente/DashboardDocente";
 import MisGruposDocente from "./pages/MisGruposDocente/MisGruposDocente";
@@ -66,7 +67,14 @@ function App() {
           element={<ActividadesMathNumbers />}
         />
 
-        <Route path="/temas/numeros" element={<ActividadesMathNumbers />} />
+        <Route path="/temas/numeros" element={<ActividadesMathNumbers />}
+        
+        />
+
+        <Route
+          path="/actividades/mathnumbers/:activitySlug"
+          element={<MathNumbersActivityRouter />}
+        />
 
         <Route
           path="/actividades/geometria/actividad-1"
