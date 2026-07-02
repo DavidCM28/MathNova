@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import "./MisGruposDocente.css";
 
@@ -27,9 +27,19 @@ import {
   FiUserPlus,
   FiEye,
   FiPieChart,
+  FiX,
+  FiSave,
+  FiCheckCircle,
+  FiAlertCircle,
 } from "react-icons/fi";
 
 const coloresGrupo = ["blue", "purple", "green", "orange"];
+
+type Alerta = {
+  tipo: "success" | "error";
+  titulo: string;
+  mensaje: string;
+};
 
 function MisGruposDocente() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -40,6 +50,11 @@ function MisGruposDocente() {
   const [cargandoGrupos, setCargandoGrupos] = useState(true);
   const [errorGrupos, setErrorGrupos] = useState("");
   const [editandoId, setEditandoId] = useState<number | null>(null);
+
+  const [grupoEditando, setGrupoEditando] = useState<Grupo | null>(null);
+  const [nombreEditado, setNombreEditado] = useState("");
+  const [errorModal, setErrorModal] = useState("");
+  const [alerta, setAlerta] = useState<Alerta | null>(null);
 
   const [gruposOpen, setGruposOpen] = useState(() => {
     return localStorage.getItem("docente-grupos-open") !== "false";
@@ -54,12 +69,13 @@ function MisGruposDocente() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "auto";
+    document.body.style.overflow =
+      menuOpen || grupoEditando ? "hidden" : "auto";
 
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [menuOpen]);
+  }, [menuOpen, grupoEditando]);
 
   useEffect(() => {
     localStorage.setItem("docente-grupos-open", String(gruposOpen));
@@ -68,6 +84,18 @@ function MisGruposDocente() {
   useEffect(() => {
     localStorage.setItem("docente-alumnos-open", String(alumnosOpen));
   }, [alumnosOpen]);
+
+  useEffect(() => {
+    if (!alerta) return;
+
+    const timer = window.setTimeout(() => {
+      setAlerta(null);
+    }, 2600);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [alerta]);
 
   useEffect(() => {
     const cargarGrupos = async () => {
@@ -104,35 +132,57 @@ function MisGruposDocente() {
     navigate(ruta);
   };
 
-  const editarGrupo = async (grupo: Grupo) => {
-    const nuevoNombre = window.prompt(
-      "Escribe el nuevo nombre del grupo:",
-      grupo.nombre_grupo,
-    );
+  const abrirModalEditar = (grupo: Grupo) => {
+    setGrupoEditando(grupo);
+    setNombreEditado(grupo.nombre_grupo);
+    setErrorModal("");
+    setErrorGrupos("");
+    setAlerta(null);
+  };
 
-    if (nuevoNombre === null) return;
+  const cerrarModalEditar = () => {
+    if (editandoId !== null) return;
 
-    const nombreLimpio = nuevoNombre.trim();
+    setGrupoEditando(null);
+    setNombreEditado("");
+    setErrorModal("");
+  };
+
+  const guardarEdicionGrupo = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!grupoEditando) return;
+
+    const nombreLimpio = nombreEditado.trim();
 
     if (!nombreLimpio) {
-      setErrorGrupos("El nombre del grupo no puede estar vacío.");
+      setErrorModal("El nombre del grupo no puede estar vacío.");
       return;
     }
 
     if (nombreLimpio.length > 100) {
-      setErrorGrupos("El nombre no puede superar los 100 caracteres.");
+      setErrorModal("El nombre no puede superar los 100 caracteres.");
+      return;
+    }
+
+    if (nombreLimpio === grupoEditando.nombre_grupo.trim()) {
+      setErrorModal("Escribe un nombre diferente para guardar cambios.");
       return;
     }
 
     try {
-      setEditandoId(grupo.id_grupo);
+      setEditandoId(grupoEditando.id_grupo);
+      setErrorModal("");
       setErrorGrupos("");
 
-      const resultado = await actualizarGrupo(grupo.id_grupo, nombreLimpio);
+      const resultado = await actualizarGrupo(
+        grupoEditando.id_grupo,
+        nombreLimpio,
+      );
 
       setGrupos((gruposActuales) =>
         gruposActuales.map((grupoActual) =>
-          grupoActual.id_grupo === grupo.id_grupo
+          grupoActual.id_grupo === grupoEditando.id_grupo
             ? {
                 ...grupoActual,
                 nombre_grupo: resultado.grupo.nombre_grupo,
@@ -140,10 +190,26 @@ function MisGruposDocente() {
             : grupoActual,
         ),
       );
+
+      setGrupoEditando(null);
+      setNombreEditado("");
+
+      setAlerta({
+        tipo: "success",
+        titulo: "¡Grupo actualizado!",
+        mensaje: `El grupo ahora se llama ${resultado.grupo.nombre_grupo}.`,
+      });
     } catch (error) {
-      setErrorGrupos(
-        error instanceof Error ? error.message : "No se pudo editar el grupo.",
-      );
+      const mensaje =
+        error instanceof Error ? error.message : "No se pudo editar el grupo.";
+
+      setErrorModal(mensaje);
+
+      setAlerta({
+        tipo: "error",
+        titulo: "No se pudo guardar",
+        mensaje,
+      });
     } finally {
       setEditandoId(null);
     }
@@ -171,6 +237,114 @@ function MisGruposDocente() {
 
   return (
     <main className="docente-page">
+      {alerta && (
+        <div className={`mgd-swal-alert ${alerta.tipo}`}>
+          <div className="mgd-swal-icon">
+            {alerta.tipo === "success" ? <FiCheckCircle /> : <FiAlertCircle />}
+          </div>
+
+          <div className="mgd-swal-text">
+            <h3>{alerta.titulo}</h3>
+            <p>{alerta.mensaje}</p>
+          </div>
+
+          <button
+            type="button"
+            className="mgd-swal-close"
+            onClick={() => setAlerta(null)}
+            aria-label="Cerrar alerta"
+          >
+            <FiX />
+          </button>
+        </div>
+      )}
+
+      {grupoEditando && (
+        <div className="mgd-modal-overlay" onClick={cerrarModalEditar}>
+          <section
+            className="mgd-edit-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mgd-edit-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="mgd-modal-close"
+              onClick={cerrarModalEditar}
+              aria-label="Cerrar modal"
+              disabled={editandoId !== null}
+            >
+              <FiX />
+            </button>
+
+            <div className="mgd-modal-icon">
+              <FiEdit />
+            </div>
+
+            <div className="mgd-modal-header">
+              <h2 id="mgd-edit-title">Editar grupo</h2>
+              <p>Cambia el nombre del grupo seleccionado.</p>
+            </div>
+
+            <form onSubmit={guardarEdicionGrupo} className="mgd-modal-form">
+              <label>
+                Nombre actual
+                <span>{grupoEditando.nombre_grupo}</span>
+              </label>
+
+              <div className="mgd-modal-input-box">
+                <FiUsers />
+                <input
+                  type="text"
+                  value={nombreEditado}
+                  onChange={(e) => {
+                    setNombreEditado(e.target.value);
+                    setErrorModal("");
+                  }}
+                  placeholder="Ejemplo: 4°A"
+                  maxLength={100}
+                  autoFocus
+                />
+              </div>
+
+              <div className="mgd-modal-count">
+                {nombreEditado.trim().length}/100 caracteres
+              </div>
+
+              {errorModal && (
+                <div className="mgd-modal-error">
+                  <FiAlertCircle />
+                  <span>{errorModal}</span>
+                </div>
+              )}
+
+              <div className="mgd-modal-actions">
+                <button
+                  type="button"
+                  className="mgd-modal-cancel"
+                  onClick={cerrarModalEditar}
+                  disabled={editandoId !== null}
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  className="mgd-modal-save"
+                  disabled={editandoId === grupoEditando.id_grupo}
+                >
+                  <FiSave />
+                  {editandoId === grupoEditando.id_grupo
+                    ? "Guardando..."
+                    : "Guardar cambios"}
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
+
       <button
         className={`docente-hamburger-btn ${menuOpen ? "hamburger-open" : ""}`}
         onClick={() => setMenuOpen(!menuOpen)}
@@ -385,7 +559,9 @@ function MisGruposDocente() {
         {errorGrupos && (
           <article className="mgd-empty-card">
             <h3>{errorGrupos}</h3>
-            <p>Revisa que el backend esté encendido y que tu sesión siga activa.</p>
+            <p>
+              Revisa que el backend esté encendido y que tu sesión siga activa.
+            </p>
           </article>
         )}
 
@@ -432,7 +608,9 @@ function MisGruposDocente() {
             {cargandoGrupos ? (
               <article className="mgd-empty-card">
                 <h3>Cargando grupos...</h3>
-                <p>Estamos buscando los grupos registrados en la base de datos.</p>
+                <p>
+                  Estamos buscando los grupos registrados en la base de datos.
+                </p>
               </article>
             ) : gruposFiltrados.length > 0 ? (
               gruposFiltrados.map((grupo, index) => {
@@ -478,7 +656,7 @@ function MisGruposDocente() {
                       </button>
 
                       <button
-                        onClick={() => void editarGrupo(grupo)}
+                        onClick={() => abrirModalEditar(grupo)}
                         type="button"
                         disabled={editandoId === grupo.id_grupo}
                       >
