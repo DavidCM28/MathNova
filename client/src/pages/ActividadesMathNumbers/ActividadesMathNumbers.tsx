@@ -54,6 +54,15 @@ function ActividadesMathNumbers() {
     navigate(ruta);
   };
 
+  const iniciarActividad = (slug: string) => {
+    if (!slug) {
+      alert("Esta actividad todavía no está disponible.");
+      return;
+    }
+
+    navigate(`/actividades/mathnumbers/${slug}`);
+  };
+
   const actividades = [
     {
       img: actividad1,
@@ -61,6 +70,7 @@ function ActividadesMathNumbers() {
       texto: "Sincroniza energía convirtiendo fracciones a decimales.",
       nivel: "Fácil",
       tiempo: "5 min",
+      slug: "cofre-bienvenida",
     },
     {
       img: actividad2,
@@ -68,6 +78,7 @@ function ActividadesMathNumbers() {
       texto: "Ubica números con signo en la recta numérica bajo presión.",
       nivel: "Fácil",
       tiempo: "10 min",
+      slug: "radar-supervivencia",
     },
     {
       img: actividad3,
@@ -75,6 +86,7 @@ function ActividadesMathNumbers() {
       texto: "Programa la ruta ordenando los pisos de menor a mayor.",
       nivel: "Fácil",
       tiempo: "12 min",
+      slug: "ascensor-bunker",
     },
     {
       img: actividad4,
@@ -82,6 +94,7 @@ function ActividadesMathNumbers() {
       texto: "Desactiva una trampa láser siguiendo el orden jerárquico.",
       nivel: "Medio",
       tiempo: "15 min",
+      slug: "",
     },
     {
       img: actividad5,
@@ -89,6 +102,7 @@ function ActividadesMathNumbers() {
       texto: "Identifica propiedades conmutativas y asociativas.",
       nivel: "Fácil",
       tiempo: "8 min",
+      slug: "",
     },
     {
       img: actividad6,
@@ -96,6 +110,7 @@ function ActividadesMathNumbers() {
       texto: "Representa algebraicamente una sucesión sencilla.",
       nivel: "Medio",
       tiempo: "14 min",
+      slug: "",
     },
     {
       img: actividad7,
@@ -103,6 +118,7 @@ function ActividadesMathNumbers() {
       texto: "Identifica aumentos constantes en figuras de hexágonos.",
       nivel: "Fácil",
       tiempo: "10 min",
+      slug: "",
     },
     {
       img: actividad8,
@@ -110,6 +126,7 @@ function ActividadesMathNumbers() {
       texto: "Traduce lenguaje común al algebraico con una interfaz.",
       nivel: "Fácil",
       tiempo: "9 min",
+      slug: "",
     },
     {
       img: actividad9,
@@ -117,6 +134,7 @@ function ActividadesMathNumbers() {
       texto: "Plantea y resuelve ecuaciones lineales intuitivamente.",
       nivel: "Medio",
       tiempo: "11 min",
+      slug: "",
     },
     {
       img: actividad10,
@@ -124,6 +142,7 @@ function ActividadesMathNumbers() {
       texto: "Calcula porcentajes de descuento en compras virtuales.",
       nivel: "Fácil",
       tiempo: "8 min",
+      slug: "",
     },
   ];
 
@@ -237,7 +256,10 @@ function ActividadesMathNumbers() {
             <div className="numbersx-title-box">
               <h1>Actividades de MathNumbers</h1>
 
-              <p>Explora números, fracciones, álgebra y porcentajes con retos interactivos.</p>
+              <p>
+                Explora números, fracciones, álgebra y porcentajes con retos
+                interactivos.
+              </p>
 
               <div className="numbersx-status-tabs">
                 <button>
@@ -282,7 +304,9 @@ function ActividadesMathNumbers() {
 
                   <span
                     className={
-                      item.nivel === "Fácil" ? "numbersx-easy" : "numbersx-medium"
+                      item.nivel === "Fácil"
+                        ? "numbersx-easy"
+                        : "numbersx-medium"
                     }
                   >
                     {item.nivel}
@@ -294,7 +318,12 @@ function ActividadesMathNumbers() {
                       {item.tiempo}
                     </small>
 
-                    <button>Iniciar</button>
+                    <button
+                      type="button"
+                      onClick={() => iniciarActividad(item.slug)}
+                    >
+                      Iniciar
+                    </button>
                   </div>
                 </div>
               </article>

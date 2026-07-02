@@ -11,6 +11,7 @@ import Estadisticas from "./pages/Estadisticas/Estadisticas";
 import ActividadesMathGeometry from "./pages/ActividadesMathGeometry/ActividadesMathGeometry";
 import ActividadesMathData from "./pages/ActividadesMathData/ActividadesMathData";
 import ActividadesMathNumbers from "./pages/ActividadesMathNumbers/ActividadesMathNumbers";
+import MathNumbersActivityRouter from "./pages/MathNumbersActivities/MathNumbersActivityRouter";
 
 import DashboardDocente from "./pages/DashboardDocente/DashboardDocente";
 import MisGruposDocente from "./pages/MisGruposDocente/MisGruposDocente";
@@ -56,6 +57,10 @@ function App() {
            path="/actividades-math-numbers"
           element={<ActividadesMathNumbers />}
           />
+          <Route
+  path="/actividades/mathnumbers/:activitySlug"
+  element={<MathNumbersActivityRouter />}
+/>
 
           <Route
   path="/temas/numeros"
