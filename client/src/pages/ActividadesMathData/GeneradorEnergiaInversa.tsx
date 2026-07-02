@@ -5,7 +5,7 @@ import "./GeneradorEnergiaInversa.css";
 import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 
-import heroBanner from "../../assets/hero-banner-MathData.png";
+import heroBanner from "../../assets/banner-gen1-MathData.png";
 import villano from "../../assets/hola-MathData.png";
 import personajeAyuda from "../../assets/hola-MathData.png";
 
