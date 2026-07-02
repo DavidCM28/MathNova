@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { startGuestSession, saveAuthSession } from "../../utils/authSession";
+
 import "./Login.css";
 
 import zorritoLogin from "../../assets/zorrito_login.png";
@@ -13,9 +15,16 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import RegisterForm from "./RegisterForm";
 import ForgotPassword from "./ForgotPassword";
 
-import { iniciarSesion } from "../../services/authService";   
+import { iniciarSesion } from "../../services/authService";
+
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const state = location.state as {
+    from?: string;
+    authMessage?: string;
+  } | null;
 
   const [showPassword, setShowPassword] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
@@ -24,6 +33,11 @@ function Login() {
   const [correoUsuario, setCorreoUsuario] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const entrarComoEspectador = () => {
+    startGuestSession();
+    navigate("/dashboard", { replace: true });
+  };
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,12 +55,11 @@ function Login() {
         password: loginPassword,
       });
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("usuario", JSON.stringify(data.usuario));
+      saveAuthSession(data.token, data.usuario);
 
       console.log("Usuario logueado:", data.usuario);
 
-      navigate("/dashboard");
+      navigate(state?.from || "/dashboard", { replace: true });
     } catch (error) {
       if (error instanceof Error) {
         alert(error.message);
@@ -92,6 +105,10 @@ function Login() {
                 <p className="login-subtitle">
                   Inicia sesión para continuar aprendiendo con MathNova.
                 </p>
+
+                {state?.authMessage && (
+                  <div className="login-alert">{state.authMessage}</div>
+                )}
 
                 <div className="input-box">
                   <MdOutlineEmail className="input-icon" />
@@ -140,6 +157,14 @@ function Login() {
 
                 <button type="submit" className="login-btn" disabled={loading}>
                   {loading ? "Iniciando sesión..." : "Iniciar sesión"}
+                </button>
+
+                <button
+                  type="button"
+                  className="guest-button"
+                  onClick={entrarComoEspectador}
+                >
+                  Entrar como espectador
                 </button>
 
                 <div className="divider">

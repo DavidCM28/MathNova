@@ -1,6 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import "./MisGruposDocente.css";
+
+import {
+  obtenerGrupos,
+  actualizarGrupo,
+  type Grupo,
+} from "../../services/groupService";
 
 import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
@@ -21,12 +27,34 @@ import {
   FiUserPlus,
   FiEye,
   FiPieChart,
+  FiX,
+  FiSave,
+  FiCheckCircle,
+  FiAlertCircle,
 } from "react-icons/fi";
+
+const coloresGrupo = ["blue", "purple", "green", "orange"];
+
+type Alerta = {
+  tipo: "success" | "error";
+  titulo: string;
+  mensaje: string;
+};
 
 function MisGruposDocente() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [grupoSeleccionado, setGrupoSeleccionado] = useState("Todos");
+
+  const [grupos, setGrupos] = useState<Grupo[]>([]);
+  const [cargandoGrupos, setCargandoGrupos] = useState(true);
+  const [errorGrupos, setErrorGrupos] = useState("");
+  const [editandoId, setEditandoId] = useState<number | null>(null);
+
+  const [grupoEditando, setGrupoEditando] = useState<Grupo | null>(null);
+  const [nombreEditado, setNombreEditado] = useState("");
+  const [errorModal, setErrorModal] = useState("");
+  const [alerta, setAlerta] = useState<Alerta | null>(null);
 
   const [gruposOpen, setGruposOpen] = useState(() => {
     return localStorage.getItem("docente-grupos-open") !== "false";
@@ -41,12 +69,13 @@ function MisGruposDocente() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "auto";
+    document.body.style.overflow =
+      menuOpen || grupoEditando ? "hidden" : "auto";
 
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [menuOpen]);
+  }, [menuOpen, grupoEditando]);
 
   useEffect(() => {
     localStorage.setItem("docente-grupos-open", String(gruposOpen));
@@ -55,6 +84,40 @@ function MisGruposDocente() {
   useEffect(() => {
     localStorage.setItem("docente-alumnos-open", String(alumnosOpen));
   }, [alumnosOpen]);
+
+  useEffect(() => {
+    if (!alerta) return;
+
+    const timer = window.setTimeout(() => {
+      setAlerta(null);
+    }, 2600);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [alerta]);
+
+  useEffect(() => {
+    const cargarGrupos = async () => {
+      try {
+        setCargandoGrupos(true);
+        setErrorGrupos("");
+
+        const gruposBD = await obtenerGrupos();
+        setGrupos(gruposBD);
+      } catch (error) {
+        setErrorGrupos(
+          error instanceof Error
+            ? error.message
+            : "No se pudieron cargar los grupos.",
+        );
+      } finally {
+        setCargandoGrupos(false);
+      }
+    };
+
+    void cargarGrupos();
+  }, []);
 
   const seleccionarMenu = (menu: string) => {
     setSelectedMenu(menu);
@@ -69,55 +132,219 @@ function MisGruposDocente() {
     navigate(ruta);
   };
 
-  const grupos = [
-    {
-      nombre: "2°A",
-      alumnos: "24 alumnos",
-      promedio: "85%",
-      color: "blue",
-    },
-    {
-      nombre: "2°B",
-      alumnos: "22 alumnos",
-      promedio: "78%",
-      color: "purple",
-    },
-    {
-      nombre: "1°C",
-      alumnos: "26 alumnos",
-      promedio: "88%",
-      color: "green",
-    },
-    {
-      nombre: "3°A",
-      alumnos: "24 alumnos",
-      promedio: "76%",
-      color: "orange",
-    },
-  ];
+  const abrirModalEditar = (grupo: Grupo) => {
+    setGrupoEditando(grupo);
+    setNombreEditado(grupo.nombre_grupo);
+    setErrorModal("");
+    setErrorGrupos("");
+    setAlerta(null);
+  };
+
+  const cerrarModalEditar = () => {
+    if (editandoId !== null) return;
+
+    setGrupoEditando(null);
+    setNombreEditado("");
+    setErrorModal("");
+  };
+
+  const guardarEdicionGrupo = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!grupoEditando) return;
+
+    const nombreLimpio = nombreEditado.trim();
+
+    if (!nombreLimpio) {
+      setErrorModal("El nombre del grupo no puede estar vacío.");
+      return;
+    }
+
+    if (nombreLimpio.length > 100) {
+      setErrorModal("El nombre no puede superar los 100 caracteres.");
+      return;
+    }
+
+    if (nombreLimpio === grupoEditando.nombre_grupo.trim()) {
+      setErrorModal("Escribe un nombre diferente para guardar cambios.");
+      return;
+    }
+
+    try {
+      setEditandoId(grupoEditando.id_grupo);
+      setErrorModal("");
+      setErrorGrupos("");
+
+      const resultado = await actualizarGrupo(
+        grupoEditando.id_grupo,
+        nombreLimpio,
+      );
+
+      setGrupos((gruposActuales) =>
+        gruposActuales.map((grupoActual) =>
+          grupoActual.id_grupo === grupoEditando.id_grupo
+            ? {
+                ...grupoActual,
+                nombre_grupo: resultado.grupo.nombre_grupo,
+              }
+            : grupoActual,
+        ),
+      );
+
+      setGrupoEditando(null);
+      setNombreEditado("");
+
+      setAlerta({
+        tipo: "success",
+        titulo: "¡Grupo actualizado!",
+        mensaje: `El grupo ahora se llama ${resultado.grupo.nombre_grupo}.`,
+      });
+    } catch (error) {
+      const mensaje =
+        error instanceof Error ? error.message : "No se pudo editar el grupo.";
+
+      setErrorModal(mensaje);
+
+      setAlerta({
+        tipo: "error",
+        titulo: "No se pudo guardar",
+        mensaje,
+      });
+    } finally {
+      setEditandoId(null);
+    }
+  };
 
   const gruposFiltrados = grupos.filter((grupo) => {
     const textoBusqueda = busqueda.toLowerCase().trim();
-    const coincideBusqueda = grupo.nombre.toLowerCase().includes(textoBusqueda);
+
+    const coincideBusqueda = grupo.nombre_grupo
+      .toLowerCase()
+      .includes(textoBusqueda);
+
     const coincideGrupo =
-      grupoSeleccionado === "Todos" || grupo.nombre === grupoSeleccionado;
+      grupoSeleccionado === "Todos" ||
+      String(grupo.id_grupo) === grupoSeleccionado;
 
     return coincideBusqueda && coincideGrupo;
   });
 
   const totalAlumnos = grupos.reduce((total, grupo) => {
-    return total + Number(grupo.alumnos.split(" ")[0]);
+    return total + (grupo.total_alumnos ?? 0);
   }, 0);
 
-  const promedioGeneral = Math.round(
-    grupos.reduce(
-      (total, grupo) => total + Number(grupo.promedio.replace("%", "")),
-      0,
-    ) / grupos.length,
-  );
+  const promedioGeneral = 0;
 
   return (
     <main className="docente-page">
+      {alerta && (
+        <div className={`mgd-swal-alert ${alerta.tipo}`}>
+          <div className="mgd-swal-icon">
+            {alerta.tipo === "success" ? <FiCheckCircle /> : <FiAlertCircle />}
+          </div>
+
+          <div className="mgd-swal-text">
+            <h3>{alerta.titulo}</h3>
+            <p>{alerta.mensaje}</p>
+          </div>
+
+          <button
+            type="button"
+            className="mgd-swal-close"
+            onClick={() => setAlerta(null)}
+            aria-label="Cerrar alerta"
+          >
+            <FiX />
+          </button>
+        </div>
+      )}
+
+      {grupoEditando && (
+        <div className="mgd-modal-overlay" onClick={cerrarModalEditar}>
+          <section
+            className="mgd-edit-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mgd-edit-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="mgd-modal-close"
+              onClick={cerrarModalEditar}
+              aria-label="Cerrar modal"
+              disabled={editandoId !== null}
+            >
+              <FiX />
+            </button>
+
+            <div className="mgd-modal-icon">
+              <FiEdit />
+            </div>
+
+            <div className="mgd-modal-header">
+              <h2 id="mgd-edit-title">Editar grupo</h2>
+              <p>Cambia el nombre del grupo seleccionado.</p>
+            </div>
+
+            <form onSubmit={guardarEdicionGrupo} className="mgd-modal-form">
+              <label>
+                Nombre actual
+                <span>{grupoEditando.nombre_grupo}</span>
+              </label>
+
+              <div className="mgd-modal-input-box">
+                <FiUsers />
+                <input
+                  type="text"
+                  value={nombreEditado}
+                  onChange={(e) => {
+                    setNombreEditado(e.target.value);
+                    setErrorModal("");
+                  }}
+                  placeholder="Ejemplo: 4°A"
+                  maxLength={100}
+                  autoFocus
+                />
+              </div>
+
+              <div className="mgd-modal-count">
+                {nombreEditado.trim().length}/100 caracteres
+              </div>
+
+              {errorModal && (
+                <div className="mgd-modal-error">
+                  <FiAlertCircle />
+                  <span>{errorModal}</span>
+                </div>
+              )}
+
+              <div className="mgd-modal-actions">
+                <button
+                  type="button"
+                  className="mgd-modal-cancel"
+                  onClick={cerrarModalEditar}
+                  disabled={editandoId !== null}
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  className="mgd-modal-save"
+                  disabled={editandoId === grupoEditando.id_grupo}
+                >
+                  <FiSave />
+                  {editandoId === grupoEditando.id_grupo
+                    ? "Guardando..."
+                    : "Guardar cambios"}
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
+
       <button
         className={`docente-hamburger-btn ${menuOpen ? "hamburger-open" : ""}`}
         onClick={() => setMenuOpen(!menuOpen)}
@@ -309,9 +536,12 @@ function MisGruposDocente() {
               value={grupoSeleccionado}
               onChange={(e) => setGrupoSeleccionado(e.target.value)}
             >
-              <option>Todos</option>
+              <option value="Todos">Todos</option>
+
               {grupos.map((grupo) => (
-                <option key={grupo.nombre}>{grupo.nombre}</option>
+                <option key={grupo.id_grupo} value={grupo.id_grupo}>
+                  {grupo.nombre_grupo}
+                </option>
               ))}
             </select>
           </label>
@@ -325,6 +555,15 @@ function MisGruposDocente() {
             Crear grupo
           </button>
         </section>
+
+        {errorGrupos && (
+          <article className="mgd-empty-card">
+            <h3>{errorGrupos}</h3>
+            <p>
+              Revisa que el backend esté encendido y que tu sesión siga activa.
+            </p>
+          </article>
+        )}
 
         <section className="mgd-stats-row">
           <article className="mgd-stat-card blue-card">
@@ -366,70 +605,87 @@ function MisGruposDocente() {
 
         <section className="mgd-main-grid">
           <section className="mgd-groups-grid">
-            {gruposFiltrados.length > 0 ? (
-              gruposFiltrados.map((grupo) => (
-                <article className="mgd-group-card" key={grupo.nombre}>
-                  <div className="mgd-group-top">
-                    <h2 className={`mgd-title-${grupo.color}`}>
-                      {grupo.nombre}
-                    </h2>
+            {cargandoGrupos ? (
+              <article className="mgd-empty-card">
+                <h3>Cargando grupos...</h3>
+                <p>
+                  Estamos buscando los grupos registrados en la base de datos.
+                </p>
+              </article>
+            ) : gruposFiltrados.length > 0 ? (
+              gruposFiltrados.map((grupo, index) => {
+                const color = coloresGrupo[index % coloresGrupo.length];
+                const alumnosTexto = `${grupo.total_alumnos ?? 0} alumnos`;
+                const promedioTexto = "0%";
 
-                    <span className="mgd-students-pill">
-                      <FiUsers />
-                      {grupo.alumnos}
-                    </span>
-                  </div>
+                return (
+                  <article className="mgd-group-card" key={grupo.id_grupo}>
+                    <div className="mgd-group-top">
+                      <h2 className={`mgd-title-${color}`}>
+                        {grupo.nombre_grupo}
+                      </h2>
 
-                  <div className="mgd-group-average-block">
-                    <div className={`mgd-average-icon icon-${grupo.color}`}>
-                      <FiPieChart />
+                      <span className="mgd-students-pill">
+                        <FiUsers />
+                        {alumnosTexto}
+                      </span>
                     </div>
 
-                    <div>
-                      <span>Promedio del grupo</span>
-                      <strong className={`mgd-average-${grupo.color}`}>
-                        {grupo.promedio}
-                      </strong>
+                    <div className="mgd-group-average-block">
+                      <div className={`mgd-average-icon icon-${color}`}>
+                        <FiPieChart />
+                      </div>
+
+                      <div>
+                        <span>Promedio del grupo</span>
+                        <strong className={`mgd-average-${color}`}>
+                          {promedioTexto}
+                        </strong>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="mgd-card-actions">
-                    <button
-                      onClick={() => irARuta("/lista-alumnos-docente", "lista")}
-                      type="button"
-                    >
-                      <FiEye />
-                      Ver detalle
-                    </button>
+                    <div className="mgd-card-actions">
+                      <button
+                        onClick={() =>
+                          irARuta("/lista-alumnos-docente", "lista")
+                        }
+                        type="button"
+                      >
+                        <FiEye />
+                        Ver detalle
+                      </button>
 
-                    <button
-                      onClick={() =>
-                        irARuta("/crear-grupo-docente", "crear-grupo")
-                      }
-                      type="button"
-                    >
-                      <FiEdit />
-                      Editar
-                    </button>
+                      <button
+                        onClick={() => abrirModalEditar(grupo)}
+                        type="button"
+                        disabled={editandoId === grupo.id_grupo}
+                      >
+                        <FiEdit />
+                        {editandoId === grupo.id_grupo
+                          ? "Guardando..."
+                          : "Editar"}
+                      </button>
 
-                    <button
-                      className="stats-btn"
-                      onClick={() =>
-                        irARuta("/estadisticas-docente", "estadisticas")
-                      }
-                      type="button"
-                    >
-                      <FiBarChart2 />
-                      Ver estadísticas
-                    </button>
-                  </div>
-                </article>
-              ))
+                      <button
+                        className="stats-btn"
+                        onClick={() =>
+                          irARuta("/estadisticas-docente", "estadisticas")
+                        }
+                        type="button"
+                      >
+                        <FiBarChart2 />
+                        Ver estadísticas
+                      </button>
+                    </div>
+                  </article>
+                );
+              })
             ) : (
               <article className="mgd-empty-card">
                 <h3>No se encontraron grupos</h3>
                 <p>
-                  Intenta buscar otro nombre o cambia el filtro seleccionado.
+                  Intenta buscar otro nombre, cambia el filtro o crea un nuevo
+                  grupo.
                 </p>
               </article>
             )}

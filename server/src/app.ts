@@ -1,21 +1,39 @@
-import express from 'express';
-import cors from 'cors';
-import syncRoutes from './routes/syncRoutes';
-import authRoutes from './routes/authRoutes';
+import express from "express";
+import cors from "cors";
+
+const authRoutes = require("./routes/auth.routes");
+const alumnoRoutes = require("./routes/alumnoRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const gruposRoutes = require("./routes/grupos.routes");
 
 const app = express();
 
-// Middlewares
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
-// Routes
-app.use('/api', syncRoutes);
-app.use('/api/auth', authRoutes);
+app.get("/", (_req, res) => {
+  res.json({
+    ok: true,
+    mensaje: "Servidor MathNova funcionando",
+  });
+});
 
-// Base health route
-app.get('/', (req, res) => {
-  res.send('MathNova API server is running.');
+app.use("/api/auth", authRoutes);
+app.use("/api/alumno", alumnoRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/grupos", gruposRoutes);
+
+app.use((_req, res) => {
+  res.status(404).json({
+    ok: false,
+    mensaje: "Ruta no encontrada",
+  });
 });
 
 export default app;

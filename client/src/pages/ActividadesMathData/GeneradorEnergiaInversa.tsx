@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./GeneradorEnergiaInversa.css";
 
@@ -26,17 +26,26 @@ import {
 import { GiRingedPlanet, GiTrophyCup, GiBookCover } from "react-icons/gi";
 import { FaStar, FaShieldAlt, FaGem, FaLightbulb, FaHandPointUp } from "react-icons/fa";
 
-// Filas iniciales de la tabla (las últimas 3 vienen vacías, como en el prototipo)
+// ============================================
+// CONFIGURACIÓN DEL BACKEND
+// ============================================
+
+const API_URL = "http://localhost:3001/api";
+const ID_ESTUDIANTE = 2; // ⚠️ Reemplazar con el ID real del estudiante
+
+// ============================================
+// DATOS INICIALES (NO MODIFICAR)
+// ============================================
+
 const filasIniciales = [
-  { x: 1, y: "12", editable: false },
-  { x: 2, y: "6", editable: false },
-  { x: 3, y: "4", editable: false },
-  { x: 4, y: "", editable: true },
-  { x: 6, y: "", editable: true },
-  { x: 12, y: "", editable: true },
+  { x: 1, y: "12", editable: false, correcto: true },
+  { x: 2, y: "6", editable: false, correcto: true },
+  { x: 3, y: "4", editable: false, correcto: true },
+  { x: 4, y: "", editable: true, correcto: null },
+  { x: 6, y: "", editable: true, correcto: null },
+  { x: 12, y: "", editable: true, correcto: null },
 ];
 
-// Puntos ya conocidos en la gráfica (los primeros 3, como en el prototipo)
 const puntosIniciales = [
   { x: 1, y: 12 },
   { x: 2, y: 6 },
@@ -46,6 +55,10 @@ const puntosIniciales = [
 const EJE_X_MAX = 12;
 const EJE_Y_MAX = 14;
 
+// ============================================
+// COMPONENTE PRINCIPAL
+// ============================================
+
 function GeneradorEnergiaInversa() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -53,19 +66,222 @@ function GeneradorEnergiaInversa() {
   const [filas, setFilas] = useState(filasIniciales);
   const [puntos, setPuntos] = useState(puntosIniciales);
   const [respuesta, setRespuesta] = useState("");
+  const [mensajeFeedback, setMensajeFeedback] = useState("");
+  const [actividadCompletada, setActividadCompletada] = useState(false);
+  const [xpGanado, setXpGanado] = useState(0);
+  const [progresoPorcentaje, setProgresoPorcentaje] = useState(0);
+  const [cargando, setCargando] = useState(false);
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
     navigate(ruta);
   };
 
-  const actualizarFila = (index: number, valor: string) => {
-    setFilas((prev) =>
-      prev.map((fila, i) => (i === index ? { ...fila, y: valor } : fila))
-    );
+  // ==========================================
+  // CARGAR PROGRESO GUARDADO
+  // ==========================================
+
+  useEffect(() => {
+    const cargarProgreso = async () => {
+      try {
+        const response = await fetch(`${API_URL}/proporcionalidad/progreso/${ID_ESTUDIANTE}`);
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const progreso = data.data;
+
+          if (progreso.valores_tabla) {
+            const nuevosValores = filasIniciales.map((fila) => {
+              const valorGuardado = (progreso.valores_tabla as Record<string, number>)[String(fila.x)];
+              if (valorGuardado !== undefined) {
+                return { ...fila, y: String(valorGuardado), correcto: true };
+              }
+              return fila;
+            });
+            setFilas(nuevosValores);
+          }
+
+          if (progreso.completada) {
+            setActividadCompletada(true);
+            setXpGanado(progreso.xp_obtenido || 0);
+          }
+        }
+      } catch (error) {
+        console.error("Error al cargar progreso:", error);
+      }
+    };
+
+    cargarProgreso();
+  }, []);
+
+  // ==========================================
+  // GUARDAR PROGRESO EN EL BACKEND
+  // ==========================================
+
+  const guardarProgreso = async (pantalla: number) => {
+    try {
+      await fetch(`${API_URL}/proporcionalidad/guardar-progreso`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_estudiante: ID_ESTUDIANTE,
+          pantalla_actual: pantalla,
+        }),
+      });
+    } catch (error) {
+      console.error("Error al guardar progreso:", error);
+    }
   };
 
-  // Click visual sobre la cuadrícula para agregar un punto (sin validación real)
+  // ==========================================
+  // VALIDAR TABLA CON BACKEND
+  // ==========================================
+
+  const actualizarFila = async (index: number, valor: string) => {
+    setFilas((prev) =>
+      prev.map((fila, i) => (i === index ? { ...fila, y: valor, correcto: null } : fila))
+    );
+
+    if (valor === "") return;
+
+    const fila = filas[index];
+    if (!fila) return;
+
+    setCargando(true);
+    try {
+      const response = await fetch(`${API_URL}/proporcionalidad/validar-tabla`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_estudiante: ID_ESTUDIANTE,
+          reactores: fila.x,
+          tiempo: Number(valor),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        const resultado = data.data;
+
+        setFilas((prev) =>
+          prev.map((f, i) =>
+            i === index
+              ? { ...f, correcto: resultado.correcto }
+              : f
+          )
+        );
+
+        setMensajeFeedback(resultado.mensaje);
+
+        if (resultado.correcto) {
+          await guardarProgreso(4);
+          if (!puntos.some(p => p.x === fila.x)) {
+            setPuntos((prev) => [...prev, { x: fila.x, y: Number(valor) }]);
+          }
+        }
+
+        const celdasCompletadas = filas.filter(f => f.correcto === true).length;
+        const totalCeldas = filas.length;
+        setProgresoPorcentaje(Math.round((celdasCompletadas / totalCeldas) * 100));
+      }
+    } catch (error) {
+      console.error("Error al validar:", error);
+      setMensajeFeedback("❌ Error al conectar con el servidor.");
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  // ==========================================
+  // VALIDAR PREDICCIÓN CON BACKEND
+  // ==========================================
+
+  const handleEnviarPrediccion = async () => {
+    if (respuesta.trim() === "") {
+      setMensajeFeedback("⚠️ Escribe una respuesta antes de enviar.");
+      return;
+    }
+
+    setCargando(true);
+    try {
+      const response = await fetch(`${API_URL}/proporcionalidad/prediccion`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_estudiante: ID_ESTUDIANTE,
+          prediccion: Number(respuesta),
+        }),
+      });
+
+      const data = await response.json();
+      console.log("Respuesta del backend:", data);
+
+      if (data.success && data.data) {
+        const resultado = data.data;
+        setMensajeFeedback(resultado.mensaje);
+
+        if (resultado.correcto) {
+          setActividadCompletada(true);
+          setXpGanado(100);
+          setProgresoPorcentaje(100);
+          await guardarProgreso(8);
+          alert("🎉 ¡Misión completada! Has ganado 100 XP.");
+        } else if (resultado.completada) {
+          setActividadCompletada(true);
+          setXpGanado(50);
+          setProgresoPorcentaje(100);
+          await guardarProgreso(8);
+          alert("📚 Actividad completada con ayuda. Has ganado 50 XP.");
+        } else {
+          alert(`❌ ${resultado.mensaje}`);
+        }
+      } else if (data.success === false) {
+        alert(`❌ ${data.mensaje || "Error al procesar la respuesta."}`);
+      } else {
+        alert("❌ Error al procesar la respuesta.");
+      }
+    } catch (error) {
+      console.error("Error al enviar predicción:", error);
+      setMensajeFeedback("❌ Error al conectar con el servidor.");
+    } finally {
+      setCargando(false);
+      setRespuesta("");
+    }
+  };
+
+  // ==========================================
+  // VERIFICAR PUNTOS EN LA GRÁFICA
+  // ==========================================
+
+  const handleVerificarPuntos = () => {
+    const puntosEsperados = [
+      { x: 1, y: 12 },
+      { x: 2, y: 6 },
+      { x: 3, y: 4 },
+      { x: 4, y: 3 },
+      { x: 6, y: 2 },
+      { x: 12, y: 1 },
+    ];
+
+    const todosLosPuntos = puntosEsperados.every(pEsperado =>
+      puntos.some(p => p.x === pEsperado.x && p.y === pEsperado.y)
+    );
+
+    if (todosLosPuntos) {
+      setMensajeFeedback("✅ ¡Todos los puntos están correctos! Has completado la gráfica.");
+      setProgresoPorcentaje(80);
+      alert("🎉 ¡Gráfica completada correctamente!");
+    } else {
+      setMensajeFeedback("❌ Faltan puntos o algunos están incorrectos. Revisa la tabla.");
+      alert("❌ Faltan puntos o algunos están incorrectos. Revisa la tabla.");
+    }
+  };
+
+  // ==========================================
+  // FUNCIONES EXISTENTES (NO MODIFICAR)
+  // ==========================================
+
   const manejarClickGrafica = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const relX = (e.clientX - rect.left) / rect.width;
@@ -81,11 +297,17 @@ function GeneradorEnergiaInversa() {
 
   const limpiarGrafica = () => setPuntos(puntosIniciales);
 
+  // ==========================================
+  // RENDER (NO MODIFICAR ESTRUCTURA)
+  // ==========================================
+
   return (
     <main className="gen1-page">
       <button
+        type="button"
         className={`gen1-hamburger-btn ${menuOpen ? "gen1-hamburger-open" : ""}`}
         onClick={() => setMenuOpen(!menuOpen)}
+        aria-label="Abrir menú"
       >
         <img src={menuHamburguesa} alt="Menú" />
       </button>
@@ -99,12 +321,13 @@ function GeneradorEnergiaInversa() {
         <img src={logo} alt="MathNova" className="gen1-sidebar-logo" />
 
         <nav className="gen1-sidebar-menu">
-          <button className="gen1-menu-item" onClick={() => irARuta("/")}>
+          <button type="button" className="gen1-menu-item" onClick={() => irARuta("/")}>
             <FiGrid />
             <span>Dashboard principal</span>
           </button>
 
           <button
+            type="button"
             className="gen1-menu-item"
             onClick={() => irARuta("/seleccion-mundos")}
           >
@@ -112,12 +335,13 @@ function GeneradorEnergiaInversa() {
             <span>Selección de mundos matemáticos</span>
           </button>
 
-          <button className="gen1-menu-item" onClick={() => irARuta("/temas")}>
+          <button type="button" className="gen1-menu-item" onClick={() => irARuta("/temas")}>
             <GiBookCover />
             <span>Temas</span>
           </button>
 
           <button
+            type="button"
             className="gen1-menu-item gen1-active"
             onClick={() => irARuta("/actividades-math-data")}
           >
@@ -126,6 +350,7 @@ function GeneradorEnergiaInversa() {
           </button>
 
           <button
+            type="button"
             className="gen1-menu-item"
             onClick={() => irARuta("/retroalimentacion")}
           >
@@ -134,6 +359,7 @@ function GeneradorEnergiaInversa() {
           </button>
 
           <button
+            type="button"
             className="gen1-menu-item"
             onClick={() => irARuta("/recompensas")}
           >
@@ -142,6 +368,7 @@ function GeneradorEnergiaInversa() {
           </button>
 
           <button
+            type="button"
             className="gen1-menu-item"
             onClick={() => irARuta("/perfil-alumno")}
           >
@@ -150,6 +377,7 @@ function GeneradorEnergiaInversa() {
           </button>
 
           <button
+            type="button"
             className="gen1-menu-item"
             onClick={() => irARuta("/estadisticas")}
           >
@@ -171,26 +399,26 @@ function GeneradorEnergiaInversa() {
             <strong>Progreso del tema</strong>
             <span>0/2 actividades</span>
             <div className="gen1-progress-track">
-              <i style={{ width: "0%" }} />
+              <i style={{ width: `${progresoPorcentaje}%` }} />
             </div>
           </div>
 
           <div className="gen1-xp-box">
             <span>XP acumulados</span>
             <strong>
-              120 XP <FaStar />
+              {xpGanado || 120} XP <FaStar />
             </strong>
           </div>
         </div>
 
         <div className="gen1-sidebar-icons">
-          <button onClick={() => irARuta("/ajustes")}>
+          <button type="button" onClick={() => irARuta("/ajustes")} aria-label="Ajustes">
             <FiSettings />
           </button>
-          <button onClick={() => irARuta("/ayuda")}>
+          <button type="button" onClick={() => irARuta("/ayuda")} aria-label="Ayuda">
             <FiHelpCircle />
           </button>
-          <button onClick={() => navigate("/login")}>
+          <button type="button" onClick={() => navigate("/login")} aria-label="Cerrar sesión">
             <FiLogOut />
           </button>
         </div>
@@ -200,8 +428,10 @@ function GeneradorEnergiaInversa() {
       <section className="gen1-content">
         <div className="gen1-topbar">
           <button
+            type="button"
             className="gen1-back-btn"
             onClick={() => irARuta("/actividades-math-data")}
+            aria-label="Volver al tema"
           >
             <FiArrowLeft />
             Volver al tema
@@ -209,7 +439,7 @@ function GeneradorEnergiaInversa() {
 
           <span className="gen1-step-pill">Actividad 1 de 2</span>
 
-          <button className="gen1-help-circle">
+          <button type="button" className="gen1-help-circle" aria-label="Ayuda">
             <FiHelpCircle />
           </button>
         </div>
@@ -237,6 +467,24 @@ function GeneradorEnergiaInversa() {
           </div>
         </div>
 
+        {/* MENSAJE DE FEEDBACK */}
+        {mensajeFeedback && (
+          <div className={
+            mensajeFeedback.includes("✅") || mensajeFeedback.includes("🎉")
+              ? "gen1-feedback-success"
+              : "gen1-feedback-error"
+          }>
+            {mensajeFeedback}
+          </div>
+        )}
+
+        {/* MENSAJE DE ACTIVIDAD COMPLETADA */}
+        {actividadCompletada && (
+          <div className="gen1-completada-box">
+            🎉 ¡Misión completada! Has ganado {xpGanado} XP.
+          </div>
+        )}
+
         <div className="gen1-board">
           {/* PASO 1: TABLA */}
           <section className="gen1-card gen1-card-table">
@@ -263,9 +511,16 @@ function GeneradorEnergiaInversa() {
                       {fila.editable ? (
                         <input
                           className="gen1-table-input"
+                          type="number"
                           value={fila.y}
                           placeholder=""
+                          aria-label={`Tiempo para ${fila.x} reactores`}
                           onChange={(e) => actualizarFila(index, e.target.value)}
+                          style={{
+                            borderColor: fila.correcto === true ? "#28a745" : fila.correcto === false ? "#dc3545" : undefined,
+                            backgroundColor: fila.correcto === true ? "#d4edda" : fila.correcto === false ? "#f8d7da" : undefined
+                          }}
+                          disabled={cargando || fila.correcto === true || actividadCompletada}
                         />
                       ) : (
                         fila.y
@@ -293,11 +548,11 @@ function GeneradorEnergiaInversa() {
             </div>
 
             <div className="gen1-table-actions">
-              <button className="gen1-btn-outline" onClick={limpiarGrafica}>
+              <button type="button" className="gen1-btn-outline" onClick={limpiarGrafica}>
                 <FiRotateCcw />
                 Limpiar gráfica
               </button>
-              <button className="gen1-btn-primary">
+              <button type="button" className="gen1-btn-primary" onClick={handleVerificarPuntos}>
                 <FiCheck />
                 Verificar puntos
               </button>
@@ -367,9 +622,12 @@ function GeneradorEnergiaInversa() {
             <div className="gen1-answer-row">
               <input
                 className="gen1-answer-input"
+                type="number"
                 placeholder="Escribe tu respuesta"
+                aria-label="Respuesta de predicción"
                 value={respuesta}
                 onChange={(e) => setRespuesta(e.target.value)}
+                disabled={actividadCompletada}
               />
               <span>reactores</span>
             </div>
@@ -383,11 +641,14 @@ function GeneradorEnergiaInversa() {
             </div>
 
             <button
+              type="button"
               className="gen1-btn-submit"
-              disabled={respuesta.trim() === ""}
+              disabled={respuesta.trim() === "" || actividadCompletada || cargando}
+              onClick={handleEnviarPrediccion}
+              aria-label="Enviar respuesta"
             >
               <FiLock />
-              Enviar respuesta
+              {cargando ? "Enviando..." : "Enviar respuesta"}
             </button>
 
             <div className="gen1-mission-box">
@@ -407,9 +668,9 @@ function GeneradorEnergiaInversa() {
           <div className="gen1-bottom-progress">
             <span>Progreso de la actividad</span>
             <div className="gen1-progress-track">
-              <i style={{ width: "0%" }} />
+              <i style={{ width: `${progresoPorcentaje}%` }} />
             </div>
-            <strong>0%</strong>
+            <strong>{progresoPorcentaje}%</strong>
           </div>
 
           <div className="gen1-bottom-reward">

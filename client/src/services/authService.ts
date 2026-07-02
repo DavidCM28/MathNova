@@ -35,6 +35,26 @@ type RegisterResponse = {
   usuario: Usuario;
 };
 
+async function leerRespuesta(response: Response) {
+  const texto = await response.text();
+
+  let data;
+
+  try {
+    data = texto ? JSON.parse(texto) : null;
+  } catch {
+    throw new Error(
+      `El backend no devolvió JSON. Revisa si existe esta ruta: ${response.url}`
+    );
+  }
+
+  if (!response.ok) {
+    throw new Error(data?.mensaje || data?.message || "Error en la petición");
+  }
+
+  return data;
+}
+
 export const iniciarSesion = async (
   datos: LoginData
 ): Promise<LoginResponse> => {
@@ -46,13 +66,7 @@ export const iniciarSesion = async (
     body: JSON.stringify(datos),
   });
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.mensaje || "Error al iniciar sesión");
-  }
-
-  return data;
+  return leerRespuesta(response);
 };
 
 export const registrarUsuario = async (
@@ -66,11 +80,5 @@ export const registrarUsuario = async (
     body: JSON.stringify(datos),
   });
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.mensaje || "Error al registrar usuario");
-  }
-
-  return data;
+  return leerRespuesta(response);
 };

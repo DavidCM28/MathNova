@@ -900,3 +900,22 @@ body {
 .modules-empty-box button:hover {
   transform: translateY(-1px);
 }
+
+
+.guest-hero-alert {
+  width: min(980px, 72vw);
+  max-width: 980px;
+  margin-top: 16px;
+  padding: 12px 20px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #b9d6ff;
+  color: #0b4fc7;
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 1.35;
+  box-shadow: 0 12px 28px rgba(11, 99, 255, 0.12);
+  backdrop-filter: blur(8px);
+  position: relative;
+  z-index: 30;
+}

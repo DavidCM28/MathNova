@@ -1,3 +1,16 @@
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  overflow-x: hidden;
+  background: #fff3df;
+}
+
 .geomx-page,
 .geomx-page * {
   box-sizing: border-box;
@@ -6,8 +19,8 @@
 .geomx-page {
   width: 100%;
   min-height: 100vh;
+  padding-left: 305px;
   background: #fff3df;
-  display: flex;
   font-family: "Poppins", Arial, sans-serif;
   color: #061331;
   overflow-x: hidden;
@@ -17,52 +30,66 @@
   display: none;
 }
 
-/* SIDEBAR */
+/* =========================================================
+   SIDEBAR FIJO COMPLETO
+   ========================================================= */
+
 .geomx-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
   width: 305px;
   min-width: 305px;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   background: #ffffff;
   border-radius: 0 34px 34px 0;
-  padding: 34px 28px 24px;
+  padding: 38px 28px 22px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 30;
+  z-index: 90;
+  overflow: hidden;
+  box-shadow: 12px 0 32px rgba(15, 23, 42, 0.08);
 }
 
 .geomx-sidebar-logo {
   width: 205px;
   margin-bottom: 34px;
+  flex: 0 0 auto;
 }
 
 .geomx-sidebar-menu {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
+  flex: 0 0 auto;
 }
 
 .geomx-menu-item {
   width: 100%;
-  min-height: 58px;
+  min-height: 60px;
   border: none;
   background: transparent;
   color: #111827;
   display: flex;
   align-items: center;
-  gap: 17px;
+  gap: 20px;
   font-size: 16px;
   font-weight: 900;
   border-radius: 14px;
-  padding: 0 18px;
+  padding: 0 20px;
   cursor: pointer;
   text-align: left;
-  transition: all 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease,
+    color 0.25s ease;
 }
 
 .geomx-menu-item span {
-  line-height: 1.2;
+  line-height: 1.18;
 }
 
 .geomx-menu-item svg {
@@ -84,186 +111,197 @@
 .geomx-menu-item.geomx-active {
   background: #0058ff;
   color: #ffffff;
+  box-shadow: 0 12px 24px rgba(0, 88, 255, 0.22);
 }
 
-/* PARTE BAJA DEL SIDEBAR */
-.geomx-sidebar-bottom {
+/* =========================================================
+   PROFESOR SIN CARD
+   ========================================================= */
+
+.geomx-sidebar-mascot {
   width: 100%;
-  margin-top: 78px; /* SUBE/BAJA TODO EL BLOQUE */
+  flex: 1 1 auto;
+  min-height: 185px;
+  margin-top: 26px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: visible;
 }
 
-.geomx-hello-box {
-  width: 250px;
-  min-height: 82px;
-  background: #ffffff;
-  border-radius: 24px;
-  box-shadow: 0 15px 32px rgba(0, 0, 0, 0.12);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 18px 8px 8px;
-  margin: 0 auto 26px;
-  animation: geomxFloatSoft 3s ease-in-out infinite;
-}
-
-.geomx-hello-box img {
-  width: 76px;
-  height: 76px;
+.geomx-sidebar-mascot img {
+  /* IMAGEN 1: aquí hice más grande el profesor del sidebar */
+  width: clamp(240px, 98%, 310px);
+  max-height: clamp(250px, 42vh, 350px);
   object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 18px 22px rgba(0, 88, 255, 0.14));
+  animation: geomxFloatSoft 3.2s ease-in-out infinite;
+  transition: transform 0.28s ease;
 }
 
-.geomx-hello-box span {
-  font-size: 16px;
-  color: #0058ff;
-  font-weight: 900;
-  line-height: 1.2;
+.geomx-sidebar-mascot img:hover {
+  transform: translateY(-8px) scale(1.04) rotate(2deg);
 }
 
-.geomx-weekly-progress {
-  width: 265px;
-  height: 345px; /* MÁS ALTA PARA QUE NO SE CORTE */
-  background: #ffffff;
-  border-radius: 24px;
-  box-shadow: 0 15px 32px rgba(0, 0, 0, 0.12);
-  padding: 22px 20px;
-  position: relative;
-  overflow: visible; /* EVITA QUE SE CORTE EL ROBOT */
-  animation: geomxFloatSoft 3.5s ease-in-out infinite;
-}
+/* =========================================================
+   CONTENIDO GENERAL
+   ========================================================= */
 
-.geomx-weekly-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.geomx-weekly-head strong {
-  font-size: 14px;
-  font-weight: 900;
-}
-
-.geomx-weekly-head span {
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.geomx-star-progress {
-  margin-top: 22px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.geomx-star-progress span {
-  color: #ffae00;
-  font-size: 24px;
-}
-
-.geomx-star-progress div {
-  width: 165px;
-  height: 10px;
-  background: #f2e3ca;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.geomx-star-progress b {
-  display: block;
-  width: 60%;
-  height: 100%;
-  background: #ff9f00;
-  border-radius: 999px;
-}
-
-.geomx-weekly-progress p {
-  margin: 10px 0 0;
-  font-size: 13px;
-  font-weight: 900;
-}
-
-.geomx-weekly-progress img {
-  position: absolute;
-  left: -22px; /* MOVER ROBOT IZQUIERDA/DERECHA */
-  bottom: 6px; /* MOVER ROBOT ARRIBA/ABAJO */
-  width: 205px; /* HACER ROBOT GRANDE/PEQUEÑO */
-  z-index: 2;
-  animation: geomxRobotMove 2.6s ease-in-out infinite;
-}
-
-.geomx-weekly-progress small {
-  position: absolute;
-  right: 10px; /* MOVER TEXTO DERECHA/IZQUIERDA */
-  bottom: 45px; /* MOVER TEXTO ARRIBA/ABAJO */
-  width: 88px;
-  background: #ffffff;
-  border: 2px solid #d8e4f5;
-  border-radius: 12px;
-  padding: 10px;
-  color: #1b4ca8;
-  font-size: 12px;
-  font-weight: 900;
-  z-index: 3;
-}
-
-/* CONTENIDO */
 .geomx-content {
-  flex: 1;
-  min-width: 0;
+  width: 100%;
+  min-height: 100vh;
   position: relative;
-  overflow: hidden;
-  background: #feeac6;
+  overflow-x: hidden;
+  background: linear-gradient(
+    180deg,
+    #ffe4b1 0%,
+    #ffe9c1 32%,
+    #fff0d8 65%,
+    #fff6ea 100%
+  );
 }
 
-/* BANNER */
+.geomx-content::before {
+  content: "";
+  position: absolute;
+  top: 225px;
+  left: 0;
+  right: 0;
+  height: 185px;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 228, 177, 0) 0%,
+    rgba(255, 236, 204, 0.9) 52%,
+    #fff1dd 100%
+  );
+}
+
 .geomx-bg {
   position: absolute;
-  right: 0; /* IZQUIERDA/DERECHA */
-  top: 0; /* ARRIBA/ABAJO */
-  width: 100%; /* GRANDE/PEQUEÑO */
-  height: 255px; /* ALTURA DEL BANNER */
+  top: 0;
+  right: 0;
+  width: 200%;
+  height: 430px;
   object-fit: cover;
   object-position: center top;
   z-index: 1;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 72%,
+    rgba(0, 0, 0, 0.62) 88%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 72%,
+    rgba(0, 0, 0, 0.62) 88%,
+    transparent 100%
+  );
 }
 
-/* CONTENIDO PRINCIPAL */
 .geomx-main {
   position: relative;
   z-index: 5;
-  padding: 72px 330px 30px 55px;
+  padding: 76px 52px 32px;
 }
+
+/* =========================================================
+   BARRA DE UBICACIÓN: MUNDOS / ACTIVIDADES
+   ========================================================= */
+
+.geomx-breadcrumb {
+  width: fit-content;
+  max-width: 100%;
+  min-height: 52px;
+  margin-bottom: 18px;
+  padding: 5px 7px;
+  border-radius: 999px;
+  background: rgba(255, 247, 232, 0.92);
+  border: 2px solid rgba(255, 176, 83, 0.55);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 12px 24px rgba(129, 76, 18, 0.12);
+  backdrop-filter: blur(7px);
+}
+
+.geomx-breadcrumb button {
+  height: 36px;
+  padding: 0 28px;
+  border: none;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #5a351c;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(129, 76, 18, 0.08);
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.geomx-breadcrumb button:hover {
+  transform: translateY(-2px) scale(1.03);
+
+  /* AQUÍ CAMBIÉ EL HOVER A COLOR BAJITO */
+  background: #fff1d8;
+  color: #9a5a18;
+
+  box-shadow: 0 10px 18px rgba(255, 159, 24, 0.16);
+}
+
+.geomx-breadcrumb span {
+  color: #a86422;
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
 
 .geomx-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 28px;
+  gap: 32px;
+  min-height: 178px;
 }
 
 .geomx-title-box {
-  max-width: 700px;
+  max-width: 720px;
 }
 
 .geomx-header h1 {
   margin: 0;
-  font-size: 48px;
-  line-height: 1;
+  font-size: 56px;
+  line-height: 0.95;
+  font-weight: 900;
+  color: #061331;
+  letter-spacing: -1px;
+}
+
+.geomx-header p {
+  margin: 18px 0 17px;
+  max-width: 760px;
+  font-size: 18px;
+  line-height: 1.25;
   font-weight: 900;
   color: #061331;
 }
 
-.geomx-header p {
-  margin: 18px 0 16px;
-  font-size: 17px;
-  font-weight: 800;
-}
-
 .geomx-status-tabs {
   display: flex;
-  gap: 20px;
+  gap: 18px;
   flex-wrap: wrap;
 }
 
@@ -271,7 +309,7 @@
   height: 48px;
   padding: 0 28px;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   background: #ffffff;
   font-size: 14px;
   font-weight: 900;
@@ -279,10 +317,11 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 20px rgba(72, 46, 18, 0.09);
   transition:
     transform 0.25s ease,
-    box-shadow 0.25s ease;
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
 }
 
 .geomx-status-tabs button:hover {
@@ -297,36 +336,44 @@
 
 .geomx-status-tabs button:nth-child(2) {
   color: #ff5b21;
+  border: 2px solid transparent;
 }
 
 .geomx-status-tabs button:nth-child(3) {
   color: #0b9b3f;
+  border: 2px solid transparent;
 }
 
-/* BUSCADOR */
+/* =========================================================
+   BUSCADOR
+   ========================================================= */
+
 .geomx-search-area {
-  margin-top: 55px; /* SUBIR/BAJAR BUSCADOR */
-  margin-right: -240px; /* IZQUIERDA/DERECHA */
+  margin-top: 52px;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 18px;
+  flex-shrink: 0;
 }
 
 .geomx-search-box {
   width: 355px;
   height: 52px;
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   gap: 14px;
   padding: 0 20px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 22px rgba(72, 46, 18, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.7);
 }
 
 .geomx-search-box svg {
   font-size: 22px;
   color: #22355d;
+  flex-shrink: 0;
 }
 
 .geomx-search-box input {
@@ -359,83 +406,250 @@
   height: 52px;
   padding: 0 22px;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   background: #ffffff;
   color: #061331;
+  font-size: 14px;
   font-weight: 900;
   display: flex;
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 22px rgba(72, 46, 18, 0.1);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
 }
 
-/* SECCIONES */
-.geomx-section-title {
-  margin: 28px 0 10px;
-  font-size: 26px;
+.geomx-filter-btn:hover {
+  transform: translateY(-4px) scale(1.03);
+  background: #fff8ee;
+  box-shadow: 0 16px 28px rgba(72, 46, 18, 0.14);
+}
+
+/* =========================================================
+   RESUMEN
+   ========================================================= */
+
+.geomx-summary-row {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.geomx-summary-row article {
+  min-height: 92px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 2px solid rgba(255, 203, 136, 0.58);
+  border-radius: 22px;
+  box-shadow: 0 14px 28px rgba(72, 46, 18, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.geomx-summary-row article:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 34px rgba(0, 88, 255, 0.12);
+}
+
+.geomx-summary-row article svg {
+  width: 48px;
+  height: 48px;
+  padding: 11px;
+  border-radius: 16px;
+  background: #0058ff;
+  color: #ffffff;
+  flex-shrink: 0;
+  box-shadow: 0 12px 20px rgba(0, 88, 255, 0.18);
+}
+
+.geomx-summary-row strong {
+  display: block;
+  color: #061331;
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.geomx-summary-row span {
+  display: block;
+  margin-top: 5px;
+  color: #4a5572;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+/* =========================================================
+   PANEL DE ACTIVIDADES
+   ========================================================= */
+
+.geomx-activities-panel {
+  margin-top: 28px;
+  padding: 26px;
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(255, 159, 24, 0.12), transparent 34%),
+    rgba(255, 255, 255, 0.68);
+  border: 2px solid rgba(255, 190, 106, 0.65);
+  box-shadow: 0 18px 36px rgba(72, 46, 18, 0.09);
+  backdrop-filter: blur(7px);
+  overflow: hidden;
+}
+
+.geomx-section-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.geomx-section-heading > span {
+  height: 38px;
+  padding: 0 17px;
+  border-radius: 999px;
+  background: #ff9f18;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: 0 10px 18px rgba(255, 159, 24, 0.22);
+  flex-shrink: 0;
+}
+
+.geomx-section-heading h2 {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1;
   font-weight: 900;
   color: #3b2522;
 }
 
-/* TARJETAS */
-.geomx-activities-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(185px, 1fr));
-  gap: 26px;
+.geomx-section-heading p {
+  margin: 9px 0 0;
+  max-width: 780px;
+  color: #4c3b35;
+  font-size: 15.5px;
+  line-height: 1.38;
+  font-weight: 850;
 }
 
+.geomx-activities-zone {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(305px, 340px);
+  gap: 26px;
+  align-items: stretch;
+}
+
+.geomx-activities-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+/* =========================================================
+   TARJETAS DE ACTIVIDAD
+   ========================================================= */
+
 .geomx-activity-card {
+  min-height: 392px;
   background: #ffffff;
-  border: 2px solid #cdd9ea;
-  border-radius: 18px;
+  border: 2px solid #ffbf6b;
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 12px 26px rgba(0, 88, 255, 0.12);
-  transition: all 0.25s ease;
+  box-shadow: 0 16px 32px rgba(0, 88, 255, 0.12);
+  transition:
+    transform 0.28s ease,
+    box-shadow 0.28s ease,
+    border-color 0.28s ease;
+  position: relative;
 }
 
 .geomx-activity-card:hover {
-  transform: translateY(-8px) scale(1.015);
-  box-shadow: 0 18px 34px rgba(0, 88, 255, 0.2);
+  transform: translateY(-8px) scale(1.01);
+  border-color: #ff9f18;
+  box-shadow: 0 24px 42px rgba(0, 88, 255, 0.18);
 }
 
-.geomx-activity-card > img {
+.geomx-activity-image {
   width: 100%;
-  height: 145px;
+  height: 178px;
+  position: relative;
+  overflow: hidden;
+  background: #eaf3ff;
+  border-bottom: 2px solid #ffe0b3;
+}
+
+.geomx-activity-image img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+  object-position: center center;
   display: block;
+  transition: transform 0.4s ease;
+}
+
+.geomx-card-1 .geomx-activity-image img {
+  object-position: center center;
+}
+
+.geomx-card-2 .geomx-activity-image img {
+  object-position: center center;
+}
+
+.geomx-activity-card:hover .geomx-activity-image img {
+  transform: scale(1.045);
+}
+
+.geomx-card-number {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 46px;
+  height: 46px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #0058ff;
+  font-size: 17px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(0, 88, 255, 0.18);
+  box-shadow: 0 10px 20px rgba(3, 33, 87, 0.18);
 }
 
 .geomx-activity-info {
-  padding: 12px 16px 14px;
+  min-height: 214px;
+  padding: 18px 18px 20px;
+  display: flex;
+  flex-direction: column;
 }
 
-.geomx-activity-info h3 {
-  margin: 0;
-  font-size: 17px;
-  line-height: 1;
-  color: #071331;
-  font-weight: 900;
-}
-
-.geomx-activity-info p {
-  min-height: 47px;
-  margin: 4px 0 8px;
-  font-size: 13px;
-  line-height: 1.15;
-  color: #061331;
-  font-weight: 800;
+.geomx-card-tags {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
 }
 
 .geomx-easy,
-.geomx-medium {
+.geomx-state {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 50px;
-  height: 22px;
-  padding: 0 10px;
-  border-radius: 6px;
+  height: 26px;
+  padding: 0 11px;
+  border-radius: 999px;
   font-size: 12px;
   font-weight: 900;
 }
@@ -446,65 +660,210 @@
   border: 1px solid #7fd39b;
 }
 
-.geomx-medium {
-  color: #ba5b00;
-  background: #fff2dc;
-  border: 1px solid #ffb85c;
+.geomx-state {
+  color: #0058ff;
+  background: #eef5ff;
+  border: 1px solid #bdd5ff;
+}
+
+.geomx-activity-info h3 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.04;
+  color: #071331;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+}
+
+.geomx-activity-info p {
+  margin: 9px 0 16px;
+  color: #18233e;
+  font-size: 14px;
+  line-height: 1.25;
+  font-weight: 850;
 }
 
 .geomx-activity-bottom {
-  margin-top: 18px;
+  margin-top: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 14px;
 }
 
 .geomx-activity-bottom small {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   color: #061331;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 900;
+  white-space: nowrap;
+}
+
+.geomx-activity-bottom small svg {
+  font-size: 16px;
 }
 
 .geomx-activity-bottom button {
-  width: 88px;
-  height: 34px;
+  min-width: 112px;
+  height: 42px;
   border: none;
-  border-radius: 8px;
+  border-radius: 13px;
   background: #0058ff;
   color: #ffffff;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 900;
   cursor: pointer;
-  box-shadow: 0 8px 16px rgba(0, 88, 255, 0.25);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  box-shadow: 0 10px 18px rgba(0, 88, 255, 0.26);
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.geomx-activity-bottom button svg {
+  font-size: 17px;
 }
 
 .geomx-activity-bottom button:hover {
-  background: #0045cc;
+  background: #0047d6;
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 15px 24px rgba(0, 88, 255, 0.32);
 }
 
-/* PROFESOR */
-.geomx-profesor-img {
+/* =========================================================
+   PROGRESO SEMANAL
+   ========================================================= */
+
+.geomx-side-progress-card {
+  min-height: 392px;
+  background: #ffffff;
+  border-radius: 28px;
+  box-shadow: 0 18px 38px rgba(0, 88, 255, 0.12);
+  padding: 24px 22px;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid #dce8fa;
+  animation: geomxFloatSoft 3.5s ease-in-out infinite;
+}
+
+.geomx-side-progress-card::before {
+  content: "";
   position: absolute;
-  right: -60px;
-  top: 450px;
-  width: 500px;
-  z-index: 8;
-  filter: drop-shadow(0 12px 18px rgba(0, 88, 255, 0.18));
+  width: 155px;
+  height: 155px;
+  top: -52px;
+  right: -42px;
+  border-radius: 999px;
+  background: #edf4ff;
 }
 
-.geomx-profesor-img:hover {
-  animation: geomxProfessorFloat 0.6s ease;
+.geomx-weekly-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 4;
 }
 
-/* FOOTER */
+.geomx-weekly-head strong {
+  font-size: 17px;
+  font-weight: 900;
+  color: #061331;
+  line-height: 1.15;
+}
+
+.geomx-weekly-head span {
+  font-size: 14px;
+  font-weight: 900;
+  color: #061331;
+  white-space: nowrap;
+}
+
+.geomx-star-progress {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: 26px 48px 1fr;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 4;
+}
+
+.geomx-star-progress span {
+  color: #ffae00;
+  font-size: 29px;
+  line-height: 1;
+}
+
+.geomx-star-progress strong {
+  color: #061331;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.geomx-star-progress div {
+  width: 100%;
+  height: 12px;
+  background: #f2e3ca;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.geomx-star-progress b {
+  display: block;
+  width: 60%;
+  height: 100%;
+  background: #ff9f00;
+  border-radius: 999px;
+}
+
+.geomx-side-progress-card img {
+  position: absolute;
+  /* IMAGEN 2: aquí moví el robot un poco hacia la izquierda */
+  right: -20px;
+  bottom: 10px;
+  width: clamp(190px, 62%, 235px);
+  max-height: 285px;
+  object-fit: contain;
+  z-index: 2;
+  filter: drop-shadow(0 14px 16px rgba(0, 88, 255, 0.14));
+  animation: geomxRobotMove 2.7s ease-in-out infinite;
+}
+
+.geomx-side-progress-card small {
+  position: absolute;
+  right: 16px;
+  bottom: 58px;
+  width: 108px;
+  background: #ffffff;
+  border: 2px solid #d8e4f5;
+  border-radius: 15px;
+  padding: 11px 9px;
+  color: #1b4ca8;
+  font-size: 12.5px;
+  line-height: 1.25;
+  font-weight: 900;
+  z-index: 5;
+  box-shadow: 0 12px 22px rgba(0, 88, 255, 0.1);
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
 .geomx-footer {
   position: relative;
   z-index: 10;
-  min-height: 62px;
-  margin: 0 28px 0 34px;
+  min-height: 68px;
+  margin: 0 38px 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -527,92 +886,20 @@
 .geomx-footer-icons svg {
   font-size: 31px;
   color: #0b67de;
-  transition: all 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    color 0.25s ease;
 }
 
 .geomx-footer-icons svg:hover {
   transform: translateY(-4px) scale(1.15);
+  color: #0058ff;
 }
 
-/* BREADCRUMB */
-.geomx-breadcrumb-bar {
-  position: absolute;
-  top: 18px; /* SUBIR/BAJAR */
-  left: 50%; /* IZQUIERDA/DERECHA */
-  transform: translateX(-50%);
-  z-index: 30;
+/* =========================================================
+   ANIMACIONES
+   ========================================================= */
 
-  min-width: 440px;
-  height: 50px;
-  padding: 0 26px;
-
-  background: rgba(255, 232, 199, 0.95);
-  border: 2px solid rgba(222, 145, 65, 0.45);
-  border-radius: 999px;
-  box-shadow: 0 12px 28px rgba(116, 73, 31, 0.18);
-  backdrop-filter: blur(6px);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-
-  font-size: 15px;
-  font-weight: 900;
-
-  transition: all 0.28s ease;
-}
-
-.geomx-breadcrumb-bar:hover {
-  transform: translateX(-50%) translateY(-4px) scale(1.02);
-  box-shadow: 0 18px 34px rgba(116, 73, 31, 0.24);
-  background: rgba(255, 224, 180, 0.98);
-}
-
-.geomx-breadcrumb-bar button {
-  border: none;
-  background: rgba(255, 255, 255, 0.55);
-  color: #7a4a1f;
-  font: inherit;
-  cursor: pointer;
-  padding: 7px 13px;
-  border-radius: 999px;
-  transition: all 0.25s ease;
-}
-
-.geomx-breadcrumb-bar button:hover {
-  color: #ffffff;
-  background: #d98a3a;
-  transform: translateY(-2px) scale(1.05);
-  text-decoration: none;
-  box-shadow: 0 8px 18px rgba(217, 138, 58, 0.35);
-}
-
-.geomx-breadcrumb-bar span {
-  color: #b7793c;
-  font-size: 27px;
-  line-height: 1;
-  transition: transform 0.25s ease;
-}
-
-.geomx-breadcrumb-bar:hover span {
-  transform: translateX(3px);
-}
-
-.geomx-breadcrumb-bar strong {
-  color: #4a2a14;
-  padding: 7px 13px;
-  border-radius: 999px;
-  background: rgba(255, 250, 242, 0.72);
-  transition: all 0.25s ease;
-}
-
-.geomx-breadcrumb-bar strong:hover {
-  background: #ffffff;
-  transform: translateY(-2px);
-}
-
-/* ANIMACIONES */
 @keyframes geomxFloatSoft {
   0%,
   100% {
@@ -635,58 +922,298 @@
   }
 }
 
-@keyframes geomxProfessorFloat {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
+/* =========================================================
+   PANTALLAS BAJAS EN ESCRITORIO
+   ========================================================= */
 
-  50% {
-    transform: translateY(-10px) rotate(2deg);
-  }
-}
-
-/* TABLET */
-@media (max-width: 1200px) {
+@media (min-width: 992px) and (max-height: 780px) {
   .geomx-sidebar {
-    width: 270px;
-    min-width: 270px;
+    padding-top: 28px;
+    padding-bottom: 18px;
   }
 
   .geomx-sidebar-logo {
-    width: 180px;
+    width: 185px;
+    margin-bottom: 22px;
+  }
+
+  .geomx-sidebar-menu {
+    gap: 12px;
   }
 
   .geomx-menu-item {
+    min-height: 52px;
     font-size: 15px;
-    padding: 0 14px;
+    gap: 17px;
+  }
+
+  .geomx-menu-item svg {
+    font-size: 25px;
+  }
+
+  .geomx-sidebar-mascot {
+    margin-top: 14px;
+    min-height: 155px;
+  }
+
+  .geomx-sidebar-mascot img {
+    /* IMAGEN 1 RESPONSIVO: profesor un poquito más grande */
+    width: 205px;
+    max-height: 220px;
+  }
+}
+
+@media (min-width: 992px) and (max-height: 650px) {
+  .geomx-sidebar-logo {
+    width: 165px;
+    margin-bottom: 16px;
+  }
+
+  .geomx-sidebar-menu {
+    gap: 9px;
+  }
+
+  .geomx-menu-item {
+    min-height: 47px;
+    font-size: 14px;
+  }
+
+  .geomx-sidebar-mascot {
+    min-height: 125px;
+    margin-top: 10px;
+  }
+
+  .geomx-sidebar-mascot img {
+    /* IMAGEN 1 RESPONSIVO: profesor un poquito más grande */
+    width: 175px;
+    max-height: 178px;
+  }
+}
+
+/* =========================================================
+   1400px EN ADELANTE
+   ========================================================= */
+
+@media (min-width: 1400px) {
+  .geomx-main {
+    padding-left: 64px;
+    padding-right: 64px;
+  }
+
+  .geomx-bg {
+    height: 355px;
+  }
+
+  .geomx-header h1 {
+    font-size: 58px;
+  }
+
+  .geomx-activities-zone {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 350px);
+    gap: 28px;
+  }
+
+  .geomx-activity-image {
+    height: 188px;
+  }
+
+  .geomx-side-progress-card {
+    min-height: 408px;
+  }
+
+  .geomx-side-progress-card img {
+    width: 230px;
+    /* IMAGEN 2 RESPONSIVO: robot un poco más a la izquierda */
+    right: 90px;
+  }
+}
+
+/* =========================================================
+   1200px A 1399px
+   ========================================================= */
+
+@media (max-width: 1399px) {
+  .geomx-main {
+    padding: 74px 40px 30px;
+  }
+
+  .geomx-header h1 {
+    font-size: clamp(44px, 3.7vw, 54px);
+  }
+
+  .geomx-header p {
+    font-size: 17px;
+  }
+
+  .geomx-search-box {
+    width: 330px;
+  }
+
+  .geomx-summary-row {
+    gap: 16px;
+  }
+
+  .geomx-activities-panel {
+    padding: 24px;
+  }
+
+  .geomx-activities-zone {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 318px);
+    gap: 22px;
+  }
+
+  .geomx-activities-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+  }
+
+  .geomx-activity-image {
+    height: 172px;
+  }
+
+  .geomx-activity-info h3 {
+    font-size: 20px;
+  }
+
+  .geomx-side-progress-card {
+    min-height: 392px;
+  }
+
+  .geomx-side-progress-card img {
+    width: 212px;
+    /* IMAGEN 2 RESPONSIVO: robot un poco más a la izquierda */
+    right: 66px;
+  }
+
+  .geomx-side-progress-card small {
+    right: 12px;
+    width: 104px;
+  }
+}
+
+/* =========================================================
+   992px A 1299px
+   ========================================================= */
+
+@media (max-width: 1299px) {
+  .geomx-activities-zone {
+    grid-template-columns: 1fr;
+  }
+
+  .geomx-activities-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .geomx-side-progress-card {
+    min-height: 285px;
+  }
+
+  .geomx-side-progress-card img {
+    width: 220px;
+    /* IMAGEN 2 RESPONSIVO: robot un poco más a la izquierda */
+    right: 180px;
+    bottom: 8px;
+  }
+
+  .geomx-side-progress-card small {
+    right: 34px;
+    bottom: 72px;
+    width: 125px;
+  }
+}
+
+/* =========================================================
+   992px A 1199px
+   ========================================================= */
+
+@media (max-width: 1199px) {
+  .geomx-page {
+    padding-left: 270px;
+  }
+
+  .geomx-sidebar {
+    width: 270px;
+    min-width: 270px;
+    padding: 32px 22px 22px;
+  }
+
+  .geomx-sidebar-logo {
+    width: 178px;
+    margin-bottom: 28px;
+  }
+
+  .geomx-sidebar-menu {
+    gap: 15px;
+  }
+
+  .geomx-menu-item {
+    min-height: 56px;
+    font-size: 14px;
+    gap: 15px;
+    padding: 0 13px;
+  }
+
+  .geomx-menu-item svg {
+    font-size: 24px;
+  }
+
+  .geomx-sidebar-mascot {
+    margin-top: 18px;
+    min-height: 180px;
+  }
+
+  .geomx-sidebar-mascot img {
+    /* IMAGEN 1 RESPONSIVO: profesor un poquito más grande */
+    width: 235px;
+    max-height: 275px;
   }
 
   .geomx-main {
-    padding: 70px 35px 30px;
+    padding: 72px 28px 28px;
   }
 
   .geomx-header {
     flex-direction: column;
+    gap: 16px;
+    min-height: auto;
   }
 
   .geomx-search-area {
-    margin-top: 10px;
-    margin-right: 0;
+    width: 100%;
+    margin-top: 2px;
+    justify-content: flex-start;
   }
 
-  .geomx-activities-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .geomx-search-box {
+    width: min(470px, 100%);
   }
 
-  .geomx-profesor-img {
-    display: none;
+  .geomx-summary-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .geomx-summary-row article {
+    min-height: 86px;
+    padding: 16px;
+  }
+
+  .geomx-summary-row article svg {
+    width: 44px;
+    height: 44px;
+  }
+
+  .geomx-summary-row strong {
+    font-size: 24px;
   }
 }
 
-/* MÓVIL */
-@media (max-width: 850px) {
+/* =========================================================
+   768px A 991px
+   ========================================================= */
+
+@media (max-width: 991px) {
   .geomx-page {
+    padding-left: 0;
     display: block;
   }
 
@@ -695,15 +1222,15 @@
     position: fixed;
     top: 24px;
     left: 22px;
-    width: 74px;
-    height: 74px;
+    width: 76px;
+    height: 76px;
     border: none;
     background: #ffffff;
-    border-radius: 20px;
-    z-index: 100;
+    border-radius: 22px;
+    z-index: 120;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 22px rgba(0, 88, 255, 0.2);
+    box-shadow: 0 10px 24px rgba(0, 88, 255, 0.2);
     cursor: pointer;
   }
 
@@ -712,22 +1239,20 @@
   }
 
   .geomx-hamburger-btn img {
-    width: 50px;
-    height: 50px;
+    width: 52px;
+    height: 52px;
     object-fit: contain;
   }
 
   .geomx-sidebar {
-    position: fixed;
-    top: 0;
     left: -320px;
     width: 285px;
     min-width: 285px;
+    height: 100vh;
     height: 100dvh;
-    min-height: 100dvh;
     border-radius: 0 28px 28px 0;
     padding: 45px 24px 28px;
-    z-index: 90;
+    z-index: 110;
     transition: left 0.3s ease;
     overflow-y: auto;
   }
@@ -740,74 +1265,468 @@
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.28);
-    z-index: 80;
+    z-index: 100;
   }
 
   .geomx-sidebar-logo {
-    width: 155px;
+    width: 165px;
+    margin-bottom: 28px;
   }
 
-  .geomx-sidebar-bottom {
-    margin-top: 22px;
+  .geomx-sidebar-menu {
+    gap: 14px;
   }
 
-  .geomx-weekly-progress {
-    width: 230px;
-    height: 330px;
+  .geomx-sidebar-mascot {
+    min-height: 210px;
+    margin-top: 18px;
   }
 
-  .geomx-weekly-progress img {
-    width: 180px;
+  .geomx-sidebar-mascot img {
+    /* IMAGEN 1 RESPONSIVO: profesor un poquito más grande */
+    width: 242px;
+    max-height: 282px;
+  }
+
+  .geomx-content {
+    min-height: 100vh;
+  }
+
+  .geomx-bg {
+    height: 340px;
+    object-position: center top;
+  }
+
+  .geomx-content::before {
+    top: 218px;
   }
 
   .geomx-main {
-    padding: 130px 18px 25px;
+    padding: 126px 22px 28px;
+  }
+
+  .geomx-breadcrumb {
+    margin-bottom: 16px;
   }
 
   .geomx-header h1 {
-    font-size: 42px;
+    font-size: clamp(38px, 7vw, 48px);
+  }
+
+  .geomx-header p {
+    max-width: 640px;
+    font-size: 16px;
   }
 
   .geomx-status-tabs {
-    gap: 10px;
+    gap: 12px;
   }
 
   .geomx-status-tabs button {
-    padding: 0 14px;
-    font-size: 12px;
+    height: 44px;
+    padding: 0 17px;
+    font-size: 13px;
   }
 
   .geomx-search-area {
     width: 100%;
+    gap: 14px;
+  }
+
+  .geomx-search-box {
+    flex: 1;
+    width: auto;
+  }
+
+  .geomx-summary-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .geomx-summary-row article:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .geomx-activities-panel {
+    padding: 22px;
+    border-radius: 26px;
+  }
+
+  .geomx-section-heading h2 {
+    font-size: 29px;
+  }
+
+  .geomx-activities-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .geomx-activity-card {
+    min-height: 390px;
+  }
+
+  .geomx-activity-image {
+    height: 165px;
+  }
+
+  .geomx-activity-info {
+    padding: 16px;
+  }
+
+  .geomx-activity-info h3 {
+    font-size: 18px;
+  }
+
+  .geomx-activity-info p {
+    font-size: 13px;
+  }
+
+  .geomx-footer {
+    margin: 0;
+    padding: 18px 22px 24px;
+    justify-content: center;
+  }
+}
+
+/* =========================================================
+   576px A 767px
+   ========================================================= */
+
+@media (max-width: 767px) {
+  .geomx-main {
+    padding: 122px 18px 26px;
+  }
+
+  .geomx-bg {
+    height: 330px;
+    object-position: 58% top;
+  }
+
+  .geomx-breadcrumb {
+    width: 100%;
+    justify-content: center;
+    border-radius: 22px;
+    flex-wrap: wrap;
+  }
+
+  .geomx-breadcrumb button {
+    flex: 1;
+    min-width: 130px;
+    padding: 0 14px;
+    font-size: 13px;
+  }
+
+  .geomx-breadcrumb span {
+    font-size: 24px;
+  }
+
+  .geomx-header h1 {
+    font-size: 40px;
+    letter-spacing: -0.5px;
+  }
+
+  .geomx-header p {
+    font-size: 15.5px;
+    line-height: 1.35;
+  }
+
+  .geomx-status-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .geomx-status-tabs button {
+    justify-content: center;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  .geomx-search-area {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .geomx-search-box {
+  .geomx-search-box,
+  .geomx-filter-btn {
     width: 100%;
+  }
+
+  .geomx-filter-btn {
+    justify-content: center;
+  }
+
+  .geomx-summary-row {
+    grid-template-columns: 1fr;
+  }
+
+  .geomx-summary-row article:last-child {
+    grid-column: auto;
+  }
+
+  .geomx-section-heading {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .geomx-section-heading h2 {
+    font-size: 27px;
+    line-height: 1.08;
+  }
+
+  .geomx-section-heading p {
+    font-size: 14px;
   }
 
   .geomx-activities-grid {
     grid-template-columns: 1fr;
   }
 
-  .geomx-footer {
-    margin: 0;
-    padding: 20px;
-    justify-content: center;
+  .geomx-activity-card {
+    min-height: auto;
   }
 
-  .geomx-breadcrumb-bar {
-    min-width: auto;
-    width: calc(100% - 36px);
-    height: auto;
-    min-height: 48px;
-    padding: 8px 14px;
-    font-size: 13px;
+  .geomx-activity-image {
+    height: 190px;
+  }
+
+  .geomx-side-progress-card {
+    min-height: 345px;
+  }
+
+  .geomx-side-progress-card img {
+    /* IMAGEN 2 RESPONSIVO: robot un poco más a la izquierda */
+    right: 88px;
+    width: 220px;
+  }
+
+  .geomx-side-progress-card small {
+    right: 16px;
+    bottom: 56px;
+    width: 112px;
+  }
+
+  .geomx-footer-icons svg {
+    font-size: 30px;
+  }
+}
+
+/* =========================================================
+   HASTA 575px
+   ========================================================= */
+
+@media (max-width: 575px) {
+  .geomx-hamburger-btn {
+    top: 18px;
+    left: 16px;
+    width: 66px;
+    height: 66px;
+    border-radius: 18px;
+  }
+
+  .geomx-hamburger-btn img {
+    width: 46px;
+    height: 46px;
+  }
+
+  .geomx-sidebar {
+    width: 275px;
+    min-width: 275px;
+    left: -300px;
+    padding: 38px 22px 24px;
+  }
+
+  .geomx-sidebar-logo {
+    width: 150px;
+    margin-bottom: 24px;
+  }
+
+  .geomx-sidebar-menu {
+    gap: 13px;
+  }
+
+  .geomx-menu-item {
+    min-height: 54px;
+    font-size: 13.5px;
+    gap: 15px;
+  }
+
+  .geomx-sidebar-mascot {
+    min-height: 195px;
+    margin-top: 10px;
+  }
+
+  .geomx-sidebar-mascot img {
+    /* IMAGEN 1 RESPONSIVO: profesor un poquito más grande */
+    width: 228px;
+    max-height: 265px;
+  }
+
+  .geomx-content::before {
+    top: 210px;
+  }
+
+  .geomx-bg {
+    height: 320px;
+    object-position: 62% top;
+  }
+
+  .geomx-main {
+    padding: 94px 14px 24px;
+  }
+
+  .geomx-breadcrumb {
+    min-height: auto;
+    padding: 8px;
     gap: 8px;
   }
 
-  .geomx-breadcrumb-bar strong {
-    padding: 6px 10px;
+  .geomx-breadcrumb button {
+    height: 34px;
+    min-width: 100%;
+    font-size: 12.5px;
+  }
+
+  .geomx-breadcrumb span {
+    display: none;
+  }
+
+  .geomx-header h1 {
+    font-size: 34px;
+  }
+
+  .geomx-header p {
+    font-size: 14.5px;
+  }
+
+  .geomx-status-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .geomx-status-tabs button {
+    width: 100%;
+    height: 44px;
+    font-size: 13px;
+  }
+
+  .geomx-search-box {
+    height: 50px;
+    padding: 0 16px;
+  }
+
+  .geomx-filter-btn {
+    height: 48px;
+  }
+
+  .geomx-summary-row article {
+    min-height: 82px;
+    border-radius: 18px;
+    padding: 15px 16px;
+  }
+
+  .geomx-summary-row article svg {
+    width: 42px;
+    height: 42px;
+  }
+
+  .geomx-summary-row strong {
+    font-size: 23px;
+  }
+
+  .geomx-activities-panel {
+    padding: 16px;
+    border-radius: 22px;
+  }
+
+  .geomx-section-heading h2 {
+    font-size: 24px;
+  }
+
+  .geomx-section-heading p {
+    font-size: 13.5px;
+  }
+
+  .geomx-activity-image {
+    height: 170px;
+  }
+
+  .geomx-card-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 13px;
+    font-size: 15px;
+  }
+
+  .geomx-activity-info {
+    padding: 15px;
+  }
+
+  .geomx-activity-info h3 {
+    font-size: 18px;
+  }
+
+  .geomx-activity-info p {
+    font-size: 13px;
+    line-height: 1.28;
+  }
+
+  .geomx-activity-bottom {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .geomx-activity-bottom button {
+    width: 100%;
+    height: 44px;
+  }
+
+  .geomx-side-progress-card {
+    min-height: 330px;
+    border-radius: 22px;
+    padding: 20px 18px;
+  }
+
+  .geomx-weekly-head strong {
+    font-size: 15px;
+  }
+
+  .geomx-weekly-head span {
+    font-size: 12px;
+  }
+
+  .geomx-star-progress {
+    margin-top: 22px;
+    grid-template-columns: 24px 45px 1fr;
+  }
+
+  .geomx-star-progress span {
+    font-size: 27px;
+  }
+
+  .geomx-star-progress strong {
+    font-size: 17px;
+  }
+
+  .geomx-side-progress-card img {
+    width: 205px;
+    /* IMAGEN 2 RESPONSIVO: robot un poco más a la izquierda */
+    right: 78px;
+  }
+
+  .geomx-side-progress-card small {
+    width: 105px;
+    right: 12px;
+    bottom: 50px;
+    font-size: 12px;
+  }
+
+  .geomx-footer {
+    padding: 16px 16px 24px;
+  }
+
+  .geomx-footer-icons {
+    gap: 22px;
+  }
+
+  .geomx-footer-icons svg {
+    font-size: 29px;
   }
 }

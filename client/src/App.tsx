@@ -1,5 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
+import StartupRedirect from "./routes/StartupRedirect";
+import RequireAuth from "./routes/RequireAuth";
+
 import Login from "./pages/Login/Login";
 
 import Dashboard from "./pages/Dashboard/Dashboard";
@@ -8,10 +11,15 @@ import Feedback from "./pages/Feedback/Feedback";
 import SeleccionMundos from "./pages/SeleccionMundos/SeleccionMundos";
 import Recompensas from "./pages/Recompensas/Recompensas";
 import Estadisticas from "./pages/Estadisticas/Estadisticas";
+
 import ActividadesMathGeometry from "./pages/ActividadesMathGeometry/ActividadesMathGeometry";
+import Actividad1MathGeometry from "./pages/ActividadesMathGeometry/Actividad1MathGeometry";
+import Actividad2MathGeometry from "./pages/ActividadesMathGeometry/Actividad2MathGeometry";
+
 import ActividadesMathData from "./pages/ActividadesMathData/ActividadesMathData";
 import GeneradorEnergiaInversa from "./pages/ActividadesMathData/GeneradorEnergiaInversa";
 import ActividadesMathNumbers from "./pages/ActividadesMathNumbers/ActividadesMathNumbers";
+import MathNumbersActivityRouter from "./pages/MathNumbersActivities/MathNumbersActivityRouter";
 
 import DashboardDocente from "./pages/DashboardDocente/DashboardDocente";
 import MisGruposDocente from "./pages/MisGruposDocente/MisGruposDocente";
@@ -35,11 +43,12 @@ import SettingsAdmin from "./pages/Admin/Settings/SettingsAdmin";
 function App() {
   return (
     <BrowserRouter>
+      <StartupRedirect />
+
       <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
 
-        {/* Alumno */}
-        <Route path="/" element={<Dashboard />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/seleccion-mundos" element={<SeleccionMundos />} />
 
@@ -52,70 +61,265 @@ function App() {
           path="/actividades-math-data"
           element={<ActividadesMathData />}
         />
+
         <Route
-        path="/actividades-math-data/generador-energia"
-        element={<GeneradorEnergiaInversa />}
-        />
-        
-        <Route
-           path="/actividades-math-numbers"
+          path="/actividades-math-numbers"
           element={<ActividadesMathNumbers />}
-          />
+        />
 
-          <Route
-  path="/temas/numeros"
-  element={<ActividadesMathNumbers />}
-          />
+        <Route path="/temas/numeros" element={<ActividadesMathNumbers />}
+        
+        />
 
-        <Route path="/retroalimentacion" element={<Feedback />} />
-        <Route path="/recompensas" element={<Recompensas />} />
-        <Route path="/estadisticas" element={<Estadisticas />} />
-        <Route path="/perfil-alumno" element={<PerfilAlumno />} />
+        <Route
+          path="/actividades/mathnumbers/:activitySlug"
+          element={<MathNumbersActivityRouter />}
+        />
 
-        {/* Docente */}
-        <Route path="/docente" element={<DashboardDocente />} />
-        <Route path="/dashboard-docente" element={<DashboardDocente />} />
+        <Route
+          path="/actividades/geometria/actividad-1"
+          element={
+            <RequireAuth>
+              <Actividad1MathGeometry />
+            </RequireAuth>
+          }
+        />
 
-        <Route path="/mis-grupos-docente" element={<MisGruposDocente />} />
-        <Route path="/crear-grupo-docente" element={<CrearGrupoDocente />} />
+        <Route
+          path="/actividades/geometria/actividad-2"
+          element={
+            <RequireAuth>
+              <Actividad2MathGeometry />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/actividades-math-data/generador-energia"
+          element={
+            <RequireAuth>
+              <GeneradorEnergiaInversa />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/retroalimentacion"
+          element={
+            <RequireAuth>
+              <Feedback />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/recompensas"
+          element={
+            <RequireAuth>
+              <Recompensas />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/estadisticas"
+          element={
+            <RequireAuth>
+              <Estadisticas />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/perfil-alumno"
+          element={
+            <RequireAuth>
+              <PerfilAlumno />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/docente"
+          element={
+            <RequireAuth>
+              <DashboardDocente />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/dashboard-docente"
+          element={
+            <RequireAuth>
+              <DashboardDocente />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/mis-grupos-docente"
+          element={
+            <RequireAuth>
+              <MisGruposDocente />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/crear-grupo-docente"
+          element={
+            <RequireAuth>
+              <CrearGrupoDocente />
+            </RequireAuth>
+          }
+        />
 
         <Route
           path="/administrar-alumnos-docente"
-          element={<AdministrarAlumnosDocente />}
+          element={
+            <RequireAuth>
+              <AdministrarAlumnosDocente />
+            </RequireAuth>
+          }
         />
 
         <Route
           path="/lista-alumnos-docente"
-          element={<ListaAlumnosDocente />}
+          element={
+            <RequireAuth>
+              <ListaAlumnosDocente />
+            </RequireAuth>
+          }
         />
 
         <Route
           path="/calificaciones-docente"
-          element={<CalificacionesDocente />}
+          element={
+            <RequireAuth>
+              <CalificacionesDocente />
+            </RequireAuth>
+          }
         />
 
-        <Route path="/actividades-docente" element={<ActividadesDocente />} />
+        <Route
+          path="/actividades-docente"
+          element={
+            <RequireAuth>
+              <ActividadesDocente />
+            </RequireAuth>
+          }
+        />
 
         <Route
           path="/retroalimentacion-docente"
-          element={<RetroalimentacionDocente />}
+          element={
+            <RequireAuth>
+              <RetroalimentacionDocente />
+            </RequireAuth>
+          }
         />
 
-        <Route path="/evaluaciones-docente" element={<EvaluacionesDocente />} />
+        <Route
+          path="/evaluaciones-docente"
+          element={
+            <RequireAuth>
+              <EvaluacionesDocente />
+            </RequireAuth>
+          }
+        />
 
-        <Route path="/estadisticas-docente" element={<EstadisticasDocente />} />
+        <Route
+          path="/estadisticas-docente"
+          element={
+            <RequireAuth>
+              <EstadisticasDocente />
+            </RequireAuth>
+          }
+        />
 
-        <Route path="/admin" element={<DashboardAdmin />} />
-        <Route path="/dashboard-admin" element={<DashboardAdmin />} />
-        <Route path="/dashboard-administrador" element={<DashboardAdmin />} />
+        <Route
+          path="/admin"
+          element={
+            <RequireAuth>
+              <DashboardAdmin />
+            </RequireAuth>
+          }
+        />
 
-        <Route path="/admin/grupos" element={<GroupsAdmin />} />
-        <Route path="/admin/actividades" element={<ActivitiesAdmin />} />
-        <Route path="/admin/recursos" element={<ResourcesAdmin />} />
-        <Route path="/admin/reportes" element={<ReportsAdmin />} />
-        <Route path="/admin/solicitudes" element={<RequestsAdmin />} />
-        <Route path="/admin/configuracion" element={<SettingsAdmin />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route
+          path="/dashboard-admin"
+          element={
+            <RequireAuth>
+              <DashboardAdmin />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/dashboard-administrador"
+          element={
+            <RequireAuth>
+              <DashboardAdmin />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/admin/grupos"
+          element={
+            <RequireAuth>
+              <GroupsAdmin />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/admin/actividades"
+          element={
+            <RequireAuth>
+              <ActivitiesAdmin />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/admin/recursos"
+          element={
+            <RequireAuth>
+              <ResourcesAdmin />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/admin/reportes"
+          element={
+            <RequireAuth>
+              <ReportsAdmin />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/admin/solicitudes"
+          element={
+            <RequireAuth>
+              <RequestsAdmin />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/admin/configuracion"
+          element={
+            <RequireAuth>
+              <SettingsAdmin />
+            </RequireAuth>
+          }
+        />
+
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );
