@@ -29,12 +29,20 @@ import { GiRingedPlanet, GiTrophyCup, GiRocket } from "react-icons/gi";
 import { obtenerPerfilAlumno } from "../../services/alumnoService";
 import type { Alumno } from "../../services/alumnoService";
 
+import {
+  clearAuthSession,
+  getDisplayName,
+  isGuestSession,
+} from "../../utils/authSession";
+
 function SeleccionMundos() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [alumno, setAlumno] = useState<Alumno | null>(null);
   const [cargandoAlumno, setCargandoAlumno] = useState(true);
 
   const navigate = useNavigate();
+
+  const modoInvitado = isGuestSession();
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "auto";
@@ -47,9 +55,16 @@ function SeleccionMundos() {
   useEffect(() => {
     const cargarAlumno = async () => {
       const token = localStorage.getItem("token");
+      const invitado = isGuestSession();
 
-      if (!token) {
+      if (!token && !invitado) {
         navigate("/login", { replace: true });
+        return;
+      }
+
+      if (invitado) {
+        setAlumno(null);
+        setCargandoAlumno(false);
         return;
       }
 
@@ -73,17 +88,17 @@ function SeleccionMundos() {
   };
 
   const cerrarSesion = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
+    clearAuthSession();
     navigate("/login", { replace: true });
   };
 
-  const estrellasTotales = Number(alumno?.estrellas_totales ?? 0);
+  const estrellasTotales = modoInvitado
+    ? 0
+    : Number(alumno?.estrellas_totales ?? 0);
 
-  const nombreAlumno =
-    alumno?.nombre_completo?.split(" ")[0] ||
-    alumno?.usuario ||
-    "explorador";
+  const nombreAlumno = modoInvitado
+    ? getDisplayName()
+    : alumno?.nombre_completo?.split(" ")[0] || alumno?.usuario || "Explorador";
 
   return (
     <main className="mundos-page">
@@ -162,7 +177,19 @@ function SeleccionMundos() {
         <section className="mundos-hero">
           <div className="mundos-title">
             <h1>Selección de mundos matemáticos</h1>
-            <p>Explora, aprende y conquista nuevos mundos.</p>
+            <p>
+              {modoInvitado
+                ? "Explora los mundos disponibles. Para contestar actividades necesitarás iniciar sesión."
+                : "Explora, aprende y conquista nuevos mundos."}
+            </p>
+
+            {modoInvitado && (
+              <div className="guest-world-alert">
+                Estás en modo espectador. Puedes ver los mundos y sus
+                actividades, pero para iniciar retos y guardar progreso necesitas
+                iniciar sesión o crear una cuenta.
+              </div>
+            )}
           </div>
 
           <img
@@ -180,7 +207,9 @@ function SeleccionMundos() {
             </div>
 
             <p>
-              {estrellasTotales > 0
+              {modoInvitado
+                ? "Inicia sesión para ganar estrellas"
+                : estrellasTotales > 0
                 ? "Sigue explorando y gana más estrellas"
                 : "Completa actividades para ganar estrellas"}
             </p>

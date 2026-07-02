@@ -42,6 +42,12 @@ import type {
   EstadisticasAlumno,
 } from "../../services/alumnoService";
 
+import {
+  clearAuthSession,
+  getDisplayName,
+  isGuestSession,
+} from "../../utils/authSession";
+
 function Dashboard() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [alumno, setAlumno] = useState<Alumno | null>(null);
@@ -53,11 +59,27 @@ function Dashboard() {
 
   const navigate = useNavigate();
 
+  const modoInvitado = isGuestSession();
+
+  const nombreUsuario = alumno?.nombre_completo
+    ? alumno.nombre_completo.split(" ")[0]
+    : getDisplayName();
+
   const cargarDashboard = useCallback(async () => {
     const token = localStorage.getItem("token");
+    const invitado = isGuestSession();
 
-    if (!token) {
+    if (!token && !invitado) {
       navigate("/login", { replace: true });
+      return;
+    }
+
+    if (invitado) {
+      setAlumno(null);
+      setEstadisticas(null);
+      setActividades([]);
+      setErrorDashboard("");
+      setCargando(false);
       return;
     }
 
@@ -106,8 +128,7 @@ function Dashboard() {
   };
 
   const cerrarSesion = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
+    clearAuthSession();
     navigate("/login", { replace: true });
   };
 
@@ -126,14 +147,18 @@ function Dashboard() {
     actividades.find((actividad) => actividad.estado === "pendiente") ||
     actividades[0];
 
-  const tituloActividad = actividadActual?.titulo || "MathNova";
+  const tituloActividad = modoInvitado
+    ? "Explora MathNova"
+    : actividadActual?.titulo || "MathNova";
 
   const progresoCurso =
     actividadActual?.estado === "en_curso"
       ? numero(actividadActual.porcentaje)
       : progresoGeneral;
 
-  const progresoVisual = Math.min(Math.max(progresoCurso, 0), 100);
+  const progresoVisual = modoInvitado
+    ? 0
+    : Math.min(Math.max(progresoCurso, 0), 100);
 
   const tieneProgreso = actividades.some(
     (actividad) =>
@@ -147,7 +172,7 @@ function Dashboard() {
         {
           nombre: "Geometría",
           icono: geometriaIcon,
-          ruta: "/temas/geometria",
+          ruta: "/actividades/geometria",
         },
         {
           nombre: "Números",
@@ -166,6 +191,8 @@ function Dashboard() {
     ? "Cargando tu progreso..."
     : errorDashboard
     ? errorDashboard
+    : modoInvitado
+    ? "Explora los mundos, conoce las actividades y descubre cómo funciona MathNova antes de iniciar sesión."
     : "Aprende, practica y mejora tus habilidades de observación paso a paso.";
 
   return (
@@ -240,19 +267,14 @@ function Dashboard() {
       <section className="dashboard-content">
         <section className="hero-section">
           <div className="hero-text">
-            <h1>
-              Bienvenido
-              {alumno?.nombre_completo
-                ? `, ${alumno.nombre_completo.split(" ")[0]}`
-                : " al Dashboard Principal"}
-            </h1>
+            <h1>Bienvenido, {nombreUsuario}</h1>
 
             <p>{textoHero}</p>
 
             <div className="hero-actions">
               <button
                 className="primary-action"
-                onClick={() => irARuta("/temas/numeros")}
+                onClick={() => irARuta("/seleccion-mundos")}
               >
                 Comenzar ahora <FiArrowRight />
               </button>
@@ -264,6 +286,14 @@ function Dashboard() {
                 Ver mi progreso <FiBarChart2 />
               </button>
             </div>
+
+            {modoInvitado && (
+              <div className="guest-hero-alert">
+                Estás viendo MathNova como espectador. Puedes explorar el
+                dashboard y los mundos disponibles, pero para iniciar actividades
+                y guardar progreso necesitas iniciar sesión o crear una cuenta.
+              </div>
+            )}
           </div>
 
           <img src={heroBanner} alt="Hero MathNova" className="hero-img" />
@@ -370,8 +400,8 @@ function Dashboard() {
               <div className="modules-empty-box">
                 <p>Aún no hay módulos recomendados.</p>
                 <span>
-                  Completa tu primera actividad para que Nova pueda sugerirte qué
-                  practicar.
+                  Inicia sesión para que Nova pueda sugerirte qué practicar
+                  según tu progreso.
                 </span>
                 <button type="button" onClick={() => irARuta("/seleccion-mundos")}>
                   Explorar mundos

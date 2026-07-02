@@ -633,3 +633,35 @@ body,
     font-size: 32px;
   }
 }
+
+
+.login-alert {
+  width: 100%;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border-radius: 14px;
+  background: #fff4d6;
+  color: #8a5a00;
+  font-weight: 700;
+  font-size: 14px;
+  border: 1px solid #ffd77a;
+}
+
+.guest-button {
+  width: 100%;
+  margin-top: 12px;
+  padding: 14px 18px;
+  border: 2px solid #0b63ff;
+  border-radius: 16px;
+  background: white;
+  color: #0b63ff;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.guest-button:hover {
+  background: #eef5ff;
+  transform: translateY(-1px);
+}
