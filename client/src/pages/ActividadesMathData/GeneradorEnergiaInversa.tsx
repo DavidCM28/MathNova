@@ -5,8 +5,7 @@ import "./GeneradorEnergiaInversa.css";
 import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 
-import heroBanner from "../../assets/banner-gen1-MathData.png";
-import villano from "../../assets/hola-MathData.png";
+import heroBanner from "../../assets/banner-gen2-MathData.png";
 import personajeAyuda from "../../assets/hola-MathData.png";
 
 import {
@@ -23,7 +22,7 @@ import {
   FiLock,
 } from "react-icons/fi";
 
-import { GiRingedPlanet, GiTrophyCup, GiBookCover } from "react-icons/gi";
+import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 import { FaStar, FaShieldAlt, FaGem, FaLightbulb, FaHandPointUp } from "react-icons/fa";
 
 // ============================================
@@ -328,25 +327,11 @@ function GeneradorEnergiaInversa() {
 
           <button
             type="button"
-            className="gen1-menu-item"
+            className="gen1-menu-item gen1-active"
             onClick={() => irARuta("/seleccion-mundos")}
           >
             <GiRingedPlanet />
             <span>Selección de mundos matemáticos</span>
-          </button>
-
-          <button type="button" className="gen1-menu-item" onClick={() => irARuta("/temas")}>
-            <GiBookCover />
-            <span>Temas</span>
-          </button>
-
-          <button
-            type="button"
-            className="gen1-menu-item gen1-active"
-            onClick={() => irARuta("/actividades-math-data")}
-          >
-            <FiBarChart2 />
-            <span>Actividades</span>
           </button>
 
           <button
@@ -444,27 +429,23 @@ function GeneradorEnergiaInversa() {
           </button>
         </div>
 
-        <div className="gen1-hero">
-          <img src={heroBanner} alt="" className="gen1-hero-bg" />
+<div className="gen1-hero">
+  <img src={heroBanner} alt="" className="gen1-hero-bg" />
 
-          <div className="gen1-hero-text">
-            <h1>
-              Generador de Energía Inversa <span>⚡</span>
-            </h1>
-            <p>
-              La base MathNova necesita recargar su escudo de protección
-              antes del amanecer. Activa el panel de control de los
-              reactores y completa la tabla y la gráfica para descubrir el
-              patrón de proporcionalidad inversa.
-            </p>
-          </div>
+  <div className="gen1-hero-text">
+    <h1>
+      Generador de Energía Inversa <span>⚡</span>
+    </h1>
+    <p>
+      La base MathNova necesita recargar su escudo de protección
+      antes del amanecer. Activa el panel de control de los
+      reactores y completa la tabla y la gráfica para descubrir el
+      patrón de proporcionalidad inversa.
+    </p>
+  </div>
 
-          <div className="gen1-villain">
-            <div className="gen1-villain-bubble">
-              A mayor número de reactores, menor tiempo de recarga.
-            </div>
-            <img src={villano} alt="Villano" />
-          </div>
+
+
         </div>
 
         {/* MENSAJE DE FEEDBACK */}

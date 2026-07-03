@@ -253,12 +253,12 @@
 .gen1-hero {
   position: relative;
   margin-top: 22px;
-  min-height: 270px;
+  min-height: 420px;   /* era 270px, súbelo para ver los reactores */
   border-radius: 26px;
   overflow: hidden;
   background: linear-gradient(120deg, #0b1d3a, #0c2c55);
   display: flex;
-  align-items: center;
+  align-items: flex-start;  /* cambia de center a flex-start */
 }
 
 .gen1-hero-bg {
@@ -279,22 +279,11 @@
 }
 
 .gen1-hero-text h1 {
-  margin: 0;
-  font-size: 38px;
-  font-weight: 900;
-  color: #0a1733;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  color: #ffffff;
 }
 
 .gen1-hero-text p {
-  margin-top: 14px;
-  font-size: 15px;
-  font-weight: 700;
-  color: #1c2b48;
-  line-height: 1.5;
-  max-width: 520px;
+  color: #ffffff;
 }
 
 .gen1-villain {
