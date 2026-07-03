@@ -8,7 +8,7 @@ export interface RegisterData {
   nombre_completo: string;
   correo_electronico: string;
   contrasena: string;
-  rol: string;
+  role_id: number;
   grado_escolar?: string;
   especialidad?: string;
   permisos_administracion?: string;
@@ -21,7 +21,7 @@ export interface RegisterResponse {
     id_usuario: number;
     nombre_completo: string;
     correo_electronico: string;
-    rol: string;
+    role_id: number;
     fecha_registro?: Date;
   };
 }
@@ -40,15 +40,15 @@ class AuthService {
   async register(userData: RegisterData): Promise<RegisterResponse> {
     const sequelize = User.sequelize;
     
-    if (!userData.nombre_completo || !userData.correo_electronico || !userData.contrasena || !userData.rol) {
+    if (!userData.nombre_completo || !userData.correo_electronico || !userData.contrasena || !userData.role_id) {
       return {
         success: false,
-        message: 'Faltan campos obligatorios: nombre_completo, correo_electronico, contrasena, rol',
+        message: 'Faltan campos obligatorios: nombre_completo, correo_electronico, contrasena, role_id',
       };
     }
 
-    const rolesValidos = ['admin', 'profesor', 'estudiante'];
-    if (!rolesValidos.includes(userData.rol)) {
+    const rolesValidos = [1,2,3];
+    if (!rolesValidos.includes(userData.role_id)) {
       return {
         success: false,
         message: 'Rol inválido. Debe ser: admin, profesor o estudiante',
@@ -88,13 +88,13 @@ class AuthService {
           nombre_completo: userData.nombre_completo,
           correo_electronico: userData.correo_electronico,
           contrasena: passwordHash,
-          rol: userData.rol,
+          role_id: userData.role_id,
         },
         { transaction }
       );
 
-      switch (userData.rol) {
-        case 'estudiante':
+      switch (userData.role_id) {
+        case 3: // Estudiant
           await Estudiante.create(
             {
               id_usuario: nuevoUsuario.id_usuario,
@@ -104,7 +104,7 @@ class AuthService {
           );
           break;
 
-        case 'profesor':
+        case 2: // Profesor
           await Teacher.create(
             {
               id_usuario: nuevoUsuario.id_usuario,
@@ -114,7 +114,7 @@ class AuthService {
           );
           break;
 
-        case 'admin':
+        case 1: // Admin
           await Admin.create(
             {
               id_usuario: nuevoUsuario.id_usuario,
@@ -134,7 +134,7 @@ class AuthService {
           id_usuario: nuevoUsuario.id_usuario,
           nombre_completo: nuevoUsuario.nombre_completo,
           correo_electronico: nuevoUsuario.correo_electronico,
-          rol: nuevoUsuario.rol,
+          role_id: nuevoUsuario.role_id,
           fecha_registro: nuevoUsuario.fecha_registro,
         },
       };

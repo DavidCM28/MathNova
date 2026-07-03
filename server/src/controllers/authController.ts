@@ -54,7 +54,7 @@ class AuthController {
           correo,
           usuario,
           password_hash,
-          rol,
+          role_id,
           estado
         FROM public.registro
         WHERE correo = $1 OR usuario = $1
@@ -97,7 +97,7 @@ class AuthController {
         {
           id_usuario: usuarioDB.id_usuario,
           correo: usuarioDB.correo,
-          rol: usuarioDB.rol,
+          role_id: usuarioDB.role_id
         },
         process.env.JWT_SECRET || "mathnova_secret",
         {
@@ -114,7 +114,7 @@ class AuthController {
           nombre_completo: usuarioDB.nombre_completo,
           correo: usuarioDB.correo,
           usuario: usuarioDB.usuario,
-          rol: usuarioDB.rol,
+          role_id: usuarioDB.role_id,
         },
       });
     } catch (error: unknown) {
