@@ -93,7 +93,7 @@ class AuthService {
         { transaction }
       );
 
-      switch (userData.role_id) {fesor', 'estudiante'
+      switch (userData.role_id) {
         case 3: // Estudiant
           await Estudiante.create(
             {
