@@ -6,7 +6,7 @@ export interface UserAttributes {
   nombre_completo: string;
   correo_electronico: string;
   contrasena: string;
-  rol: string;
+  role_id: number;
   fecha_registro?: Date;
   estado_cuenta?: boolean;
 }
@@ -18,7 +18,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
   public nombre_completo!: string;
   public correo_electronico!: string;
   public contrasena!: string;
-  public rol!: string;
+  public role_id!: number;
   public fecha_registro!: Date;
   public estado_cuenta!: boolean;
 }
@@ -46,8 +46,8 @@ User.init(
       type: DataTypes.STRING(255),
       allowNull: false,
     },
-    rol: {
-      type: DataTypes.STRING(20),
+    role_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     fecha_registro: {

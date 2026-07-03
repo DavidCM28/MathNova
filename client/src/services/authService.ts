@@ -19,7 +19,7 @@ type Usuario = {
   nombre_completo: string;
   correo: string;
   usuario: string | null;
-  rol: string;
+  role_id: number;
 };
 
 type LoginResponse = {

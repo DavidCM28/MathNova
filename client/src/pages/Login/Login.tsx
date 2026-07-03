@@ -59,7 +59,28 @@ function Login() {
 
       console.log("Usuario logueado:", data.usuario);
 
-      navigate(state?.from || "/dashboard", { replace: true });
+      // ==========================================================
+      // CAMBIO AQUÍ: Redirección condicional según el rol
+      // ==========================================================
+      if (state?.from) {
+        // Si el usuario intentaba entrar a una página protegida antes de loguearse, va directo allá
+        navigate(state.from, { replace: true });
+      } else {
+        // Extraemos el rol desde los datos devueltos por Supabase
+        const rol = data.usuario.role_id;
+
+        if (rol === 1) {
+          navigate("/dashboard-docente", { replace: true }); // Maestro
+        } else if (rol === 2) {
+          navigate("/dashboard", { replace: true });         // Alumno
+        } else if (rol === 3) {
+          navigate("/dashboard-admin", { replace: true });   // Administrador
+        } else {
+          navigate("/dashboard", { replace: true });         // Respaldo por si acaso
+        }
+      }
+      // ==========================================================
+
     } catch (error) {
       if (error instanceof Error) {
         alert(error.message);
@@ -72,7 +93,7 @@ function Login() {
       setLoading(false);
     }
   };
-
+  
   if (showForgot) {
     return <ForgotPassword onBack={() => setShowForgot(false)} />;
   }
