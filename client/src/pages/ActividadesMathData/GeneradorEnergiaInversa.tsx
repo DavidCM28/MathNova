@@ -11,6 +11,12 @@ import villanoCompleto from "../../assets/villano-actcomplet.png";
 import villanoIntentar from "../../assets/villano-vintentar.png";
 import trofeoDorado from "../../assets/trofeo-dorado.png";
 import estrellaMision from "../../assets/estrella-mision.png";
+import iconoAciertos from "../../assets/icono-aciertos.png";
+import iconoTiempo from "../../assets/icono-tiempo.png";
+import iconoPrecision from "../../assets/icono-precision.png";
+import iconoRecompensa from "../../assets/icono-recompensa.png";
+import iconoInsignia from "../../assets/icono-insignia.png";
+import iconoProgreso from "../../assets/icono-progreso.png";
 
 import {
   FiGrid,
@@ -310,7 +316,7 @@ function GeneradorEnergiaInversa() {
 
       {/* CONFETI */}
       <div className="res-confetti" aria-hidden="true">
-        {Array.from({ length: 18 }).map((_, i) => (
+        {Array.from({ length: 22 }).map((_, i) => (
           <span key={i} className={`res-confetti-dot res-confetti-dot-${i % 6}`} />
         ))}
       </div>
@@ -323,8 +329,10 @@ function GeneradorEnergiaInversa() {
         </button>
       </header>
 
-      {/* HERO: título + mensaje + villano + trofeo */}
+      {/* HERO */}
       <div className="res-hero">
+
+        {/* IZQUIERDA: título + mensaje */}
         <div className="res-hero-left">
           <div className="res-titulo-row">
             <div className="res-icono-check">✔</div>
@@ -351,96 +359,118 @@ function GeneradorEnergiaInversa() {
           </div>
         </div>
 
-        {/* VILLANO + TROFEO */}
+        {/* DERECHA: villano + trofeo + badge */}
         <div className="res-hero-personajes">
-          <img src={villanoCompleto} alt="Villano celebrando" className="res-villano-grande" />
+          <img
+            src={villanoCompleto}
+            alt="Villano celebrando"
+            className="res-villano-grande"
+          />
           <div className="res-trofeo-group">
             <div className="res-mision-badge">
-              <img src={estrellaMision} alt="Misión cumplida" className="res-badge-estrella" />
-              <span>MISIÓN<br />CUMPLIDA</span>
+              <img src={estrellaMision} alt="estrella" className="res-badge-estrella" />
+              <span>MISION<br />CUMPLIDA</span>
             </div>
             <img src={trofeoDorado} alt="Trofeo" className="res-trofeo-img" />
           </div>
         </div>
+
       </div>
 
-      {/* BOTTOM: resumen + progreso | botones */}
+      {/* BOTTOM */}
       <div className="res-bottom">
+
+        {/* COLUMNA IZQUIERDA */}
         <div className="res-bottom-left">
+
+          {/* CARD RESUMEN */}
           <div className="res-resumen-card">
             <div className="res-resumen-header">
               <FiBarChart2 />
               <span>Resumen de la actividad</span>
             </div>
             <div className="res-resumen-stats">
+
               <div className="res-stat">
-                <span className="res-stat-icono">📋</span>
+                <img src={iconoAciertos} alt="" className="res-stat-img" />
                 <strong className="res-stat-num-verde">3/3</strong>
                 <small>Aciertos</small>
                 <em>¡Perfecto!</em>
               </div>
+
               <div className="res-stat-sep" />
+
               <div className="res-stat">
-                <span className="res-stat-icono">🕐</span>
+                <img src={iconoTiempo} alt="" className="res-stat-img" />
                 <strong>04:28</strong>
                 <small>Tiempo</small>
                 <em>min</em>
               </div>
+
               <div className="res-stat-sep" />
+
               <div className="res-stat">
-                <span className="res-stat-icono">🎯</span>
+                <img src={iconoPrecision} alt="" className="res-stat-img" />
                 <strong className="res-stat-num-verde">100%</strong>
                 <small>Precisión</small>
                 <em>¡Impecable!</em>
               </div>
+
               <div className="res-stat-sep" />
+
               <div className="res-stat">
-                <span className="res-stat-icono">⭐</span>
+                <img src={iconoRecompensa} alt="" className="res-stat-img" />
                 <strong className="res-pts-naranja">+50 pts</strong>
                 <small>Recompensa</small>
                 <em>Puntos ganados</em>
               </div>
+
               <div className="res-stat-sep" />
+
               <div className="res-stat">
-                <span className="res-stat-icono">🛡️</span>
+                <img src={iconoInsignia} alt="" className="res-stat-img" />
                 <strong>Misión<br />cumplida</strong>
                 <small>Insignia obtenida</small>
                 <em>¡Felicidades!</em>
               </div>
+
             </div>
           </div>
 
+          {/* CARD PROGRESO */}
           <div className="res-progreso-card">
-            <div className="res-progreso-left">
-              <span className="res-progreso-icono">📊</span>
-              <div className="res-progreso-info">
-                <small>Tu progreso en el tema:</small>
-                <strong>Encuestas y Frecuencias</strong>
+            <img src={iconoProgreso} alt="" className="res-progreso-img" />
+            <div className="res-progreso-info">
+              <small>Tu progreso en el tema:</small>
+              <strong>Encuestas y Frecuencias</strong>
+              <div className="res-barra-wrap">
                 <div className="res-barra-track">
                   <div className="res-barra-fill res-barra-verde" style={{ width: "75%" }}>
-                    <span className="res-barra-label">75%</span>
+                    <span className="res-barra-pct">75%</span>
                   </div>
                 </div>
                 <small>¡Vas muy bien! 15% para completar este tema.</small>
               </div>
             </div>
             <div className="res-hito-box">
-              <span>⭐</span>
+              <img src={estrellaMision} alt="" className="res-hito-estrella" />
               <div>
-                <strong>Siguiente hito</strong>
-                <em>80%</em>
+                <small>Siguiente hito</small>
+                <strong className="res-hito-pct">80%</strong>
                 <small>Gran Analista</small>
               </div>
             </div>
           </div>
+
         </div>
 
+        {/* COLUMNA DERECHA: botones */}
         <div className="res-bottom-right">
           <button
             className="res-btn res-btn-azul"
             onClick={() => navigate("/actividades-math-data")}
           >
-            {">"} Siguiente actividad
+            Siguiente actividad
           </button>
           <button
             className="res-btn res-btn-outline"
@@ -452,12 +482,12 @@ function GeneradorEnergiaInversa() {
             className="res-btn res-btn-outline"
             onClick={() => navigate("/actividades-math-data")}
           >
-            {"<-"} Volver a actividades
+            Volver a actividades
           </button>
-          </div>
         </div>
+
       </div>
-    
+    </div>
   );
   // ==========================================
 
