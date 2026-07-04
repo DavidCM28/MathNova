@@ -7,6 +7,10 @@ import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 
 import heroBanner from "../../assets/banner-gen2-MathData.png";
 import personajeAyuda from "../../assets/hola-MathData.png";
+import villanoCompleto from "../../assets/villano-actcomplet.png";
+import villanoIntentar from "../../assets/villano-vintentar.png";
+import trofeoDorado from "../../assets/trofeo-dorado.png";
+import estrellaMision from "../../assets/estrella-mision.png";
 
 import {
   FiGrid,
@@ -70,6 +74,7 @@ function GeneradorEnergiaInversa() {
   const [xpGanado, setXpGanado] = useState(0);
   const [progresoPorcentaje, setProgresoPorcentaje] = useState(0);
   const [cargando, setCargando] = useState(false);
+  const [resultado, setResultado] = useState<"exito" | "fallo" | null>("exito");
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
@@ -297,6 +302,301 @@ function GeneradorEnergiaInversa() {
   const limpiarGrafica = () => setPuntos(puntosIniciales);
 
   // ==========================================
+  // PANTALLA: ACTIVIDAD COMPLETADA
+  // ==========================================
+
+  if (resultado === "exito") return (
+    <div className="res-page res-exito-page">
+
+      {/* CONFETI */}
+      <div className="res-confetti" aria-hidden="true">
+        {Array.from({ length: 18 }).map((_, i) => (
+          <span key={i} className={`res-confetti-dot res-confetti-dot-${i % 6}`} />
+        ))}
+      </div>
+
+      {/* HEADER */}
+      <header className="res-header">
+        <img src={logo} alt="MathNova" className="res-logo" />
+        <button className="res-inicio-btn" onClick={() => navigate("/")}>
+          Inicio
+        </button>
+      </header>
+
+      {/* HERO: título + mensaje + villano + trofeo */}
+      <div className="res-hero">
+        <div className="res-hero-left">
+          <div className="res-titulo-row">
+            <div className="res-icono-check">✔</div>
+            <div>
+              <h1 className="res-titulo">¡Actividad completada!</h1>
+              <p className="res-subtitulo">
+                Has terminado con éxito la misión de{" "}
+                <span className="res-mathnova-color">MathData</span>.
+              </p>
+            </div>
+          </div>
+
+          <div className="res-mensaje-box res-mensaje-verde">
+            <div className="res-icono-estrella-circle">
+              <img src={estrellaMision} alt="estrella" />
+            </div>
+            <div>
+              <strong>¡Excelente trabajo, explorador!</strong>
+              <p>
+                Cada reto superado fortalece tus habilidades para analizar datos.
+                Sigue así y conquista la siguiente misión.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* VILLANO + TROFEO */}
+        <div className="res-hero-personajes">
+          <img src={villanoCompleto} alt="Villano celebrando" className="res-villano-grande" />
+          <div className="res-trofeo-group">
+            <div className="res-mision-badge">
+              <img src={estrellaMision} alt="Misión cumplida" className="res-badge-estrella" />
+              <span>MISIÓN<br />CUMPLIDA</span>
+            </div>
+            <img src={trofeoDorado} alt="Trofeo" className="res-trofeo-img" />
+          </div>
+        </div>
+      </div>
+
+      {/* BOTTOM: resumen + progreso | botones */}
+      <div className="res-bottom">
+        <div className="res-bottom-left">
+          <div className="res-resumen-card">
+            <div className="res-resumen-header">
+              <FiBarChart2 />
+              <span>Resumen de la actividad</span>
+            </div>
+            <div className="res-resumen-stats">
+              <div className="res-stat">
+                <span className="res-stat-icono">📋</span>
+                <strong className="res-stat-num-verde">3/3</strong>
+                <small>Aciertos</small>
+                <em>¡Perfecto!</em>
+              </div>
+              <div className="res-stat-sep" />
+              <div className="res-stat">
+                <span className="res-stat-icono">🕐</span>
+                <strong>04:28</strong>
+                <small>Tiempo</small>
+                <em>min</em>
+              </div>
+              <div className="res-stat-sep" />
+              <div className="res-stat">
+                <span className="res-stat-icono">🎯</span>
+                <strong className="res-stat-num-verde">100%</strong>
+                <small>Precisión</small>
+                <em>¡Impecable!</em>
+              </div>
+              <div className="res-stat-sep" />
+              <div className="res-stat">
+                <span className="res-stat-icono">⭐</span>
+                <strong className="res-pts-naranja">+50 pts</strong>
+                <small>Recompensa</small>
+                <em>Puntos ganados</em>
+              </div>
+              <div className="res-stat-sep" />
+              <div className="res-stat">
+                <span className="res-stat-icono">🛡️</span>
+                <strong>Misión<br />cumplida</strong>
+                <small>Insignia obtenida</small>
+                <em>¡Felicidades!</em>
+              </div>
+            </div>
+          </div>
+
+          <div className="res-progreso-card">
+            <div className="res-progreso-left">
+              <span className="res-progreso-icono">📊</span>
+              <div className="res-progreso-info">
+                <small>Tu progreso en el tema:</small>
+                <strong>Encuestas y Frecuencias</strong>
+                <div className="res-barra-track">
+                  <div className="res-barra-fill res-barra-verde" style={{ width: "75%" }}>
+                    <span className="res-barra-label">75%</span>
+                  </div>
+                </div>
+                <small>¡Vas muy bien! 15% para completar este tema.</small>
+              </div>
+            </div>
+            <div className="res-hito-box">
+              <span>⭐</span>
+              <div>
+                <strong>Siguiente hito</strong>
+                <em>80%</em>
+                <small>Gran Analista</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="res-bottom-right">
+          <button
+            className="res-btn res-btn-azul"
+            onClick={() => navigate("/actividades-math-data")}
+          >
+            {">"} Siguiente actividad
+          </button>
+          <button
+            className="res-btn res-btn-outline"
+            onClick={() => setResultado(null)}
+          >
+            Repetir actividad
+          </button>
+          <button
+            className="res-btn res-btn-outline"
+            onClick={() => navigate("/actividades-math-data")}
+          >
+            {"<-"} Volver a actividades
+          </button>
+          </div>
+        </div>
+      </div>
+    
+  );
+  // ==========================================
+
+  if (resultado === "fallo") return (
+    <div className="res-page res-fallo-page">
+      <header className="res-header">
+        <img src={logo} alt="MathNova" className="res-logo" />
+        <button className="res-inicio-btn" onClick={() => navigate("/")}>
+          Inicio
+        </button>
+      </header>
+
+      <div className="res-body">
+        <div className="res-left">
+          <div className="res-titulo-row">
+            <div className="res-icono-retry">&#x1F504;</div>
+            <div>
+              <h1 className="res-titulo">¡Vuelve a intentarlo!</h1>
+              <p className="res-subtitulo">
+                Aún no completas con éxito la misión de{" "}
+                <span className="res-mathnova-color">MathData</span>.
+              </p>
+            </div>
+          </div>
+
+          <div className="res-mensaje-box res-mensaje-azul">
+            <div className="res-icono-datos">📊</div>
+            <div>
+              <strong>¡No te rindas, explorador!</strong>
+              <p>
+                Los errores también enseñan. Revisa tus respuestas, inténtalo
+                de nuevo y sigue fortaleciendo tus habilidades para analizar
+                datos, tablas y frecuencias.
+              </p>
+            </div>
+          </div>
+
+          <div className="res-resumen-card">
+            <div className="res-resumen-header">
+              <FiBarChart2 />
+              <span>Resumen de la actividad</span>
+            </div>
+            <div className="res-resumen-stats">
+              <div className="res-stat">
+                <span className="res-stat-icono">📋</span>
+                <strong>1/3</strong>
+                <small>Aciertos</small>
+                <em>¡Sigue así!</em>
+              </div>
+              <div className="res-stat-sep" />
+              <div className="res-stat">
+                <span className="res-stat-icono">🕐</span>
+                <strong>04:28</strong>
+                <small>Tiempo</small>
+                <em>min</em>
+              </div>
+              <div className="res-stat-sep" />
+              <div className="res-stat">
+                <span className="res-stat-icono">🎯</span>
+                <strong>33%</strong>
+                <small>Precisión</small>
+                <em>Puedes mejorar</em>
+              </div>
+              <div className="res-stat-sep" />
+              <div className="res-stat">
+                <span className="res-stat-icono res-stat-coin">⭐</span>
+                <strong className="res-pts-azul">+10 pts</strong>
+                <small>Recompensa</small>
+                <em>Puntos ganados</em>
+              </div>
+              <div className="res-stat-sep" />
+              <div className="res-stat">
+                <span className="res-stat-icono">🛡️</span>
+                <strong>Sigue intentando</strong>
+                <small>Insignia obtenida</small>
+                <em>¡No te rindas!</em>
+              </div>
+            </div>
+          </div>
+
+          <div className="res-progreso-card">
+            <div className="res-progreso-left">
+              <span className="res-progreso-icono">📊</span>
+              <div>
+                <small>Tu progreso en el tema:</small>
+                <strong>Encuestas y Frecuencias</strong>
+                <div className="res-barra-track">
+                  <div className="res-barra-fill res-barra-azul" style={{ width: "60%" }}>
+                    <span className="res-barra-label">60%</span>
+                  </div>
+                </div>
+                <small>¡Vas avanzando! Sigue practicando para completar este tema.</small>
+              </div>
+            </div>
+            <div className="res-hito-box">
+              <span>⭐</span>
+              <div>
+                <strong>Siguiente hito</strong>
+                <em>80%</em>
+                <small>Gran Analista</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="res-right">
+          <div className="res-villano-wrap">
+            <div className="res-bubble-villano">
+              ¡Observa los datos<br />y vuelve a intentarlo!
+            </div>
+            <img src={villanoIntentar} alt="Villano retando" className="res-villano-img" />
+          </div>
+
+          <div className="res-acciones">
+            <button
+              className="res-btn res-btn-azul"
+              onClick={() => setResultado(null)}
+            >
+              Intentar de nuevo
+            </button>
+            <button
+              className="res-btn res-btn-outline"
+              onClick={() => {}}
+            >
+              Ver pista
+            </button>
+            <button
+              className="res-btn res-btn-outline"
+              onClick={() => navigate("/actividades-math-data")}
+            >
+              {"<-"} Volver a actividades
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ==========================================
   // RENDER (NO MODIFICAR ESTRUCTURA)
   // ==========================================
 
@@ -429,23 +729,20 @@ function GeneradorEnergiaInversa() {
           </button>
         </div>
 
-<div className="gen1-hero">
-  <img src={heroBanner} alt="" className="gen1-hero-bg" />
+        <div className="gen1-hero">
+          <img src={heroBanner} alt="" className="gen1-hero-bg" />
 
-  <div className="gen1-hero-text">
-    <h1>
-      Generador de Energía Inversa <span>⚡</span>
-    </h1>
-    <p>
-      La base MathNova necesita recargar su escudo de protección
-      antes del amanecer. Activa el panel de control de los
-      reactores y completa la tabla y la gráfica para descubrir el
-      patrón de proporcionalidad inversa.
-    </p>
-  </div>
-
-
-
+          <div className="gen1-hero-text">
+            <h1>
+              Generador de Energía Inversa <span>⚡</span>
+            </h1>
+            <p>
+              La base MathNova necesita recargar su escudo de protección
+              antes del amanecer. Activa el panel de control de los
+              reactores y completa la tabla y la gráfica para descubrir el
+              patrón de proporcionalidad inversa.
+            </p>
+          </div>
         </div>
 
         {/* MENSAJE DE FEEDBACK */}
