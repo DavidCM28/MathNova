@@ -4,8 +4,8 @@ import "./AdministrarAlumnosDocente.css";
 
 import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
-import holaProfe from "../../assets/hola-profe-docente.png";
-import heroAdminAlumnos from "../../assets/hero-banner-admin-alumnos-docentes.png";
+import holaProfe from "../../assets/docente/common/hola-profe-docente.png";
+import heroAdminAlumnos from "../../assets/docente/administrarAlumnos/hero-banner-admin-alumnos-docentes.png";
 
 import {
   FiGrid,

@@ -4,8 +4,9 @@ import "./CalificacionesDocente.css";
 
 import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
-import holaProfe from "../../assets/hola-profe-docente.png";
-import heroCalificaciones from "../../assets/hero-banner-calificaciones-docente.png";
+
+import holaProfe from "../../assets/docente/common/hola-profe-docente.png";
+import heroCalificaciones from "../../assets/docente/calificaciones/hero-banner-calificaciones-docente.png";
 
 import {
   FiGrid,

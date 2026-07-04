@@ -5,7 +5,7 @@ import "./ActividadesDocente.css";
 
 import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
-import holaProfe from "../../assets/hola-profe-docente.png";
+import holaProfe from "../../assets/docente/common/hola-profe-docente.png";
 
 import mundoMathNumbers from "../../assets/mundo-1-MathNumbers.png";
 import mundoMathGeometry from "../../assets/mundo-2-MathGeometry.png";

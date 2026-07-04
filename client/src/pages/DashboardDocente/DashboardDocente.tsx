@@ -5,14 +5,14 @@ import "./DashboardDocente.css";
 import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 
-import heroDocente from "../../assets/hero-banner-docentes.png";
-import holaProfe from "../../assets/hola-profe-docente.png";
+import heroDocente from "../../assets/docente/dashboard/hero-banner-docentes.png";
+import holaProfe from "../../assets/docente/common/hola-profe-docente.png";
 
-import algebraDocente from "../../assets/algebra-docente.png";
-import geometriaDocente from "../../assets/geometria-docente.png";
-import estadisticaDocente from "../../assets/estadistica-docente.png";
+import algebraDocente from "../../assets/docente/dashboard/algebra-docente.png";
+import geometriaDocente from "../../assets/docente/dashboard/geometria-docente.png";
+import estadisticaDocente from "../../assets/docente/dashboard/estadistica-docente.png";
 
-import puntosEstrellas from "../../assets/puntos-estrellas-docente.png";
+import puntosEstrellas from "../../assets/docente/dashboard/puntos-estrellas-docente.png";
 
 import {
   FiGrid,

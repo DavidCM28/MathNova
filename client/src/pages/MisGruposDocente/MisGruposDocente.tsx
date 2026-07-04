@@ -10,8 +10,8 @@ import {
 
 import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
-import holaProfe from "../../assets/hola-profe-docente.png";
-import heroMisGrupos from "../../assets/hero-banner-docentes-mis-grupos.png";
+import holaProfe from "../../assets/docente/common/hola-profe-docente.png";
+import heroMisGrupos from "../../assets/docente/misGrupos/hero-banner-docentes-mis-grupos.png";
 
 import {
   FiGrid,

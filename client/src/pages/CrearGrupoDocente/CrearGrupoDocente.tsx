@@ -6,8 +6,8 @@ import { crearGrupo } from "../../services/groupService";
 
 import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
-import holaProfe from "../../assets/hola-profe-docente.png";
-import crearGrupoDocentes from "../../assets/crear-grupo-docentes.png";
+import holaProfe from "../../assets/docente/common/hola-profe-docente.png";
+import crearGrupoDocentes from "../../assets/docente/crearGrupo/crear-grupo-docentes.png";
 
 import {
   FiGrid,

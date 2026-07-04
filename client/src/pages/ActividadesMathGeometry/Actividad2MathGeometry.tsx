@@ -5,16 +5,16 @@ import "./Actividad2MathGeometry.css";
 import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 
-import heroBanner from "../../assets/hero-banner-Act1MathGeometry.png";
-import profesorHero from "../../assets/profesor-explicando.png";
-import byteAct2 from "../../assets/byte-Act2-MathGeometry.png";
-import sombraError from "../../assets/sombra-error.png";
-import zorritoInstrucciones from "../../assets/zorrito-instrucciones.png";
+import heroBanner from "../../assets/mathGeometry/actividad2/hero-banner-act2-mathgeometry.png";
+import profesorHero from "../../assets/mathGeometry/actividad2/profesor-explicando.png";
+import byteAct2 from "../../assets/mathGeometry/actividad2/byte-act2-mathgeometry.png";
+import sombraError from "../../assets/mathGeometry/actividad2/sombra-error.png";
+import zorritoInstrucciones from "../../assets/mathGeometry/actividad2/zorrito-instrucciones.png";
 
-import mapaPuente from "../../assets/Act2-MathGeometry-puente.png";
-import piezaCamino3 from "../../assets/pieza-camino-3-MathGeometry.png";
-import piezaCamino2 from "../../assets/pieza-camino-2-MathGeometry.png";
-import piezaCamino1 from "../../assets/pieza-camino-1-MathGeometry.png";
+import mapaPuente from "../../assets/mathGeometry/actividad2/act2-mathgeometry-puente.png";
+import piezaCamino3 from "../../assets/mathGeometry/actividad2/pieza-camino-3-mathgeometry.png";
+import piezaCamino2 from "../../assets/mathGeometry/actividad2/pieza-camino-2-mathgeometry.png";
+import piezaCamino1 from "../../assets/mathGeometry/actividad2/pieza-camino-1-mathgeometry.png";
 
 import {
   FiGrid,

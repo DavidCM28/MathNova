@@ -5,12 +5,12 @@ import "./ActividadesMathGeometry.css";
 import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 
-import heroBanner from "../../assets/hero-banner-mathGeometri.png";
-import profesor from "../../assets/profesor-explicando.png";
-import byteRobot from "../../assets/byte-sigue-explorando.png";
+import heroBanner from "../../assets/mathGeometry/actividades/hero-banner-mathGeometri.png";
+import profesor from "../../assets/mathGeometry/actividades/profesor-explicando.png";
+import byteRobot from "../../assets/mathGeometry/actividades/byte-sigue-explorando.png";
 
-import actividad1 from "../../assets/Actividad 1-MathGeometry.png";
-import actividad2 from "../../assets/Actividad 2-MathGeometry.png";
+import actividad1 from "../../assets/mathGeometry/actividades/actividad-1-mathgeometry.png";
+import actividad2 from "../../assets/mathGeometry/actividades/actividad-2-mathgeometry.png";
 
 import {
   FiGrid,
