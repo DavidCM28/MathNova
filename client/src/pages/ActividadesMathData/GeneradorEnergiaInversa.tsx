@@ -17,6 +17,7 @@ import iconoPrecision from "../../assets/icono-precision.png";
 import iconoRecompensa from "../../assets/icono-recompensa.png";
 import iconoInsignia from "../../assets/icono-insignia.png";
 import iconoProgreso from "../../assets/icono-progreso.png";
+import villanoMundo from "../../assets/villano_mundo_actividad.png";
 
 import {
   FiGrid,
@@ -34,6 +35,7 @@ import {
 
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 import { FaStar, FaShieldAlt, FaGem, FaLightbulb, FaHandPointUp } from "react-icons/fa";
+import { FiRefreshCw } from "react-icons/fi";
 
 // ============================================
 // CONFIGURACIÓN DEL BACKEND
@@ -80,7 +82,8 @@ function GeneradorEnergiaInversa() {
   const [xpGanado, setXpGanado] = useState(0);
   const [progresoPorcentaje, setProgresoPorcentaje] = useState(0);
   const [cargando, setCargando] = useState(false);
-  const [resultado, setResultado] = useState<"exito" | "fallo" | null>("exito");
+  const [resultado, setResultado] = useState<"exito" | "fallo" | "incompleto" | null>(null);
+
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
@@ -622,6 +625,195 @@ function GeneradorEnergiaInversa() {
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  );
+
+
+  // ==========================================
+  // PANTALLA: ACTIVIDAD INCOMPLETA
+  // ==========================================
+
+  if (resultado === "incompleto") return (
+    <div className="inc-page">
+
+      {/* CONFETI */}
+      <div className="inc-confetti" aria-hidden="true">
+        {["#3b82f6","#f97316","#22c55e","#a855f7","#eab308","#ef4444","#06b6d4","#f43f5e"].map((c,i)=>(
+          <span key={i} className="inc-dot" style={{
+            background: c,
+            width: `${10+i%4*3}px`,
+            height: `${10+i%4*3}px`,
+            top: `${5+i*7}%`,
+            left: i < 4 ? `${4+i*8}%` : undefined,
+            right: i >= 4 ? `${4+(i-4)*9}%` : undefined,
+          }} />
+        ))}
+      </div>
+
+      {/* HEADER */}
+      <header className="inc-header">
+        <img src={logo} alt="MathNova" className="inc-logo" />
+        <button className="inc-inicio-btn" onClick={() => navigate("/")}>
+          Inicio
+        </button>
+      </header>
+
+      {/* CONTENEDOR COMPARTIDO PARA EL EFECTO DE CAPAS (villano detrás de la tarjeta) */}
+      <div className="inc-content-wrap">
+
+        {/* VILLANO + MUNDO (una sola ilustración, va detrás de la tarjeta resumen) */}
+        <img src={villanoMundo} alt="Villano con el mundo" className="inc-villano-mundo" />
+
+        {/* HERO */}
+        <div className="inc-hero">
+
+          {/* IZQUIERDA */}
+          <div className="inc-hero-left">
+
+            {/* TÍTULO */}
+            <div className="inc-titulo-row">
+              <div className="inc-icono-titulo">
+                <FiBarChart2 />
+              </div>
+              <div>
+                <h1 className="inc-titulo">Actividad incompleta</h1>
+                <p className="inc-subtitulo">
+                  Aún no has terminado con éxito la misión de{" "}
+                  <span className="inc-brand">MathData</span>.
+                </p>
+              </div>
+            </div>
+
+            {/* MENSAJE NARANJA */}
+            <div className="inc-mensaje">
+              <div className="inc-icono-mensaje">
+                <FiBarChart2 />
+              </div>
+              <div>
+                <strong>¡Puedes retomarla cuando quieras!</strong>
+                <p>
+                  Te quedaste a mitad del reto. Regresa para continuar
+                  practicando tablas, gráficas y análisis de datos.
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* BOTTOM */}
+        <div className="inc-bottom">
+
+          {/* COLUMNA IZQUIERDA */}
+          <div className="inc-bottom-left">
+
+            {/* CARD RESUMEN */}
+            <div className="inc-resumen-card">
+            <div className="inc-resumen-header">
+              <FiBarChart2 className="inc-resumen-icono" />
+              <span>Resumen de la actividad</span>
+            </div>
+            <hr className="inc-divider" />
+            <div className="inc-stats">
+
+              <div className="inc-stat">
+                <img src={iconoAciertos} alt="" className="inc-stat-img" />
+                <div className="inc-stat-text">
+                  <span className="inc-stat-label">Aciertos</span>
+                  <strong className="inc-stat-val inc-azul">2/3</strong>
+                  <em>¡Buen trabajo!</em>
+                </div>
+              </div>
+
+              <div className="inc-stat-sep" />
+
+              <div className="inc-stat">
+                <img src={iconoTiempo} alt="" className="inc-stat-img" />
+                <div className="inc-stat-text">
+                  <span className="inc-stat-label">Tiempo</span>
+                  <strong className="inc-stat-val">02:11</strong>
+                  <em>min</em>
+                </div>
+              </div>
+
+              <div className="inc-stat-sep" />
+
+              <div className="inc-stat">
+                <img src={iconoPrecision} alt="" className="inc-stat-img" />
+                <div className="inc-stat-text">
+                  <span className="inc-stat-label">Precisión</span>
+                  <strong className="inc-stat-val inc-azul">67%</strong>
+                  <em>¡Buen avance!</em>
+                </div>
+              </div>
+
+              <div className="inc-stat-sep" />
+
+              <div className="inc-stat">
+                <img src={iconoRecompensa} alt="" className="inc-stat-img" />
+                <div className="inc-stat-text">
+                  <span className="inc-stat-label">Recompensa</span>
+                  <strong className="inc-stat-val inc-naranja">+20 pts</strong>
+                  <em>Puntos ganados</em>
+                </div>
+              </div>
+
+              <div className="inc-stat-sep" />
+
+              <div className="inc-stat">
+                <img src={iconoInsignia} alt="" className="inc-stat-img" />
+                <div className="inc-stat-text">
+                  <span className="inc-stat-label">Estado</span>
+                  <strong className="inc-stat-val inc-morado">En progreso</strong>
+                  <em>¡Sigue así!</em>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* CARD PROGRESO */}
+          <div className="inc-progreso-card">
+            <img src={iconoProgreso} alt="" className="inc-progreso-img" />
+            <div className="inc-progreso-info">
+              <small>Tu progreso en el tema:</small>
+              <strong>Encuestas y Frecuencias</strong>
+              <div className="inc-barra-track">
+                <div className="inc-barra-fill" style={{ width: "67%" }}>
+                  <span>67%</span>
+                </div>
+              </div>
+              <small>¡Buen avance! Retoma la actividad para seguir creciendo.</small>
+            </div>
+            <div className="inc-hito-box">
+              <img src={estrellaMision} alt="" className="inc-hito-estrella" />
+              <div>
+                <small>Siguiente hito</small>
+                <strong className="inc-hito-pct">60%</strong>
+                <small>Gran Analista</small>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* COLUMNA DERECHA: botones */}
+        <div className="inc-bottom-right">
+          <button className="inc-btn inc-btn-azul" onClick={() => setResultado(null)}>
+            <FiRefreshCw /> Continuar actividad
+          </button>
+          <button className="inc-btn inc-btn-outline" onClick={() => {}}>
+            <FaLightbulb /> Ver Pista
+          </button>
+          <button className="inc-btn inc-btn-outline" onClick={() => navigate("/actividades-math-data")}>
+            <FiArrowLeft /> Volver a actividades
+          </button>
+        </div>
+
+      </div>
+
       </div>
     </div>
   );
