@@ -10654,3 +10654,3237 @@ body:has(.act1geo-complete-modal-overlay) {
     line-height: 1.38 !important;
   }
 }
+
+/* =========================================================
+   SOMBRA ERROR + BYTE SIN ESTIRARSE
+   Pega este bloque al final del CSS.
+   ========================================================= */
+
+body:has(.act1geo-sombra-modal-overlay) {
+  overflow: hidden !important;
+}
+
+/* ---------- Arreglo final para que Byte NO se vea restirado ---------- */
+.act1geo-byte-canvas {
+  width: min(230px, 100%) !important;
+  height: auto !important;
+  aspect-ratio: 9 / 16 !important;
+  max-height: 390px !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+}
+
+.act1geo-byte-modal-hero {
+  align-items: flex-end !important;
+  justify-content: center !important;
+  overflow: visible !important;
+}
+
+.act1geo-byte-modal-playing .act1geo-byte-canvas {
+  animation: act1geoByteFloatFixed 2.15s ease-in-out infinite !important;
+}
+
+@keyframes act1geoByteFloatFixed {
+  0%,
+  100% {
+    transform: translateY(0) scale(1) !important;
+  }
+
+  50% {
+    transform: translateY(-8px) scale(1.025) !important;
+  }
+}
+
+/* ---------- Modal de Sombra cuando la respuesta no está completa ---------- */
+.act1geo-sombra-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  background:
+    radial-gradient(
+      circle at 22% 16%,
+      rgba(121, 86, 255, 0.2),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 78% 84%,
+      rgba(255, 183, 3, 0.18),
+      transparent 28%
+    ),
+    radial-gradient(circle at 50% 50%, rgba(0, 88, 255, 0.08), transparent 34%),
+    rgba(15, 23, 42, 0.52) !important;
+  backdrop-filter: blur(9px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 24px !important;
+  overflow: hidden !important;
+  overscroll-behavior: contain !important;
+  animation: act1geoSombraFadeIn 0.24s ease both !important;
+}
+
+.act1geo-sombra-modal {
+  width: min(1120px, calc(100vw - 46px)) !important;
+  max-height: min(760px, calc(100dvh - 46px)) !important;
+  background:
+    radial-gradient(
+      circle at 9% 10%,
+      rgba(255, 255, 255, 0.95) 0 82px,
+      transparent 83px
+    ),
+    radial-gradient(
+      circle at 94% 8%,
+      rgba(121, 86, 255, 0.14) 0 92px,
+      transparent 93px
+    ),
+    radial-gradient(
+      circle at 5% 96%,
+      rgba(255, 183, 3, 0.15) 0 78px,
+      transparent 79px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #f4f0ff 46%, #fff7e7 100%) !important;
+  border: 2px solid rgba(202, 186, 255, 0.82) !important;
+  border-radius: 38px !important;
+  box-shadow: 0 34px 86px rgba(15, 23, 42, 0.34) !important;
+  padding: 34px !important;
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: 230px minmax(0, 1fr) 286px !important;
+  gap: 24px !important;
+  align-items: center !important;
+  overflow: hidden !important;
+  animation: act1geoSombraPop 0.34s ease both !important;
+}
+
+.act1geo-sombra-modal::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 16px !important;
+  border-radius: 30px !important;
+  border: 2px dashed rgba(121, 86, 255, 0.18) !important;
+  pointer-events: none !important;
+}
+
+.act1geo-sombra-modal::after {
+  content: "" !important;
+  position: absolute !important;
+  width: 96px !important;
+  height: 96px !important;
+  right: 138px !important;
+  top: -38px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 183, 3, 0.16) !important;
+  pointer-events: none !important;
+}
+
+.act1geo-sombra-decoration {
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+  overflow: hidden !important;
+}
+
+.act1geo-sombra-glow {
+  position: absolute !important;
+  border-radius: 999px !important;
+  filter: blur(2px) !important;
+  opacity: 0.78 !important;
+}
+
+.act1geo-sombra-glow-one {
+  width: 160px !important;
+  height: 160px !important;
+  left: -60px !important;
+  bottom: -60px !important;
+  background: rgba(121, 86, 255, 0.12) !important;
+}
+
+.act1geo-sombra-glow-two {
+  width: 120px !important;
+  height: 120px !important;
+  right: 70px !important;
+  top: -44px !important;
+  background: rgba(255, 183, 3, 0.14) !important;
+}
+
+.act1geo-sombra-dot {
+  position: absolute !important;
+  width: 11px !important;
+  height: 11px !important;
+  border-radius: 999px !important;
+  background: #7956ff !important;
+  box-shadow: 0 0 0 7px rgba(121, 86, 255, 0.12) !important;
+  animation: act1geoSombraDotFloat 2.7s ease-in-out infinite !important;
+}
+
+.act1geo-sombra-dot-one {
+  top: 72px !important;
+  left: 48px !important;
+}
+
+.act1geo-sombra-dot-two {
+  right: 76px !important;
+  top: 128px !important;
+  width: 9px !important;
+  height: 9px !important;
+  background: #ffb703 !important;
+  box-shadow: 0 0 0 7px rgba(255, 183, 3, 0.14) !important;
+  animation-delay: 0.3s !important;
+}
+
+.act1geo-sombra-dot-three {
+  left: 54% !important;
+  bottom: 64px !important;
+  width: 10px !important;
+  height: 10px !important;
+  background: #14b85a !important;
+  box-shadow: 0 0 0 7px rgba(20, 184, 90, 0.12) !important;
+  animation-delay: 0.62s !important;
+}
+
+.act1geo-sombra-close {
+  position: absolute !important;
+  top: 18px !important;
+  right: 18px !important;
+  width: 42px !important;
+  height: 42px !important;
+  border: none !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  color: #061331 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  z-index: 12 !important;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.14) !important;
+  transition:
+    transform 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease !important;
+}
+
+.act1geo-sombra-close:hover {
+  transform: translateY(-2px) scale(1.06) !important;
+  background: #7956ff !important;
+  color: #ffffff !important;
+}
+
+.act1geo-sombra-close svg {
+  font-size: 22px !important;
+}
+
+.act1geo-sombra-hero,
+.act1geo-sombra-content,
+.act1geo-sombra-transcript {
+  position: relative !important;
+  z-index: 6 !important;
+}
+
+.act1geo-sombra-hero {
+  min-height: 382px !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  overflow: visible !important;
+}
+
+.act1geo-sombra-source-video {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.act1geo-sombra-canvas {
+  width: min(226px, 100%) !important;
+  height: auto !important;
+  aspect-ratio: 9 / 16 !important;
+  max-height: 392px !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+  position: relative !important;
+  z-index: 4 !important;
+  filter: drop-shadow(0 20px 22px rgba(88, 50, 170, 0.18)) !important;
+}
+
+.act1geo-sombra-orbit {
+  position: absolute !important;
+  bottom: 20px !important;
+  width: 168px !important;
+  height: 34px !important;
+  border-radius: 999px !important;
+  background: rgba(121, 86, 255, 0.12) !important;
+  filter: blur(3px) !important;
+  z-index: 1 !important;
+}
+
+.act1geo-sombra-modal-playing .act1geo-sombra-canvas {
+  animation: act1geoSombraFloat 2.15s ease-in-out infinite !important;
+}
+
+.act1geo-sombra-badge {
+  width: fit-content !important;
+  min-height: 34px !important;
+  padding: 0 16px !important;
+  border-radius: 999px !important;
+  background: #f0ebff !important;
+  color: #6542e8 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  box-shadow: 0 10px 20px rgba(121, 86, 255, 0.1) !important;
+}
+
+.act1geo-sombra-badge svg {
+  font-size: 17px !important;
+}
+
+.act1geo-sombra-content h2 {
+  margin: 16px 0 18px !important;
+  color: #061331 !important;
+  font-size: clamp(34px, 3.2vw, 50px) !important;
+  line-height: 0.96 !important;
+  font-weight: 950 !important;
+  letter-spacing: -1.15px !important;
+}
+
+.act1geo-sombra-cloud {
+  min-height: 166px !important;
+  padding: 28px 30px !important;
+  border-radius: 42px 58px 42px 58px !important;
+  background:
+    radial-gradient(
+      circle at 18% -20%,
+      rgba(255, 255, 255, 0.98) 0 50px,
+      transparent 51px
+    ),
+    radial-gradient(
+      circle at 54% -26%,
+      rgba(255, 255, 255, 0.96) 0 64px,
+      transparent 65px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #fffdf8 100%) !important;
+  border: 2px solid rgba(202, 186, 255, 0.78) !important;
+  box-shadow:
+    0 18px 34px rgba(15, 23, 42, 0.095),
+    inset 0 -6px 0 rgba(121, 86, 255, 0.06) !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.act1geo-sombra-cloud::before {
+  content: "" !important;
+  position: absolute !important;
+  left: -25px !important;
+  top: 58px !important;
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 2px solid rgba(202, 186, 255, 0.56) !important;
+}
+
+.act1geo-sombra-cloud-dot {
+  position: absolute !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 2px solid rgba(202, 186, 255, 0.5) !important;
+  pointer-events: none !important;
+}
+
+.act1geo-sombra-cloud-dot-one {
+  left: -54px !important;
+  top: 88px !important;
+  width: 15px !important;
+  height: 15px !important;
+}
+
+.act1geo-sombra-cloud-dot-two {
+  left: -78px !important;
+  top: 116px !important;
+  width: 10px !important;
+  height: 10px !important;
+}
+
+.act1geo-sombra-cloud p {
+  margin: 0 !important;
+  color: #061331 !important;
+  font-size: 20px !important;
+  line-height: 1.36 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.25px !important;
+}
+
+.act1geo-sombra-controls {
+  margin-top: 18px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+}
+
+.act1geo-sombra-controls button,
+.act1geo-sombra-try-btn {
+  min-height: 44px !important;
+  border: none !important;
+  border-radius: 999px !important;
+  padding: 0 18px !important;
+  background: #ffffff !important;
+  color: #6542e8 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.1) !important;
+  transition:
+    transform 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease,
+    box-shadow 0.22s ease !important;
+}
+
+.act1geo-sombra-controls button:hover,
+.act1geo-sombra-try-btn:hover {
+  transform: translateY(-3px) scale(1.03) !important;
+  box-shadow: 0 16px 28px rgba(121, 86, 255, 0.16) !important;
+}
+
+.act1geo-sombra-play,
+.act1geo-sombra-try-btn {
+  background: #7956ff !important;
+  color: #ffffff !important;
+}
+
+.act1geo-sombra-modal-playing .act1geo-sombra-play {
+  animation: act1geoSombraPlayPulse 1s ease-in-out infinite !important;
+}
+
+.act1geo-sombra-try-btn {
+  width: 100% !important;
+  margin-top: 12px !important;
+  min-height: 48px !important;
+}
+
+.act1geo-sombra-transcript {
+  max-height: 474px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 22px !important;
+  border-radius: 28px !important;
+  background: rgba(255, 255, 255, 0.84) !important;
+  border: 2px solid rgba(121, 86, 255, 0.11) !important;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08) !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(121, 86, 255, 0.28) transparent !important;
+}
+
+.act1geo-sombra-transcript::-webkit-scrollbar {
+  width: 7px !important;
+}
+
+.act1geo-sombra-transcript::-webkit-scrollbar-thumb {
+  background: rgba(121, 86, 255, 0.26) !important;
+  border-radius: 999px !important;
+}
+
+.act1geo-sombra-transcript h3 {
+  width: fit-content !important;
+  margin: 0 0 16px !important;
+  color: #6542e8 !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  position: relative !important;
+}
+
+.act1geo-sombra-transcript h3::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: -7px !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #7956ff, #ffb020, #7956ff) !important;
+  background-size: 220% 100% !important;
+  animation: act1geoSombraTitleLine 1.8s linear infinite !important;
+}
+
+.act1geo-sombra-transcript p {
+  --progreso-sombra: 0%;
+  position: relative !important;
+  margin: 0 0 10px !important;
+  padding: 8px 12px 10px 14px !important;
+  border-radius: 15px !important;
+  color: #15213c !important;
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+  font-weight: 850 !important;
+  background: linear-gradient(
+    90deg,
+    rgba(230, 220, 255, 0.72) 0 var(--progreso-sombra),
+    rgba(234, 242, 255, 0.32) var(--progreso-sombra) 100%
+  ) !important;
+  transition:
+    background 0.18s linear,
+    transform 0.22s ease,
+    opacity 0.22s ease,
+    color 0.22s ease !important;
+}
+
+.act1geo-sombra-transcript p::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 14px !important;
+  bottom: 4px !important;
+  width: var(--progreso-sombra) !important;
+  max-width: calc(100% - 28px) !important;
+  height: 5px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #7956ff, #a790ff, #ffb020) !important;
+  opacity: 0.88 !important;
+  box-shadow: 0 4px 10px rgba(121, 86, 255, 0.14) !important;
+  pointer-events: none !important;
+  transition: width 0.16s linear !important;
+}
+
+.act1geo-sombra-transcript p::after {
+  content: "" !important;
+  position: absolute !important;
+  left: clamp(
+    18px,
+    calc(14px + var(--progreso-sombra)),
+    calc(100% - 14px)
+  ) !important;
+  bottom: 0 !important;
+  width: 13px !important;
+  height: 13px !important;
+  border-radius: 999px !important;
+  background: #7956ff !important;
+  border: 3px solid #ffffff !important;
+  box-shadow:
+    0 0 0 5px rgba(121, 86, 255, 0.13),
+    0 10px 18px rgba(121, 86, 255, 0.24) !important;
+  transform: translate(-50%, 0) scale(0.7) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition:
+    left 0.16s linear,
+    opacity 0.2s ease !important;
+}
+
+.act1geo-sombra-transcript p.act1geo-sombra-line-pending {
+  opacity: 0.68 !important;
+  background: transparent !important;
+}
+
+.act1geo-sombra-transcript p.act1geo-sombra-line-pending::before,
+.act1geo-sombra-transcript p.act1geo-sombra-line-pending::after {
+  opacity: 0 !important;
+}
+
+.act1geo-sombra-transcript p.act1geo-sombra-line-done {
+  opacity: 1 !important;
+  background: linear-gradient(
+    90deg,
+    rgba(242, 237, 255, 0.95) 0 100%,
+    transparent 100%
+  ) !important;
+  color: #10203d !important;
+}
+
+.act1geo-sombra-transcript p.act1geo-sombra-line-done::before {
+  width: calc(100% - 28px) !important;
+  background: linear-gradient(90deg, #7956ff, #a790ff) !important;
+  opacity: 0.72 !important;
+}
+
+.act1geo-sombra-transcript p.act1geo-sombra-line-done::after {
+  opacity: 0 !important;
+}
+
+.act1geo-sombra-transcript p.act1geo-sombra-line-active {
+  opacity: 1 !important;
+  color: #061331 !important;
+  transform: translateX(4px) !important;
+  box-shadow:
+    0 8px 18px rgba(121, 86, 255, 0.08),
+    inset 4px 0 0 rgba(121, 86, 255, 0.9) !important;
+}
+
+.act1geo-sombra-transcript p.act1geo-sombra-line-active::before,
+.act1geo-sombra-transcript p.act1geo-sombra-line-active::after {
+  opacity: 1 !important;
+}
+
+.act1geo-sombra-modal-playing
+  .act1geo-sombra-transcript
+  p.act1geo-sombra-line-active {
+  animation: act1geoSombraActiveTextBreath 1.4s ease-in-out infinite !important;
+}
+
+.act1geo-sombra-modal-playing
+  .act1geo-sombra-transcript
+  p.act1geo-sombra-line-active::after {
+  animation: act1geoSombraReadingDotJump 0.55s ease-in-out infinite !important;
+}
+
+/* ---------- Animaciones de Sombra ---------- */
+@keyframes act1geoSombraFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes act1geoSombraPop {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes act1geoSombraFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg) scale(1);
+  }
+
+  50% {
+    transform: translateY(-8px) rotate(1deg) scale(1.025);
+  }
+}
+
+@keyframes act1geoSombraDotFloat {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-6px) scale(1.08);
+  }
+}
+
+@keyframes act1geoSombraPlayPulse {
+  0%,
+  100% {
+    box-shadow: 0 8px 14px rgba(121, 86, 255, 0.16);
+  }
+
+  50% {
+    box-shadow: 0 12px 22px rgba(121, 86, 255, 0.32);
+  }
+}
+
+@keyframes act1geoSombraTitleLine {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 220% 50%;
+  }
+}
+
+@keyframes act1geoSombraReadingDotJump {
+  0%,
+  100% {
+    transform: translate(-50%, 0) scale(0.9);
+  }
+
+  45% {
+    transform: translate(-50%, -7px) scale(1.12);
+  }
+
+  70% {
+    transform: translate(-50%, -2px) scale(1);
+  }
+}
+
+@keyframes act1geoSombraActiveTextBreath {
+  0%,
+  100% {
+    box-shadow:
+      0 8px 18px rgba(121, 86, 255, 0.08),
+      inset 4px 0 0 rgba(121, 86, 255, 0.9);
+  }
+
+  50% {
+    box-shadow:
+      0 12px 24px rgba(121, 86, 255, 0.14),
+      inset 4px 0 0 rgba(255, 176, 32, 0.95);
+  }
+}
+
+/* ---------- Responsivo Sombra + Byte final ---------- */
+@media (max-width: 1500px) {
+  .act1geo-sombra-modal {
+    width: min(1020px, calc(100vw - 40px)) !important;
+    grid-template-columns: 205px minmax(0, 1fr) 260px !important;
+    gap: 20px !important;
+    padding: 30px !important;
+  }
+
+  .act1geo-byte-canvas,
+  .act1geo-sombra-canvas {
+    width: min(205px, 100%) !important;
+    max-height: 358px !important;
+  }
+
+  .act1geo-sombra-cloud p {
+    font-size: 18px !important;
+  }
+}
+
+@media (max-width: 1199px) {
+  .act1geo-sombra-modal {
+    grid-template-columns: 178px minmax(0, 1fr) !important;
+    max-height: calc(100dvh - 34px) !important;
+    overflow-y: auto !important;
+  }
+
+  .act1geo-sombra-transcript {
+    grid-column: 1 / -1 !important;
+    max-height: 180px !important;
+  }
+
+  .act1geo-byte-canvas,
+  .act1geo-sombra-canvas {
+    width: min(180px, 100%) !important;
+    max-height: 316px !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .act1geo-sombra-modal-overlay {
+    padding: 18px !important;
+    align-items: flex-start !important;
+    overflow-y: auto !important;
+  }
+
+  .act1geo-sombra-modal {
+    width: 100% !important;
+    max-height: none !important;
+    grid-template-columns: 1fr !important;
+    overflow: visible !important;
+    padding: 28px 22px 22px !important;
+    border-radius: 30px !important;
+    text-align: center !important;
+    margin: auto 0 !important;
+  }
+
+  .act1geo-sombra-modal::before {
+    inset: 12px !important;
+  }
+
+  .act1geo-sombra-modal::after,
+  .act1geo-sombra-cloud::before,
+  .act1geo-sombra-cloud-dot {
+    display: none !important;
+  }
+
+  .act1geo-sombra-hero {
+    min-height: 238px !important;
+    order: 1 !important;
+  }
+
+  .act1geo-byte-canvas,
+  .act1geo-sombra-canvas {
+    width: min(158px, 100%) !important;
+    max-height: 278px !important;
+  }
+
+  .act1geo-sombra-content {
+    order: 2 !important;
+  }
+
+  .act1geo-sombra-badge,
+  .act1geo-sombra-controls {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-content: center !important;
+  }
+
+  .act1geo-sombra-cloud {
+    min-height: 140px !important;
+    padding: 24px 22px !important;
+    text-align: center !important;
+  }
+
+  .act1geo-sombra-cloud p {
+    font-size: 16px !important;
+  }
+
+  .act1geo-sombra-transcript {
+    order: 3 !important;
+    max-height: 240px !important;
+    text-align: left !important;
+  }
+
+  .act1geo-sombra-transcript p {
+    padding: 8px 10px 10px 12px !important;
+    font-size: 12.8px !important;
+  }
+
+  .act1geo-sombra-transcript p::before {
+    left: 12px !important;
+    max-width: calc(100% - 24px) !important;
+    height: 4px !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .act1geo-sombra-modal-overlay {
+    padding: 12px !important;
+  }
+
+  .act1geo-sombra-modal {
+    padding: 24px 16px 18px !important;
+    border-radius: 26px !important;
+  }
+
+  .act1geo-sombra-close {
+    top: 12px !important;
+    right: 12px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .act1geo-sombra-hero {
+    min-height: 208px !important;
+  }
+
+  .act1geo-byte-canvas,
+  .act1geo-sombra-canvas {
+    width: min(138px, 100%) !important;
+    max-height: 244px !important;
+  }
+
+  .act1geo-sombra-content h2 {
+    font-size: 28px !important;
+  }
+
+  .act1geo-sombra-cloud {
+    min-height: 132px !important;
+    padding: 22px 18px !important;
+  }
+
+  .act1geo-sombra-cloud p {
+    font-size: 14.5px !important;
+    line-height: 1.38 !important;
+  }
+
+  .act1geo-sombra-controls {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .act1geo-sombra-controls button,
+  .act1geo-sombra-try-btn {
+    width: 100% !important;
+  }
+
+  .act1geo-sombra-transcript {
+    padding: 18px 14px !important;
+  }
+
+  .act1geo-sombra-transcript p {
+    padding: 7px 9px 9px 10px !important;
+    font-size: 12.3px !important;
+  }
+
+  .act1geo-sombra-transcript p.act1geo-sombra-line-active {
+    transform: translateX(2px) !important;
+  }
+}
+
+@media (min-width: 992px) and (max-height: 760px) {
+  .act1geo-sombra-modal {
+    max-height: calc(100dvh - 30px) !important;
+  }
+
+  .act1geo-sombra-hero {
+    min-height: 320px !important;
+  }
+
+  .act1geo-byte-canvas,
+  .act1geo-sombra-canvas {
+    width: min(178px, 100%) !important;
+    max-height: 316px !important;
+  }
+
+  .act1geo-sombra-cloud {
+    min-height: 126px !important;
+    padding-top: 22px !important;
+    padding-bottom: 22px !important;
+  }
+}
+
+/* =========================================================
+   CORRECCIÓN FINAL SOLO BYTE - NO MOVER DISEÑO GENERAL
+   Cambios:
+   1) Byte más grande dentro del mismo espacio.
+   2) Bolitas de la nube visibles sin salirse feo.
+   3) Cards de pistas con colores pastel y texto legible.
+   ========================================================= */
+
+/* Mantiene el modal en el mismo acomodo, pero deja ver decoraciones */
+.act1geo-byte-modal,
+.act1geo-byte-modal-content,
+.act1geo-byte-cloud {
+  overflow: visible !important;
+}
+
+/* Byte más grande sin cambiar el layout completo */
+.act1geo-byte-modal-hero {
+  min-height: 425px !important;
+  height: 425px !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+}
+
+.act1geo-byte-canvas {
+  width: min(276px, 118%) !important;
+  height: auto !important;
+  max-height: 492px !important;
+  object-fit: contain !important;
+  transform: translateY(10px) !important;
+  filter: drop-shadow(0 24px 24px rgba(0, 88, 255, 0.16)) !important;
+}
+
+.act1geo-byte-modal-playing .act1geo-byte-canvas {
+  animation: act1geoByteFloatBig 2.15s ease-in-out infinite !important;
+}
+
+@keyframes act1geoByteFloatBig {
+  0%,
+  100% {
+    transform: translateY(10px) scale(1) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(0) scale(1.025) rotate(1deg);
+  }
+}
+
+/* Cards de pistas: pastel, legibles y sin azul fuerte */
+.act1geo-byte-choice-grid {
+  gap: 12px !important;
+  align-items: stretch !important;
+}
+
+.act1geo-byte-choice-btn {
+  min-height: 82px !important;
+  padding: 13px 14px !important;
+  border-radius: 20px !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%) !important;
+  border: 2px solid #dbe8ff !important;
+  color: #061331 !important;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.07) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 5px !important;
+}
+
+.act1geo-byte-choice-btn strong {
+  color: #061331 !important;
+  font-size: 14px !important;
+  line-height: 1.05 !important;
+  font-weight: 950 !important;
+}
+
+.act1geo-byte-choice-btn span {
+  color: #70461f !important;
+  font-size: 10px !important;
+  line-height: 1.12 !important;
+  font-weight: 900 !important;
+}
+
+.act1geo-byte-choice-btn:hover {
+  background: linear-gradient(135deg, #ffffff 0%, #edf5ff 100%) !important;
+  border-color: #9fc4ff !important;
+  color: #061331 !important;
+  transform: translateY(-3px) scale(1.015) !important;
+}
+
+.act1geo-byte-choice-active,
+.act1geo-byte-choice-btn.act1geo-byte-choice-active {
+  background: linear-gradient(135deg, #eef5ff 0%, #fff6e4 100%) !important;
+  border-color: #7fb0ff !important;
+  color: #061331 !important;
+  box-shadow:
+    0 16px 30px rgba(0, 88, 255, 0.13),
+    inset 0 0 0 3px rgba(255, 183, 3, 0.18) !important;
+}
+
+.act1geo-byte-choice-active strong,
+.act1geo-byte-choice-btn.act1geo-byte-choice-active strong {
+  color: #0058ff !important;
+}
+
+.act1geo-byte-choice-active span,
+.act1geo-byte-choice-btn.act1geo-byte-choice-active span {
+  color: #5c3a1f !important;
+}
+
+/* Nube de Byte: bolitas visibles, dentro del modal para que no se corten */
+.act1geo-byte-cloud {
+  position: relative !important;
+  min-height: 150px !important;
+  padding: 26px 30px !important;
+  border-radius: 42px 58px 42px 58px !important;
+  border: 2px solid rgba(255, 203, 136, 0.72) !important;
+  background:
+    radial-gradient(
+      circle at 18% -18%,
+      rgba(255, 255, 255, 0.98) 0 46px,
+      transparent 47px
+    ),
+    radial-gradient(
+      circle at 54% -24%,
+      rgba(255, 255, 255, 0.96) 0 58px,
+      transparent 59px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #fffdf8 100%) !important;
+  box-shadow:
+    0 18px 34px rgba(15, 23, 42, 0.085),
+    inset 0 -6px 0 rgba(255, 190, 94, 0.08) !important;
+}
+
+.act1geo-byte-cloud::before {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  left: 10px !important;
+  top: 62px !important;
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 2px solid rgba(255, 203, 136, 0.5) !important;
+  box-shadow: 0 8px 14px rgba(15, 23, 42, 0.06) !important;
+  z-index: 2 !important;
+  pointer-events: none !important;
+}
+
+.act1geo-byte-cloud-dot {
+  display: block !important;
+  position: absolute !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 2px solid rgba(255, 203, 136, 0.46) !important;
+  box-shadow: 0 8px 14px rgba(15, 23, 42, 0.07) !important;
+  z-index: 2 !important;
+  pointer-events: none !important;
+}
+
+.act1geo-byte-cloud-dot-one {
+  left: -4px !important;
+  top: 96px !important;
+  width: 17px !important;
+  height: 17px !important;
+}
+
+.act1geo-byte-cloud-dot-two {
+  left: -18px !important;
+  top: 124px !important;
+  width: 11px !important;
+  height: 11px !important;
+}
+
+.act1geo-byte-cloud p {
+  position: relative !important;
+  z-index: 4 !important;
+}
+
+.act1geo-byte-modal-playing .act1geo-byte-cloud::before,
+.act1geo-byte-modal-playing .act1geo-byte-cloud-dot {
+  animation: act1geoByteCloudDotsSoft 2.4s ease-in-out infinite !important;
+}
+
+@keyframes act1geoByteCloudDotsSoft {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-4px) scale(1.05);
+  }
+}
+
+@media (max-width: 1199px) {
+  .act1geo-byte-modal-hero {
+    min-height: 330px !important;
+    height: 330px !important;
+  }
+
+  .act1geo-byte-canvas {
+    width: min(214px, 112%) !important;
+    max-height: 380px !important;
+  }
+
+  .act1geo-byte-choice-btn {
+    min-height: 78px !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .act1geo-byte-modal-hero {
+    min-height: 252px !important;
+    height: 252px !important;
+  }
+
+  .act1geo-byte-canvas {
+    width: min(160px, 100%) !important;
+    max-height: 284px !important;
+    transform: translateY(6px) !important;
+  }
+
+  .act1geo-byte-choice-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .act1geo-byte-choice-btn {
+    min-height: 66px !important;
+    text-align: center !important;
+    padding: 12px 14px !important;
+  }
+
+  .act1geo-byte-cloud {
+    min-height: 128px !important;
+    padding: 22px 18px !important;
+    text-align: center !important;
+  }
+
+  .act1geo-byte-cloud::before,
+  .act1geo-byte-cloud-dot {
+    display: none !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .act1geo-byte-modal-hero {
+    min-height: 224px !important;
+    height: 224px !important;
+  }
+
+  .act1geo-byte-canvas {
+    width: min(140px, 100%) !important;
+    max-height: 248px !important;
+  }
+
+  .act1geo-byte-choice-btn strong {
+    font-size: 15px !important;
+  }
+
+  .act1geo-byte-choice-btn span {
+    font-size: 10.8px !important;
+  }
+}
+
+/* =========================================================
+   CORRECCIÓN FINAL REAL - BYTE / NUBES / TEXTO
+   =========================================================
+   Esta parte va AL FINAL del CSS.
+   Solo corrige:
+   - Byte más limpio en modal.
+   - Bolitas de la nube fuera del texto.
+   - Cards de pistas en colores pastel.
+   - Texto completo sin cuadritos feos.
+   - Misma idea visual para la nube del Profesor.
+   ========================================================= */
+
+/* ---------- NUBES: las bolitas ya no chocan con el texto ---------- */
+.act1geo-byte-cloud,
+.act1geo-profe-cloud,
+.act1geo-sombra-cloud {
+  overflow: visible !important;
+  isolation: isolate !important;
+}
+
+.act1geo-byte-cloud p,
+.act1geo-profe-cloud p,
+.act1geo-sombra-cloud p {
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+.act1geo-byte-cloud::before,
+.act1geo-profe-cloud::before,
+.act1geo-sombra-cloud::before {
+  left: -42px !important;
+  top: 58px !important;
+  width: 25px !important;
+  height: 25px !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+}
+
+.act1geo-byte-cloud-dot,
+.act1geo-profe-cloud-dot,
+.act1geo-sombra-cloud-dot {
+  z-index: 1 !important;
+  pointer-events: none !important;
+}
+
+.act1geo-byte-cloud-dot-one,
+.act1geo-profe-cloud-dot-one,
+.act1geo-sombra-cloud-dot-one {
+  left: -78px !important;
+  top: 92px !important;
+}
+
+.act1geo-byte-cloud-dot-two,
+.act1geo-profe-cloud-dot-two,
+.act1geo-sombra-cloud-dot-two {
+  left: -105px !important;
+  top: 120px !important;
+}
+
+/* ---------- MODAL BYTE: personaje un poquito más grande sin mover todo ---------- */
+.act1geo-byte-modal {
+  grid-template-columns: 250px minmax(0, 1fr) 300px !important;
+}
+
+.act1geo-byte-modal-hero {
+  min-height: 420px !important;
+}
+
+.act1geo-byte-canvas {
+  width: 238px !important;
+  height: 423px !important;
+  max-width: 100% !important;
+  object-fit: contain !important;
+}
+
+.act1geo-byte-orbit {
+  width: 182px !important;
+  bottom: 18px !important;
+}
+
+/* ---------- Cards de pistas: pastel, legibles y sin azul fuerte ---------- */
+.act1geo-byte-choice-grid {
+  gap: 13px !important;
+  margin-bottom: 18px !important;
+}
+
+.act1geo-byte-choice-btn {
+  min-height: 82px !important;
+  padding: 14px 15px !important;
+  border-radius: 20px !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%) !important;
+  border: 2px solid #dbe8ff !important;
+  color: #061331 !important;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.07) !important;
+}
+
+.act1geo-byte-choice-btn strong {
+  color: #061331 !important;
+  font-size: 14px !important;
+  line-height: 1.05 !important;
+  font-weight: 950 !important;
+}
+
+.act1geo-byte-choice-btn span {
+  color: #6b4a2d !important;
+  font-size: 10.2px !important;
+  line-height: 1.15 !important;
+  font-weight: 900 !important;
+}
+
+.act1geo-byte-choice-btn:hover {
+  background: linear-gradient(135deg, #f4f8ff 0%, #fff7e8 100%) !important;
+  border-color: #9fc2ff !important;
+  transform: translateY(-3px) scale(1.015) !important;
+  box-shadow: 0 16px 30px rgba(0, 88, 255, 0.12) !important;
+}
+
+.act1geo-byte-choice-active {
+  background: linear-gradient(135deg, #fffaf0 0%, #fff0d1 100%) !important;
+  border-color: #ffca72 !important;
+  color: #061331 !important;
+  box-shadow:
+    0 16px 30px rgba(255, 176, 32, 0.18),
+    inset 0 0 0 2px rgba(0, 88, 255, 0.08) !important;
+}
+
+.act1geo-byte-choice-active strong {
+  color: #0058ff !important;
+}
+
+.act1geo-byte-choice-active span {
+  color: #6b4a2d !important;
+  opacity: 1 !important;
+}
+
+/* ---------- Nube Byte: misma forma bonita, sin bolitas encima del texto ---------- */
+.act1geo-byte-cloud {
+  min-height: 150px !important;
+  padding: 26px 30px 26px 36px !important;
+  border-radius: 42px 58px 42px 58px !important;
+  background:
+    radial-gradient(
+      circle at 18% -18%,
+      rgba(255, 255, 255, 0.98) 0 50px,
+      transparent 51px
+    ),
+    radial-gradient(
+      circle at 54% -24%,
+      rgba(255, 255, 255, 0.96) 0 64px,
+      transparent 65px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #fffdf8 100%) !important;
+  border: 2px solid rgba(255, 203, 136, 0.66) !important;
+  box-shadow:
+    0 18px 34px rgba(15, 23, 42, 0.095),
+    inset 0 -6px 0 rgba(255, 190, 94, 0.08) !important;
+}
+
+.act1geo-byte-cloud p {
+  min-height: 58px !important;
+  margin: 0 !important;
+  color: #061331 !important;
+  font-size: 18px !important;
+  line-height: 1.36 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.25px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* ---------- Texto completo: sin cuadritos verdes/azules ---------- */
+.act1geo-byte-transcript {
+  padding: 24px !important;
+  border-radius: 30px !important;
+  background:
+    radial-gradient(
+      circle at 15% 12%,
+      rgba(0, 88, 255, 0.07) 0 32px,
+      transparent 33px
+    ),
+    rgba(255, 255, 255, 0.9) !important;
+  border: 2px solid rgba(0, 88, 255, 0.08) !important;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08) !important;
+}
+
+.act1geo-byte-transcript h3 {
+  margin: 0 0 18px !important;
+  color: #0058ff !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+}
+
+.act1geo-byte-transcript h3::after {
+  height: 4px !important;
+  background: linear-gradient(90deg, #0058ff, #ffb020) !important;
+  animation: none !important;
+}
+
+.act1geo-byte-transcript p,
+.act1geo-byte-transcript p.act1geo-byte-line-pending,
+.act1geo-byte-transcript p.act1geo-byte-line-active,
+.act1geo-byte-transcript p.act1geo-byte-line-done {
+  position: relative !important;
+  margin: 0 0 18px !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #536077 !important;
+  font-size: 14px !important;
+  line-height: 1.28 !important;
+  font-weight: 850 !important;
+  box-shadow: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+  overflow: visible !important;
+  transition:
+    color 0.18s ease,
+    opacity 0.18s ease !important;
+}
+
+.act1geo-byte-transcript p:last-child {
+  margin-bottom: 0 !important;
+}
+
+.act1geo-byte-transcript p::before,
+.act1geo-byte-transcript p::after,
+.act1geo-byte-transcript p.act1geo-byte-line-pending::before,
+.act1geo-byte-transcript p.act1geo-byte-line-pending::after,
+.act1geo-byte-transcript p.act1geo-byte-line-active::before,
+.act1geo-byte-transcript p.act1geo-byte-line-active::after,
+.act1geo-byte-transcript p.act1geo-byte-line-done::before,
+.act1geo-byte-transcript p.act1geo-byte-line-done::after {
+  display: none !important;
+  content: none !important;
+  opacity: 0 !important;
+}
+
+.act1geo-byte-transcript p.act1geo-byte-line-active {
+  color: #061331 !important;
+  font-weight: 950 !important;
+}
+
+.act1geo-byte-transcript p.act1geo-byte-line-done {
+  color: #15213c !important;
+}
+
+/* ---------- Profesor: misma corrección para que la nube no choque ---------- */
+.act1geo-profe-cloud {
+  padding-left: 34px !important;
+}
+
+.act1geo-profe-cloud p {
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+/* ---------- Responsive Byte ---------- */
+@media (max-width: 1500px) {
+  .act1geo-byte-modal {
+    grid-template-columns: 230px minmax(0, 1fr) 286px !important;
+  }
+
+  .act1geo-byte-modal-hero {
+    min-height: 390px !important;
+  }
+
+  .act1geo-byte-canvas {
+    width: 222px !important;
+    height: 395px !important;
+  }
+
+  .act1geo-byte-choice-grid {
+    gap: 11px !important;
+  }
+
+  .act1geo-byte-choice-btn {
+    min-height: 78px !important;
+    padding: 13px !important;
+  }
+
+  .act1geo-byte-transcript p,
+  .act1geo-byte-transcript p.act1geo-byte-line-pending,
+  .act1geo-byte-transcript p.act1geo-byte-line-active,
+  .act1geo-byte-transcript p.act1geo-byte-line-done {
+    font-size: 13.5px !important;
+    line-height: 1.28 !important;
+  }
+}
+
+@media (max-width: 1199px) {
+  .act1geo-byte-modal {
+    grid-template-columns: 190px minmax(0, 1fr) !important;
+  }
+
+  .act1geo-byte-modal-hero {
+    min-height: 330px !important;
+  }
+
+  .act1geo-byte-canvas {
+    width: 184px !important;
+    height: 327px !important;
+  }
+
+  .act1geo-byte-transcript {
+    grid-column: 1 / -1 !important;
+    max-height: 210px !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .act1geo-byte-modal {
+    grid-template-columns: 1fr !important;
+  }
+
+  .act1geo-byte-modal-hero {
+    min-height: 260px !important;
+    height: 260px !important;
+  }
+
+  .act1geo-byte-canvas {
+    width: 164px !important;
+    height: 292px !important;
+    transform: translateY(6px) !important;
+  }
+
+  .act1geo-byte-choice-grid {
+    grid-template-columns: 1fr !important;
+    max-width: 560px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .act1geo-byte-cloud {
+    padding: 24px 22px !important;
+    text-align: center !important;
+  }
+
+  .act1geo-byte-cloud::before,
+  .act1geo-byte-cloud-dot,
+  .act1geo-profe-cloud::before,
+  .act1geo-profe-cloud-dot,
+  .act1geo-sombra-cloud::before,
+  .act1geo-sombra-cloud-dot {
+    display: none !important;
+  }
+
+  .act1geo-byte-cloud p {
+    justify-content: center !important;
+    text-align: center !important;
+    font-size: 16px !important;
+  }
+
+  .act1geo-byte-transcript {
+    max-height: 240px !important;
+    padding: 20px 18px !important;
+    text-align: left !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .act1geo-byte-modal-hero {
+    min-height: 226px !important;
+    height: 226px !important;
+  }
+
+  .act1geo-byte-canvas {
+    width: 140px !important;
+    height: 249px !important;
+  }
+
+  .act1geo-byte-choice-btn {
+    min-height: 64px !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .act1geo-byte-cloud p {
+    min-height: 44px !important;
+    font-size: 14.5px !important;
+    line-height: 1.35 !important;
+  }
+
+  .act1geo-byte-transcript {
+    padding: 18px 14px !important;
+  }
+
+  .act1geo-byte-transcript p,
+  .act1geo-byte-transcript p.act1geo-byte-line-pending,
+  .act1geo-byte-transcript p.act1geo-byte-line-active,
+  .act1geo-byte-transcript p.act1geo-byte-line-done {
+    font-size: 12.8px !important;
+    line-height: 1.32 !important;
+    margin-bottom: 14px !important;
+  }
+}
+
+/* =========================================================
+   AJUSTE: HACER MÁS GRANDE A BYTE EN EL MODAL
+   ========================================================= */
+
+/* Tamaño de Byte en computadora */
+.act1geo-byte-modal-hero {
+  min-height: 430px !important;
+}
+
+.act1geo-byte-canvas {
+  width: 255px !important;
+  height: 452px !important;
+}
+
+/* Sombra de abajo de Byte */
+.act1geo-byte-orbit {
+  width: 200px !important;
+  height: 38px !important;
+  bottom: 24px !important;
+}
+
+/* Laptop */
+@media (max-width: 1500px) {
+  .act1geo-byte-modal-hero {
+    min-height: 405px !important;
+  }
+
+  .act1geo-byte-canvas {
+    width: 235px !important;
+    height: 418px !important;
+  }
+}
+
+/* Tablet */
+@media (max-width: 991px) {
+  .act1geo-byte-modal-hero {
+    min-height: 285px !important;
+  }
+
+  .act1geo-byte-canvas {
+    width: 175px !important;
+    height: 311px !important;
+  }
+}
+
+/* Celular */
+@media (max-width: 575px) {
+  .act1geo-byte-modal-hero {
+    min-height: 245px !important;
+  }
+
+  .act1geo-byte-canvas {
+    width: 145px !important;
+    height: 258px !important;
+  }
+}
+
+/* =========================================================
+   FIX FINAL REAL - MODAL BYTE SIN CORTES NI CUADROS
+   Pega al final. Reescribe solo el modal de Byte.
+   ========================================================= */
+
+body:has(.act1geo-byte-modal-overlay) {
+  overflow: hidden !important;
+}
+
+.act1geo-byte-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 18px !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(0, 88, 255, 0.14), transparent 30%),
+    radial-gradient(
+      circle at 84% 84%,
+      rgba(255, 183, 3, 0.18),
+      transparent 30%
+    ),
+    rgba(15, 23, 42, 0.5) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.act1geo-byte-modal,
+.act1geo-byte-modal * {
+  box-sizing: border-box !important;
+}
+
+.act1geo-byte-modal {
+  width: min(1240px, calc(100vw - 36px)) !important;
+  max-height: calc(100dvh - 36px) !important;
+  margin: 0 auto !important;
+  padding: 30px 34px !important;
+  border-radius: 36px !important;
+  border: 2px solid rgba(0, 88, 255, 0.24) !important;
+  box-shadow: 0 32px 84px rgba(15, 23, 42, 0.34) !important;
+  display: grid !important;
+  grid-template-columns: 270px minmax(420px, 1fr) 330px !important;
+  grid-template-areas: "byteHero byteContent byteText" !important;
+  gap: 26px !important;
+  align-items: center !important;
+  position: relative !important;
+  isolation: isolate !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(
+      circle at 8% 10%,
+      rgba(255, 255, 255, 0.96) 0 82px,
+      transparent 83px
+    ),
+    radial-gradient(
+      circle at 96% 10%,
+      rgba(0, 88, 255, 0.1) 0 112px,
+      transparent 113px
+    ),
+    radial-gradient(
+      circle at 4% 95%,
+      rgba(255, 183, 3, 0.13) 0 82px,
+      transparent 83px
+    ),
+    radial-gradient(
+      circle at 72% 12%,
+      rgba(0, 88, 255, 0.88) 0 4px,
+      transparent 5px
+    ),
+    radial-gradient(
+      circle at 88% 20%,
+      rgba(255, 183, 3, 0.96) 0 5px,
+      transparent 6px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #f4f8ff 52%, #fff8eb 100%) !important;
+}
+
+.act1geo-byte-modal::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 14px !important;
+  border-radius: 28px !important;
+  border: 2px dashed rgba(0, 88, 255, 0.16) !important;
+  background: transparent !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+.act1geo-byte-modal::after {
+  content: "" !important;
+  position: absolute !important;
+  right: -58px !important;
+  top: -58px !important;
+  width: 168px !important;
+  height: 168px !important;
+  border-radius: 999px !important;
+  background: rgba(0, 88, 255, 0.08) !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+.act1geo-byte-modal > * {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* Apaga decoraciones viejas que estaban tapando la nube o el texto */
+.act1geo-byte-modal-hero::before,
+.act1geo-byte-modal-hero::after,
+.act1geo-byte-modal-content::before,
+.act1geo-byte-modal-content::after,
+.act1geo-byte-transcript::before,
+.act1geo-byte-transcript::after,
+.act1geo-byte-modal-badge::before,
+.act1geo-byte-modal-badge::after {
+  content: none !important;
+  display: none !important;
+}
+
+.act1geo-byte-close {
+  position: absolute !important;
+  top: 18px !important;
+  right: 18px !important;
+  left: auto !important;
+  bottom: auto !important;
+  width: 44px !important;
+  height: 44px !important;
+  border: none !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  color: #061331 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  z-index: 10 !important;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.14) !important;
+}
+
+.act1geo-byte-close svg {
+  font-size: 24px !important;
+}
+
+.act1geo-byte-close:hover {
+  transform: translateY(-2px) scale(1.05) !important;
+  background: #0058ff !important;
+  color: #ffffff !important;
+}
+
+/* =========================
+   BYTE GRANDE SIN ROMPER
+   ========================= */
+.act1geo-byte-modal-hero {
+  grid-area: byteHero !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 420px !important;
+  height: 420px !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  overflow: visible !important;
+  align-self: center !important;
+}
+
+.act1geo-byte-canvas {
+  width: 245px !important;
+  height: 436px !important;
+  max-width: 100% !important;
+  object-fit: contain !important;
+  display: block !important;
+  position: relative !important;
+  z-index: 4 !important;
+  filter: drop-shadow(0 18px 20px rgba(0, 88, 255, 0.17)) !important;
+}
+
+.act1geo-byte-orbit {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 22px !important;
+  width: 205px !important;
+  height: 38px !important;
+  transform: translateX(-50%) !important;
+  border-radius: 999px !important;
+  background: rgba(0, 88, 255, 0.1) !important;
+  filter: blur(3px) !important;
+  z-index: 1 !important;
+}
+
+.act1geo-byte-spark {
+  z-index: 5 !important;
+}
+
+.act1geo-byte-modal-playing .act1geo-byte-canvas {
+  animation: act1geoByteBigFloat 2.1s ease-in-out infinite !important;
+}
+
+@keyframes act1geoByteBigFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+/* =========================
+   CONTENIDO CENTRAL
+   ========================= */
+.act1geo-byte-modal-content {
+  grid-area: byteContent !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  align-self: center !important;
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+.act1geo-byte-modal-badge {
+  width: fit-content !important;
+  min-height: 34px !important;
+  padding: 0 17px !important;
+  border-radius: 999px !important;
+  background: #eaf2ff !important;
+  color: #0058ff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  box-shadow: 0 10px 20px rgba(0, 88, 255, 0.08) !important;
+}
+
+.act1geo-byte-modal-content h2 {
+  margin: 16px 0 18px !important;
+  max-width: 520px !important;
+  color: #061331 !important;
+  font-size: clamp(40px, 4vw, 58px) !important;
+  line-height: 0.96 !important;
+  letter-spacing: -1.2px !important;
+  font-weight: 950 !important;
+  white-space: normal !important;
+  overflow: visible !important;
+}
+
+/* Cards de pistas suaves y legibles */
+.act1geo-byte-choice-grid {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  margin: 0 0 18px !important;
+}
+
+.act1geo-byte-choice-btn {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 88px !important;
+  padding: 13px 14px !important;
+  border-radius: 17px !important;
+  border: 2px solid rgba(0, 88, 255, 0.16) !important;
+  background: rgba(255, 255, 255, 0.86) !important;
+  color: #061331 !important;
+  text-align: left !important;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.07) !important;
+  overflow: hidden !important;
+  cursor: pointer !important;
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    background 0.22s ease,
+    box-shadow 0.22s ease !important;
+}
+
+.act1geo-byte-choice-btn strong {
+  display: block !important;
+  margin-bottom: 6px !important;
+  color: #061331 !important;
+  font-size: 16px !important;
+  line-height: 1.08 !important;
+  font-weight: 950 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.act1geo-byte-choice-btn span {
+  display: block !important;
+  color: #5d3517 !important;
+  font-size: 11px !important;
+  line-height: 1.12 !important;
+  font-weight: 950 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.act1geo-byte-choice-btn:hover {
+  transform: translateY(-3px) !important;
+  border-color: rgba(0, 88, 255, 0.34) !important;
+  box-shadow: 0 14px 24px rgba(0, 88, 255, 0.12) !important;
+}
+
+.act1geo-byte-choice-active {
+  background: linear-gradient(135deg, #fff8e9 0%, #eef5ff 100%) !important;
+  border-color: #82adff !important;
+  box-shadow:
+    0 0 0 3px rgba(255, 183, 3, 0.2),
+    0 14px 26px rgba(0, 88, 255, 0.12) !important;
+}
+
+.act1geo-byte-choice-active strong {
+  color: #0058ff !important;
+}
+
+/* Nube de Byte: sin cuadro blanco tapando y con bolitas visibles */
+.act1geo-byte-cloud {
+  width: 100% !important;
+  min-height: 154px !important;
+  max-height: none !important;
+  padding: 28px 34px !important;
+  border-radius: 44px 60px 44px 60px !important;
+  position: relative !important;
+  overflow: visible !important;
+  background:
+    radial-gradient(
+      circle at 18% -22%,
+      rgba(255, 255, 255, 0.98) 0 48px,
+      transparent 49px
+    ),
+    radial-gradient(
+      circle at 54% -28%,
+      rgba(255, 255, 255, 0.96) 0 60px,
+      transparent 61px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #fffdf8 100%) !important;
+  border: 2px solid rgba(255, 203, 136, 0.7) !important;
+  box-shadow:
+    0 18px 34px rgba(15, 23, 42, 0.09),
+    inset 0 -7px 0 rgba(255, 190, 94, 0.08) !important;
+}
+
+.act1geo-byte-cloud::before {
+  content: "" !important;
+  position: absolute !important;
+  left: -28px !important;
+  top: 68px !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 2px solid rgba(255, 203, 136, 0.46) !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+
+.act1geo-byte-cloud-dot {
+  display: block !important;
+  position: absolute !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 2px solid rgba(255, 203, 136, 0.42) !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+
+.act1geo-byte-cloud-dot-one {
+  left: -54px !important;
+  top: 96px !important;
+  width: 17px !important;
+  height: 17px !important;
+}
+
+.act1geo-byte-cloud-dot-two {
+  left: -76px !important;
+  top: 124px !important;
+  width: 11px !important;
+  height: 11px !important;
+}
+
+.act1geo-byte-cloud p {
+  position: relative !important;
+  z-index: 2 !important;
+  margin: 0 !important;
+  color: #061331 !important;
+  font-size: 20px !important;
+  line-height: 1.36 !important;
+  letter-spacing: -0.25px !important;
+  font-weight: 950 !important;
+  max-height: 104px !important;
+  overflow: hidden !important;
+  display: block !important;
+}
+
+.act1geo-byte-modal-controls {
+  margin-top: 18px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  overflow: visible !important;
+}
+
+.act1geo-byte-modal-controls button {
+  min-height: 46px !important;
+  border: none !important;
+  border-radius: 999px !important;
+  padding: 0 18px !important;
+  background: #ffffff !important;
+  color: #0058ff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.1) !important;
+}
+
+.act1geo-byte-modal-play {
+  background: #0058ff !important;
+  color: #ffffff !important;
+}
+
+.act1geo-byte-modal-controls button:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+/* =========================
+   PANEL DERECHO SIN CUADROS FEOS
+   ========================= */
+.act1geo-byte-transcript {
+  grid-area: byteText !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-height: 440px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 24px 26px !important;
+  border-radius: 28px !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  border: 2px solid rgba(0, 88, 255, 0.1) !important;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08) !important;
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+.act1geo-byte-transcript h3 {
+  width: fit-content !important;
+  margin: 0 0 18px !important;
+  color: #0058ff !important;
+  font-size: 22px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  position: relative !important;
+}
+
+.act1geo-byte-transcript h3::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: -8px !important;
+  height: 5px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #0058ff, #ffb020) !important;
+}
+
+.act1geo-byte-transcript p {
+  --progreso-byte: 0%;
+  position: relative !important;
+  margin: 0 0 18px !important;
+  padding: 0 0 8px !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #5b6479 !important;
+  font-size: 15.5px !important;
+  line-height: 1.32 !important;
+  font-weight: 900 !important;
+  box-shadow: none !important;
+  transform: none !important;
+  opacity: 0.72 !important;
+}
+
+.act1geo-byte-transcript p::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  bottom: 0 !important;
+  width: var(--progreso-byte) !important;
+  max-width: 100% !important;
+  height: 5px !important;
+  border-radius: 999px !important;
+  background: #79ddb0 !important;
+  opacity: 0.95 !important;
+  box-shadow: none !important;
+}
+
+.act1geo-byte-transcript p::after {
+  display: none !important;
+  content: none !important;
+}
+
+.act1geo-byte-transcript p.act1geo-byte-line-active {
+  opacity: 1 !important;
+  color: #061331 !important;
+  font-weight: 950 !important;
+}
+
+.act1geo-byte-transcript p.act1geo-byte-line-done {
+  opacity: 1 !important;
+  color: #25314a !important;
+}
+
+.act1geo-byte-transcript p.act1geo-byte-line-done::before {
+  width: 100% !important;
+  background: #79ddb0 !important;
+}
+
+.act1geo-byte-transcript p.act1geo-byte-line-pending::before {
+  width: 0 !important;
+}
+
+.act1geo-byte-empty-help {
+  min-height: 146px !important;
+  border-radius: 22px !important;
+  padding: 20px !important;
+  background: linear-gradient(135deg, #eef5ff 0%, #fff7e7 100%) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  text-align: center !important;
+}
+
+.act1geo-byte-empty-help strong {
+  color: #0058ff !important;
+  font-size: 18px !important;
+  font-weight: 950 !important;
+}
+
+.act1geo-byte-empty-help span {
+  color: #15213c !important;
+  font-size: 13px !important;
+  line-height: 1.32 !important;
+  font-weight: 850 !important;
+}
+
+/* =========================
+   RESPONSIVO BYTE FINAL
+   ========================= */
+@media (max-width: 1500px) {
+  .act1geo-byte-modal {
+    width: min(1180px, calc(100vw - 32px)) !important;
+    padding: 28px 30px !important;
+    grid-template-columns: 255px minmax(390px, 1fr) 320px !important;
+    gap: 24px !important;
+  }
+
+  .act1geo-byte-modal-hero {
+    min-height: 398px !important;
+    height: 398px !important;
+  }
+
+  .act1geo-byte-canvas {
+    width: 232px !important;
+    height: 413px !important;
+  }
+
+  .act1geo-byte-modal-content h2 {
+    font-size: clamp(38px, 4vw, 54px) !important;
+  }
+
+  .act1geo-byte-cloud {
+    min-height: 150px !important;
+  }
+
+  .act1geo-byte-cloud p {
+    font-size: 19px !important;
+  }
+}
+
+@media (min-width: 992px) and (max-height: 760px) {
+  .act1geo-byte-modal {
+    padding: 22px 28px !important;
+    max-height: calc(100dvh - 24px) !important;
+    grid-template-columns: 230px minmax(370px, 1fr) 300px !important;
+    gap: 20px !important;
+  }
+
+  .act1geo-byte-modal-hero {
+    min-height: 338px !important;
+    height: 338px !important;
+  }
+
+  .act1geo-byte-canvas {
+    width: 195px !important;
+    height: 347px !important;
+  }
+
+  .act1geo-byte-modal-content h2 {
+    margin: 12px 0 14px !important;
+    font-size: clamp(34px, 3.4vw, 46px) !important;
+  }
+
+  .act1geo-byte-choice-btn {
+    min-height: 76px !important;
+    padding: 10px 12px !important;
+  }
+
+  .act1geo-byte-cloud {
+    min-height: 118px !important;
+    padding: 22px 28px !important;
+  }
+
+  .act1geo-byte-cloud p {
+    max-height: 78px !important;
+    font-size: 16px !important;
+  }
+
+  .act1geo-byte-modal-controls button {
+    min-height: 42px !important;
+  }
+
+  .act1geo-byte-transcript {
+    max-height: 356px !important;
+    padding: 22px !important;
+  }
+
+  .act1geo-byte-transcript p {
+    margin-bottom: 13px !important;
+    font-size: 14px !important;
+  }
+}
+
+@media (max-width: 1199px) {
+  .act1geo-byte-modal-overlay {
+    overflow-y: auto !important;
+    align-items: flex-start !important;
+    padding: 16px !important;
+  }
+
+  .act1geo-byte-modal {
+    width: min(960px, calc(100vw - 32px)) !important;
+    max-height: none !important;
+    overflow: visible !important;
+    grid-template-columns: 230px minmax(0, 1fr) !important;
+    grid-template-areas:
+      "byteHero byteContent"
+      "byteText byteText" !important;
+    padding: 28px 26px !important;
+  }
+
+  .act1geo-byte-modal-hero {
+    min-height: 356px !important;
+    height: 356px !important;
+  }
+
+  .act1geo-byte-canvas {
+    width: 205px !important;
+    height: 365px !important;
+  }
+
+  .act1geo-byte-transcript {
+    max-height: 220px !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .act1geo-byte-modal-overlay {
+    padding: 14px !important;
+  }
+
+  .act1geo-byte-modal {
+    width: 100% !important;
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "byteHero"
+      "byteContent"
+      "byteText" !important;
+    gap: 18px !important;
+    padding: 26px 18px 20px !important;
+    border-radius: 28px !important;
+    text-align: center !important;
+  }
+
+  .act1geo-byte-modal-hero {
+    min-height: 260px !important;
+    height: 260px !important;
+  }
+
+  .act1geo-byte-canvas {
+    width: 150px !important;
+    height: 267px !important;
+  }
+
+  .act1geo-byte-orbit {
+    width: 132px !important;
+    bottom: 10px !important;
+  }
+
+  .act1geo-byte-modal-badge,
+  .act1geo-byte-modal-controls {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-content: center !important;
+  }
+
+  .act1geo-byte-modal-content h2 {
+    max-width: 100% !important;
+    font-size: clamp(30px, 7vw, 40px) !important;
+    text-align: center !important;
+  }
+
+  .act1geo-byte-choice-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .act1geo-byte-choice-btn {
+    text-align: center !important;
+  }
+
+  .act1geo-byte-cloud {
+    min-height: 124px !important;
+    padding: 22px 18px !important;
+    text-align: center !important;
+  }
+
+  .act1geo-byte-cloud::before,
+  .act1geo-byte-cloud-dot {
+    display: none !important;
+  }
+
+  .act1geo-byte-cloud p {
+    font-size: 16px !important;
+    max-height: none !important;
+  }
+
+  .act1geo-byte-transcript {
+    max-height: 240px !important;
+    text-align: left !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .act1geo-byte-modal-overlay {
+    padding: 10px !important;
+  }
+
+  .act1geo-byte-modal {
+    border-radius: 24px !important;
+    padding: 24px 14px 16px !important;
+  }
+
+  .act1geo-byte-close {
+    width: 38px !important;
+    height: 38px !important;
+    top: 12px !important;
+    right: 12px !important;
+  }
+
+  .act1geo-byte-modal-hero {
+    min-height: 226px !important;
+    height: 226px !important;
+  }
+
+  .act1geo-byte-canvas {
+    width: 130px !important;
+    height: 231px !important;
+  }
+
+  .act1geo-byte-modal-content h2 {
+    font-size: 29px !important;
+  }
+
+  .act1geo-byte-modal-controls {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+  }
+
+  .act1geo-byte-modal-controls button {
+    width: 100% !important;
+  }
+}
+
+/* =========================================================
+   BYTE FIX REAL - MODAL AISLADO SIN CONFLICTOS
+   =========================================================
+   Este bloque usa clases nuevas: act1geo-bytefix-*
+   para que NO le afecten los estilos anteriores repetidos.
+   ========================================================= */
+
+.act1geo-bytefix-overlay,
+.act1geo-bytefix-overlay * {
+  box-sizing: border-box;
+}
+
+.act1geo-bytefix-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  padding: 22px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(0, 88, 255, 0.14), transparent 30%),
+    radial-gradient(
+      circle at 80% 82%,
+      rgba(255, 183, 3, 0.16),
+      transparent 28%
+    ),
+    rgba(15, 23, 42, 0.52) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.act1geo-bytefix-modal {
+  width: min(1210px, calc(100vw - 44px)) !important;
+  max-height: calc(100dvh - 44px) !important;
+  margin: 0 auto !important;
+  padding: 30px 32px !important;
+  position: relative !important;
+  isolation: isolate !important;
+  overflow: hidden !important;
+  display: grid !important;
+  grid-template-columns: 285px minmax(0, 1fr) 322px !important;
+  grid-template-areas: "bytefixHero bytefixContent bytefixText" !important;
+  align-items: center !important;
+  gap: 28px !important;
+  border-radius: 36px !important;
+  border: 2px solid rgba(126, 166, 255, 0.72) !important;
+  box-shadow: 0 34px 88px rgba(15, 23, 42, 0.34) !important;
+  background:
+    radial-gradient(
+      circle at 11% 8%,
+      rgba(255, 255, 255, 0.98) 0 88px,
+      transparent 89px
+    ),
+    radial-gradient(
+      circle at 91% 8%,
+      rgba(255, 183, 3, 0.14) 0 86px,
+      transparent 87px
+    ),
+    radial-gradient(
+      circle at 96% 21%,
+      rgba(0, 88, 255, 0.08) 0 96px,
+      transparent 97px
+    ),
+    radial-gradient(
+      circle at 6% 93%,
+      rgba(255, 183, 3, 0.12) 0 82px,
+      transparent 83px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #f4f9ff 58%, #fff9ec 100%) !important;
+  animation: act1geoByteFixPop 0.3s ease both !important;
+}
+
+.act1geo-bytefix-modal::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 16px !important;
+  border-radius: 29px !important;
+  border: 2px dashed rgba(0, 88, 255, 0.14) !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+.act1geo-bytefix-modal::after {
+  content: "" !important;
+  position: absolute !important;
+  right: 118px !important;
+  top: -44px !important;
+  width: 126px !important;
+  height: 126px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 183, 3, 0.13) !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+.act1geo-bytefix-close {
+  position: absolute !important;
+  top: 18px !important;
+  right: 18px !important;
+  z-index: 20 !important;
+  width: 44px !important;
+  height: 44px !important;
+  border: none !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  color: #061331 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 14px 26px rgba(15, 23, 42, 0.16) !important;
+  transition:
+    transform 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease !important;
+}
+
+.act1geo-bytefix-close:hover {
+  transform: translateY(-2px) scale(1.05) !important;
+  background: #0058ff !important;
+  color: #ffffff !important;
+}
+
+.act1geo-bytefix-close svg {
+  font-size: 24px !important;
+}
+
+.act1geo-bytefix-hero {
+  grid-area: bytefixHero !important;
+  position: relative !important;
+  z-index: 5 !important;
+  width: 100% !important;
+  min-height: 418px !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  overflow: visible !important;
+}
+
+.act1geo-bytefix-source-video {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.act1geo-bytefix-canvas {
+  width: 255px !important;
+  height: auto !important;
+  aspect-ratio: 9 / 16 !important;
+  max-height: 454px !important;
+  object-fit: contain !important;
+  object-position: center bottom !important;
+  position: relative !important;
+  z-index: 7 !important;
+  filter: drop-shadow(0 22px 22px rgba(0, 88, 255, 0.18)) !important;
+}
+
+.act1geo-bytefix-playing .act1geo-bytefix-canvas {
+  animation: act1geoByteFixFloat 2.15s ease-in-out infinite !important;
+}
+
+.act1geo-bytefix-orbit {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 18px !important;
+  width: 194px !important;
+  height: 38px !important;
+  border-radius: 999px !important;
+  transform: translateX(-50%) !important;
+  background: rgba(0, 88, 255, 0.1) !important;
+  filter: blur(4px) !important;
+  z-index: 1 !important;
+}
+
+.act1geo-bytefix-dot {
+  position: absolute !important;
+  width: 14px !important;
+  height: 14px !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 4px solid #2f7cff !important;
+  box-shadow: 0 8px 16px rgba(0, 88, 255, 0.18) !important;
+  z-index: 6 !important;
+}
+
+.act1geo-bytefix-dot-one {
+  left: 20px !important;
+  top: 118px !important;
+}
+
+.act1geo-bytefix-dot-two {
+  right: 18px !important;
+  top: 82px !important;
+  border-color: #ffb020 !important;
+}
+
+.act1geo-bytefix-content {
+  grid-area: bytefixContent !important;
+  position: relative !important;
+  z-index: 5 !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+.act1geo-bytefix-badge {
+  width: fit-content !important;
+  min-height: 34px !important;
+  padding: 0 16px !important;
+  border-radius: 999px !important;
+  background: #eaf2ff !important;
+  color: #0058ff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  box-shadow: 0 10px 20px rgba(0, 88, 255, 0.08) !important;
+}
+
+.act1geo-bytefix-badge svg {
+  font-size: 17px !important;
+}
+
+.act1geo-bytefix-content h2 {
+  max-width: 520px !important;
+  margin: 14px 0 18px !important;
+  color: #061331 !important;
+  font-size: clamp(42px, 4.2vw, 62px) !important;
+  line-height: 0.94 !important;
+  font-weight: 950 !important;
+  letter-spacing: -1.5px !important;
+}
+
+.act1geo-bytefix-choice-grid {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+  margin: 0 0 18px !important;
+}
+
+.act1geo-bytefix-choice-btn {
+  min-width: 0 !important;
+  min-height: 88px !important;
+  border: 2px solid #d7e6ff !important;
+  border-radius: 18px !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  padding: 13px 14px !important;
+  text-align: left !important;
+  cursor: pointer !important;
+  color: #061331 !important;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.075) !important;
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease !important;
+}
+
+.act1geo-bytefix-choice-btn:hover {
+  transform: translateY(-3px) !important;
+  border-color: rgba(0, 88, 255, 0.42) !important;
+  box-shadow: 0 16px 26px rgba(0, 88, 255, 0.12) !important;
+}
+
+.act1geo-bytefix-choice-btn strong,
+.act1geo-bytefix-choice-btn span {
+  display: block !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.act1geo-bytefix-choice-btn strong {
+  margin-bottom: 5px !important;
+  color: inherit !important;
+  font-size: 17px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+}
+
+.act1geo-bytefix-choice-btn span {
+  color: #5a351c !important;
+  font-size: 11.5px !important;
+  line-height: 1.15 !important;
+  font-weight: 950 !important;
+}
+
+.act1geo-bytefix-choice-active {
+  color: #0058ff !important;
+  border-color: rgba(0, 88, 255, 0.42) !important;
+  background: linear-gradient(135deg, #fff8e8 0%, #ffffff 100%) !important;
+  box-shadow:
+    0 0 0 2px rgba(255, 183, 3, 0.32),
+    0 16px 26px rgba(0, 88, 255, 0.12) !important;
+}
+
+.act1geo-bytefix-cloud {
+  width: 100% !important;
+  min-height: 150px !important;
+  padding: 30px 34px !important;
+  position: relative !important;
+  overflow: visible !important;
+  border-radius: 42px 56px 42px 56px !important;
+  background:
+    radial-gradient(
+      circle at 18% -22%,
+      rgba(255, 255, 255, 0.99) 0 54px,
+      transparent 55px
+    ),
+    radial-gradient(
+      circle at 54% -26%,
+      rgba(255, 255, 255, 0.96) 0 68px,
+      transparent 69px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #fffdf8 100%) !important;
+  border: 2px solid rgba(255, 203, 136, 0.72) !important;
+  box-shadow:
+    0 18px 34px rgba(15, 23, 42, 0.09),
+    inset 0 -6px 0 rgba(255, 190, 94, 0.08) !important;
+}
+
+.act1geo-bytefix-cloud-bubble {
+  position: absolute !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 2px solid rgba(255, 203, 136, 0.44) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.act1geo-bytefix-cloud-bubble-one {
+  left: -24px !important;
+  top: 55px !important;
+  width: 26px !important;
+  height: 26px !important;
+}
+
+.act1geo-bytefix-cloud-bubble-two {
+  left: -52px !important;
+  top: 88px !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.act1geo-bytefix-cloud-bubble-three {
+  left: -76px !important;
+  top: 116px !important;
+  width: 10px !important;
+  height: 10px !important;
+}
+
+.act1geo-bytefix-cloud p {
+  position: relative !important;
+  z-index: 3 !important;
+  margin: 0 !important;
+  color: #061331 !important;
+  font-size: 21px !important;
+  line-height: 1.34 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.25px !important;
+  max-height: 92px !important;
+  overflow: hidden !important;
+}
+
+.act1geo-bytefix-controls {
+  margin-top: 18px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+}
+
+.act1geo-bytefix-controls button {
+  min-height: 46px !important;
+  border: none !important;
+  border-radius: 999px !important;
+  padding: 0 19px !important;
+  background: #ffffff !important;
+  color: #0058ff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  font-size: 13.5px !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.1) !important;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    opacity 0.22s ease !important;
+}
+
+.act1geo-bytefix-controls button:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.03) !important;
+  box-shadow: 0 16px 28px rgba(0, 88, 255, 0.14) !important;
+}
+
+.act1geo-bytefix-controls button:disabled {
+  opacity: 0.46 !important;
+  cursor: not-allowed !important;
+}
+
+.act1geo-bytefix-play {
+  background: #0058ff !important;
+  color: #ffffff !important;
+}
+
+.act1geo-bytefix-playing .act1geo-bytefix-play {
+  animation: act1geoByteFixPulse 1s ease-in-out infinite !important;
+}
+
+.act1geo-bytefix-transcript {
+  grid-area: bytefixText !important;
+  position: relative !important;
+  z-index: 5 !important;
+  min-width: 0 !important;
+  max-height: 430px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 26px !important;
+  border-radius: 28px !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 2px solid rgba(0, 88, 255, 0.08) !important;
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08) !important;
+}
+
+.act1geo-bytefix-transcript::-webkit-scrollbar {
+  width: 7px !important;
+}
+
+.act1geo-bytefix-transcript::-webkit-scrollbar-thumb {
+  background: rgba(0, 88, 255, 0.23) !important;
+  border-radius: 999px !important;
+}
+
+.act1geo-bytefix-transcript h3 {
+  width: fit-content !important;
+  margin: 0 0 20px !important;
+  position: relative !important;
+  color: #0058ff !important;
+  font-size: 25px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+}
+
+.act1geo-bytefix-transcript h3::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: -9px !important;
+  height: 5px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #0058ff, #ffb020) !important;
+}
+
+.act1geo-bytefix-transcript p {
+  --progreso-byte: 0%;
+  position: relative !important;
+  margin: 0 0 18px !important;
+  padding: 0 0 9px !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #5b6479 !important;
+  font-size: 15.5px !important;
+  line-height: 1.34 !important;
+  font-weight: 900 !important;
+  opacity: 0.74 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.act1geo-bytefix-transcript p::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  bottom: 0 !important;
+  width: var(--progreso-byte) !important;
+  max-width: 100% !important;
+  height: 5px !important;
+  border-radius: 999px !important;
+  background: #79ddb0 !important;
+  opacity: 0.95 !important;
+}
+
+.act1geo-bytefix-transcript p::after {
+  content: none !important;
+  display: none !important;
+}
+
+.act1geo-bytefix-transcript p.act1geo-byte-line-active {
+  color: #061331 !important;
+  opacity: 1 !important;
+  font-weight: 950 !important;
+}
+
+.act1geo-bytefix-transcript p.act1geo-byte-line-done {
+  color: #25314a !important;
+  opacity: 1 !important;
+}
+
+.act1geo-bytefix-transcript p.act1geo-byte-line-done::before {
+  width: 100% !important;
+}
+
+.act1geo-bytefix-transcript p.act1geo-byte-line-pending::before {
+  width: 0 !important;
+}
+
+.act1geo-bytefix-empty-help {
+  min-height: 146px !important;
+  border-radius: 24px !important;
+  padding: 20px !important;
+  background: linear-gradient(135deg, #eef5ff 0%, #fff7e7 100%) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  text-align: center !important;
+}
+
+.act1geo-bytefix-empty-help strong {
+  color: #0058ff !important;
+  font-size: 18px !important;
+  font-weight: 950 !important;
+}
+
+.act1geo-bytefix-empty-help span {
+  color: #15213c !important;
+  font-size: 13px !important;
+  line-height: 1.32 !important;
+  font-weight: 850 !important;
+}
+
+@keyframes act1geoByteFixPop {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes act1geoByteFixFloat {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.025);
+  }
+}
+
+@keyframes act1geoByteFixPulse {
+  0%,
+  100% {
+    box-shadow: 0 12px 22px rgba(0, 88, 255, 0.18);
+  }
+  50% {
+    box-shadow: 0 18px 32px rgba(0, 88, 255, 0.34);
+  }
+}
+
+@media (max-width: 1500px) {
+  .act1geo-bytefix-modal {
+    width: min(1180px, calc(100vw - 34px)) !important;
+    padding: 24px 28px !important;
+    grid-template-columns: 260px minmax(0, 1fr) 312px !important;
+    gap: 24px !important;
+  }
+
+  .act1geo-bytefix-hero {
+    min-height: 388px !important;
+  }
+
+  .act1geo-bytefix-canvas {
+    width: 230px !important;
+    max-height: 409px !important;
+  }
+
+  .act1geo-bytefix-content h2 {
+    font-size: clamp(38px, 4vw, 54px) !important;
+  }
+
+  .act1geo-bytefix-cloud {
+    min-height: 138px !important;
+    padding: 26px 30px !important;
+  }
+
+  .act1geo-bytefix-cloud p {
+    font-size: 19px !important;
+    max-height: 84px !important;
+  }
+}
+
+@media (min-width: 992px) and (max-height: 760px) {
+  .act1geo-bytefix-overlay {
+    padding: 14px !important;
+  }
+
+  .act1geo-bytefix-modal {
+    width: min(1160px, calc(100vw - 28px)) !important;
+    max-height: calc(100dvh - 28px) !important;
+    padding: 20px 26px !important;
+    grid-template-columns: 230px minmax(0, 1fr) 294px !important;
+    gap: 20px !important;
+  }
+
+  .act1geo-bytefix-hero {
+    min-height: 334px !important;
+  }
+
+  .act1geo-bytefix-canvas {
+    width: 200px !important;
+    max-height: 356px !important;
+  }
+
+  .act1geo-bytefix-content h2 {
+    margin: 10px 0 13px !important;
+    font-size: clamp(34px, 3.5vw, 47px) !important;
+  }
+
+  .act1geo-bytefix-choice-grid {
+    gap: 10px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .act1geo-bytefix-choice-btn {
+    min-height: 74px !important;
+    padding: 10px 12px !important;
+  }
+
+  .act1geo-bytefix-choice-btn strong {
+    font-size: 15px !important;
+  }
+
+  .act1geo-bytefix-choice-btn span {
+    font-size: 10.6px !important;
+  }
+
+  .act1geo-bytefix-cloud {
+    min-height: 118px !important;
+    padding: 22px 28px !important;
+  }
+
+  .act1geo-bytefix-cloud p {
+    max-height: 76px !important;
+    font-size: 16.5px !important;
+  }
+
+  .act1geo-bytefix-controls {
+    margin-top: 14px !important;
+  }
+
+  .act1geo-bytefix-controls button {
+    min-height: 42px !important;
+    padding: 0 16px !important;
+  }
+
+  .act1geo-bytefix-transcript {
+    max-height: 344px !important;
+    padding: 22px !important;
+  }
+
+  .act1geo-bytefix-transcript h3 {
+    font-size: 23px !important;
+    margin-bottom: 18px !important;
+  }
+
+  .act1geo-bytefix-transcript p {
+    margin-bottom: 12px !important;
+    font-size: 13.8px !important;
+  }
+}
+
+@media (max-width: 1199px) {
+  .act1geo-bytefix-overlay {
+    overflow-y: auto !important;
+    align-items: flex-start !important;
+    padding: 16px !important;
+  }
+
+  .act1geo-bytefix-modal {
+    width: min(960px, calc(100vw - 32px)) !important;
+    max-height: none !important;
+    overflow: visible !important;
+    grid-template-columns: 230px minmax(0, 1fr) !important;
+    grid-template-areas:
+      "bytefixHero bytefixContent"
+      "bytefixText bytefixText" !important;
+    gap: 22px !important;
+    padding: 28px 26px !important;
+    margin: auto 0 !important;
+  }
+
+  .act1geo-bytefix-hero {
+    min-height: 356px !important;
+  }
+
+  .act1geo-bytefix-canvas {
+    width: 205px !important;
+    max-height: 365px !important;
+  }
+
+  .act1geo-bytefix-transcript {
+    max-height: 230px !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .act1geo-bytefix-overlay {
+    padding: 14px !important;
+  }
+
+  .act1geo-bytefix-modal {
+    width: 100% !important;
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "bytefixHero"
+      "bytefixContent"
+      "bytefixText" !important;
+    gap: 18px !important;
+    padding: 26px 18px 20px !important;
+    border-radius: 28px !important;
+    text-align: center !important;
+  }
+
+  .act1geo-bytefix-close {
+    top: 12px !important;
+    right: 12px !important;
+  }
+
+  .act1geo-bytefix-hero {
+    min-height: 260px !important;
+  }
+
+  .act1geo-bytefix-canvas {
+    width: 150px !important;
+    max-height: 267px !important;
+  }
+
+  .act1geo-bytefix-orbit {
+    width: 132px !important;
+    bottom: 10px !important;
+  }
+
+  .act1geo-bytefix-badge,
+  .act1geo-bytefix-controls,
+  .act1geo-bytefix-content h2 {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .act1geo-bytefix-content h2 {
+    max-width: 100% !important;
+    font-size: clamp(30px, 7vw, 40px) !important;
+  }
+
+  .act1geo-bytefix-choice-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .act1geo-bytefix-choice-btn {
+    min-height: 62px !important;
+    text-align: center !important;
+  }
+
+  .act1geo-bytefix-cloud {
+    min-height: 124px !important;
+    padding: 22px 18px !important;
+    text-align: center !important;
+  }
+
+  .act1geo-bytefix-cloud-bubble {
+    display: none !important;
+  }
+
+  .act1geo-bytefix-cloud p {
+    max-height: none !important;
+    font-size: 16px !important;
+  }
+
+  .act1geo-bytefix-transcript {
+    max-height: 240px !important;
+    text-align: left !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .act1geo-bytefix-overlay {
+    padding: 10px !important;
+  }
+
+  .act1geo-bytefix-modal {
+    padding: 24px 14px 16px !important;
+    border-radius: 24px !important;
+  }
+
+  .act1geo-bytefix-close {
+    width: 38px !important;
+    height: 38px !important;
+    top: 10px !important;
+    right: 10px !important;
+  }
+
+  .act1geo-bytefix-hero {
+    min-height: 226px !important;
+  }
+
+  .act1geo-bytefix-canvas {
+    width: 130px !important;
+    max-height: 231px !important;
+  }
+
+  .act1geo-bytefix-content h2 {
+    font-size: 29px !important;
+  }
+
+  .act1geo-bytefix-controls {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .act1geo-bytefix-controls button {
+    width: 100% !important;
+  }
+
+  .act1geo-bytefix-cloud p {
+    font-size: 14.5px !important;
+    line-height: 1.38 !important;
+  }
+}

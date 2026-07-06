@@ -32,6 +32,9 @@ import audioByteTriangulo from "../../assets/mathGeometry/actividad1/act_1_pista
 import audioByteCuadrado from "../../assets/mathGeometry/actividad1/act_1_pista_byte_cuadrado_MathGeometry.mp3";
 import audioByteRectangulo from "../../assets/mathGeometry/actividad1/act_1_pista_byte_rectangulo_MathGeometry.mp3";
 
+import videoSombraError from "../../assets/mathGeometry/actividad1/Act_1_sombra_error_MathGeometry_.mp4";
+import audioSombraError from "../../assets/mathGeometry/actividad1/act_1_sombra_error_MathGeometry.mp3";
+
 import {
   FiGrid,
   FiMessageSquare,
@@ -187,7 +190,7 @@ const pistasByte: Record<
 > = {
   triangulo: {
     nombre: "Triángulo",
-    tituloModal: "Pista de triángulo",
+    tituloModal: "Pista para el triángulo",
     etiqueta: "3 puntos y 3 lados",
     audio: audioByteTriangulo,
     guion: [
@@ -199,7 +202,7 @@ const pistasByte: Record<
   },
   cuadrado: {
     nombre: "Cuadrado",
-    tituloModal: "Pista de cuadrado",
+    tituloModal: "Pista para el cuadrado",
     etiqueta: "4 lados iguales",
     audio: audioByteCuadrado,
     guion: [
@@ -211,7 +214,7 @@ const pistasByte: Record<
   },
   rectangulo: {
     nombre: "Rectángulo",
-    tituloModal: "Pista de rectángulo",
+    tituloModal: "Pista para el rectángulo",
     etiqueta: "2 lados largos y 2 cortos",
     audio: audioByteRectangulo,
     guion: [
@@ -228,6 +231,19 @@ const textoInicialByte =
   "Elige si necesitas una pista para triángulo, cuadrado o rectángulo.";
 
 const ordenPistasByte: PistaByteId[] = ["triangulo", "cuadrado", "rectangulo"];
+
+const guionSombraError = [
+  "Casi lo logras.",
+  "Observa otra vez los puntos y fíjate bien en la forma que queremos construir.",
+  "Recuerda: no pasa nada si te equivocas.",
+  "En MathNova podemos volver a intentarlo.",
+  "¡Vamos una vez más!",
+];
+
+const textoInicialSombra =
+  "Presiona reproducir para escuchar el mensaje de Sombra.";
+
+const textoFinalSombra = "¡Vamos una vez más!";
 
 function obtenerEstadoGuionFlexible(
   tiempo: number,
@@ -430,6 +446,83 @@ function limpiarFondoBlancoDeBordes(
   ctx.putImageData(imageData, 0, 0);
 }
 
+/*
+  Dibuja el video sin estirarlo.
+  Esto arregla que Byte o Sombra se vean deformados cuando el MP4
+  no coincide exactamente con el tamaño del canvas.
+*/
+function dibujarVideoSinEstirar(
+  ctx: CanvasRenderingContext2D,
+  video: HTMLVideoElement,
+  width: number,
+  height: number,
+) {
+  const videoWidth = video.videoWidth || width;
+  const videoHeight = video.videoHeight || height;
+  const escala = Math.min(width / videoWidth, height / videoHeight);
+  const drawWidth = videoWidth * escala;
+  const drawHeight = videoHeight * escala;
+  const offsetX = (width - drawWidth) / 2;
+  const offsetY = (height - drawHeight) / 2;
+
+  ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight);
+}
+function obtenerEstadoGuionSombra(tiempo: number, duracionAudio: number) {
+  const duracionSegura =
+    Number.isFinite(duracionAudio) && duracionAudio > 0 ? duracionAudio : 11;
+
+  /*
+    AQUÍ CONTROLAS CUÁNDO CAMBIA CADA FRASE DE SOMBRA.
+    Si quieres que cambie más rápido, baja el "fin" de cada línea.
+  */
+  const tiemposSombra = [
+    { inicio: 0.0, fin: 0.12 }, // Casi lo logras.
+    { inicio: 0.12, fin: 0.46 }, // Observa otra vez...
+    { inicio: 0.46, fin: 0.62 }, // Recuerda...
+    { inicio: 0.62, fin: 0.8 }, // En MathNova...
+    { inicio: 0.8, fin: 1.0 }, // ¡Vamos una vez más!
+  ];
+
+  for (let indice = 0; indice < guionSombraError.length; indice += 1) {
+    const rango = tiemposSombra[indice];
+    const inicioLinea = rango.inicio * duracionSegura;
+    const finLinea = rango.fin * duracionSegura;
+
+    if (tiempo >= inicioLinea && tiempo < finLinea) {
+      const texto = guionSombraError[indice];
+
+      const progresoNatural = Math.min(
+        1,
+        Math.max(0, (tiempo - inicioLinea) / (finLinea - inicioLinea)),
+      );
+
+      /*
+        Esto solo controla qué tan rápido aparecen las letras dentro
+        de esa frase, no cuándo cambia de frase.
+      */
+      const velocidadLetras = 2.2;
+
+      const progresoTexto = Math.min(1, progresoNatural * velocidadLetras);
+
+      const letrasVisibles = Math.max(
+        1,
+        Math.ceil(texto.length * progresoTexto),
+      );
+
+      return {
+        texto: texto.slice(0, letrasVisibles),
+        indice,
+        progresoLinea: Math.round(progresoNatural * 100),
+      };
+    }
+  }
+
+  return {
+    texto: guionSombraError[guionSombraError.length - 1],
+    indice: guionSombraError.length - 1,
+    progresoLinea: 100,
+  };
+}
 function Actividad1MathGeometry() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [textoBienvenida, setTextoBienvenida] = useState("");
@@ -451,6 +544,10 @@ function Actividad1MathGeometry() {
   const videoCompletadoRef = useRef<HTMLVideoElement | null>(null);
   const canvasCompletadoRef = useRef<HTMLCanvasElement | null>(null);
   const audioCompletadoRef = useRef<HTMLAudioElement | null>(null);
+
+  const videoSombraRef = useRef<HTMLVideoElement | null>(null);
+  const canvasSombraRef = useRef<HTMLCanvasElement | null>(null);
+  const audioSombraRef = useRef<HTMLAudioElement | null>(null);
 
   const [modalProfeOpen, setModalProfeOpen] = useState(false);
   const [textoProfe, setTextoProfe] = useState("");
@@ -475,6 +572,14 @@ function Actividad1MathGeometry() {
   const [indiceCompletadoActivo, setIndiceCompletadoActivo] = useState(-1);
   const [progresoLineaCompletado, setProgresoLineaCompletado] = useState(0);
   const [autoPlayCompletado, setAutoPlayCompletado] = useState(false);
+
+  const [modalSombraOpen, setModalSombraOpen] = useState(false);
+  const [textoSombra, setTextoSombra] = useState("");
+  const [estadoSombra, setEstadoSombra] = useState<EstadoExplicacion>("inicio");
+  const [indiceSombraActivo, setIndiceSombraActivo] = useState(-1);
+  const [progresoLineaSombra, setProgresoLineaSombra] = useState(0);
+  const [autoPlaySombra, setAutoPlaySombra] = useState(false);
+
   const [estadoRevision, setEstadoRevision] = useState<
     "pendiente" | "falta" | "correcto"
   >("pendiente");
@@ -500,7 +605,11 @@ function Actividad1MathGeometry() {
 
   useEffect(() => {
     const bloquearPantalla =
-      menuOpen || modalProfeOpen || modalByteOpen || modalCompletadoOpen;
+      menuOpen ||
+      modalProfeOpen ||
+      modalByteOpen ||
+      modalCompletadoOpen ||
+      modalSombraOpen;
 
     const anchoScrollbar =
       window.innerWidth - document.documentElement.clientWidth;
@@ -530,7 +639,13 @@ function Actividad1MathGeometry() {
         "--act1geo-scrollbar-width",
       );
     };
-  }, [menuOpen, modalProfeOpen, modalByteOpen, modalCompletadoOpen]);
+  }, [
+    menuOpen,
+    modalProfeOpen,
+    modalByteOpen,
+    modalCompletadoOpen,
+    modalSombraOpen,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -600,7 +715,7 @@ function Actividad1MathGeometry() {
     const dibujarVideoSinFondo = (tiempo: number) => {
       if (tiempo - ultimoDibujo > 33 && video.readyState >= 2) {
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-        ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
+        dibujarVideoSinEstirar(ctx, video, canvasWidth, canvasHeight);
         limpiarFondoBlancoDeBordes(ctx, canvasWidth, canvasHeight);
         ultimoDibujo = tiempo;
       }
@@ -611,7 +726,7 @@ function Actividad1MathGeometry() {
     const dibujarPrimerFrame = () => {
       if (video.readyState >= 2) {
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-        ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
+        dibujarVideoSinEstirar(ctx, video, canvasWidth, canvasHeight);
         limpiarFondoBlancoDeBordes(ctx, canvasWidth, canvasHeight);
       }
     };
@@ -701,7 +816,7 @@ function Actividad1MathGeometry() {
     const dibujarProfeSinFondo = (tiempo: number) => {
       if (tiempo - ultimoDibujo > 33 && video.readyState >= 2) {
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-        ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
+        dibujarVideoSinEstirar(ctx, video, canvasWidth, canvasHeight);
         limpiarFondoBlancoDeBordes(ctx, canvasWidth, canvasHeight);
         ultimoDibujo = tiempo;
       }
@@ -712,7 +827,7 @@ function Actividad1MathGeometry() {
     const dibujarPrimerFrame = () => {
       if (video.readyState >= 2) {
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-        ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
+        dibujarVideoSinEstirar(ctx, video, canvasWidth, canvasHeight);
         limpiarFondoBlancoDeBordes(ctx, canvasWidth, canvasHeight);
       }
     };
@@ -857,7 +972,7 @@ function Actividad1MathGeometry() {
     const dibujarByteSinFondo = (tiempo: number) => {
       if (tiempo - ultimoDibujo > 50 && video.readyState >= 2) {
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-        ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
+        dibujarVideoSinEstirar(ctx, video, canvasWidth, canvasHeight);
         limpiarFondoBlancoDeBordes(ctx, canvasWidth, canvasHeight);
         ultimoDibujo = tiempo;
       }
@@ -868,7 +983,7 @@ function Actividad1MathGeometry() {
     const dibujarPrimerFrame = () => {
       if (video.readyState >= 2) {
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-        ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
+        dibujarVideoSinEstirar(ctx, video, canvasWidth, canvasHeight);
         limpiarFondoBlancoDeBordes(ctx, canvasWidth, canvasHeight);
       }
     };
@@ -894,6 +1009,117 @@ function Actividad1MathGeometry() {
       window.clearTimeout(timeout);
     };
   }, [modalByteOpen, autoPlayByte, pistaByteActiva]);
+
+  useEffect(() => {
+    if (!modalSombraOpen) return;
+
+    const audio = audioSombraRef.current;
+    const video = videoSombraRef.current;
+
+    if (!audio) return;
+
+    const terminarSombra = () => {
+      setEstadoSombra("terminado");
+      setTextoSombra(textoFinalSombra);
+      setIndiceSombraActivo(guionSombraError.length - 1);
+      setProgresoLineaSombra(100);
+
+      if (video) {
+        video.pause();
+        video.currentTime = 0;
+      }
+    };
+
+    audio.addEventListener("ended", terminarSombra);
+
+    return () => {
+      audio.removeEventListener("ended", terminarSombra);
+    };
+  }, [modalSombraOpen]);
+
+  useEffect(() => {
+    if (!modalSombraOpen || estadoSombra !== "reproduciendo") return;
+
+    const intervalo = window.setInterval(() => {
+      const audio = audioSombraRef.current;
+      if (!audio) return;
+
+      const estadoGuion = obtenerEstadoGuionSombra(
+        audio.currentTime,
+        audio.duration,
+      );
+
+      setTextoSombra(estadoGuion.texto);
+      setIndiceSombraActivo(estadoGuion.indice);
+      setProgresoLineaSombra(estadoGuion.progresoLinea);
+    }, 30);
+
+    return () => {
+      window.clearInterval(intervalo);
+    };
+  }, [modalSombraOpen, estadoSombra]);
+
+  useEffect(() => {
+    if (!modalSombraOpen) return;
+
+    const video = videoSombraRef.current;
+    const canvas = canvasSombraRef.current;
+
+    if (!video || !canvas) return;
+
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+    if (!ctx) return;
+
+    const canvasWidth = 360;
+    const canvasHeight = 640;
+
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    let animationFrame = 0;
+    let ultimoDibujo = 0;
+
+    const dibujarSombraSinFondo = (tiempo: number) => {
+      if (tiempo - ultimoDibujo > 33 && video.readyState >= 2) {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        dibujarVideoSinEstirar(ctx, video, canvasWidth, canvasHeight);
+        limpiarFondoBlancoDeBordes(ctx, canvasWidth, canvasHeight);
+        ultimoDibujo = tiempo;
+      }
+
+      animationFrame = window.requestAnimationFrame(dibujarSombraSinFondo);
+    };
+
+    const dibujarPrimerFrame = () => {
+      if (video.readyState >= 2) {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        dibujarVideoSinEstirar(ctx, video, canvasWidth, canvasHeight);
+        limpiarFondoBlancoDeBordes(ctx, canvasWidth, canvasHeight);
+      }
+    };
+
+    video.addEventListener("loadeddata", dibujarPrimerFrame);
+    animationFrame = window.requestAnimationFrame(dibujarSombraSinFondo);
+
+    return () => {
+      video.removeEventListener("loadeddata", dibujarPrimerFrame);
+      window.cancelAnimationFrame(animationFrame);
+    };
+  }, [modalSombraOpen]);
+
+  useEffect(() => {
+    if (!modalSombraOpen || !autoPlaySombra) return;
+
+    const timeout = window.setTimeout(() => {
+      setAutoPlaySombra(false);
+      iniciarSombra();
+    }, 120);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [modalSombraOpen, autoPlaySombra]);
 
   useEffect(() => {
     if (!modalCompletadoOpen) return;
@@ -970,7 +1196,7 @@ function Actividad1MathGeometry() {
     const dibujarNovaCompletado = (tiempo: number) => {
       if (tiempo - ultimoDibujo > 33 && video.readyState >= 2) {
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-        ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
+        dibujarVideoSinEstirar(ctx, video, canvasWidth, canvasHeight);
         limpiarFondoBlancoDeBordes(ctx, canvasWidth, canvasHeight);
         ultimoDibujo = tiempo;
       }
@@ -981,7 +1207,7 @@ function Actividad1MathGeometry() {
     const dibujarPrimerFrame = () => {
       if (video.readyState >= 2) {
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-        ctx.drawImage(video, 0, 0, canvasWidth, canvasHeight);
+        dibujarVideoSinEstirar(ctx, video, canvasWidth, canvasHeight);
         limpiarFondoBlancoDeBordes(ctx, canvasWidth, canvasHeight);
       }
     };
@@ -1170,6 +1396,7 @@ function Actividad1MathGeometry() {
   const abrirPistasByte = () => {
     pausarExplicacion();
     pausarProfeAstro();
+    pausarSombra();
     setModalByteOpen(true);
   };
 
@@ -1354,6 +1581,115 @@ function Actividad1MathGeometry() {
     ultimoProgresoByteRef.current = 0;
   };
 
+  const pausarSombra = () => {
+    const audio = audioSombraRef.current;
+    const video = videoSombraRef.current;
+
+    audio?.pause();
+    video?.pause();
+
+    if (estadoSombra === "reproduciendo") {
+      setEstadoSombra("pausado");
+    }
+  };
+
+  const abrirSombra = (reproducir = true) => {
+    pausarExplicacion();
+    pausarProfeAstro();
+    pausarByte();
+    pausarCompletado();
+    setModalSombraOpen(true);
+
+    if (reproducir) {
+      setAutoPlaySombra(true);
+    }
+  };
+
+  const iniciarSombra = async () => {
+    if (!modalSombraOpen) {
+      abrirSombra(true);
+      return;
+    }
+
+    const audio = audioSombraRef.current;
+    const video = videoSombraRef.current;
+
+    if (!audio || !video) return;
+
+    try {
+      if (estadoSombra === "terminado" || audio.ended) {
+        audio.currentTime = 0;
+        video.currentTime = 0;
+        setTextoSombra("");
+        setIndiceSombraActivo(-1);
+        setProgresoLineaSombra(0);
+      }
+
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+
+      setEstadoSombra("reproduciendo");
+
+      await video.play();
+      await audio.play();
+    } catch {
+      setEstadoSombra("pausado");
+    }
+  };
+
+  const repetirSombra = async () => {
+    const audio = audioSombraRef.current;
+    const video = videoSombraRef.current;
+
+    if (!audio || !video) return;
+
+    audio.pause();
+    video.pause();
+
+    audio.currentTime = 0;
+    video.currentTime = 0;
+    setTextoSombra("");
+    setIndiceSombraActivo(-1);
+    setProgresoLineaSombra(0);
+
+    try {
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+
+      setEstadoSombra("reproduciendo");
+
+      await video.play();
+      await audio.play();
+    } catch {
+      setEstadoSombra("pausado");
+    }
+  };
+
+  const cerrarSombra = () => {
+    pausarSombra();
+
+    const audio = audioSombraRef.current;
+    const video = videoSombraRef.current;
+
+    if (audio) {
+      audio.currentTime = 0;
+    }
+
+    if (video) {
+      video.currentTime = 0;
+      video.pause();
+    }
+
+    setModalSombraOpen(false);
+    setAutoPlaySombra(false);
+    setEstadoSombra("inicio");
+    setTextoSombra("");
+    setIndiceSombraActivo(-1);
+    setProgresoLineaSombra(0);
+  };
+
   const pausarCompletado = () => {
     const audio = audioCompletadoRef.current;
     const video = videoCompletadoRef.current;
@@ -1370,6 +1706,7 @@ function Actividad1MathGeometry() {
     pausarExplicacion();
     pausarProfeAstro();
     pausarByte();
+    pausarSombra();
     setModalCompletadoOpen(true);
 
     if (reproducir) {
@@ -1464,6 +1801,7 @@ function Actividad1MathGeometry() {
 
   const reiniciarActividad = () => {
     cerrarCompletado();
+    cerrarSombra();
     setSelecciones({
       triangulo: "",
       cuadrado: "",
@@ -1494,12 +1832,14 @@ function Actividad1MathGeometry() {
     }
 
     setEstadoRevision("falta");
+    abrirSombra(true);
   };
   const irARuta = (ruta: string) => {
     pausarExplicacion();
     pausarProfeAstro();
     pausarByte();
     pausarCompletado();
+    pausarSombra();
     setMenuOpen(false);
     navigate(ruta);
   };
@@ -1598,6 +1938,22 @@ function Actividad1MathGeometry() {
     if (indiceCompletadoActivo < 0) return "0%";
     if (indice < indiceCompletadoActivo) return "100%";
     if (indice === indiceCompletadoActivo) return `${progresoLineaCompletado}%`;
+    return "0%";
+  };
+
+  const obtenerClaseLineaSombra = (indice: number) => {
+    if (estadoSombra === "terminado") return "act1geo-sombra-line-done";
+    if (indiceSombraActivo < 0) return "act1geo-sombra-line-pending";
+    if (indice < indiceSombraActivo) return "act1geo-sombra-line-done";
+    if (indice === indiceSombraActivo) return "act1geo-sombra-line-active";
+    return "act1geo-sombra-line-pending";
+  };
+
+  const obtenerProgresoLineaSombra = (indice: number) => {
+    if (estadoSombra === "terminado") return "100%";
+    if (indiceSombraActivo < 0) return "0%";
+    if (indice < indiceSombraActivo) return "100%";
+    if (indice === indiceSombraActivo) return `${progresoLineaSombra}%`;
     return "0%";
   };
 
@@ -2189,15 +2545,10 @@ function Actividad1MathGeometry() {
         )}
 
         {modalByteOpen && (
-          <div
-            className="act1geo-byte-modal-overlay"
-            onClick={cerrarPistasByte}
-          >
+          <div className="act1geo-bytefix-overlay" onClick={cerrarPistasByte}>
             <section
-              className={`act1geo-byte-modal ${
-                estadoByte === "reproduciendo"
-                  ? "act1geo-byte-modal-playing"
-                  : ""
+              className={`act1geo-bytefix-modal ${
+                estadoByte === "reproduciendo" ? "act1geo-bytefix-playing" : ""
               }`}
               onClick={(evento) => evento.stopPropagation()}
               role="dialog"
@@ -2206,18 +2557,18 @@ function Actividad1MathGeometry() {
             >
               <button
                 type="button"
-                className="act1geo-byte-close"
+                className="act1geo-bytefix-close"
                 onClick={cerrarPistasByte}
                 aria-label="Cerrar pistas de Byte"
               >
                 <FiX />
               </button>
 
-              <div className="act1geo-byte-modal-hero">
+              <div className="act1geo-bytefix-hero">
                 <video
                   ref={videoByteRef}
                   src={videoBytePistas}
-                  className="act1geo-byte-source-video"
+                  className="act1geo-bytefix-source-video"
                   muted
                   loop
                   playsInline
@@ -2227,18 +2578,18 @@ function Actividad1MathGeometry() {
 
                 <canvas
                   ref={canvasByteRef}
-                  className="act1geo-byte-canvas"
+                  className="act1geo-bytefix-canvas"
                   role="img"
                   aria-label="Byte dando una pista"
                 />
 
-                <span className="act1geo-byte-orbit"></span>
-                <span className="act1geo-byte-spark act1geo-byte-spark-one"></span>
-                <span className="act1geo-byte-spark act1geo-byte-spark-two"></span>
+                <span className="act1geo-bytefix-orbit"></span>
+                <span className="act1geo-bytefix-dot act1geo-bytefix-dot-one"></span>
+                <span className="act1geo-bytefix-dot act1geo-bytefix-dot-two"></span>
               </div>
 
-              <div className="act1geo-byte-modal-content">
-                <span className="act1geo-byte-modal-badge">
+              <div className="act1geo-bytefix-content">
+                <span className="act1geo-bytefix-badge">
                   <FiVolume2 /> Pista de Byte
                 </span>
 
@@ -2248,14 +2599,14 @@ function Actividad1MathGeometry() {
                     : "¿Qué pista necesitas?"}
                 </h2>
 
-                <div className="act1geo-byte-choice-grid">
+                <div className="act1geo-bytefix-choice-grid">
                   {ordenPistasByte.map((pista) => (
                     <button
                       type="button"
                       key={pista}
-                      className={`act1geo-byte-choice-btn ${
+                      className={`act1geo-bytefix-choice-btn ${
                         pistaByteSeleccionada === pista
-                          ? "act1geo-byte-choice-active"
+                          ? "act1geo-bytefix-choice-active"
                           : ""
                       }`}
                       onClick={() => seleccionarPistaByte(pista, true)}
@@ -2266,9 +2617,10 @@ function Actividad1MathGeometry() {
                   ))}
                 </div>
 
-                <div className="act1geo-byte-cloud">
-                  <span className="act1geo-byte-cloud-dot act1geo-byte-cloud-dot-one"></span>
-                  <span className="act1geo-byte-cloud-dot act1geo-byte-cloud-dot-two"></span>
+                <div className="act1geo-bytefix-cloud">
+                  <span className="act1geo-bytefix-cloud-bubble act1geo-bytefix-cloud-bubble-one"></span>
+                  <span className="act1geo-bytefix-cloud-bubble act1geo-bytefix-cloud-bubble-two"></span>
+                  <span className="act1geo-bytefix-cloud-bubble act1geo-bytefix-cloud-bubble-three"></span>
 
                   <p>
                     {pistaByteActiva
@@ -2281,10 +2633,10 @@ function Actividad1MathGeometry() {
                   </p>
                 </div>
 
-                <div className="act1geo-byte-modal-controls">
+                <div className="act1geo-bytefix-controls">
                   <button
                     type="button"
-                    className="act1geo-byte-modal-play"
+                    className="act1geo-bytefix-play"
                     onClick={iniciarByte}
                     disabled={!pistaByteActiva}
                   >
@@ -2309,7 +2661,7 @@ function Actividad1MathGeometry() {
                 </div>
               </div>
 
-              <article className="act1geo-byte-transcript">
+              <article className="act1geo-bytefix-transcript">
                 <h3>
                   {pistaByteActiva ? "Texto de la pista" : "Elige una pista"}
                 </h3>
@@ -2329,7 +2681,7 @@ function Actividad1MathGeometry() {
                     </p>
                   ))
                 ) : (
-                  <div className="act1geo-byte-empty-help">
+                  <div className="act1geo-bytefix-empty-help">
                     <strong>Selecciona una figura</strong>
                     <span>
                       Byte cambiará la explicación, la voz y el texto según la
@@ -2342,6 +2694,131 @@ function Actividad1MathGeometry() {
               <audio
                 ref={audioByteRef}
                 src={pistaByteActiva?.audio || ""}
+                preload="auto"
+              />
+            </section>
+          </div>
+        )}
+
+        {modalSombraOpen && (
+          <div className="act1geo-sombra-modal-overlay" onClick={cerrarSombra}>
+            <section
+              className={`act1geo-sombra-modal ${
+                estadoSombra === "reproduciendo"
+                  ? "act1geo-sombra-modal-playing"
+                  : ""
+              }`}
+              onClick={(evento) => evento.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="act1geo-sombra-title"
+            >
+              <div className="act1geo-sombra-decoration" aria-hidden="true">
+                <span className="act1geo-sombra-glow act1geo-sombra-glow-one"></span>
+                <span className="act1geo-sombra-glow act1geo-sombra-glow-two"></span>
+                <span className="act1geo-sombra-dot act1geo-sombra-dot-one"></span>
+                <span className="act1geo-sombra-dot act1geo-sombra-dot-two"></span>
+                <span className="act1geo-sombra-dot act1geo-sombra-dot-three"></span>
+              </div>
+
+              <button
+                type="button"
+                className="act1geo-sombra-close"
+                onClick={cerrarSombra}
+                aria-label="Cerrar mensaje de Sombra"
+              >
+                <FiX />
+              </button>
+
+              <div className="act1geo-sombra-hero">
+                <video
+                  ref={videoSombraRef}
+                  src={videoSombraError}
+                  className="act1geo-sombra-source-video"
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  aria-hidden="true"
+                />
+
+                <canvas
+                  ref={canvasSombraRef}
+                  className="act1geo-sombra-canvas"
+                  role="img"
+                  aria-label="Sombra animando un mensaje para volver a intentar"
+                />
+
+                <span className="act1geo-sombra-orbit"></span>
+              </div>
+
+              <div className="act1geo-sombra-content">
+                <span className="act1geo-sombra-badge">
+                  <FiVolume2 /> Mensaje de Sombra
+                </span>
+
+                <h2 id="act1geo-sombra-title">Casi lo logras</h2>
+
+                <div className="act1geo-sombra-cloud">
+                  <span className="act1geo-sombra-cloud-dot act1geo-sombra-cloud-dot-one"></span>
+                  <span className="act1geo-sombra-cloud-dot act1geo-sombra-cloud-dot-two"></span>
+
+                  <p>
+                    {textoSombra || textoInicialSombra}
+                    {estadoSombra === "reproduciendo" && (
+                      <span className="act1geo-typing-cursor"></span>
+                    )}
+                  </p>
+                </div>
+
+                <div className="act1geo-sombra-controls">
+                  <button
+                    type="button"
+                    className="act1geo-sombra-play"
+                    onClick={iniciarSombra}
+                  >
+                    <FiPlay /> Reproducir
+                  </button>
+
+                  <button type="button" onClick={pausarSombra}>
+                    <FiPause /> Pausar
+                  </button>
+
+                  <button type="button" onClick={repetirSombra}>
+                    <FiRotateCcw /> Reiniciar
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  className="act1geo-sombra-try-btn"
+                  onClick={reiniciarActividad}
+                >
+                  Volver a intentarlo
+                </button>
+              </div>
+
+              <aside className="act1geo-sombra-transcript">
+                <h3>Texto completo</h3>
+
+                {guionSombraError.map((linea, indice) => (
+                  <p
+                    key={linea}
+                    className={obtenerClaseLineaSombra(indice)}
+                    style={
+                      {
+                        "--progreso-sombra": obtenerProgresoLineaSombra(indice),
+                      } as CSSProperties
+                    }
+                  >
+                    {linea}
+                  </p>
+                ))}
+              </aside>
+
+              <audio
+                ref={audioSombraRef}
+                src={audioSombraError}
                 preload="auto"
               />
             </section>

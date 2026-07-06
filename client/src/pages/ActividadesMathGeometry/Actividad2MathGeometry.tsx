@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Actividad2MathGeometry.css";
 
@@ -6,15 +6,27 @@ import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 
 import heroBanner from "../../assets/mathGeometry/actividad2/hero-banner-act2-mathgeometry.png";
-import profesorHero from "../../assets/mathGeometry/actividad2/profesor-explicando.png";
 import byteAct2 from "../../assets/mathGeometry/actividad2/byte-act2-mathgeometry.png";
+import profesorExplicando from "../../assets/mathGeometry/actividad2/profesor-explicando.png";
 import sombraError from "../../assets/mathGeometry/actividad2/sombra-error.png";
-import zorritoInstrucciones from "../../assets/mathGeometry/actividad2/zorrito-instrucciones.png";
-
 import mapaPuente from "../../assets/mathGeometry/actividad2/act2-mathgeometry-puente.png";
 import piezaCamino3 from "../../assets/mathGeometry/actividad2/pieza-camino-3-mathgeometry.png";
 import piezaCamino2 from "../../assets/mathGeometry/actividad2/pieza-camino-2-mathgeometry.png";
 import piezaCamino1 from "../../assets/mathGeometry/actividad2/pieza-camino-1-mathgeometry.png";
+
+import audioBienvenidaNova from "../../assets/mathGeometry/actividad2/act_2_nova_bienvenidaa_MathGeometry.mp3";
+import videoNovaExplicando from "../../assets/mathGeometry/actividad2/nova_explicando_act_2_MathGeometry.mp4";
+import videoBytePistasAct2 from "../../assets/mathGeometry/actividad2/byte_aciertos_y_pistas_act_2__MathGeometry.mp4";
+import videoProfesorPistasAct2 from "../../assets/mathGeometry/actividad2/instrucciones_profe_astro_act_2_MathGeometry.mp4";
+import audioProfesorAstro from "../../assets/mathGeometry/actividad2/act_2_profesor_astro_MathGeometry.mp3";
+
+import audioPistaByteDiagonal from "../../assets/mathGeometry/actividad2/act_2_byte_pista_diagonal_MathGeometry.mp3";
+import audioPistaByteRecto from "../../assets/mathGeometry/actividad2/act_2_pista_byte_camino_recto_MathGeometry.mp3";
+import audioPistaProfesorGiro from "../../assets/mathGeometry/actividad2/act_2_pista_profesor_para_camino_con_giro_MathGeometry.mp3";
+import videoSombraErrorAct2 from "../../assets/mathGeometry/actividad2/sombra_error_act_2_MathGeometry.mp4";
+import audioSombraErrorAct2 from "../../assets/mathGeometry/actividad2/act_2_sombra_error_MathGeometry.mp3";
+import audioCierreNovaAct2 from "../../assets/mathGeometry/actividad2/act_2_cierre_nova_MathGeometry.mp3";
+import bannerCompletadoAct2 from "../../assets/mathGeometry/actividad2/activida_completada_banner_MathGeometry.png";
 
 import {
   FiGrid,
@@ -29,33 +41,1526 @@ import {
   FiPause,
   FiTarget,
   FiFlag,
+  FiPlay,
+  FiRotateCcw,
+  FiX,
+  FiVolume2,
+  FiArrowRight,
 } from "react-icons/fi";
 
 import { FaStar } from "react-icons/fa";
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
 type SegmentoId = "pieza3" | "pieza2" | "pieza1";
+type EstadoExplicacion = "inicio" | "reproduciendo" | "pausado" | "terminado";
+type PistaAct2Id = "recto" | "giro" | "diagonal";
+type PersonajePistaAct2 = "byte" | "profesor";
+
+const VELOCIDAD_TEXTO_NOVA_ACT2 = 1.55;
+const VELOCIDAD_TEXTO_PISTA_ACT2 = 1.75;
+const REFRESCO_TEXTO_PISTA_ACT2_MS = 45;
+
+const pistasAct2: Record<
+  PistaAct2Id,
+  {
+    id: PistaAct2Id;
+    nombre: string;
+    tituloModal: string;
+    etiqueta: string;
+    personaje: PersonajePistaAct2;
+    audio: string;
+    video: string;
+    guion: string[];
+  }
+> = {
+  recto: {
+    id: "recto",
+    nombre: "Camino recto",
+    tituloModal: "Pista para camino recto",
+    etiqueta: "Byte",
+    personaje: "byte",
+    audio: audioPistaByteRecto,
+    video: videoBytePistasAct2,
+    guion: [
+      "Byte:",
+      "Pista de análisis:",
+      "Si el camino es recto, busca un segmento que tenga la misma dirección.",
+      "Puede ser horizontal o vertical.",
+      "El segmento correcto debe tocar los dos puntos marcados.",
+    ],
+  },
+  giro: {
+    id: "giro",
+    nombre: "Camino con giro",
+    tituloModal: "Pista para camino con giro",
+    etiqueta: "Profesor Astro",
+    personaje: "profesor",
+    audio: audioPistaProfesorGiro,
+    video: videoProfesorPistasAct2,
+    guion: [
+      "Profesor Astro:",
+      "Pista importante:",
+      "Observa dónde termina el primer tramo del camino.",
+      "El siguiente segmento debe empezar ahí y conectar con el próximo punto.",
+      "Así la ruta podrá continuar.",
+    ],
+  },
+  diagonal: {
+    id: "diagonal",
+    nombre: "Ruta diagonal",
+    tituloModal: "Pista para ruta diagonal",
+    etiqueta: "Byte",
+    personaje: "byte",
+    audio: audioPistaByteDiagonal,
+    video: videoBytePistasAct2,
+    guion: [
+      "Byte:",
+      "Pista diagonal:",
+      "Mira la inclinación del camino.",
+      "El segmento correcto debe estar inclinado igual y unir exactamente los dos puntos.",
+      "No todos los segmentos diagonales encajan.",
+    ],
+  },
+};
+
+const ordenPistasAct2: PistaAct2Id[] = ["recto", "giro", "diagonal"];
+
+const textoInicialPistaAct2 =
+  "Elige una pista para saber qué tramo conecta mejor la ruta.";
+
+const guionProfesorAstroAct2 = [
+  "Profesor Astro:",
+  "En la pantalla verás una ruta incompleta.",
+  "Tu misión será observar los puntos marcados y elegir el segmento que los conecta correctamente.",
+  "Recuerda: un segmento es una línea que une dos puntos.",
+  "Fíjate bien en tres cosas:",
+  "dónde empieza, dónde termina y hacia dónde va.",
+  "Cuando elijas el segmento correcto, el camino se completará y Nova podrá avanzar.",
+];
+
+const textoInicialProfesorAstroAct2 =
+  "Presiona reproducir para escuchar la explicación del Profesor Astro.";
+
+const textoFinalProfesorAstroAct2 =
+  "Cuando elijas el segmento correcto, el camino se completará y Nova podrá avanzar.";
+
+const guionBienvenidaNova = [
+  {
+    inicio: 0,
+    fin: 2.5,
+    texto: "¡Hola, explorador!",
+  },
+  {
+    inicio: 2.5,
+    fin: 5.8,
+    texto: "Hoy tenemos una nueva misión dentro de MathNova.",
+  },
+  {
+    inicio: 5.8,
+    fin: 10.0,
+    texto:
+      "Una parte del camino se perdió y necesito tu ayuda para poder avanzar.",
+  },
+  {
+    inicio: 10.0,
+    fin: 14.0,
+    texto: "En el mapa verás puntos marcados y un espacio vacío en la ruta.",
+  },
+  {
+    inicio: 14.0,
+    fin: 19.8,
+    texto:
+      "Tu tarea será elegir el segmento correcto para unir los puntos y reconstruir el camino.",
+  },
+  {
+    inicio: 19.8,
+    fin: 24.5,
+    texto:
+      "Observa con atención, compara las opciones y ayúdame a llegar al destino.",
+  },
+  {
+    inicio: 24.5,
+    fin: 27.6,
+    texto: "¡Vamos a recuperar la ruta perdida!",
+  },
+];
+
+const textoInicialBienvenidaNova =
+  "Presiona iniciar para escuchar la explicación de Nova.";
+
+const textoFinalBienvenidaNova = "¡Vamos a recuperar la ruta perdida!";
+
+const guionSombraErrorAct2 = [
+  "Mmm… casi lo logras.",
+  "Observa otra vez los puntos de unión.",
+  "Tal vez el segmento no llega al otro punto o va en otra dirección.",
+  "No pasa nada si te equivocas.",
+  "Mira con calma y vuelve a intentarlo.",
+];
+
+const textoInicialSombraAct2 =
+  "Presiona reproducir para escuchar el mensaje de Sombra.";
+
+const textoFinalSombraAct2 = "Mira con calma y vuelve a intentarlo.";
+
+const guionCompletadoAct2 = [
+  "¡Misión completada!",
+  "Hoy reconstruiste rutas usando segmentos de recta.",
+  "Aprendiste que un segmento une dos puntos y que debe coincidir con la dirección del camino.",
+  "Cada ruta completada quedó registrada como evidencia de tu avance.",
+  "¡Muy buen trabajo, explorador! Nos vemos en la siguiente misión de MathNova.",
+];
+
+const textoInicialCompletadoAct2 =
+  "Presiona reproducir para escuchar el cierre de Nova.";
+
+const textoFinalCompletadoAct2 =
+  "¡Muy buen trabajo, explorador! Nos vemos en la siguiente misión de MathNova.";
+
+function obtenerTextoNovaAct2PorTiempo(tiempo: number) {
+  const lineaActual =
+    guionBienvenidaNova.find(
+      (linea) => tiempo >= linea.inicio && tiempo < linea.fin,
+    ) || guionBienvenidaNova[guionBienvenidaNova.length - 1];
+
+  const duracion = lineaActual.fin - lineaActual.inicio;
+  const progreso = Math.min(
+    1,
+    Math.max(
+      0,
+      ((tiempo - lineaActual.inicio) / duracion) * VELOCIDAD_TEXTO_NOVA_ACT2,
+    ),
+  );
+
+  const letrasVisibles = Math.max(
+    1,
+    Math.floor(lineaActual.texto.length * progreso),
+  );
+
+  return lineaActual.texto.slice(0, letrasVisibles);
+}
+
+function obtenerEstadoGuionPistaAct2(
+  tiempo: number,
+  duracionAudio: number,
+  guion: string[],
+) {
+  const duracionSegura =
+    Number.isFinite(duracionAudio) && duracionAudio > 0 ? duracionAudio : 13;
+
+  const pesos = guion.map((texto) => {
+    const palabras = texto.trim().split(/\s+/).filter(Boolean).length;
+    const esTituloCorto = texto.includes(":") && palabras <= 4;
+
+    return Math.max(
+      esTituloCorto ? 0.72 : 1.05,
+      palabras * 0.34 + texto.length * 0.011,
+    );
+  });
+
+  const totalPesos = pesos.reduce((total, peso) => total + peso, 0) || 1;
+  const duracionDisponible = Math.max(1, duracionSegura * 0.96);
+  let inicioAcumulado = 0;
+
+  for (let indice = 0; indice < guion.length; indice += 1) {
+    const texto = guion[indice];
+    const duracionLinea = (pesos[indice] / totalPesos) * duracionDisponible;
+    const finLinea = inicioAcumulado + duracionLinea;
+
+    if (tiempo >= inicioAcumulado && tiempo < finLinea) {
+      const progresoNatural = Math.min(
+        1,
+        Math.max(0, (tiempo - inicioAcumulado) / duracionLinea),
+      );
+
+      const progresoTexto = Math.min(
+        1,
+        progresoNatural * VELOCIDAD_TEXTO_PISTA_ACT2,
+      );
+
+      const letrasVisibles = Math.max(
+        1,
+        Math.ceil(texto.length * progresoTexto),
+      );
+
+      return {
+        texto: texto.slice(0, letrasVisibles),
+        indice,
+        progresoLinea: Math.round(progresoNatural * 100),
+      };
+    }
+
+    inicioAcumulado = finLinea;
+  }
+
+  return {
+    texto: guion[guion.length - 1],
+    indice: guion.length - 1,
+    progresoLinea: 100,
+  };
+}
+
+function limpiarFondoClaroNovaAct2(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+) {
+  try {
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const data = imageData.data;
+    const total = width * height;
+    const visitado = new Uint8Array(total);
+    const pila: number[] = [];
+
+    const esFondoClaro = (index: number) => {
+      const pixel = index * 4;
+      const r = data[pixel];
+      const g = data[pixel + 1];
+      const b = data[pixel + 2];
+
+      const esClaro = r > 224 && g > 224 && b > 224;
+      const casiSinColor =
+        Math.abs(r - g) < 34 && Math.abs(r - b) < 34 && Math.abs(g - b) < 34;
+
+      return esClaro && casiSinColor;
+    };
+
+    const agregar = (index: number) => {
+      if (index < 0 || index >= total) return;
+      if (visitado[index]) return;
+      if (!esFondoClaro(index)) return;
+
+      visitado[index] = 1;
+      pila.push(index);
+    };
+
+    for (let x = 0; x < width; x += 1) {
+      agregar(x);
+      agregar((height - 1) * width + x);
+    }
+
+    for (let y = 0; y < height; y += 1) {
+      agregar(y * width);
+      agregar(y * width + width - 1);
+    }
+
+    while (pila.length > 0) {
+      const index = pila.pop();
+      if (index === undefined) continue;
+
+      const pixel = index * 4;
+      data[pixel + 3] = 0;
+
+      const x = index % width;
+      const y = Math.floor(index / width);
+
+      if (x > 0) agregar(index - 1);
+      if (x < width - 1) agregar(index + 1);
+      if (y > 0) agregar(index - width);
+      if (y < height - 1) agregar(index + width);
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+  } catch {
+    /* Si el navegador no permite leer el frame, se deja el video dibujado. */
+  }
+}
+
+function dibujarVideoNovaAct2SinEstirar(
+  ctx: CanvasRenderingContext2D,
+  video: HTMLVideoElement,
+  width: number,
+  height: number,
+) {
+  const videoWidth = video.videoWidth || width;
+  const videoHeight = video.videoHeight || height;
+  const escala = Math.min(width / videoWidth, height / videoHeight);
+  const drawWidth = videoWidth * escala;
+  const drawHeight = videoHeight * escala;
+  const offsetX = (width - drawWidth) / 2;
+  const offsetY = (height - drawHeight) / 2;
+
+  ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight);
+}
 
 function Actividad2MathGeometry() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [segmentoSeleccionado, setSegmentoSeleccionado] =
-    useState<SegmentoId>("pieza3");
+    useState<SegmentoId | null>(null);
   const [segmentoColocado, setSegmentoColocado] = useState<SegmentoId | null>(
     null,
   );
   const [revisado, setRevisado] = useState(false);
 
+  const [textoBienvenidaNova, setTextoBienvenidaNova] = useState("");
+  const [estadoBienvenidaNova, setEstadoBienvenidaNova] =
+    useState<EstadoExplicacion>("inicio");
+
+  const videoNovaRef = useRef<HTMLVideoElement | null>(null);
+  const canvasNovaRef = useRef<HTMLCanvasElement | null>(null);
+  const audioNovaRef = useRef<HTMLAudioElement | null>(null);
+
+  const [modalPistasOpen, setModalPistasOpen] = useState(false);
+  const [pistaSeleccionada, setPistaSeleccionada] =
+    useState<PistaAct2Id>("recto");
+  const [textoPista, setTextoPista] = useState("");
+  const [estadoPista, setEstadoPista] = useState<EstadoExplicacion>("inicio");
+  const [indicePistaActivo, setIndicePistaActivo] = useState(-1);
+  const [progresoLineaPista, setProgresoLineaPista] = useState(0);
+  const [autoPlayPista, setAutoPlayPista] = useState(false);
+
+  const videoPistaRef = useRef<HTMLVideoElement | null>(null);
+  const canvasPistaRef = useRef<HTMLCanvasElement | null>(null);
+  const audioPistaRef = useRef<HTMLAudioElement | null>(null);
+
+  const [modalProfesorOpen, setModalProfesorOpen] = useState(false);
+  const [textoProfesor, setTextoProfesor] = useState("");
+  const [estadoProfesor, setEstadoProfesor] =
+    useState<EstadoExplicacion>("inicio");
+  const [indiceProfesorActivo, setIndiceProfesorActivo] = useState(-1);
+  const [progresoLineaProfesor, setProgresoLineaProfesor] = useState(0);
+  const [autoPlayProfesor, setAutoPlayProfesor] = useState(false);
+
+  const videoProfesorRef = useRef<HTMLVideoElement | null>(null);
+  const canvasProfesorRef = useRef<HTMLCanvasElement | null>(null);
+  const audioProfesorRef = useRef<HTMLAudioElement | null>(null);
+
+  const [modalSombraOpen, setModalSombraOpen] = useState(false);
+  const [textoSombra, setTextoSombra] = useState("");
+  const [estadoSombra, setEstadoSombra] = useState<EstadoExplicacion>("inicio");
+  const [indiceSombraActivo, setIndiceSombraActivo] = useState(-1);
+  const [progresoLineaSombra, setProgresoLineaSombra] = useState(0);
+  const [autoPlaySombra, setAutoPlaySombra] = useState(false);
+
+  const videoSombraRef = useRef<HTMLVideoElement | null>(null);
+  const canvasSombraRef = useRef<HTMLCanvasElement | null>(null);
+  const audioSombraRef = useRef<HTMLAudioElement | null>(null);
+
+  const [modalCompletadoOpen, setModalCompletadoOpen] = useState(false);
+  const [textoCompletado, setTextoCompletado] = useState("");
+  const [estadoCompletado, setEstadoCompletado] =
+    useState<EstadoExplicacion>("inicio");
+  const [indiceCompletadoActivo, setIndiceCompletadoActivo] = useState(-1);
+  const [progresoLineaCompletado, setProgresoLineaCompletado] = useState(0);
+  const [autoPlayCompletado, setAutoPlayCompletado] = useState(false);
+
+  const videoCompletadoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasCompletadoRef = useRef<HTMLCanvasElement | null>(null);
+  const audioCompletadoRef = useRef<HTMLAudioElement | null>(null);
+
   const navigate = useNavigate();
+  const pistaActiva = pistasAct2[pistaSeleccionada];
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "auto";
+    document.body.style.overflow =
+      menuOpen ||
+      modalPistasOpen ||
+      modalProfesorOpen ||
+      modalSombraOpen ||
+      modalCompletadoOpen
+        ? "hidden"
+        : "auto";
 
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [menuOpen]);
+  }, [
+    menuOpen,
+    modalPistasOpen,
+    modalProfesorOpen,
+    modalSombraOpen,
+    modalCompletadoOpen,
+  ]);
+
+  useEffect(() => {
+    const audio = audioNovaRef.current;
+    const video = videoNovaRef.current;
+
+    if (!audio) return;
+
+    const terminarExplicacion = () => {
+      setEstadoBienvenidaNova("terminado");
+      setTextoBienvenidaNova(textoFinalBienvenidaNova);
+
+      if (video) {
+        video.pause();
+        video.currentTime = 0;
+      }
+    };
+
+    audio.addEventListener("ended", terminarExplicacion);
+
+    return () => {
+      audio.removeEventListener("ended", terminarExplicacion);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (estadoBienvenidaNova !== "reproduciendo") return;
+
+    const intervalo = window.setInterval(() => {
+      const audio = audioNovaRef.current;
+      if (!audio) return;
+
+      setTextoBienvenidaNova(obtenerTextoNovaAct2PorTiempo(audio.currentTime));
+    }, 25);
+
+    return () => {
+      window.clearInterval(intervalo);
+    };
+  }, [estadoBienvenidaNova]);
+
+  useEffect(() => {
+    const video = videoNovaRef.current;
+    const canvas = canvasNovaRef.current;
+
+    if (!video || !canvas) return;
+
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+    if (!ctx) return;
+
+    const canvasWidth = 360;
+    const canvasHeight = 640;
+
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    let animationFrame = 0;
+    let ultimoDibujo = 0;
+
+    const dibujarNovaSinFondo = (tiempo: number) => {
+      if (tiempo - ultimoDibujo > 33 && video.readyState >= 2) {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        dibujarVideoNovaAct2SinEstirar(ctx, video, canvasWidth, canvasHeight);
+        limpiarFondoClaroNovaAct2(ctx, canvasWidth, canvasHeight);
+        ultimoDibujo = tiempo;
+      }
+
+      animationFrame = window.requestAnimationFrame(dibujarNovaSinFondo);
+    };
+
+    const dibujarPrimerFrame = () => {
+      if (video.readyState >= 2) {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        dibujarVideoNovaAct2SinEstirar(ctx, video, canvasWidth, canvasHeight);
+        limpiarFondoClaroNovaAct2(ctx, canvasWidth, canvasHeight);
+      }
+    };
+
+    video.addEventListener("loadeddata", dibujarPrimerFrame);
+    animationFrame = window.requestAnimationFrame(dibujarNovaSinFondo);
+
+    return () => {
+      video.removeEventListener("loadeddata", dibujarPrimerFrame);
+      window.cancelAnimationFrame(animationFrame);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!modalPistasOpen || !pistaActiva) return;
+
+    const audio = audioPistaRef.current;
+    const video = videoPistaRef.current;
+
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.load();
+    }
+
+    if (video) {
+      video.pause();
+      video.currentTime = 0;
+      video.load();
+    }
+
+    setTextoPista("");
+    setEstadoPista("inicio");
+    setIndicePistaActivo(-1);
+    setProgresoLineaPista(0);
+  }, [modalPistasOpen, pistaActiva]);
+
+  useEffect(() => {
+    if (!modalPistasOpen || !pistaActiva) return;
+
+    const audio = audioPistaRef.current;
+    const video = videoPistaRef.current;
+
+    if (!audio) return;
+
+    const terminarPista = () => {
+      setEstadoPista("terminado");
+      setTextoPista(pistaActiva.guion[pistaActiva.guion.length - 1]);
+      setIndicePistaActivo(pistaActiva.guion.length - 1);
+      setProgresoLineaPista(100);
+
+      if (video) {
+        video.pause();
+        video.currentTime = 0;
+      }
+    };
+
+    audio.addEventListener("ended", terminarPista);
+
+    return () => {
+      audio.removeEventListener("ended", terminarPista);
+    };
+  }, [modalPistasOpen, pistaActiva]);
+
+  useEffect(() => {
+    if (!modalPistasOpen || estadoPista !== "reproduciendo" || !pistaActiva) {
+      return;
+    }
+
+    const intervalo = window.setInterval(() => {
+      const audio = audioPistaRef.current;
+      if (!audio) return;
+
+      const estadoGuion = obtenerEstadoGuionPistaAct2(
+        audio.currentTime,
+        audio.duration,
+        pistaActiva.guion,
+      );
+
+      setTextoPista(estadoGuion.texto);
+      setIndicePistaActivo(estadoGuion.indice);
+      setProgresoLineaPista(estadoGuion.progresoLinea);
+    }, REFRESCO_TEXTO_PISTA_ACT2_MS);
+
+    return () => {
+      window.clearInterval(intervalo);
+    };
+  }, [modalPistasOpen, estadoPista, pistaActiva]);
+
+  useEffect(() => {
+    if (!modalPistasOpen || !pistaActiva) return;
+
+    const video = videoPistaRef.current;
+    const canvas = canvasPistaRef.current;
+
+    if (!video || !canvas) return;
+
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+    if (!ctx) return;
+
+    const canvasWidth = 360;
+    const canvasHeight = 640;
+
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    let animationFrame = 0;
+    let ultimoDibujo = 0;
+
+    const dibujarPistaSinFondo = (tiempo: number) => {
+      if (tiempo - ultimoDibujo > 33 && video.readyState >= 2) {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        dibujarVideoNovaAct2SinEstirar(ctx, video, canvasWidth, canvasHeight);
+        limpiarFondoClaroNovaAct2(ctx, canvasWidth, canvasHeight);
+        ultimoDibujo = tiempo;
+      }
+
+      animationFrame = window.requestAnimationFrame(dibujarPistaSinFondo);
+    };
+
+    const dibujarPrimerFrame = () => {
+      if (video.readyState >= 2) {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        dibujarVideoNovaAct2SinEstirar(ctx, video, canvasWidth, canvasHeight);
+        limpiarFondoClaroNovaAct2(ctx, canvasWidth, canvasHeight);
+      }
+    };
+
+    video.addEventListener("loadeddata", dibujarPrimerFrame);
+    animationFrame = window.requestAnimationFrame(dibujarPistaSinFondo);
+
+    return () => {
+      video.removeEventListener("loadeddata", dibujarPrimerFrame);
+      window.cancelAnimationFrame(animationFrame);
+    };
+  }, [modalPistasOpen, pistaActiva]);
+
+  useEffect(() => {
+    if (!modalPistasOpen || !autoPlayPista || !pistaActiva) return;
+
+    const timeout = window.setTimeout(() => {
+      setAutoPlayPista(false);
+      iniciarPistaAct2();
+    }, 120);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [modalPistasOpen, autoPlayPista, pistaActiva]);
+
+  useEffect(() => {
+    if (!modalProfesorOpen) return;
+
+    const audio = audioProfesorRef.current;
+    const video = videoProfesorRef.current;
+
+    if (!audio) return;
+
+    const terminarProfesor = () => {
+      setEstadoProfesor("terminado");
+      setTextoProfesor(textoFinalProfesorAstroAct2);
+      setIndiceProfesorActivo(guionProfesorAstroAct2.length - 1);
+      setProgresoLineaProfesor(100);
+
+      if (video) {
+        video.pause();
+        video.currentTime = 0;
+      }
+    };
+
+    audio.addEventListener("ended", terminarProfesor);
+
+    return () => {
+      audio.removeEventListener("ended", terminarProfesor);
+    };
+  }, [modalProfesorOpen]);
+
+  useEffect(() => {
+    if (!modalProfesorOpen || estadoProfesor !== "reproduciendo") return;
+
+    const intervalo = window.setInterval(() => {
+      const audio = audioProfesorRef.current;
+      if (!audio) return;
+
+      const estadoGuion = obtenerEstadoGuionPistaAct2(
+        audio.currentTime,
+        audio.duration,
+        guionProfesorAstroAct2,
+      );
+
+      setTextoProfesor(estadoGuion.texto);
+      setIndiceProfesorActivo(estadoGuion.indice);
+      setProgresoLineaProfesor(estadoGuion.progresoLinea);
+    }, REFRESCO_TEXTO_PISTA_ACT2_MS);
+
+    return () => {
+      window.clearInterval(intervalo);
+    };
+  }, [modalProfesorOpen, estadoProfesor]);
+
+  useEffect(() => {
+    if (!modalProfesorOpen) return;
+
+    const video = videoProfesorRef.current;
+    const canvas = canvasProfesorRef.current;
+
+    if (!video || !canvas) return;
+
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+    if (!ctx) return;
+
+    const canvasWidth = 360;
+    const canvasHeight = 640;
+
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    let animationFrame = 0;
+    let ultimoDibujo = 0;
+
+    const dibujarProfesorSinFondo = (tiempo: number) => {
+      if (tiempo - ultimoDibujo > 33 && video.readyState >= 2) {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        dibujarVideoNovaAct2SinEstirar(ctx, video, canvasWidth, canvasHeight);
+        limpiarFondoClaroNovaAct2(ctx, canvasWidth, canvasHeight);
+        ultimoDibujo = tiempo;
+      }
+
+      animationFrame = window.requestAnimationFrame(dibujarProfesorSinFondo);
+    };
+
+    const dibujarPrimerFrame = () => {
+      if (video.readyState >= 2) {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        dibujarVideoNovaAct2SinEstirar(ctx, video, canvasWidth, canvasHeight);
+        limpiarFondoClaroNovaAct2(ctx, canvasWidth, canvasHeight);
+      }
+    };
+
+    video.addEventListener("loadeddata", dibujarPrimerFrame);
+    animationFrame = window.requestAnimationFrame(dibujarProfesorSinFondo);
+
+    return () => {
+      video.removeEventListener("loadeddata", dibujarPrimerFrame);
+      window.cancelAnimationFrame(animationFrame);
+    };
+  }, [modalProfesorOpen]);
+
+  useEffect(() => {
+    if (!modalProfesorOpen || !autoPlayProfesor) return;
+
+    const timeout = window.setTimeout(() => {
+      setAutoPlayProfesor(false);
+      iniciarProfesorAstroAct2();
+    }, 120);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [modalProfesorOpen, autoPlayProfesor]);
+
+  useEffect(() => {
+    if (!modalSombraOpen) return;
+
+    const audio = audioSombraRef.current;
+    const video = videoSombraRef.current;
+
+    if (!audio) return;
+
+    const terminarSombra = () => {
+      setEstadoSombra("terminado");
+      setTextoSombra(textoFinalSombraAct2);
+      setIndiceSombraActivo(guionSombraErrorAct2.length - 1);
+      setProgresoLineaSombra(100);
+
+      if (video) {
+        video.pause();
+        video.currentTime = 0;
+      }
+    };
+
+    audio.addEventListener("ended", terminarSombra);
+
+    return () => {
+      audio.removeEventListener("ended", terminarSombra);
+    };
+  }, [modalSombraOpen]);
+
+  useEffect(() => {
+    if (!modalSombraOpen || estadoSombra !== "reproduciendo") return;
+
+    const intervalo = window.setInterval(() => {
+      const audio = audioSombraRef.current;
+      if (!audio) return;
+
+      const estadoGuion = obtenerEstadoGuionPistaAct2(
+        audio.currentTime,
+        audio.duration,
+        guionSombraErrorAct2,
+      );
+
+      setTextoSombra(estadoGuion.texto);
+      setIndiceSombraActivo(estadoGuion.indice);
+      setProgresoLineaSombra(estadoGuion.progresoLinea);
+    }, 35);
+
+    return () => {
+      window.clearInterval(intervalo);
+    };
+  }, [modalSombraOpen, estadoSombra]);
+
+  useEffect(() => {
+    if (!modalSombraOpen) return;
+
+    const video = videoSombraRef.current;
+    const canvas = canvasSombraRef.current;
+
+    if (!video || !canvas) return;
+
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+    if (!ctx) return;
+
+    const canvasWidth = 360;
+    const canvasHeight = 640;
+
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    let animationFrame = 0;
+    let ultimoDibujo = 0;
+
+    const dibujarSombraSinFondo = (tiempo: number) => {
+      if (tiempo - ultimoDibujo > 33 && video.readyState >= 2) {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        dibujarVideoNovaAct2SinEstirar(ctx, video, canvasWidth, canvasHeight);
+        limpiarFondoClaroNovaAct2(ctx, canvasWidth, canvasHeight);
+        ultimoDibujo = tiempo;
+      }
+
+      animationFrame = window.requestAnimationFrame(dibujarSombraSinFondo);
+    };
+
+    const dibujarPrimerFrame = () => {
+      if (video.readyState >= 2) {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        dibujarVideoNovaAct2SinEstirar(ctx, video, canvasWidth, canvasHeight);
+        limpiarFondoClaroNovaAct2(ctx, canvasWidth, canvasHeight);
+      }
+    };
+
+    video.addEventListener("loadeddata", dibujarPrimerFrame);
+    animationFrame = window.requestAnimationFrame(dibujarSombraSinFondo);
+
+    return () => {
+      video.removeEventListener("loadeddata", dibujarPrimerFrame);
+      window.cancelAnimationFrame(animationFrame);
+    };
+  }, [modalSombraOpen]);
+
+  useEffect(() => {
+    if (!modalSombraOpen || !autoPlaySombra) return;
+
+    const timeout = window.setTimeout(() => {
+      setAutoPlaySombra(false);
+      iniciarSombraAct2();
+    }, 120);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [modalSombraOpen, autoPlaySombra]);
+
+  useEffect(() => {
+    if (!modalCompletadoOpen) return;
+
+    const audio = audioCompletadoRef.current;
+    const video = videoCompletadoRef.current;
+
+    if (!audio) return;
+
+    const terminarCompletado = () => {
+      setEstadoCompletado("terminado");
+      setTextoCompletado(textoFinalCompletadoAct2);
+      setIndiceCompletadoActivo(guionCompletadoAct2.length - 1);
+      setProgresoLineaCompletado(100);
+
+      if (video) {
+        video.pause();
+        video.currentTime = 0;
+      }
+    };
+
+    audio.addEventListener("ended", terminarCompletado);
+
+    return () => {
+      audio.removeEventListener("ended", terminarCompletado);
+    };
+  }, [modalCompletadoOpen]);
+
+  useEffect(() => {
+    if (!modalCompletadoOpen || estadoCompletado !== "reproduciendo") return;
+
+    const intervalo = window.setInterval(() => {
+      const audio = audioCompletadoRef.current;
+      if (!audio) return;
+
+      const estadoGuion = obtenerEstadoGuionPistaAct2(
+        audio.currentTime,
+        audio.duration,
+        guionCompletadoAct2,
+      );
+
+      setTextoCompletado(estadoGuion.texto);
+      setIndiceCompletadoActivo(estadoGuion.indice);
+      setProgresoLineaCompletado(estadoGuion.progresoLinea);
+    }, 35);
+
+    return () => {
+      window.clearInterval(intervalo);
+    };
+  }, [modalCompletadoOpen, estadoCompletado]);
+
+  useEffect(() => {
+    if (!modalCompletadoOpen) return;
+
+    const video = videoCompletadoRef.current;
+    const canvas = canvasCompletadoRef.current;
+
+    if (!video || !canvas) return;
+
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+    if (!ctx) return;
+
+    const canvasWidth = 360;
+    const canvasHeight = 640;
+
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    let animationFrame = 0;
+    let ultimoDibujo = 0;
+
+    const dibujarCompletadoSinFondo = (tiempo: number) => {
+      if (tiempo - ultimoDibujo > 33 && video.readyState >= 2) {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        dibujarVideoNovaAct2SinEstirar(ctx, video, canvasWidth, canvasHeight);
+        limpiarFondoClaroNovaAct2(ctx, canvasWidth, canvasHeight);
+        ultimoDibujo = tiempo;
+      }
+
+      animationFrame = window.requestAnimationFrame(dibujarCompletadoSinFondo);
+    };
+
+    const dibujarPrimerFrame = () => {
+      if (video.readyState >= 2) {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        dibujarVideoNovaAct2SinEstirar(ctx, video, canvasWidth, canvasHeight);
+        limpiarFondoClaroNovaAct2(ctx, canvasWidth, canvasHeight);
+      }
+    };
+
+    video.addEventListener("loadeddata", dibujarPrimerFrame);
+    animationFrame = window.requestAnimationFrame(dibujarCompletadoSinFondo);
+
+    return () => {
+      video.removeEventListener("loadeddata", dibujarPrimerFrame);
+      window.cancelAnimationFrame(animationFrame);
+    };
+  }, [modalCompletadoOpen]);
+
+  useEffect(() => {
+    if (!modalCompletadoOpen || !autoPlayCompletado) return;
+
+    const timeout = window.setTimeout(() => {
+      setAutoPlayCompletado(false);
+      iniciarCompletadoAct2();
+    }, 120);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [modalCompletadoOpen, autoPlayCompletado]);
+
+  const pausarPistaAct2 = () => {
+    const audio = audioPistaRef.current;
+    const video = videoPistaRef.current;
+
+    audio?.pause();
+    video?.pause();
+
+    if (estadoPista === "reproduciendo") {
+      setEstadoPista("pausado");
+    }
+  };
+
+  const abrirPistasAct2 = (reproducir = false) => {
+    pausarExplicacionNova();
+    pausarProfesorAstroAct2();
+    setModalPistasOpen(true);
+
+    if (reproducir) {
+      setAutoPlayPista(true);
+    }
+  };
+
+  const seleccionarPistaAct2 = (pista: PistaAct2Id, reproducir = true) => {
+    pausarPistaAct2();
+    setPistaSeleccionada(pista);
+    setTextoPista("");
+    setEstadoPista("inicio");
+    setIndicePistaActivo(-1);
+    setProgresoLineaPista(0);
+
+    if (reproducir) {
+      setAutoPlayPista(true);
+    }
+  };
+
+  const iniciarPistaAct2 = async () => {
+    if (!modalPistasOpen) {
+      abrirPistasAct2(true);
+      return;
+    }
+
+    const audio = audioPistaRef.current;
+    const video = videoPistaRef.current;
+
+    if (!audio || !video) return;
+
+    try {
+      if (estadoPista === "terminado" || audio.ended) {
+        audio.currentTime = 0;
+        video.currentTime = 0;
+        setTextoPista("");
+        setIndicePistaActivo(-1);
+        setProgresoLineaPista(0);
+      }
+
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+
+      setEstadoPista("reproduciendo");
+
+      await video.play();
+      await audio.play();
+    } catch {
+      setEstadoPista("pausado");
+    }
+  };
+
+  const repetirPistaAct2 = async () => {
+    const audio = audioPistaRef.current;
+    const video = videoPistaRef.current;
+
+    if (!audio || !video) return;
+
+    audio.pause();
+    video.pause();
+
+    audio.currentTime = 0;
+    video.currentTime = 0;
+    setTextoPista("");
+    setIndicePistaActivo(-1);
+    setProgresoLineaPista(0);
+
+    try {
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+
+      setEstadoPista("reproduciendo");
+
+      await video.play();
+      await audio.play();
+    } catch {
+      setEstadoPista("pausado");
+    }
+  };
+
+  const cerrarPistasAct2 = () => {
+    pausarPistaAct2();
+
+    const audio = audioPistaRef.current;
+    const video = videoPistaRef.current;
+
+    if (audio) {
+      audio.currentTime = 0;
+    }
+
+    if (video) {
+      video.currentTime = 0;
+      video.pause();
+    }
+
+    setModalPistasOpen(false);
+    setAutoPlayPista(false);
+    setEstadoPista("inicio");
+    setTextoPista("");
+    setIndicePistaActivo(-1);
+    setProgresoLineaPista(0);
+  };
+
+  const pausarProfesorAstroAct2 = () => {
+    const audio = audioProfesorRef.current;
+    const video = videoProfesorRef.current;
+
+    audio?.pause();
+    video?.pause();
+
+    if (estadoProfesor === "reproduciendo") {
+      setEstadoProfesor("pausado");
+    }
+  };
+
+  const abrirProfesorAstroAct2 = (reproducir = false) => {
+    pausarExplicacionNova();
+    pausarPistaAct2();
+    setModalProfesorOpen(true);
+
+    if (reproducir) {
+      setAutoPlayProfesor(true);
+    }
+  };
+
+  const iniciarProfesorAstroAct2 = async () => {
+    if (!modalProfesorOpen) {
+      abrirProfesorAstroAct2(true);
+      return;
+    }
+
+    const audio = audioProfesorRef.current;
+    const video = videoProfesorRef.current;
+
+    if (!audio || !video) return;
+
+    try {
+      if (estadoProfesor === "terminado" || audio.ended) {
+        audio.currentTime = 0;
+        video.currentTime = 0;
+        setTextoProfesor("");
+        setIndiceProfesorActivo(-1);
+        setProgresoLineaProfesor(0);
+      }
+
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+
+      setEstadoProfesor("reproduciendo");
+
+      await video.play();
+      await audio.play();
+    } catch {
+      setEstadoProfesor("pausado");
+    }
+  };
+
+  const repetirProfesorAstroAct2 = async () => {
+    const audio = audioProfesorRef.current;
+    const video = videoProfesorRef.current;
+
+    if (!audio || !video) return;
+
+    audio.pause();
+    video.pause();
+
+    audio.currentTime = 0;
+    video.currentTime = 0;
+    setTextoProfesor("");
+    setIndiceProfesorActivo(-1);
+    setProgresoLineaProfesor(0);
+
+    try {
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+
+      setEstadoProfesor("reproduciendo");
+
+      await video.play();
+      await audio.play();
+    } catch {
+      setEstadoProfesor("pausado");
+    }
+  };
+
+  const cerrarProfesorAstroAct2 = () => {
+    pausarProfesorAstroAct2();
+
+    const audio = audioProfesorRef.current;
+    const video = videoProfesorRef.current;
+
+    if (audio) {
+      audio.currentTime = 0;
+    }
+
+    if (video) {
+      video.currentTime = 0;
+      video.pause();
+    }
+
+    setModalProfesorOpen(false);
+    setAutoPlayProfesor(false);
+    setEstadoProfesor("inicio");
+    setTextoProfesor("");
+    setIndiceProfesorActivo(-1);
+    setProgresoLineaProfesor(0);
+  };
+
+  const obtenerClaseLineaProfesorAct2 = (indice: number) => {
+    if (estadoProfesor === "terminado") return "act2geo-profe-line-done";
+    if (indiceProfesorActivo < 0) return "act2geo-profe-line-pending";
+    if (indice < indiceProfesorActivo) return "act2geo-profe-line-done";
+    if (indice === indiceProfesorActivo) return "act2geo-profe-line-active";
+    return "act2geo-profe-line-pending";
+  };
+
+  const obtenerProgresoLineaProfesorAct2 = (indice: number) => {
+    if (estadoProfesor === "terminado") return "100%";
+    if (indiceProfesorActivo < 0) return "0%";
+    if (indice < indiceProfesorActivo) return "100%";
+    if (indice === indiceProfesorActivo) return `${progresoLineaProfesor}%`;
+    return "0%";
+  };
+
+  const obtenerClaseLineaPistaAct2 = (indice: number) => {
+    if (estadoPista === "terminado") return "act2geo-clue-line-done";
+    if (indicePistaActivo < 0) return "act2geo-clue-line-pending";
+    if (indice < indicePistaActivo) return "act2geo-clue-line-done";
+    if (indice === indicePistaActivo) return "act2geo-clue-line-active";
+    return "act2geo-clue-line-pending";
+  };
+
+  const obtenerProgresoLineaPistaAct2 = (indice: number) => {
+    if (estadoPista === "terminado") return "100%";
+    if (indicePistaActivo < 0) return "0%";
+    if (indice < indicePistaActivo) return "100%";
+    if (indice === indicePistaActivo) return `${progresoLineaPista}%`;
+    return "0%";
+  };
+
+  const pausarSombraAct2 = () => {
+    const audio = audioSombraRef.current;
+    const video = videoSombraRef.current;
+
+    audio?.pause();
+    video?.pause();
+
+    if (estadoSombra === "reproduciendo") {
+      setEstadoSombra("pausado");
+    }
+  };
+
+  const abrirSombraAct2 = (reproducir = true) => {
+    pausarExplicacionNova();
+    pausarPistaAct2();
+    pausarProfesorAstroAct2();
+    pausarCompletadoAct2();
+    setModalSombraOpen(true);
+
+    if (reproducir) {
+      setAutoPlaySombra(true);
+    }
+  };
+
+  const iniciarSombraAct2 = async () => {
+    if (!modalSombraOpen) {
+      abrirSombraAct2(true);
+      return;
+    }
+
+    const audio = audioSombraRef.current;
+    const video = videoSombraRef.current;
+
+    if (!audio || !video) return;
+
+    try {
+      if (estadoSombra === "terminado" || audio.ended) {
+        audio.currentTime = 0;
+        video.currentTime = 0;
+        setTextoSombra("");
+        setIndiceSombraActivo(-1);
+        setProgresoLineaSombra(0);
+      }
+
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+
+      setEstadoSombra("reproduciendo");
+
+      await video.play();
+      await audio.play();
+    } catch {
+      setEstadoSombra("pausado");
+    }
+  };
+
+  const repetirSombraAct2 = async () => {
+    const audio = audioSombraRef.current;
+    const video = videoSombraRef.current;
+
+    if (!audio || !video) return;
+
+    audio.pause();
+    video.pause();
+
+    audio.currentTime = 0;
+    video.currentTime = 0;
+    setTextoSombra("");
+    setIndiceSombraActivo(-1);
+    setProgresoLineaSombra(0);
+
+    try {
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+
+      setEstadoSombra("reproduciendo");
+
+      await video.play();
+      await audio.play();
+    } catch {
+      setEstadoSombra("pausado");
+    }
+  };
+
+  const cerrarSombraAct2 = () => {
+    pausarSombraAct2();
+
+    const audio = audioSombraRef.current;
+    const video = videoSombraRef.current;
+
+    if (audio) audio.currentTime = 0;
+
+    if (video) {
+      video.currentTime = 0;
+      video.pause();
+    }
+
+    setModalSombraOpen(false);
+    setAutoPlaySombra(false);
+    setEstadoSombra("inicio");
+    setTextoSombra("");
+    setIndiceSombraActivo(-1);
+    setProgresoLineaSombra(0);
+  };
+
+  const pausarCompletadoAct2 = () => {
+    const audio = audioCompletadoRef.current;
+    const video = videoCompletadoRef.current;
+
+    audio?.pause();
+    video?.pause();
+
+    if (estadoCompletado === "reproduciendo") {
+      setEstadoCompletado("pausado");
+    }
+  };
+
+  const abrirCompletadoAct2 = (reproducir = true) => {
+    pausarExplicacionNova();
+    pausarPistaAct2();
+    pausarProfesorAstroAct2();
+    pausarSombraAct2();
+    setModalCompletadoOpen(true);
+
+    if (reproducir) {
+      setAutoPlayCompletado(true);
+    }
+  };
+
+  const iniciarCompletadoAct2 = async () => {
+    if (!modalCompletadoOpen) {
+      abrirCompletadoAct2(true);
+      return;
+    }
+
+    const audio = audioCompletadoRef.current;
+    const video = videoCompletadoRef.current;
+
+    if (!audio || !video) return;
+
+    try {
+      if (estadoCompletado === "terminado" || audio.ended) {
+        audio.currentTime = 0;
+        video.currentTime = 0;
+        setTextoCompletado("");
+        setIndiceCompletadoActivo(-1);
+        setProgresoLineaCompletado(0);
+      }
+
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+
+      setEstadoCompletado("reproduciendo");
+
+      await video.play();
+      await audio.play();
+    } catch {
+      setEstadoCompletado("pausado");
+    }
+  };
+
+  const repetirCompletadoAct2 = async () => {
+    const audio = audioCompletadoRef.current;
+    const video = videoCompletadoRef.current;
+
+    if (!audio || !video) return;
+
+    audio.pause();
+    video.pause();
+
+    audio.currentTime = 0;
+    video.currentTime = 0;
+    setTextoCompletado("");
+    setIndiceCompletadoActivo(-1);
+    setProgresoLineaCompletado(0);
+
+    try {
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+
+      setEstadoCompletado("reproduciendo");
+
+      await video.play();
+      await audio.play();
+    } catch {
+      setEstadoCompletado("pausado");
+    }
+  };
+
+  const cerrarCompletadoAct2 = () => {
+    pausarCompletadoAct2();
+
+    const audio = audioCompletadoRef.current;
+    const video = videoCompletadoRef.current;
+
+    if (audio) audio.currentTime = 0;
+
+    if (video) {
+      video.currentTime = 0;
+      video.pause();
+    }
+
+    setModalCompletadoOpen(false);
+    setAutoPlayCompletado(false);
+    setEstadoCompletado("inicio");
+    setTextoCompletado("");
+    setIndiceCompletadoActivo(-1);
+    setProgresoLineaCompletado(0);
+  };
+
+  const reiniciarActividadAct2 = () => {
+    cerrarSombraAct2();
+    cerrarCompletadoAct2();
+    setSegmentoSeleccionado(null);
+    setSegmentoColocado(null);
+    setRevisado(false);
+  };
+
+  const volverAActividadesAct2 = () => {
+    cerrarCompletadoAct2();
+    navigate("/actividades/geometria");
+  };
+
+  const irASiguienteActividadAct2 = () => {
+    cerrarCompletadoAct2();
+    navigate("/actividades/geometria");
+  };
+
+  const obtenerClaseLineaSombraAct2 = (indice: number) => {
+    if (estadoSombra === "terminado") return "act2geo-sombra-line-done";
+    if (indiceSombraActivo < 0) return "act2geo-sombra-line-pending";
+    if (indice < indiceSombraActivo) return "act2geo-sombra-line-done";
+    if (indice === indiceSombraActivo) return "act2geo-sombra-line-active";
+    return "act2geo-sombra-line-pending";
+  };
+
+  const obtenerProgresoLineaSombraAct2 = (indice: number) => {
+    if (estadoSombra === "terminado") return "100%";
+    if (indiceSombraActivo < 0) return "0%";
+    if (indice < indiceSombraActivo) return "100%";
+    if (indice === indiceSombraActivo) return `${progresoLineaSombra}%`;
+    return "0%";
+  };
+
+  const obtenerClaseLineaCompletadoAct2 = (indice: number) => {
+    if (estadoCompletado === "terminado") return "act2geo-complete-line-done";
+    if (indiceCompletadoActivo < 0) return "act2geo-complete-line-pending";
+    if (indice < indiceCompletadoActivo) return "act2geo-complete-line-done";
+    if (indice === indiceCompletadoActivo)
+      return "act2geo-complete-line-active";
+    return "act2geo-complete-line-pending";
+  };
+
+  const obtenerProgresoLineaCompletadoAct2 = (indice: number) => {
+    if (estadoCompletado === "terminado") return "100%";
+    if (indiceCompletadoActivo < 0) return "0%";
+    if (indice < indiceCompletadoActivo) return "100%";
+    if (indice === indiceCompletadoActivo) return `${progresoLineaCompletado}%`;
+    return "0%";
+  };
 
   const irARuta = (ruta: string) => {
+    pausarExplicacionNova();
+    pausarPistaAct2();
+    pausarProfesorAstroAct2();
+    pausarSombraAct2();
+    pausarCompletadoAct2();
     setMenuOpen(false);
     navigate(ruta);
   };
@@ -93,11 +1598,91 @@ function Actividad2MathGeometry() {
   };
 
   const comprobarRespuesta = () => {
-    if (!segmentoColocado) {
-      setSegmentoColocado(segmentoSeleccionado);
+    pausarPistaAct2();
+    pausarProfesorAstroAct2();
+    pausarSombraAct2();
+    pausarCompletadoAct2();
+
+    const piezaParaRevisar = segmentoColocado || segmentoSeleccionado;
+
+    if (!piezaParaRevisar) {
+      setRevisado(true);
+      return;
     }
 
+    setSegmentoColocado(piezaParaRevisar);
     setRevisado(true);
+
+    if (piezaParaRevisar === "pieza3") {
+      abrirCompletadoAct2(true);
+    } else {
+      abrirSombraAct2(true);
+    }
+  };
+
+  const pausarExplicacionNova = () => {
+    const audio = audioNovaRef.current;
+    const video = videoNovaRef.current;
+
+    audio?.pause();
+    video?.pause();
+
+    if (estadoBienvenidaNova === "reproduciendo") {
+      setEstadoBienvenidaNova("pausado");
+    }
+  };
+
+  const iniciarExplicacionNova = async () => {
+    const audio = audioNovaRef.current;
+    const video = videoNovaRef.current;
+
+    if (!audio || !video) return;
+
+    try {
+      if (estadoBienvenidaNova === "terminado" || audio.ended) {
+        audio.currentTime = 0;
+        video.currentTime = 0;
+        setTextoBienvenidaNova("");
+      }
+
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+
+      setEstadoBienvenidaNova("reproduciendo");
+
+      await video.play();
+      await audio.play();
+    } catch {
+      setEstadoBienvenidaNova("pausado");
+    }
+  };
+
+  const repetirExplicacionNova = async () => {
+    const audio = audioNovaRef.current;
+    const video = videoNovaRef.current;
+
+    if (!audio || !video) return;
+
+    audio.pause();
+    video.pause();
+
+    audio.currentTime = 0;
+    video.currentTime = 0;
+    setTextoBienvenidaNova("");
+
+    try {
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+
+      setEstadoBienvenidaNova("reproduciendo");
+
+      await video.play();
+      await audio.play();
+    } catch {
+      setEstadoBienvenidaNova("pausado");
+    }
   };
 
   return (
@@ -235,7 +1820,7 @@ function Actividad2MathGeometry() {
             </div>
 
             <div className="act2geo-actions-top">
-              <button type="button">
+              <button type="button" onClick={pausarExplicacionNova}>
                 <FiPause />
                 Pausa
               </button>
@@ -250,22 +1835,91 @@ function Actividad2MathGeometry() {
             </div>
           </header>
 
-          <img
-            src={profesorHero}
-            alt="Profesor Astro"
-            className="act2geo-hero-professor"
-          />
+          <section
+            className={`act2geo-novaexplain-row ${
+              estadoBienvenidaNova === "reproduciendo"
+                ? "act2geo-novaexplain-playing"
+                : ""
+            }`}
+          >
+            <div className="act2geo-novaexplain-stage">
+              <video
+                ref={videoNovaRef}
+                src={videoNovaExplicando}
+                className="act2geo-novaexplain-source-video"
+                muted
+                loop
+                playsInline
+                preload="auto"
+                aria-hidden="true"
+              />
 
-          <section className="act2geo-message-row">
-            <div className="act2geo-avatar">
-              <img src={zorritoInstrucciones} alt="Nova instrucciones" />
+              <canvas
+                ref={canvasNovaRef}
+                className="act2geo-novaexplain-canvas"
+                role="img"
+                aria-label="Nova explicando la actividad"
+              />
+
+              <span className="act2geo-novaexplain-shadow"></span>
             </div>
 
-            <div className="act2geo-message">
-              Explorador, una parte del camino se perdió. Observa los puntos
-              marcados y elige el segmento que los conecta correctamente para
-              que Nova pueda avanzar.
-            </div>
+            <article className="act2geo-novaexplain-cloud">
+              <div className="act2geo-novaexplain-main">
+                <span className="act2geo-novaexplain-label">Nova explica</span>
+
+                <p>
+                  {textoBienvenidaNova || textoInicialBienvenidaNova}
+
+                  {estadoBienvenidaNova === "reproduciendo" && (
+                    <span className="act2geo-novaexplain-cursor"></span>
+                  )}
+                </p>
+              </div>
+
+              <div
+                className="act2geo-novaexplain-controls"
+                aria-label="Controles de audio de Nova"
+              >
+                <span
+                  className="act2geo-novaexplain-control-glow"
+                  aria-hidden="true"
+                ></span>
+
+                <button
+                  type="button"
+                  className="act2geo-novaexplain-control-btn act2geo-novaexplain-control-play"
+                  onClick={iniciarExplicacionNova}
+                  aria-label="Reproducir explicación"
+                >
+                  <FiPlay />
+                </button>
+
+                <button
+                  type="button"
+                  className="act2geo-novaexplain-control-btn"
+                  onClick={pausarExplicacionNova}
+                  aria-label="Pausar explicación"
+                >
+                  <FiPause />
+                </button>
+
+                <button
+                  type="button"
+                  className="act2geo-novaexplain-control-btn act2geo-novaexplain-control-repeat"
+                  onClick={repetirExplicacionNova}
+                  aria-label="Repetir explicación"
+                >
+                  <FiRotateCcw />
+                </button>
+              </div>
+            </article>
+
+            <audio
+              ref={audioNovaRef}
+              src={audioBienvenidaNova}
+              preload="auto"
+            />
           </section>
 
           <section className="act2geo-layout">
@@ -364,21 +2018,31 @@ function Actividad2MathGeometry() {
                 </div>
               </article>
 
-              <article className="act2geo-tip-card">
-                <img src={piezaCamino2} alt="Segmento" />
+              <button
+                type="button"
+                className="act2geo-tip-card act2geo-profesor-card"
+                onClick={() => abrirProfesorAstroAct2(false)}
+              >
+                <img src={profesorExplicando} alt="Profesor Astro" />
                 <div>
-                  <h3>Un segmento une dos puntos.</h3>
-                  <p>Busca el tramo que inicia y termina en los círculos.</p>
+                  <h3>Profesor Astro</h3>
+                  <p>Un segmento une dos puntos. Mira cómo conectar la ruta.</p>
+                  <span>Ver explicación</span>
                 </div>
-              </article>
+              </button>
 
-              <article className="act2geo-tip-card">
+              <button
+                type="button"
+                className="act2geo-tip-card act2geo-open-pistas-card"
+                onClick={() => abrirPistasAct2(false)}
+              >
                 <img src={byteAct2} alt="Byte" />
                 <div>
                   <h3>Pista de Byte</h3>
-                  <p>Observa dónde empieza y termina el tramo.</p>
+                  <p>Elige una pista según el tipo de camino.</p>
+                  <span>Ver pista</span>
                 </div>
-              </article>
+              </button>
 
               <button
                 className="act2geo-check-btn"
@@ -442,6 +2106,575 @@ function Actividad2MathGeometry() {
             </article>
           </section>
         </section>
+
+        {modalProfesorOpen && (
+          <section className="act2geo-profesor-modal-overlay">
+            <article
+              className={`act2geo-profesor-modal ${
+                estadoProfesor === "reproduciendo"
+                  ? "act2geo-profesor-modal-playing"
+                  : ""
+              }`}
+            >
+              <button
+                type="button"
+                className="act2geo-profesor-close"
+                onClick={cerrarProfesorAstroAct2}
+                aria-label="Cerrar explicación del Profesor Astro"
+              >
+                <FiX />
+              </button>
+
+              <div className="act2geo-profesor-hero">
+                <video
+                  ref={videoProfesorRef}
+                  src={videoProfesorPistasAct2}
+                  className="act2geo-profesor-source-video"
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  aria-hidden="true"
+                />
+
+                <canvas
+                  ref={canvasProfesorRef}
+                  className="act2geo-profesor-canvas"
+                  role="img"
+                  aria-label="Profesor Astro explicando la actividad"
+                />
+
+                <span className="act2geo-profesor-orbit"></span>
+              </div>
+
+              <div className="act2geo-profesor-content">
+                <span className="act2geo-profesor-badge">
+                  <FiVolume2 />
+                  Profesor Astro
+                </span>
+
+                <h2>Observa antes de elegir</h2>
+
+                <div className="act2geo-profesor-cloud">
+                  <span className="act2geo-profesor-cloud-dot act2geo-profesor-cloud-dot-one"></span>
+                  <span className="act2geo-profesor-cloud-dot act2geo-profesor-cloud-dot-two"></span>
+
+                  <p>
+                    {textoProfesor || textoInicialProfesorAstroAct2}
+
+                    {estadoProfesor === "reproduciendo" && (
+                      <span className="act2geo-profesor-cursor"></span>
+                    )}
+                  </p>
+                </div>
+
+                <div className="act2geo-profesor-controls">
+                  <button
+                    type="button"
+                    className="act2geo-profesor-play"
+                    onClick={iniciarProfesorAstroAct2}
+                  >
+                    <FiPlay />
+                    Reproducir
+                  </button>
+
+                  <button type="button" onClick={pausarProfesorAstroAct2}>
+                    <FiPause />
+                    Pausar
+                  </button>
+
+                  <button type="button" onClick={repetirProfesorAstroAct2}>
+                    <FiRotateCcw />
+                    Reiniciar
+                  </button>
+                </div>
+              </div>
+
+              <aside className="act2geo-profesor-transcript">
+                <h3>Texto del profesor</h3>
+
+                {guionProfesorAstroAct2.map((linea, indice) => (
+                  <p
+                    key={`profesor-act2-${linea}`}
+                    className={obtenerClaseLineaProfesorAct2(indice)}
+                    style={
+                      {
+                        "--progreso-linea":
+                          obtenerProgresoLineaProfesorAct2(indice),
+                      } as CSSProperties
+                    }
+                  >
+                    {linea}
+                  </p>
+                ))}
+              </aside>
+
+              <audio
+                ref={audioProfesorRef}
+                src={audioProfesorAstro}
+                preload="auto"
+              />
+            </article>
+          </section>
+        )}
+
+        {modalPistasOpen && pistaActiva && (
+          <section className="act2geo-pistas-modal-overlay">
+            <article
+              className={`act2geo-pistas-modal ${
+                estadoPista === "reproduciendo"
+                  ? "act2geo-pistas-modal-playing"
+                  : ""
+              } ${
+                pistaActiva.personaje === "profesor"
+                  ? "act2geo-pistas-modal-profesor"
+                  : "act2geo-pistas-modal-byte"
+              }`}
+            >
+              <button
+                type="button"
+                className="act2geo-pistas-close"
+                onClick={cerrarPistasAct2}
+                aria-label="Cerrar pistas"
+              >
+                <FiX />
+              </button>
+
+              <div className="act2geo-pistas-hero">
+                <video
+                  ref={videoPistaRef}
+                  src={pistaActiva.video}
+                  className="act2geo-pistas-source-video"
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  aria-hidden="true"
+                />
+
+                <canvas
+                  ref={canvasPistaRef}
+                  className="act2geo-pistas-canvas"
+                  role="img"
+                  aria-label={pistaActiva.etiqueta}
+                />
+
+                <span className="act2geo-pistas-orbit"></span>
+              </div>
+
+              <div className="act2geo-pistas-content">
+                <span className="act2geo-pistas-badge">
+                  <FiVolume2 />
+                  {pistaActiva.etiqueta}
+                </span>
+
+                <h2>{pistaActiva.tituloModal}</h2>
+
+                <div className="act2geo-pistas-cloud">
+                  <span className="act2geo-pistas-cloud-dot act2geo-pistas-cloud-dot-one"></span>
+                  <span className="act2geo-pistas-cloud-dot act2geo-pistas-cloud-dot-two"></span>
+
+                  <p>
+                    {textoPista || textoInicialPistaAct2}
+
+                    {estadoPista === "reproduciendo" && (
+                      <span className="act2geo-pistas-cursor"></span>
+                    )}
+                  </p>
+                </div>
+
+                <div className="act2geo-pistas-controls">
+                  <button
+                    type="button"
+                    className="act2geo-pistas-play"
+                    onClick={iniciarPistaAct2}
+                  >
+                    <FiPlay />
+                    Reproducir
+                  </button>
+
+                  <button type="button" onClick={pausarPistaAct2}>
+                    <FiPause />
+                    Pausar
+                  </button>
+
+                  <button type="button" onClick={repetirPistaAct2}>
+                    <FiRotateCcw />
+                    Reiniciar
+                  </button>
+                </div>
+              </div>
+
+              <aside className="act2geo-pistas-panel">
+                <h3>Elige una pista</h3>
+
+                <div className="act2geo-pistas-options">
+                  {ordenPistasAct2.map((pistaId) => {
+                    const pista = pistasAct2[pistaId];
+
+                    return (
+                      <button
+                        key={pista.id}
+                        type="button"
+                        className={`act2geo-pistas-option ${
+                          pistaSeleccionada === pista.id
+                            ? "act2geo-pistas-option-active"
+                            : ""
+                        }`}
+                        onClick={() => seleccionarPistaAct2(pista.id)}
+                      >
+                        <span>{pista.etiqueta}</span>
+                        <strong>{pista.nombre}</strong>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="act2geo-pistas-transcript">
+                  <h3>Texto de la pista</h3>
+
+                  {pistaActiva.guion.map((linea, indice) => (
+                    <p
+                      key={`${pistaActiva.id}-${linea}`}
+                      className={obtenerClaseLineaPistaAct2(indice)}
+                      style={
+                        {
+                          "--progreso-linea":
+                            obtenerProgresoLineaPistaAct2(indice),
+                        } as CSSProperties
+                      }
+                    >
+                      {linea}
+                    </p>
+                  ))}
+                </div>
+              </aside>
+
+              <audio
+                ref={audioPistaRef}
+                src={pistaActiva.audio}
+                preload="auto"
+              />
+            </article>
+          </section>
+        )}
+
+        {modalSombraOpen && (
+          <div
+            className="act2geo-sombra-modal-overlay"
+            onClick={cerrarSombraAct2}
+          >
+            <section
+              className={`act2geo-sombra-modal ${
+                estadoSombra === "reproduciendo"
+                  ? "act2geo-sombra-modal-playing"
+                  : ""
+              }`}
+              onClick={(evento) => evento.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="act2geo-sombra-title"
+            >
+              <div className="act2geo-sombra-decoration" aria-hidden="true">
+                <span className="act2geo-sombra-glow act2geo-sombra-glow-one"></span>
+                <span className="act2geo-sombra-glow act2geo-sombra-glow-two"></span>
+                <span className="act2geo-sombra-dot act2geo-sombra-dot-one"></span>
+                <span className="act2geo-sombra-dot act2geo-sombra-dot-two"></span>
+                <span className="act2geo-sombra-dot act2geo-sombra-dot-three"></span>
+              </div>
+
+              <button
+                type="button"
+                className="act2geo-sombra-close"
+                onClick={cerrarSombraAct2}
+                aria-label="Cerrar mensaje de Sombra"
+              >
+                <FiX />
+              </button>
+
+              <div className="act2geo-sombra-hero">
+                <video
+                  ref={videoSombraRef}
+                  src={videoSombraErrorAct2}
+                  className="act2geo-sombra-source-video"
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  aria-hidden="true"
+                />
+
+                <canvas
+                  ref={canvasSombraRef}
+                  className="act2geo-sombra-canvas"
+                  role="img"
+                  aria-label="Sombra animando un mensaje para volver a intentar"
+                />
+
+                <span className="act2geo-sombra-orbit"></span>
+              </div>
+
+              <div className="act2geo-sombra-content">
+                <span className="act2geo-sombra-badge">
+                  <FiVolume2 /> Mensaje de Sombra
+                </span>
+
+                <h2 id="act2geo-sombra-title">Casi lo logras</h2>
+
+                <div className="act2geo-sombra-cloud">
+                  <span className="act2geo-sombra-cloud-dot act2geo-sombra-cloud-dot-one"></span>
+                  <span className="act2geo-sombra-cloud-dot act2geo-sombra-cloud-dot-two"></span>
+
+                  <p>
+                    {textoSombra || textoInicialSombraAct2}
+                    {estadoSombra === "reproduciendo" && (
+                      <span className="act2geo-sombra-cursor"></span>
+                    )}
+                  </p>
+                </div>
+
+                <div className="act2geo-sombra-controls">
+                  <button
+                    type="button"
+                    className="act2geo-sombra-play"
+                    onClick={iniciarSombraAct2}
+                  >
+                    <FiPlay /> Reproducir
+                  </button>
+
+                  <button type="button" onClick={pausarSombraAct2}>
+                    <FiPause /> Pausar
+                  </button>
+
+                  <button type="button" onClick={repetirSombraAct2}>
+                    <FiRotateCcw /> Reiniciar
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  className="act2geo-sombra-try-btn"
+                  onClick={reiniciarActividadAct2}
+                >
+                  Volver a intentarlo
+                </button>
+              </div>
+
+              <aside className="act2geo-sombra-transcript">
+                <h3>Texto completo</h3>
+
+                {guionSombraErrorAct2.map((linea, indice) => (
+                  <p
+                    key={`sombra-act2-${linea}`}
+                    className={obtenerClaseLineaSombraAct2(indice)}
+                    style={
+                      {
+                        "--progreso-sombra":
+                          obtenerProgresoLineaSombraAct2(indice),
+                      } as CSSProperties
+                    }
+                  >
+                    {linea}
+                  </p>
+                ))}
+              </aside>
+
+              <audio
+                ref={audioSombraRef}
+                src={audioSombraErrorAct2}
+                preload="auto"
+              />
+            </section>
+          </div>
+        )}
+
+        {modalCompletadoOpen && (
+          <div
+            className="act2geo-complete-modal-overlay"
+            onClick={cerrarCompletadoAct2}
+          >
+            <section
+              className={`act2geo-complete-modal ${
+                estadoCompletado === "reproduciendo"
+                  ? "act2geo-complete-modal-playing"
+                  : ""
+              }`}
+              onClick={(evento) => evento.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="act2geo-complete-title"
+            >
+              <img
+                src={bannerCompletadoAct2}
+                alt="Trofeo de actividad completada"
+                className="act2geo-complete-bg-image"
+                aria-hidden="true"
+              />
+
+              <div className="act2geo-complete-party" aria-hidden="true">
+                <span className="act2geo-complete-confetti act2geo-complete-confetti-one"></span>
+                <span className="act2geo-complete-confetti act2geo-complete-confetti-two"></span>
+                <span className="act2geo-complete-confetti act2geo-complete-confetti-three"></span>
+                <span className="act2geo-complete-confetti act2geo-complete-confetti-four"></span>
+                <span className="act2geo-complete-floating-star act2geo-complete-floating-star-one">
+                  ★
+                </span>
+                <span className="act2geo-complete-floating-star act2geo-complete-floating-star-two">
+                  ★
+                </span>
+                <span className="act2geo-complete-floating-star act2geo-complete-floating-star-three">
+                  ★
+                </span>
+              </div>
+
+              <button
+                type="button"
+                className="act2geo-complete-close"
+                onClick={cerrarCompletadoAct2}
+                aria-label="Cerrar misión completada"
+              >
+                <FiX />
+              </button>
+
+              <div className="act2geo-complete-hero">
+                <span className="act2geo-complete-check">
+                  <FiCheck />
+                </span>
+
+                <video
+                  ref={videoCompletadoRef}
+                  src={videoNovaExplicando}
+                  className="act2geo-complete-source-video"
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  aria-hidden="true"
+                />
+
+                <canvas
+                  ref={canvasCompletadoRef}
+                  className="act2geo-complete-canvas"
+                  role="img"
+                  aria-label="Nova celebrando la actividad completada"
+                />
+
+                <span className="act2geo-complete-orbit"></span>
+                <span className="act2geo-complete-spark act2geo-complete-spark-one"></span>
+                <span className="act2geo-complete-spark act2geo-complete-spark-two"></span>
+              </div>
+
+              <div className="act2geo-complete-content">
+                <span className="act2geo-complete-badge">
+                  <GiTrophyCup /> Actividad completada
+                </span>
+
+                <h2 id="act2geo-complete-title">¡Misión completada!</h2>
+
+                <div className="act2geo-complete-cloud">
+                  <span className="act2geo-complete-cloud-dot act2geo-complete-cloud-dot-one"></span>
+                  <span className="act2geo-complete-cloud-dot act2geo-complete-cloud-dot-two"></span>
+
+                  <p>
+                    {textoCompletado || textoInicialCompletadoAct2}
+                    {estadoCompletado === "reproduciendo" && (
+                      <span className="act2geo-complete-cursor"></span>
+                    )}
+                  </p>
+                </div>
+
+                <div className="act2geo-complete-controls">
+                  <button
+                    type="button"
+                    className="act2geo-complete-play"
+                    onClick={iniciarCompletadoAct2}
+                  >
+                    <FiPlay /> Reproducir
+                  </button>
+
+                  <button type="button" onClick={pausarCompletadoAct2}>
+                    <FiPause /> Pausar
+                  </button>
+
+                  <button type="button" onClick={repetirCompletadoAct2}>
+                    <FiRotateCcw /> Reiniciar
+                  </button>
+                </div>
+
+                <div className="act2geo-complete-summary">
+                  <article>
+                    <FiCheck />
+                    <div>
+                      <span>Aciertos</span>
+                      <strong>1/1</strong>
+                    </div>
+                  </article>
+
+                  <article>
+                    <FiTarget />
+                    <div>
+                      <span>Precisión</span>
+                      <strong>100%</strong>
+                    </div>
+                  </article>
+
+                  <article>
+                    <span className="act2geo-complete-star">★</span>
+                    <div>
+                      <span>Recompensa</span>
+                      <strong>+50 pts</strong>
+                    </div>
+                  </article>
+                </div>
+              </div>
+
+              <aside className="act2geo-complete-side">
+                <article className="act2geo-complete-transcript">
+                  <h3>Texto completo</h3>
+
+                  {guionCompletadoAct2.map((linea, indice) => (
+                    <p
+                      key={`completado-act2-${linea}`}
+                      className={obtenerClaseLineaCompletadoAct2(indice)}
+                      style={
+                        {
+                          "--progreso-complete":
+                            obtenerProgresoLineaCompletadoAct2(indice),
+                        } as CSSProperties
+                      }
+                    >
+                      {linea}
+                    </p>
+                  ))}
+                </article>
+
+                <div className="act2geo-complete-actions">
+                  <button
+                    type="button"
+                    className="act2geo-complete-next"
+                    onClick={irASiguienteActividadAct2}
+                  >
+                    <FiArrowRight /> Siguiente actividad
+                  </button>
+
+                  <button type="button" onClick={reiniciarActividadAct2}>
+                    <FiRotateCcw /> Repetir actividad
+                  </button>
+
+                  <button type="button" onClick={volverAActividadesAct2}>
+                    <FiLogOut /> Volver a actividades
+                  </button>
+                </div>
+              </aside>
+
+              <audio
+                ref={audioCompletadoRef}
+                src={audioCierreNovaAct2}
+                preload="auto"
+              />
+            </section>
+          </div>
+        )}
 
         <footer className="act2geo-footer">
           <div className="act2geo-footer-icons">

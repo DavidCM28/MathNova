@@ -1608,3 +1608,6427 @@ body {
     display: none;
   }
 }
+
+/* =========================================================
+   NOVA EXPLICANDO - ACTIVIDAD 2
+   Mismo estilo que Actividad 1, con clases act2geo para no chocar.
+   ========================================================= */
+
+.act2geo-novaexplain-row {
+  width: min(100%, 960px) !important;
+  max-width: 960px !important;
+  margin: 10px 0 18px !important;
+  display: grid !important;
+  grid-template-columns: 132px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 16px !important;
+  position: relative !important;
+  z-index: 18 !important;
+}
+
+.act2geo-novaexplain-stage {
+  width: 132px !important;
+  min-width: 132px !important;
+  height: 206px !important;
+  position: relative !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  overflow: visible !important;
+  transform: translateY(0) !important;
+}
+
+.act2geo-novaexplain-source-video {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.act2geo-novaexplain-canvas {
+  width: 126px !important;
+  height: 224px !important;
+  object-fit: contain !important;
+  display: block !important;
+  position: relative !important;
+  z-index: 4 !important;
+  filter: drop-shadow(0 14px 14px rgba(255, 137, 0, 0.18)) !important;
+  animation: none !important;
+}
+
+.act2geo-novaexplain-playing .act2geo-novaexplain-canvas {
+  animation:
+    act2geoNovaExplainFloat 2.4s ease-in-out infinite,
+    act2geoNovaExplainTalk 0.45s ease-in-out infinite !important;
+}
+
+.act2geo-novaexplain-shadow {
+  display: none !important;
+}
+
+.act2geo-novaexplain-cloud {
+  width: 100% !important;
+  max-width: 790px !important;
+  min-height: 98px !important;
+  padding: 17px 20px 17px 38px !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 18px !important;
+  position: relative !important;
+  overflow: visible !important;
+  border-radius: 46px 64px 46px 62px !important;
+  background:
+    radial-gradient(
+      circle at 16% -24%,
+      rgba(255, 255, 255, 0.99) 0 38px,
+      transparent 39px
+    ),
+    radial-gradient(
+      circle at 46% -32%,
+      rgba(255, 255, 255, 0.97) 0 50px,
+      transparent 51px
+    ),
+    radial-gradient(
+      circle at 78% -20%,
+      rgba(255, 255, 255, 0.97) 0 42px,
+      transparent 43px
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.99) 0%,
+      rgba(255, 253, 247, 0.98) 100%
+    ) !important;
+  border: 2px solid rgba(255, 203, 136, 0.58) !important;
+  box-shadow:
+    0 10px 20px rgba(15, 23, 42, 0.055),
+    inset 0 -5px 0 rgba(255, 190, 94, 0.06) !important;
+  backdrop-filter: blur(6px) !important;
+  transform: translateY(-8px) !important;
+  animation: act2geoNovaExplainCloudIn 0.36s ease both !important;
+}
+
+.act2geo-novaexplain-cloud::before {
+  content: "" !important;
+  position: absolute !important;
+  left: -42px !important;
+  top: 39px !important;
+  width: 15px !important;
+  height: 15px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.99) !important;
+  border: 2px solid rgba(255, 203, 136, 0.42) !important;
+  box-shadow:
+    23px -14px 0 6px rgba(255, 255, 255, 0.99),
+    23px -14px 0 8px rgba(255, 203, 136, 0.26),
+    50px -22px 0 10px rgba(255, 255, 255, 0.99),
+    50px -22px 0 12px rgba(255, 203, 136, 0.22) !important;
+  z-index: 4 !important;
+  pointer-events: none !important;
+  animation: act2geoNovaExplainBubbles 2.8s ease-in-out infinite !important;
+}
+
+.act2geo-novaexplain-cloud > * {
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+.act2geo-novaexplain-main {
+  min-width: 0 !important;
+  min-height: 68px !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-self: center !important;
+}
+
+.act2geo-novaexplain-label {
+  width: fit-content !important;
+  margin: 0 0 12px 0 !important;
+  padding: 7px 18px !important;
+  border-radius: 999px !important;
+  background: #eaf2ff !important;
+  color: #0058ff !important;
+  font-size: 12.5px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  box-shadow: 0 8px 14px rgba(0, 88, 255, 0.08) !important;
+}
+
+.act2geo-novaexplain-cloud p {
+  width: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: 70px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: #061331 !important;
+  font-size: 16px !important;
+  line-height: 1.3 !important;
+  letter-spacing: -0.2px !important;
+  font-weight: 950 !important;
+  overflow: hidden !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+}
+
+.act2geo-novaexplain-controls {
+  width: auto !important;
+  min-width: 126px !important;
+  min-height: 54px !important;
+  padding: 8px 10px !important;
+  border-radius: 999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  background:
+    radial-gradient(
+      circle at 12% 20%,
+      rgba(0, 88, 255, 0.16) 0 16px,
+      transparent 17px
+    ),
+    linear-gradient(135deg, #eef5ff 0%, #fff4df 100%) !important;
+  border: 2px solid rgba(0, 88, 255, 0.08) !important;
+  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.08) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.act2geo-novaexplain-control-glow {
+  position: absolute !important;
+  right: -18px !important;
+  bottom: -18px !important;
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 183, 3, 0.22) !important;
+  pointer-events: none !important;
+}
+
+.act2geo-novaexplain-control-btn {
+  width: 34px !important;
+  height: 34px !important;
+  border: none !important;
+  border-radius: 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  background: #ffffff !important;
+  color: #0058ff !important;
+  box-shadow: 0 8px 14px rgba(15, 23, 42, 0.1) !important;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.act2geo-novaexplain-control-btn svg {
+  font-size: 17px !important;
+}
+
+.act2geo-novaexplain-control-play {
+  background: #0058ff !important;
+  color: #ffffff !important;
+}
+
+.act2geo-novaexplain-control-repeat {
+  background: #fff4df !important;
+  color: #9a5a18 !important;
+}
+
+.act2geo-novaexplain-control-btn:hover {
+  transform: translateY(-2px) scale(1.06) !important;
+  box-shadow: 0 12px 20px rgba(0, 88, 255, 0.16) !important;
+}
+
+.act2geo-novaexplain-playing .act2geo-novaexplain-cloud {
+  animation:
+    act2geoNovaExplainCloudIn 0.36s ease both,
+    act2geoNovaExplainCloudBreath 2.2s ease-in-out infinite !important;
+}
+
+.act2geo-novaexplain-playing .act2geo-novaexplain-control-play {
+  animation: act2geoNovaExplainPlayPulse 1s ease-in-out infinite !important;
+}
+
+.act2geo-novaexplain-cursor {
+  display: inline-block !important;
+  width: 3px !important;
+  height: 18px !important;
+  margin-left: 4px !important;
+  border-radius: 999px !important;
+  background: #0058ff !important;
+  vertical-align: -3px !important;
+  animation: act2geoNovaExplainCursorBlink 0.8s infinite !important;
+}
+
+@keyframes act2geoNovaExplainFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+@keyframes act2geoNovaExplainTalk {
+  0%,
+  100% {
+    scale: 1;
+  }
+
+  50% {
+    scale: 1.025;
+  }
+}
+
+@keyframes act2geoNovaExplainCloudIn {
+  from {
+    opacity: 0;
+    transform: translateY(2px) translateX(-8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(-8px) translateX(0) scale(1);
+  }
+}
+
+@keyframes act2geoNovaExplainCloudBreath {
+  0%,
+  100% {
+    transform: translateY(-8px) scale(1);
+  }
+
+  50% {
+    transform: translateY(-10px) scale(1.004);
+  }
+}
+
+@keyframes act2geoNovaExplainBubbles {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-4px) scale(1.04);
+  }
+}
+
+@keyframes act2geoNovaExplainPlayPulse {
+  0%,
+  100% {
+    box-shadow: 0 8px 14px rgba(0, 88, 255, 0.14);
+  }
+
+  50% {
+    box-shadow: 0 12px 22px rgba(0, 88, 255, 0.28);
+  }
+}
+
+@keyframes act2geoNovaExplainCursorBlink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+
+  46%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (min-width: 1600px) {
+  .act2geo-novaexplain-row {
+    width: min(100%, 980px) !important;
+    max-width: 980px !important;
+    grid-template-columns: 140px minmax(0, 1fr) !important;
+  }
+
+  .act2geo-novaexplain-stage {
+    width: 140px !important;
+    min-width: 140px !important;
+    height: 220px !important;
+  }
+
+  .act2geo-novaexplain-canvas {
+    width: 134px !important;
+    height: 238px !important;
+  }
+
+  .act2geo-novaexplain-cloud {
+    max-width: 810px !important;
+  }
+}
+
+@media (max-width: 1500px) {
+  .act2geo-novaexplain-row {
+    width: min(100%, 910px) !important;
+    max-width: 910px !important;
+    margin-top: 12px !important;
+  }
+
+  .act2geo-novaexplain-cloud {
+    max-width: 760px !important;
+    transform: translateY(-8px) !important;
+  }
+}
+
+@media (max-width: 1199px) {
+  .act2geo-novaexplain-row {
+    max-width: 100% !important;
+    grid-template-columns: 122px minmax(0, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .act2geo-novaexplain-stage {
+    width: 122px !important;
+    min-width: 122px !important;
+    height: 198px !important;
+  }
+
+  .act2geo-novaexplain-canvas {
+    width: 116px !important;
+    height: 206px !important;
+  }
+
+  .act2geo-novaexplain-cloud {
+    max-width: 100% !important;
+    min-height: 102px !important;
+    padding: 16px 16px 16px 30px !important;
+    gap: 12px !important;
+    border-radius: 40px 52px 40px 54px !important;
+  }
+
+  .act2geo-novaexplain-cloud p {
+    font-size: 15px !important;
+    max-height: 65px !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .act2geo-novaexplain-row {
+    grid-template-columns: 112px minmax(0, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .act2geo-novaexplain-stage {
+    width: 112px !important;
+    min-width: 112px !important;
+    height: 184px !important;
+  }
+
+  .act2geo-novaexplain-canvas {
+    width: 108px !important;
+    height: 192px !important;
+  }
+
+  .act2geo-novaexplain-cloud {
+    min-height: 100px !important;
+    padding: 15px 14px 15px 26px !important;
+    border-radius: 36px 48px 36px 48px !important;
+    transform: translateY(-4px) !important;
+  }
+
+  .act2geo-novaexplain-cloud::before {
+    left: -34px !important;
+    top: 40px !important;
+  }
+
+  .act2geo-novaexplain-label {
+    font-size: 11px !important;
+    margin-bottom: 8px !important;
+    padding: 6px 14px !important;
+  }
+
+  .act2geo-novaexplain-cloud p {
+    font-size: 14px !important;
+    line-height: 1.3 !important;
+    max-height: 58px !important;
+    -webkit-line-clamp: 3 !important;
+  }
+
+  .act2geo-novaexplain-controls {
+    min-width: 116px !important;
+    min-height: 50px !important;
+    gap: 5px !important;
+  }
+
+  .act2geo-novaexplain-control-btn {
+    width: 29px !important;
+    height: 29px !important;
+    border-radius: 12px !important;
+  }
+
+  .act2geo-novaexplain-control-btn svg {
+    font-size: 15px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .act2geo-novaexplain-row {
+    grid-template-columns: 1fr !important;
+    justify-items: center !important;
+    gap: 8px !important;
+    max-width: 100% !important;
+    margin-top: 14px !important;
+  }
+
+  .act2geo-novaexplain-stage {
+    width: 120px !important;
+    min-width: 120px !important;
+    height: 194px !important;
+  }
+
+  .act2geo-novaexplain-canvas {
+    width: 114px !important;
+    height: 203px !important;
+  }
+
+  .act2geo-novaexplain-cloud {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 0 !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: 18px 15px 14px !important;
+    border-radius: 28px 36px 28px 36px !important;
+    text-align: center !important;
+    transform: translateY(0) !important;
+  }
+
+  .act2geo-novaexplain-cloud::before {
+    display: none !important;
+  }
+
+  .act2geo-novaexplain-main {
+    align-items: center !important;
+    width: 100% !important;
+  }
+
+  .act2geo-novaexplain-label {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-bottom: 9px !important;
+  }
+
+  .act2geo-novaexplain-cloud p {
+    width: 100% !important;
+    max-height: 84px !important;
+    font-size: 14.2px !important;
+    line-height: 1.32 !important;
+    -webkit-line-clamp: 4 !important;
+  }
+
+  .act2geo-novaexplain-controls {
+    width: min(100%, 190px) !important;
+    min-height: 56px !important;
+    margin: 0 auto !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .act2geo-novaexplain-stage {
+    width: 112px !important;
+    min-width: 112px !important;
+    height: 180px !important;
+  }
+
+  .act2geo-novaexplain-canvas {
+    width: 106px !important;
+    height: 188px !important;
+  }
+
+  .act2geo-novaexplain-cloud {
+    padding: 17px 13px 13px !important;
+  }
+
+  .act2geo-novaexplain-cloud p {
+    max-height: 80px !important;
+    font-size: 13.6px !important;
+    line-height: 1.32 !important;
+  }
+
+  .act2geo-novaexplain-controls {
+    width: min(100%, 182px) !important;
+    min-height: 56px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .act2geo-novaexplain-cloud p {
+    font-size: 13.1px !important;
+  }
+}
+
+/* =========================================================
+   AJUSTE FINAL ACTIVIDAD 2 - PISTAS EN MODAL
+   Solo mueve la zona de pistas y sube la actividad un poco.
+   Clases act2geo-* para no chocar con Actividad 1.
+   ========================================================= */
+
+/* Ya no se usa el Profesor flotando arriba. La animación va dentro del modal. */
+.act2geo-hero-professor {
+  display: none !important;
+}
+
+/* Subir un poco el mapa para quitar el espacio grande debajo de Nova explica. */
+.act2geo-novaexplain-row {
+  margin-bottom: -18px !important;
+}
+
+.act2geo-layout {
+  margin-top: -4px !important;
+}
+
+/* Card/botón Ver pista en el panel derecho */
+.act2geo-open-pistas-card {
+  width: 100% !important;
+  min-height: 136px !important;
+  border: 2px solid rgba(0, 88, 255, 0.16) !important;
+  background:
+    radial-gradient(
+      circle at 92% 18%,
+      rgba(0, 88, 255, 0.08) 0 38px,
+      transparent 39px
+    ),
+    radial-gradient(
+      circle at 96% 92%,
+      rgba(255, 183, 3, 0.18) 0 44px,
+      transparent 45px
+    ),
+    #ffffff !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  font-family: inherit !important;
+  position: relative !important;
+  overflow: hidden !important;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease !important;
+}
+
+.act2geo-open-pistas-card:hover {
+  transform: translateY(-4px) scale(1.012) !important;
+  border-color: rgba(0, 88, 255, 0.42) !important;
+  box-shadow: 0 20px 34px rgba(0, 88, 255, 0.16) !important;
+}
+
+.act2geo-open-pistas-card img {
+  position: relative !important;
+  z-index: 2 !important;
+  filter: drop-shadow(0 8px 10px rgba(0, 88, 255, 0.12)) !important;
+}
+
+.act2geo-open-pistas-card div {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.act2geo-open-pistas-card h3 {
+  color: #0058ff !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+}
+
+.act2geo-open-pistas-card p {
+  max-height: none !important;
+  color: #061331 !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+}
+
+.act2geo-open-pistas-card span {
+  width: fit-content !important;
+  min-height: 22px !important;
+  margin-top: 8px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  background: #eef5ff !important;
+  color: #0058ff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  font-size: 9px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+}
+
+/* =========================
+   MODAL DE PISTAS
+   ========================= */
+
+.act2geo-pistas-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  padding: 24px !important;
+  background:
+    radial-gradient(
+      circle at 24% 16%,
+      rgba(255, 183, 3, 0.22),
+      transparent 28%
+    ),
+    radial-gradient(circle at 78% 86%, rgba(0, 88, 255, 0.14), transparent 26%),
+    rgba(15, 23, 42, 0.52) !important;
+  backdrop-filter: blur(9px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  overscroll-behavior: contain !important;
+  animation: act2geoPistasFadeIn 0.24s ease both !important;
+}
+
+.act2geo-pistas-modal {
+  width: min(1180px, calc(100vw - 46px)) !important;
+  max-height: min(760px, calc(100dvh - 46px)) !important;
+  padding: 34px !important;
+  border-radius: 38px !important;
+  border: 2px solid rgba(255, 203, 136, 0.78) !important;
+  background:
+    radial-gradient(
+      circle at 9% 10%,
+      rgba(255, 255, 255, 0.95) 0 82px,
+      transparent 83px
+    ),
+    radial-gradient(
+      circle at 96% 8%,
+      rgba(255, 183, 3, 0.17) 0 96px,
+      transparent 97px
+    ),
+    radial-gradient(
+      circle at 4% 96%,
+      rgba(0, 88, 255, 0.09) 0 72px,
+      transparent 73px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #fff9ec 100%) !important;
+  box-shadow: 0 34px 86px rgba(15, 23, 42, 0.34) !important;
+  display: grid !important;
+  grid-template-columns: 230px minmax(0, 1fr) 320px !important;
+  gap: 24px !important;
+  align-items: center !important;
+  position: relative !important;
+  overflow: hidden !important;
+  animation: act2geoPistasPop 0.34s ease both !important;
+}
+
+.act2geo-pistas-modal::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 16px !important;
+  border-radius: 30px !important;
+  border: 2px dashed rgba(255, 183, 3, 0.18) !important;
+  pointer-events: none !important;
+}
+
+.act2geo-pistas-modal::after {
+  content: "" !important;
+  position: absolute !important;
+  width: 92px !important;
+  height: 92px !important;
+  right: 146px !important;
+  top: -36px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 183, 3, 0.16) !important;
+  pointer-events: none !important;
+}
+
+.act2geo-pistas-close {
+  position: absolute !important;
+  top: 18px !important;
+  right: 18px !important;
+  width: 42px !important;
+  height: 42px !important;
+  border: none !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  color: #061331 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  z-index: 12 !important;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.14) !important;
+  transition:
+    transform 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease !important;
+}
+
+.act2geo-pistas-close:hover {
+  transform: translateY(-2px) scale(1.06) !important;
+  background: #0058ff !important;
+  color: #ffffff !important;
+}
+
+.act2geo-pistas-close svg {
+  font-size: 22px !important;
+}
+
+/* Personaje dentro del modal */
+.act2geo-pistas-hero {
+  min-height: 382px !important;
+  position: relative !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  z-index: 4 !important;
+}
+
+.act2geo-pistas-source-video {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.act2geo-pistas-canvas {
+  width: 214px !important;
+  height: 380px !important;
+  object-fit: contain !important;
+  position: relative !important;
+  z-index: 4 !important;
+  filter: drop-shadow(0 20px 22px rgba(0, 88, 255, 0.18)) !important;
+}
+
+.act2geo-pistas-modal-byte .act2geo-pistas-canvas {
+  width: 230px !important;
+  height: 408px !important;
+}
+
+.act2geo-pistas-orbit {
+  width: 168px !important;
+  height: 34px !important;
+  position: absolute !important;
+  bottom: 20px !important;
+  border-radius: 999px !important;
+  background: rgba(0, 88, 255, 0.1) !important;
+  filter: blur(3px) !important;
+  z-index: 1 !important;
+}
+
+.act2geo-pistas-modal-playing .act2geo-pistas-canvas {
+  animation: act2geoPistasFloat 2.2s ease-in-out infinite !important;
+}
+
+.act2geo-pistas-modal-playing .act2geo-pistas-orbit {
+  animation: act2geoPistasOrbit 2.2s ease-in-out infinite !important;
+}
+
+/* Contenido central */
+.act2geo-pistas-content {
+  min-width: 0 !important;
+  position: relative !important;
+  z-index: 4 !important;
+}
+
+.act2geo-pistas-badge {
+  width: fit-content !important;
+  min-height: 34px !important;
+  padding: 0 16px !important;
+  border-radius: 999px !important;
+  background: #eaf2ff !important;
+  color: #0058ff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  box-shadow: 0 10px 20px rgba(0, 88, 255, 0.08) !important;
+}
+
+.act2geo-pistas-badge svg {
+  font-size: 17px !important;
+}
+
+.act2geo-pistas-content h2 {
+  margin: 16px 0 18px !important;
+  color: #061331 !important;
+  font-size: clamp(34px, 3.2vw, 50px) !important;
+  line-height: 0.96 !important;
+  font-weight: 950 !important;
+  letter-spacing: -1.15px !important;
+}
+
+.act2geo-pistas-cloud {
+  min-height: 164px !important;
+  padding: 28px 30px !important;
+  border-radius: 42px 58px 42px 58px !important;
+  background:
+    radial-gradient(
+      circle at 18% -20%,
+      rgba(255, 255, 255, 0.98) 0 50px,
+      transparent 51px
+    ),
+    radial-gradient(
+      circle at 54% -26%,
+      rgba(255, 255, 255, 0.96) 0 64px,
+      transparent 65px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #fffdf8 100%) !important;
+  border: 2px solid rgba(255, 203, 136, 0.66) !important;
+  box-shadow:
+    0 18px 34px rgba(15, 23, 42, 0.095),
+    inset 0 -6px 0 rgba(255, 190, 94, 0.08) !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.act2geo-pistas-cloud::before {
+  content: "" !important;
+  position: absolute !important;
+  left: -25px !important;
+  top: 58px !important;
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 2px solid rgba(255, 203, 136, 0.42) !important;
+}
+
+.act2geo-pistas-cloud-dot {
+  position: absolute !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 2px solid rgba(255, 203, 136, 0.38) !important;
+  pointer-events: none !important;
+}
+
+.act2geo-pistas-cloud-dot-one {
+  left: -54px !important;
+  top: 88px !important;
+  width: 15px !important;
+  height: 15px !important;
+}
+
+.act2geo-pistas-cloud-dot-two {
+  left: -78px !important;
+  top: 116px !important;
+  width: 10px !important;
+  height: 10px !important;
+}
+
+.act2geo-pistas-cloud p {
+  margin: 0 !important;
+  color: #061331 !important;
+  font-size: 20px !important;
+  line-height: 1.36 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.25px !important;
+  max-height: 112px !important;
+  overflow: hidden !important;
+}
+
+.act2geo-pistas-cursor {
+  display: inline-block !important;
+  width: 3px !important;
+  height: 20px !important;
+  margin-left: 4px !important;
+  border-radius: 999px !important;
+  background: #0058ff !important;
+  vertical-align: -3px !important;
+  animation: act2geoPistasCursor 0.8s infinite !important;
+}
+
+.act2geo-pistas-controls {
+  margin-top: 18px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+}
+
+.act2geo-pistas-controls button {
+  min-height: 44px !important;
+  border: none !important;
+  border-radius: 999px !important;
+  padding: 0 18px !important;
+  background: #ffffff !important;
+  color: #0058ff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.1) !important;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease !important;
+}
+
+.act2geo-pistas-controls button:hover {
+  transform: translateY(-3px) scale(1.03) !important;
+  box-shadow: 0 16px 28px rgba(0, 88, 255, 0.16) !important;
+}
+
+.act2geo-pistas-play {
+  background: #0058ff !important;
+  color: #ffffff !important;
+}
+
+.act2geo-pistas-modal-playing .act2geo-pistas-play {
+  animation: act2geoPistasPulse 1s ease-in-out infinite !important;
+}
+
+/* Panel derecho del modal */
+.act2geo-pistas-panel {
+  max-height: 560px !important;
+  position: relative !important;
+  z-index: 4 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+}
+
+.act2geo-pistas-panel > h3 {
+  width: fit-content !important;
+  margin: 0 !important;
+  color: #0058ff !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  position: relative !important;
+}
+
+.act2geo-pistas-panel > h3::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: -8px !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #0058ff, #ffb020) !important;
+}
+
+.act2geo-pistas-options {
+  margin-top: 10px !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+}
+
+.act2geo-pistas-option {
+  width: 100% !important;
+  min-height: 70px !important;
+  border: 2px solid rgba(0, 88, 255, 0.12) !important;
+  border-radius: 20px !important;
+  padding: 12px 14px !important;
+  background: rgba(255, 255, 255, 0.82) !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  font-family: inherit !important;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.07) !important;
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease !important;
+}
+
+.act2geo-pistas-option:hover {
+  transform: translateY(-3px) !important;
+  border-color: rgba(0, 88, 255, 0.34) !important;
+  box-shadow: 0 16px 28px rgba(0, 88, 255, 0.13) !important;
+}
+
+.act2geo-pistas-option span {
+  display: inline-flex !important;
+  margin-bottom: 7px !important;
+  padding: 5px 10px !important;
+  border-radius: 999px !important;
+  background: #eef5ff !important;
+  color: #0058ff !important;
+  font-size: 10px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+}
+
+.act2geo-pistas-option strong {
+  display: block !important;
+  color: #061331 !important;
+  font-size: 13px !important;
+  line-height: 1.08 !important;
+  font-weight: 950 !important;
+}
+
+.act2geo-pistas-option-active {
+  background: linear-gradient(135deg, #eef5ff 0%, #fff4df 100%) !important;
+  border-color: rgba(0, 88, 255, 0.55) !important;
+  box-shadow: 0 16px 30px rgba(0, 88, 255, 0.16) !important;
+}
+
+.act2geo-pistas-transcript {
+  max-height: 270px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 18px !important;
+  border-radius: 24px !important;
+  background: rgba(255, 255, 255, 0.84) !important;
+  border: 2px solid rgba(0, 88, 255, 0.09) !important;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08) !important;
+}
+
+.act2geo-pistas-transcript::-webkit-scrollbar {
+  width: 7px !important;
+}
+
+.act2geo-pistas-transcript::-webkit-scrollbar-thumb {
+  background: rgba(0, 88, 255, 0.24) !important;
+  border-radius: 999px !important;
+}
+
+.act2geo-pistas-transcript h3 {
+  width: fit-content !important;
+  margin: 0 0 14px !important;
+  color: #0058ff !important;
+  font-size: 17px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  position: relative !important;
+}
+
+.act2geo-pistas-transcript h3::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: -7px !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #0058ff, #ffb020, #0058ff) !important;
+}
+
+.act2geo-pistas-transcript p {
+  --progreso-linea: 0%;
+  position: relative !important;
+  margin: 0 0 10px !important;
+  padding: 8px 12px 10px 14px !important;
+  border-radius: 15px !important;
+  color: #15213c !important;
+  font-size: 12.5px !important;
+  line-height: 1.35 !important;
+  font-weight: 850 !important;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 225, 134, 0.54) 0 var(--progreso-linea),
+    rgba(234, 242, 255, 0.34) var(--progreso-linea) 100%
+  ) !important;
+  transition:
+    background 0.18s linear,
+    transform 0.22s ease,
+    opacity 0.22s ease,
+    color 0.22s ease !important;
+}
+
+.act2geo-pistas-transcript p::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 14px !important;
+  bottom: 4px !important;
+  width: var(--progreso-linea) !important;
+  max-width: calc(100% - 28px) !important;
+  height: 5px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #0058ff, #2f8cff, #ffb020) !important;
+  opacity: 0.85 !important;
+  pointer-events: none !important;
+  transition: width 0.16s linear !important;
+}
+
+.act2geo-pistas-transcript p.act2geo-clue-line-pending {
+  opacity: 0.68 !important;
+  background: transparent !important;
+}
+
+.act2geo-pistas-transcript p.act2geo-clue-line-pending::before {
+  opacity: 0 !important;
+}
+
+.act2geo-pistas-transcript p.act2geo-clue-line-done {
+  opacity: 1 !important;
+  background: linear-gradient(
+    90deg,
+    rgba(232, 246, 238, 0.95) 0 100%,
+    transparent 100%
+  ) !important;
+  color: #10203d !important;
+}
+
+.act2geo-pistas-transcript p.act2geo-clue-line-done::before {
+  width: calc(100% - 28px) !important;
+  background: linear-gradient(90deg, #14b85a, #7ae0a3) !important;
+  opacity: 0.7 !important;
+}
+
+.act2geo-pistas-transcript p.act2geo-clue-line-active {
+  opacity: 1 !important;
+  color: #061331 !important;
+  transform: translateX(4px) !important;
+  box-shadow:
+    0 8px 18px rgba(0, 88, 255, 0.08),
+    inset 4px 0 0 rgba(0, 88, 255, 0.85) !important;
+}
+
+/* =========================
+   ANIMACIONES MODAL PISTAS
+   ========================= */
+
+@keyframes act2geoPistasFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes act2geoPistasPop {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes act2geoPistasFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+@keyframes act2geoPistasOrbit {
+  0%,
+  100% {
+    transform: scaleX(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scaleX(0.82);
+    opacity: 0.42;
+  }
+}
+
+@keyframes act2geoPistasPulse {
+  0%,
+  100% {
+    box-shadow: 0 8px 14px rgba(0, 88, 255, 0.16);
+  }
+  50% {
+    box-shadow: 0 12px 22px rgba(0, 88, 255, 0.3);
+  }
+}
+
+@keyframes act2geoPistasCursor {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  46%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* =========================
+   RESPONSIVO MODAL PISTAS
+   ========================= */
+
+@media (max-width: 1500px) {
+  .act2geo-novaexplain-row {
+    margin-bottom: -14px !important;
+  }
+
+  .act2geo-pistas-modal {
+    width: min(1040px, calc(100vw - 40px)) !important;
+    grid-template-columns: 205px minmax(0, 1fr) 286px !important;
+    gap: 20px !important;
+    padding: 30px !important;
+  }
+
+  .act2geo-pistas-canvas {
+    width: 190px !important;
+    height: 338px !important;
+  }
+
+  .act2geo-pistas-modal-byte .act2geo-pistas-canvas {
+    width: 206px !important;
+    height: 366px !important;
+  }
+
+  .act2geo-pistas-cloud p {
+    font-size: 18px !important;
+  }
+}
+
+@media (max-width: 1199px) {
+  .act2geo-pistas-modal {
+    grid-template-columns: 178px minmax(0, 1fr) !important;
+    max-height: calc(100dvh - 34px) !important;
+    overflow-y: auto !important;
+  }
+
+  .act2geo-pistas-panel {
+    grid-column: 1 / -1 !important;
+    max-height: none !important;
+  }
+
+  .act2geo-pistas-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .act2geo-pistas-transcript {
+    max-height: 190px !important;
+  }
+
+  .act2geo-pistas-canvas {
+    width: 168px !important;
+    height: 299px !important;
+  }
+
+  .act2geo-pistas-modal-byte .act2geo-pistas-canvas {
+    width: 182px !important;
+    height: 323px !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .act2geo-novaexplain-row {
+    margin-bottom: 0 !important;
+  }
+
+  .act2geo-layout {
+    margin-top: 0 !important;
+  }
+
+  .act2geo-pistas-modal-overlay {
+    padding: 18px !important;
+    align-items: flex-start !important;
+    overflow-y: auto !important;
+  }
+
+  .act2geo-pistas-modal {
+    width: 100% !important;
+    max-height: none !important;
+    grid-template-columns: 1fr !important;
+    overflow: visible !important;
+    padding: 28px 22px 22px !important;
+    border-radius: 30px !important;
+    text-align: center !important;
+    margin: auto 0 !important;
+  }
+
+  .act2geo-pistas-modal::before {
+    inset: 12px !important;
+  }
+
+  .act2geo-pistas-hero {
+    min-height: 238px !important;
+    order: 1 !important;
+  }
+
+  .act2geo-pistas-canvas,
+  .act2geo-pistas-modal-byte .act2geo-pistas-canvas {
+    width: 150px !important;
+    height: 267px !important;
+  }
+
+  .act2geo-pistas-content {
+    order: 2 !important;
+  }
+
+  .act2geo-pistas-badge,
+  .act2geo-pistas-controls {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-content: center !important;
+  }
+
+  .act2geo-pistas-cloud {
+    min-height: 140px !important;
+    padding: 24px 22px !important;
+    text-align: center !important;
+  }
+
+  .act2geo-pistas-cloud::before,
+  .act2geo-pistas-cloud-dot {
+    display: none !important;
+  }
+
+  .act2geo-pistas-cloud p {
+    font-size: 16px !important;
+  }
+
+  .act2geo-pistas-panel {
+    order: 3 !important;
+    text-align: left !important;
+  }
+
+  .act2geo-pistas-options {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .act2geo-pistas-modal-overlay {
+    padding: 12px !important;
+  }
+
+  .act2geo-pistas-modal {
+    padding: 24px 16px 18px !important;
+    border-radius: 26px !important;
+  }
+
+  .act2geo-pistas-close {
+    top: 12px !important;
+    right: 12px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .act2geo-pistas-hero {
+    min-height: 208px !important;
+  }
+
+  .act2geo-pistas-canvas,
+  .act2geo-pistas-modal-byte .act2geo-pistas-canvas {
+    width: 130px !important;
+    height: 231px !important;
+  }
+
+  .act2geo-pistas-content h2 {
+    font-size: 28px !important;
+  }
+
+  .act2geo-pistas-cloud {
+    min-height: 132px !important;
+    padding: 22px 18px !important;
+  }
+
+  .act2geo-pistas-cloud p {
+    font-size: 14.5px !important;
+    line-height: 1.38 !important;
+  }
+
+  .act2geo-pistas-controls {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .act2geo-pistas-controls button {
+    width: 100% !important;
+  }
+}
+
+/* =========================================================
+   AJUSTE FINAL ACT 2 - PROFESOR EN PANEL + MODALES BONITOS
+   Solo ajusta la zona pedida. Clases act2geo-* para no chocar.
+   ========================================================= */
+
+/* Quitar profesor flotando de arriba: el profesor va en el panel y en modal. */
+.act2geo-hero-professor {
+  display: none !important;
+}
+
+/* Subir la actividad para quitar espacio vacío debajo de Nova explica. */
+.act2geo-novaexplain-row {
+  margin-bottom: -36px !important;
+}
+
+.act2geo-layout {
+  margin-top: -10px !important;
+}
+
+/* Card del Profesor donde estaba el segmento */
+.act2geo-profesor-card,
+.act2geo-open-pistas-card {
+  cursor: pointer !important;
+  text-align: left !important;
+  width: 100% !important;
+  border-color: rgba(0, 88, 255, 0.16) !important;
+  background:
+    radial-gradient(
+      circle at 92% 12%,
+      rgba(0, 88, 255, 0.08) 0 34px,
+      transparent 35px
+    ),
+    radial-gradient(
+      circle at 94% 96%,
+      rgba(255, 183, 3, 0.16) 0 42px,
+      transparent 43px
+    ),
+    #ffffff !important;
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease !important;
+}
+
+.act2geo-profesor-card:hover,
+.act2geo-open-pistas-card:hover {
+  transform: translateY(-4px) scale(1.012) !important;
+  border-color: rgba(0, 88, 255, 0.42) !important;
+  box-shadow: 0 20px 34px rgba(0, 88, 255, 0.16) !important;
+}
+
+.act2geo-profesor-card img {
+  width: 72px !important;
+  height: 82px !important;
+  object-fit: contain !important;
+  filter: drop-shadow(0 10px 12px rgba(0, 88, 255, 0.13)) !important;
+}
+
+.act2geo-profesor-card h3,
+.act2geo-open-pistas-card h3 {
+  color: #0058ff !important;
+  font-size: 15px !important;
+  line-height: 1.08 !important;
+  margin: 0 0 6px !important;
+  font-weight: 950 !important;
+}
+
+.act2geo-profesor-card p,
+.act2geo-open-pistas-card p {
+  color: #061331 !important;
+  font-size: 11.6px !important;
+  line-height: 1.22 !important;
+  font-weight: 900 !important;
+  margin: 0 !important;
+}
+
+.act2geo-profesor-card span,
+.act2geo-open-pistas-card span {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 24px !important;
+  margin-top: 9px !important;
+  padding: 0 12px !important;
+  border-radius: 999px !important;
+  background: #0058ff !important;
+  color: #ffffff !important;
+  font-size: 10px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  box-shadow: 0 8px 14px rgba(0, 88, 255, 0.18) !important;
+}
+
+.act2geo-open-pistas-card img {
+  width: 62px !important;
+  height: 68px !important;
+  object-fit: contain !important;
+}
+
+/* =========================================================
+   MODAL PROFESOR ASTRO - ACT 2
+   ========================================================= */
+
+body:has(.act2geo-profesor-modal-overlay),
+body:has(.act2geo-pistas-modal-overlay) {
+  overflow: hidden !important;
+}
+
+.act2geo-profesor-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  background:
+    radial-gradient(
+      circle at 25% 16%,
+      rgba(255, 183, 3, 0.22),
+      transparent 28%
+    ),
+    radial-gradient(circle at 78% 86%, rgba(0, 88, 255, 0.14), transparent 26%),
+    rgba(15, 23, 42, 0.52) !important;
+  backdrop-filter: blur(9px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 24px !important;
+  overflow: hidden !important;
+  overscroll-behavior: contain !important;
+  animation: act2geoProfesorFadeIn 0.24s ease both !important;
+}
+
+.act2geo-profesor-modal {
+  width: min(1120px, calc(100vw - 46px)) !important;
+  max-height: min(760px, calc(100dvh - 46px)) !important;
+  background:
+    radial-gradient(
+      circle at 9% 10%,
+      rgba(255, 255, 255, 0.95) 0 82px,
+      transparent 83px
+    ),
+    radial-gradient(
+      circle at 96% 8%,
+      rgba(255, 183, 3, 0.17) 0 96px,
+      transparent 97px
+    ),
+    radial-gradient(
+      circle at 4% 96%,
+      rgba(0, 88, 255, 0.09) 0 72px,
+      transparent 73px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #fff9ec 100%) !important;
+  border: 2px solid rgba(255, 203, 136, 0.78) !important;
+  border-radius: 38px !important;
+  box-shadow: 0 34px 86px rgba(15, 23, 42, 0.34) !important;
+  padding: 34px !important;
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: 230px minmax(0, 1fr) 286px !important;
+  gap: 24px !important;
+  align-items: center !important;
+  overflow: hidden !important;
+  animation: act2geoProfesorPop 0.34s ease both !important;
+}
+
+.act2geo-profesor-modal::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 16px !important;
+  border-radius: 30px !important;
+  border: 2px dashed rgba(255, 183, 3, 0.18) !important;
+  pointer-events: none !important;
+}
+
+.act2geo-profesor-modal::after {
+  content: "" !important;
+  position: absolute !important;
+  width: 92px !important;
+  height: 92px !important;
+  right: 142px !important;
+  top: -36px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 183, 3, 0.16) !important;
+  pointer-events: none !important;
+}
+
+.act2geo-profesor-close {
+  position: absolute !important;
+  top: 18px !important;
+  right: 18px !important;
+  width: 42px !important;
+  height: 42px !important;
+  border: none !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  color: #061331 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  z-index: 12 !important;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.14) !important;
+}
+
+.act2geo-profesor-close:hover {
+  background: #0058ff !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) scale(1.06) !important;
+}
+
+.act2geo-profesor-close svg {
+  font-size: 22px !important;
+}
+
+.act2geo-profesor-hero {
+  min-height: 382px !important;
+  position: relative !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  z-index: 4 !important;
+}
+
+.act2geo-profesor-source-video {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.act2geo-profesor-canvas {
+  width: 214px !important;
+  height: 380px !important;
+  object-fit: contain !important;
+  position: relative !important;
+  z-index: 4 !important;
+  filter: drop-shadow(0 20px 22px rgba(0, 88, 255, 0.18)) !important;
+}
+
+.act2geo-profesor-orbit {
+  position: absolute !important;
+  width: 168px !important;
+  height: 34px !important;
+  bottom: 20px !important;
+  border-radius: 999px !important;
+  background: rgba(0, 88, 255, 0.1) !important;
+  filter: blur(3px) !important;
+  z-index: 1 !important;
+}
+
+.act2geo-profesor-modal-playing .act2geo-profesor-canvas {
+  animation: act2geoProfesorFloat 2.2s ease-in-out infinite !important;
+}
+
+.act2geo-profesor-modal-playing .act2geo-profesor-orbit {
+  animation: act2geoProfesorOrbit 2.2s ease-in-out infinite !important;
+}
+
+.act2geo-profesor-content {
+  position: relative !important;
+  z-index: 4 !important;
+  min-width: 0 !important;
+}
+
+.act2geo-profesor-badge {
+  min-height: 34px !important;
+  padding: 0 16px !important;
+  border-radius: 999px !important;
+  background: #eaf2ff !important;
+  color: #0058ff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  box-shadow: 0 10px 20px rgba(0, 88, 255, 0.08) !important;
+}
+
+.act2geo-profesor-content h2 {
+  margin: 16px 0 18px !important;
+  color: #061331 !important;
+  font-size: clamp(34px, 3.2vw, 50px) !important;
+  line-height: 0.96 !important;
+  font-weight: 950 !important;
+  letter-spacing: -1.15px !important;
+}
+
+.act2geo-profesor-cloud {
+  min-height: 164px !important;
+  padding: 28px 30px !important;
+  border-radius: 42px 58px 42px 58px !important;
+  background:
+    radial-gradient(
+      circle at 18% -20%,
+      rgba(255, 255, 255, 0.98) 0 50px,
+      transparent 51px
+    ),
+    radial-gradient(
+      circle at 54% -26%,
+      rgba(255, 255, 255, 0.96) 0 64px,
+      transparent 65px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #fffdf8 100%) !important;
+  border: 2px solid rgba(255, 203, 136, 0.66) !important;
+  box-shadow:
+    0 18px 34px rgba(15, 23, 42, 0.095),
+    inset 0 -6px 0 rgba(255, 190, 94, 0.08) !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.act2geo-profesor-cloud::before {
+  content: "" !important;
+  position: absolute !important;
+  left: -25px !important;
+  top: 58px !important;
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 2px solid rgba(255, 203, 136, 0.42) !important;
+}
+
+.act2geo-profesor-cloud-dot {
+  position: absolute !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 2px solid rgba(255, 203, 136, 0.38) !important;
+  pointer-events: none !important;
+}
+
+.act2geo-profesor-cloud-dot-one {
+  left: -54px !important;
+  top: 88px !important;
+  width: 15px !important;
+  height: 15px !important;
+}
+
+.act2geo-profesor-cloud-dot-two {
+  left: -78px !important;
+  top: 116px !important;
+  width: 10px !important;
+  height: 10px !important;
+}
+
+.act2geo-profesor-cloud p {
+  margin: 0 !important;
+  color: #061331 !important;
+  font-size: 20px !important;
+  line-height: 1.36 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.25px !important;
+}
+
+.act2geo-profesor-cursor {
+  display: inline-block !important;
+  width: 3px !important;
+  height: 20px !important;
+  margin-left: 4px !important;
+  border-radius: 999px !important;
+  background: #0058ff !important;
+  vertical-align: -3px !important;
+  animation: act2geoProfesorCursor 0.8s infinite !important;
+}
+
+.act2geo-profesor-controls {
+  margin-top: 18px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+}
+
+.act2geo-profesor-controls button {
+  min-height: 44px !important;
+  border: none !important;
+  border-radius: 999px !important;
+  padding: 0 18px !important;
+  background: #ffffff !important;
+  color: #0058ff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.1) !important;
+}
+
+.act2geo-profesor-play {
+  background: #0058ff !important;
+  color: #ffffff !important;
+}
+
+.act2geo-profesor-modal-playing .act2geo-profesor-play {
+  animation: act2geoProfesorPulse 1s ease-in-out infinite !important;
+}
+
+.act2geo-profesor-transcript {
+  position: relative !important;
+  z-index: 4 !important;
+  max-height: 474px !important;
+  overflow-y: auto !important;
+  padding: 22px 22px 22px 30px !important;
+  border-radius: 28px !important;
+  background: rgba(255, 255, 255, 0.84) !important;
+  border: 2px solid rgba(0, 88, 255, 0.09) !important;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08) !important;
+}
+
+.act2geo-profesor-transcript h3 {
+  position: relative !important;
+  width: fit-content !important;
+  margin: 0 0 16px !important;
+  color: #0058ff !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+}
+
+.act2geo-profesor-transcript h3::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: -7px !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #0058ff, #ffb020, #0058ff) !important;
+}
+
+.act2geo-profesor-transcript p {
+  --progreso-linea: 0%;
+  position: relative !important;
+  margin: 0 0 10px !important;
+  padding: 8px 12px 10px 14px !important;
+  border-radius: 15px !important;
+  color: #15213c !important;
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+  font-weight: 850 !important;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 225, 134, 0.54) 0 var(--progreso-linea),
+    rgba(234, 242, 255, 0.34) var(--progreso-linea) 100%
+  ) !important;
+  transition:
+    background 0.18s linear,
+    transform 0.22s ease,
+    opacity 0.22s ease !important;
+  overflow: visible !important;
+}
+
+.act2geo-profesor-transcript p::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 14px !important;
+  bottom: 4px !important;
+  width: var(--progreso-linea) !important;
+  max-width: calc(100% - 28px) !important;
+  height: 5px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #0058ff, #2f8cff, #ffb020) !important;
+  opacity: 0.85 !important;
+  pointer-events: none !important;
+}
+
+.act2geo-profesor-transcript p.act2geo-profe-line-pending {
+  opacity: 0.68 !important;
+  background: transparent !important;
+}
+
+.act2geo-profesor-transcript p.act2geo-profe-line-pending::before {
+  opacity: 0 !important;
+}
+
+.act2geo-profesor-transcript p.act2geo-profe-line-done {
+  opacity: 1 !important;
+  background: rgba(232, 246, 238, 0.95) !important;
+  color: #10203d !important;
+}
+
+.act2geo-profesor-transcript p.act2geo-profe-line-done::before {
+  width: calc(100% - 28px) !important;
+  background: linear-gradient(90deg, #14b85a, #7ae0a3) !important;
+  opacity: 0.7 !important;
+}
+
+.act2geo-profesor-transcript p.act2geo-profe-line-active {
+  opacity: 1 !important;
+  color: #061331 !important;
+  transform: translateX(4px) !important;
+  box-shadow:
+    0 8px 18px rgba(0, 88, 255, 0.08),
+    inset 4px 0 0 rgba(0, 88, 255, 0.85) !important;
+}
+
+@keyframes act2geoProfesorFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes act2geoProfesorPop {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes act2geoProfesorFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+@keyframes act2geoProfesorOrbit {
+  0%,
+  100% {
+    transform: scaleX(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scaleX(0.82);
+    opacity: 0.42;
+  }
+}
+
+@keyframes act2geoProfesorPulse {
+  0%,
+  100% {
+    box-shadow: 0 8px 14px rgba(0, 88, 255, 0.16);
+  }
+  50% {
+    box-shadow: 0 12px 22px rgba(0, 88, 255, 0.3);
+  }
+}
+
+@keyframes act2geoProfesorCursor {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  46%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Arreglar texto inicial del modal de pistas para Act 2 */
+.act2geo-pistas-content h2 {
+  letter-spacing: -0.8px !important;
+}
+
+/* Responsivo: no encimar el bloque de Nova con el mapa en pantallas chicas. */
+@media (max-width: 1500px) {
+  .act2geo-novaexplain-row {
+    margin-bottom: -30px !important;
+  }
+
+  .act2geo-layout {
+    margin-top: -8px !important;
+  }
+
+  .act2geo-profesor-modal {
+    width: min(1020px, calc(100vw - 40px)) !important;
+    grid-template-columns: 205px minmax(0, 1fr) 260px !important;
+    gap: 20px !important;
+    padding: 30px !important;
+  }
+
+  .act2geo-profesor-canvas {
+    width: 190px !important;
+    height: 338px !important;
+  }
+
+  .act2geo-profesor-cloud p {
+    font-size: 18px !important;
+  }
+}
+
+@media (max-width: 1199px) {
+  .act2geo-novaexplain-row {
+    margin-bottom: -16px !important;
+  }
+
+  .act2geo-layout {
+    margin-top: 0 !important;
+  }
+
+  .act2geo-profesor-modal {
+    grid-template-columns: 178px minmax(0, 1fr) !important;
+    max-height: calc(100dvh - 34px) !important;
+    overflow-y: auto !important;
+  }
+
+  .act2geo-profesor-transcript {
+    grid-column: 1 / -1 !important;
+    max-height: 190px !important;
+  }
+
+  .act2geo-profesor-canvas {
+    width: 168px !important;
+    height: 299px !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .act2geo-novaexplain-row {
+    margin-bottom: 0 !important;
+  }
+
+  .act2geo-layout {
+    margin-top: 0 !important;
+  }
+
+  .act2geo-profesor-modal-overlay {
+    padding: 18px !important;
+    align-items: flex-start !important;
+    overflow-y: auto !important;
+  }
+
+  .act2geo-profesor-modal {
+    width: 100% !important;
+    max-height: none !important;
+    grid-template-columns: 1fr !important;
+    overflow: visible !important;
+    padding: 28px 22px 22px !important;
+    border-radius: 30px !important;
+    text-align: center !important;
+    margin: auto 0 !important;
+  }
+
+  .act2geo-profesor-hero {
+    min-height: 238px !important;
+    order: 1 !important;
+  }
+
+  .act2geo-profesor-canvas {
+    width: 150px !important;
+    height: 267px !important;
+  }
+
+  .act2geo-profesor-content {
+    order: 2 !important;
+  }
+
+  .act2geo-profesor-badge,
+  .act2geo-profesor-controls {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-content: center !important;
+  }
+
+  .act2geo-profesor-cloud {
+    min-height: 140px !important;
+    padding: 24px 22px !important;
+    text-align: center !important;
+  }
+
+  .act2geo-profesor-cloud::before,
+  .act2geo-profesor-cloud-dot {
+    display: none !important;
+  }
+
+  .act2geo-profesor-cloud p {
+    font-size: 16px !important;
+  }
+
+  .act2geo-profesor-transcript {
+    order: 3 !important;
+    max-height: 240px !important;
+    text-align: left !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .act2geo-profesor-modal-overlay {
+    padding: 12px !important;
+  }
+
+  .act2geo-profesor-modal {
+    padding: 24px 16px 18px !important;
+    border-radius: 26px !important;
+  }
+
+  .act2geo-profesor-close {
+    top: 12px !important;
+    right: 12px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .act2geo-profesor-hero {
+    min-height: 208px !important;
+  }
+
+  .act2geo-profesor-canvas {
+    width: 130px !important;
+    height: 231px !important;
+  }
+
+  .act2geo-profesor-content h2 {
+    font-size: 28px !important;
+  }
+
+  .act2geo-profesor-cloud {
+    min-height: 132px !important;
+    padding: 22px 18px !important;
+  }
+
+  .act2geo-profesor-cloud p {
+    font-size: 14.5px !important;
+    line-height: 1.38 !important;
+  }
+
+  .act2geo-profesor-controls {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .act2geo-profesor-controls button {
+    width: 100% !important;
+  }
+}
+
+/* =========================================================
+   AJUSTE FINAL REAL - MODAL DE PISTAS COMO ACTIVIDAD 1
+   SOLO MODAL DE PISTAS ACT 2 - NO TOCA EL RESTO DEL DISEÑO
+   ========================================================= */
+
+body:has(.act2geo-pistas-modal-overlay) {
+  overflow: hidden !important;
+}
+
+.act2geo-pistas-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+  padding: 18px 24px !important;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(0, 88, 255, 0.18), transparent 28%),
+    radial-gradient(
+      circle at 80% 12%,
+      rgba(255, 183, 3, 0.22),
+      transparent 27%
+    ),
+    rgba(15, 23, 42, 0.46) !important;
+  backdrop-filter: blur(8px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  overscroll-behavior: contain !important;
+}
+
+.act2geo-pistas-modal {
+  width: min(1280px, calc(100vw - 54px)) !important;
+  height: min(620px, calc(100dvh - 44px)) !important;
+  max-height: min(620px, calc(100dvh - 44px)) !important;
+  padding: 30px 34px !important;
+  border-radius: 34px !important;
+  border: 2px solid rgba(119, 164, 255, 0.9) !important;
+  background:
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(255, 255, 255, 0.98) 0 92px,
+      transparent 94px
+    ),
+    radial-gradient(
+      circle at 88% -8%,
+      rgba(255, 183, 3, 0.18) 0 104px,
+      transparent 106px
+    ),
+    radial-gradient(
+      circle at 2% 104%,
+      rgba(0, 88, 255, 0.11) 0 78px,
+      transparent 80px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #f8fbff 55%, #fff8ea 100%) !important;
+  box-shadow: 0 32px 78px rgba(15, 23, 42, 0.34) !important;
+  display: grid !important;
+  grid-template-columns: 250px minmax(0, 1fr) 340px !important;
+  gap: 28px !important;
+  align-items: center !important;
+  position: relative !important;
+  overflow: hidden !important;
+  animation: act2geoPistasFinalIn 0.28s ease both !important;
+}
+
+.act2geo-pistas-modal::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 18px !important;
+  border-radius: 27px !important;
+  border: 2px dashed rgba(0, 88, 255, 0.16) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.act2geo-pistas-modal::after {
+  content: "" !important;
+  position: absolute !important;
+  right: 112px !important;
+  top: -48px !important;
+  width: 136px !important;
+  height: 136px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 183, 3, 0.18) !important;
+  box-shadow: 88px 28px 0 rgba(0, 88, 255, 0.08) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.act2geo-pistas-close {
+  top: 22px !important;
+  right: 22px !important;
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 18px !important;
+  background: #ffffff !important;
+  color: #061331 !important;
+  z-index: 20 !important;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.13) !important;
+}
+
+.act2geo-pistas-close:hover {
+  background: #0058ff !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) scale(1.05) !important;
+}
+
+.act2geo-pistas-hero,
+.act2geo-pistas-content,
+.act2geo-pistas-panel {
+  position: relative !important;
+  z-index: 4 !important;
+}
+
+/* Personaje izquierdo como en Actividad 1 */
+.act2geo-pistas-hero {
+  min-height: 450px !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  overflow: visible !important;
+}
+
+.act2geo-pistas-canvas {
+  width: 225px !important;
+  height: 400px !important;
+  object-fit: contain !important;
+  filter: drop-shadow(0 20px 22px rgba(0, 88, 255, 0.17)) !important;
+  position: relative !important;
+  z-index: 4 !important;
+}
+
+.act2geo-pistas-modal-byte .act2geo-pistas-canvas {
+  width: 236px !important;
+  height: 420px !important;
+}
+
+.act2geo-pistas-orbit {
+  width: 176px !important;
+  height: 34px !important;
+  bottom: 26px !important;
+  background: rgba(0, 88, 255, 0.1) !important;
+  filter: blur(4px) !important;
+  opacity: 0.72 !important;
+}
+
+/* Centro del modal */
+.act2geo-pistas-content {
+  align-self: center !important;
+  min-width: 0 !important;
+  padding-top: 8px !important;
+}
+
+.act2geo-pistas-badge {
+  min-height: 34px !important;
+  padding: 0 17px !important;
+  border-radius: 999px !important;
+  background: #eaf2ff !important;
+  color: #0058ff !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  box-shadow: 0 10px 20px rgba(0, 88, 255, 0.08) !important;
+}
+
+.act2geo-pistas-content h2 {
+  margin: 16px 0 18px !important;
+  color: #061331 !important;
+  font-size: clamp(42px, 4vw, 62px) !important;
+  line-height: 0.94 !important;
+  letter-spacing: -1.6px !important;
+  font-weight: 950 !important;
+  max-width: 620px !important;
+}
+
+.act2geo-pistas-cloud {
+  width: 100% !important;
+  min-height: 164px !important;
+  max-height: 184px !important;
+  padding: 30px 34px !important;
+  border-radius: 42px 60px 42px 60px !important;
+  background:
+    radial-gradient(
+      circle at 18% -22%,
+      rgba(255, 255, 255, 0.99) 0 52px,
+      transparent 54px
+    ),
+    radial-gradient(
+      circle at 54% -28%,
+      rgba(255, 255, 255, 0.97) 0 66px,
+      transparent 68px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #fffdf8 100%) !important;
+  border: 2px solid rgba(255, 203, 136, 0.66) !important;
+  box-shadow:
+    0 18px 34px rgba(15, 23, 42, 0.09),
+    inset 0 -6px 0 rgba(255, 190, 94, 0.08) !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.act2geo-pistas-cloud::before {
+  content: "" !important;
+  position: absolute !important;
+  left: -28px !important;
+  top: 62px !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 2px solid rgba(255, 203, 136, 0.44) !important;
+  z-index: 2 !important;
+}
+
+.act2geo-pistas-cloud-dot {
+  display: block !important;
+  position: absolute !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 2px solid rgba(255, 203, 136, 0.38) !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+}
+
+.act2geo-pistas-cloud-dot-one {
+  left: -58px !important;
+  top: 94px !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.act2geo-pistas-cloud-dot-two {
+  left: -84px !important;
+  top: 124px !important;
+  width: 11px !important;
+  height: 11px !important;
+}
+
+.act2geo-pistas-cloud p {
+  margin: 0 !important;
+  color: #061331 !important;
+  font-size: 21px !important;
+  line-height: 1.35 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.25px !important;
+  max-height: 104px !important;
+  overflow: hidden !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+}
+
+.act2geo-pistas-controls {
+  margin-top: 18px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+}
+
+.act2geo-pistas-controls button {
+  min-height: 46px !important;
+  padding: 0 20px !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  color: #0058ff !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.1) !important;
+}
+
+.act2geo-pistas-controls button:hover {
+  transform: translateY(-3px) scale(1.03) !important;
+  box-shadow: 0 16px 28px rgba(0, 88, 255, 0.16) !important;
+}
+
+.act2geo-pistas-play {
+  background: #0058ff !important;
+  color: #ffffff !important;
+}
+
+/* Panel derecho limpio: opciones arriba y texto abajo sin cuadritos feos */
+.act2geo-pistas-panel {
+  height: 100% !important;
+  max-height: 100% !important;
+  min-height: 0 !important;
+  align-self: stretch !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 14px !important;
+  overflow: hidden !important;
+  padding: 8px 0 4px !important;
+}
+
+.act2geo-pistas-panel > h3 {
+  width: fit-content !important;
+  margin: 0 0 8px !important;
+  color: #0058ff !important;
+  font-size: 25px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  position: relative !important;
+}
+
+.act2geo-pistas-panel > h3::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: -9px !important;
+  height: 5px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #0058ff, #ffb020) !important;
+}
+
+.act2geo-pistas-options {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+  margin: 6px 0 0 !important;
+  flex: 0 0 auto !important;
+}
+
+.act2geo-pistas-option {
+  min-height: 74px !important;
+  border-radius: 20px !important;
+  padding: 13px 16px !important;
+  border: 2px solid rgba(0, 88, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06) !important;
+}
+
+.act2geo-pistas-option:hover {
+  transform: translateY(-3px) !important;
+  border-color: rgba(0, 88, 255, 0.36) !important;
+  box-shadow: 0 15px 26px rgba(0, 88, 255, 0.12) !important;
+}
+
+.act2geo-pistas-option span {
+  margin-bottom: 7px !important;
+  padding: 5px 10px !important;
+  border-radius: 999px !important;
+  background: #eaf2ff !important;
+  color: #0058ff !important;
+  font-size: 10px !important;
+  font-weight: 950 !important;
+}
+
+.act2geo-pistas-option strong {
+  color: #061331 !important;
+  font-size: 14px !important;
+  line-height: 1.08 !important;
+  font-weight: 950 !important;
+}
+
+.act2geo-pistas-option-active {
+  background: linear-gradient(135deg, #eef5ff 0%, #fff4df 100%) !important;
+  border-color: rgba(0, 88, 255, 0.62) !important;
+  box-shadow: 0 16px 28px rgba(0, 88, 255, 0.15) !important;
+}
+
+.act2geo-pistas-transcript {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 20px !important;
+  border-radius: 26px !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  border: 2px solid rgba(0, 88, 255, 0.1) !important;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08) !important;
+}
+
+.act2geo-pistas-transcript h3 {
+  width: fit-content !important;
+  margin: 0 0 16px !important;
+  color: #0058ff !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  position: relative !important;
+}
+
+.act2geo-pistas-transcript h3::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: -8px !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #0058ff, #ffb020) !important;
+}
+
+.act2geo-pistas-transcript p {
+  --progreso-linea: 0%;
+  position: relative !important;
+  margin: 0 0 8px !important;
+  padding: 6px 10px 7px 12px !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  color: #516079 !important;
+  font-size: 13px !important;
+  line-height: 1.34 !important;
+  font-weight: 850 !important;
+  box-shadow: none !important;
+  transform: none !important;
+  overflow: visible !important;
+}
+
+.act2geo-pistas-transcript p::before,
+.act2geo-pistas-transcript p::after {
+  display: none !important;
+}
+
+.act2geo-pistas-transcript p.act2geo-clue-line-active {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 244, 223, 0.98),
+    rgba(234, 242, 255, 0.72)
+  ) !important;
+  color: #061331 !important;
+  box-shadow:
+    0 8px 16px rgba(0, 88, 255, 0.07),
+    inset 4px 0 0 #0058ff !important;
+  transform: translateX(3px) !important;
+}
+
+.act2geo-pistas-transcript p.act2geo-clue-line-done {
+  color: #10203d !important;
+  background: rgba(232, 246, 238, 0.72) !important;
+  box-shadow: inset 4px 0 0 rgba(20, 184, 90, 0.85) !important;
+}
+
+.act2geo-pistas-transcript p.act2geo-clue-line-pending {
+  opacity: 0.72 !important;
+}
+
+@keyframes act2geoPistasFinalIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.965);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 1500px) {
+  .act2geo-pistas-modal {
+    width: min(1220px, calc(100vw - 44px)) !important;
+    height: min(590px, calc(100dvh - 36px)) !important;
+    max-height: min(590px, calc(100dvh - 36px)) !important;
+    grid-template-columns: 230px minmax(0, 1fr) 320px !important;
+    gap: 24px !important;
+    padding: 28px 30px !important;
+  }
+
+  .act2geo-pistas-hero {
+    min-height: 410px !important;
+  }
+
+  .act2geo-pistas-canvas {
+    width: 200px !important;
+    height: 356px !important;
+  }
+
+  .act2geo-pistas-modal-byte .act2geo-pistas-canvas {
+    width: 214px !important;
+    height: 380px !important;
+  }
+
+  .act2geo-pistas-content h2 {
+    font-size: clamp(38px, 4.3vw, 56px) !important;
+  }
+
+  .act2geo-pistas-cloud {
+    min-height: 150px !important;
+    max-height: 172px !important;
+    padding: 26px 30px !important;
+  }
+
+  .act2geo-pistas-cloud p {
+    font-size: 19px !important;
+    max-height: 98px !important;
+  }
+
+  .act2geo-pistas-option {
+    min-height: 66px !important;
+    padding: 11px 14px !important;
+  }
+
+  .act2geo-pistas-transcript {
+    padding: 18px !important;
+  }
+}
+
+@media (max-width: 1199px) {
+  .act2geo-pistas-modal-overlay {
+    padding: 18px !important;
+    overflow-y: auto !important;
+    align-items: flex-start !important;
+  }
+
+  .act2geo-pistas-modal {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    grid-template-columns: 180px minmax(0, 1fr) !important;
+    gap: 18px !important;
+    padding: 28px 26px !important;
+    margin: auto 0 !important;
+    overflow: visible !important;
+  }
+
+  .act2geo-pistas-hero {
+    min-height: 300px !important;
+  }
+
+  .act2geo-pistas-canvas,
+  .act2geo-pistas-modal-byte .act2geo-pistas-canvas {
+    width: 172px !important;
+    height: 306px !important;
+  }
+
+  .act2geo-pistas-panel {
+    grid-column: 1 / -1 !important;
+    height: auto !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    overflow: visible !important;
+  }
+
+  .act2geo-pistas-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .act2geo-pistas-transcript {
+    max-height: 210px !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .act2geo-pistas-modal {
+    grid-template-columns: 1fr !important;
+    text-align: center !important;
+    border-radius: 30px !important;
+    padding: 28px 22px 22px !important;
+  }
+
+  .act2geo-pistas-hero {
+    min-height: 225px !important;
+    order: 1 !important;
+  }
+
+  .act2geo-pistas-canvas,
+  .act2geo-pistas-modal-byte .act2geo-pistas-canvas {
+    width: 145px !important;
+    height: 258px !important;
+  }
+
+  .act2geo-pistas-content {
+    order: 2 !important;
+  }
+
+  .act2geo-pistas-badge,
+  .act2geo-pistas-controls,
+  .act2geo-pistas-panel > h3,
+  .act2geo-pistas-transcript h3 {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-content: center !important;
+  }
+
+  .act2geo-pistas-content h2 {
+    font-size: 34px !important;
+    letter-spacing: -0.9px !important;
+  }
+
+  .act2geo-pistas-cloud {
+    min-height: 134px !important;
+    padding: 22px 20px !important;
+    text-align: center !important;
+  }
+
+  .act2geo-pistas-cloud::before,
+  .act2geo-pistas-cloud-dot {
+    display: none !important;
+  }
+
+  .act2geo-pistas-cloud p {
+    font-size: 16px !important;
+    max-height: 92px !important;
+  }
+
+  .act2geo-pistas-panel {
+    order: 3 !important;
+    text-align: left !important;
+  }
+
+  .act2geo-pistas-options {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .act2geo-pistas-modal-overlay {
+    padding: 12px !important;
+  }
+
+  .act2geo-pistas-modal {
+    padding: 24px 16px 18px !important;
+    border-radius: 26px !important;
+  }
+
+  .act2geo-pistas-close {
+    top: 12px !important;
+    right: 12px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .act2geo-pistas-hero {
+    min-height: 198px !important;
+  }
+
+  .act2geo-pistas-canvas,
+  .act2geo-pistas-modal-byte .act2geo-pistas-canvas {
+    width: 125px !important;
+    height: 222px !important;
+  }
+
+  .act2geo-pistas-content h2 {
+    font-size: 28px !important;
+  }
+
+  .act2geo-pistas-cloud {
+    min-height: 126px !important;
+    padding: 20px 16px !important;
+  }
+
+  .act2geo-pistas-cloud p {
+    font-size: 14.5px !important;
+    line-height: 1.38 !important;
+  }
+
+  .act2geo-pistas-controls {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .act2geo-pistas-controls button {
+    width: 100% !important;
+  }
+
+  .act2geo-pistas-panel > h3 {
+    font-size: 22px !important;
+  }
+}
+
+/* =========================================================
+   AJUSTE FINAL REAL - MODAL DE PISTAS COMO ACTIVIDAD 1
+   SOLO MODAL DE PISTAS ACT 2 - NO TOCA EL RESTO DEL DISEÑO
+   ========================================================= */
+
+body:has(.act2geo-pistas-modal-overlay) {
+  overflow: hidden !important;
+}
+
+.act2geo-pistas-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+  padding: 18px 24px !important;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(0, 88, 255, 0.18), transparent 28%),
+    radial-gradient(
+      circle at 80% 12%,
+      rgba(255, 183, 3, 0.22),
+      transparent 27%
+    ),
+    rgba(15, 23, 42, 0.46) !important;
+  backdrop-filter: blur(8px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  overscroll-behavior: contain !important;
+}
+
+.act2geo-pistas-modal {
+  width: min(1280px, calc(100vw - 54px)) !important;
+  height: min(620px, calc(100dvh - 44px)) !important;
+  max-height: min(620px, calc(100dvh - 44px)) !important;
+  padding: 30px 34px !important;
+  border-radius: 34px !important;
+  border: 2px solid rgba(119, 164, 255, 0.9) !important;
+  background:
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(255, 255, 255, 0.98) 0 92px,
+      transparent 94px
+    ),
+    radial-gradient(
+      circle at 88% -8%,
+      rgba(255, 183, 3, 0.18) 0 104px,
+      transparent 106px
+    ),
+    radial-gradient(
+      circle at 2% 104%,
+      rgba(0, 88, 255, 0.11) 0 78px,
+      transparent 80px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #f8fbff 55%, #fff8ea 100%) !important;
+  box-shadow: 0 32px 78px rgba(15, 23, 42, 0.34) !important;
+  display: grid !important;
+  grid-template-columns: 250px minmax(0, 1fr) 340px !important;
+  gap: 28px !important;
+  align-items: center !important;
+  position: relative !important;
+  overflow: hidden !important;
+  animation: act2geoPistasFinalIn 0.28s ease both !important;
+}
+
+.act2geo-pistas-modal::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 18px !important;
+  border-radius: 27px !important;
+  border: 2px dashed rgba(0, 88, 255, 0.16) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.act2geo-pistas-modal::after {
+  content: "" !important;
+  position: absolute !important;
+  right: 112px !important;
+  top: -48px !important;
+  width: 136px !important;
+  height: 136px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 183, 3, 0.18) !important;
+  box-shadow: 88px 28px 0 rgba(0, 88, 255, 0.08) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.act2geo-pistas-close {
+  top: 22px !important;
+  right: 22px !important;
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 18px !important;
+  background: #ffffff !important;
+  color: #061331 !important;
+  z-index: 20 !important;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.13) !important;
+}
+
+.act2geo-pistas-close:hover {
+  background: #0058ff !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) scale(1.05) !important;
+}
+
+.act2geo-pistas-hero,
+.act2geo-pistas-content,
+.act2geo-pistas-panel {
+  position: relative !important;
+  z-index: 4 !important;
+}
+
+.act2geo-pistas-hero {
+  min-height: 450px !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  overflow: visible !important;
+}
+
+.act2geo-pistas-canvas {
+  width: 225px !important;
+  height: 400px !important;
+  object-fit: contain !important;
+  filter: drop-shadow(0 20px 22px rgba(0, 88, 255, 0.17)) !important;
+  position: relative !important;
+  z-index: 4 !important;
+}
+
+.act2geo-pistas-modal-byte .act2geo-pistas-canvas {
+  width: 236px !important;
+  height: 420px !important;
+}
+
+.act2geo-pistas-orbit {
+  width: 176px !important;
+  height: 34px !important;
+  bottom: 26px !important;
+  background: rgba(0, 88, 255, 0.1) !important;
+  filter: blur(4px) !important;
+  opacity: 0.72 !important;
+}
+
+.act2geo-pistas-content {
+  align-self: center !important;
+  min-width: 0 !important;
+  padding-top: 8px !important;
+}
+
+.act2geo-pistas-badge {
+  min-height: 34px !important;
+  padding: 0 17px !important;
+  border-radius: 999px !important;
+  background: #eaf2ff !important;
+  color: #0058ff !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  box-shadow: 0 10px 20px rgba(0, 88, 255, 0.08) !important;
+}
+
+.act2geo-pistas-content h2 {
+  margin: 16px 0 18px !important;
+  color: #061331 !important;
+  font-size: clamp(42px, 4vw, 62px) !important;
+  line-height: 0.94 !important;
+  letter-spacing: -1.6px !important;
+  font-weight: 950 !important;
+  max-width: 620px !important;
+}
+
+.act2geo-pistas-cloud {
+  width: 100% !important;
+  min-height: 164px !important;
+  max-height: 184px !important;
+  padding: 30px 34px !important;
+  border-radius: 42px 60px 42px 60px !important;
+  background:
+    radial-gradient(
+      circle at 18% -22%,
+      rgba(255, 255, 255, 0.99) 0 52px,
+      transparent 54px
+    ),
+    radial-gradient(
+      circle at 54% -28%,
+      rgba(255, 255, 255, 0.97) 0 66px,
+      transparent 68px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #fffdf8 100%) !important;
+  border: 2px solid rgba(255, 203, 136, 0.66) !important;
+  box-shadow:
+    0 18px 34px rgba(15, 23, 42, 0.09),
+    inset 0 -6px 0 rgba(255, 190, 94, 0.08) !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.act2geo-pistas-cloud::before {
+  content: "" !important;
+  position: absolute !important;
+  left: -28px !important;
+  top: 62px !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 2px solid rgba(255, 203, 136, 0.44) !important;
+  z-index: 2 !important;
+}
+
+.act2geo-pistas-cloud-dot {
+  display: block !important;
+  position: absolute !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 2px solid rgba(255, 203, 136, 0.38) !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+}
+
+.act2geo-pistas-cloud-dot-one {
+  left: -58px !important;
+  top: 94px !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.act2geo-pistas-cloud-dot-two {
+  left: -84px !important;
+  top: 124px !important;
+  width: 11px !important;
+  height: 11px !important;
+}
+
+.act2geo-pistas-cloud p {
+  margin: 0 !important;
+  color: #061331 !important;
+  font-size: 21px !important;
+  line-height: 1.35 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.25px !important;
+  max-height: 104px !important;
+  overflow: hidden !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+}
+
+.act2geo-pistas-controls {
+  margin-top: 18px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+}
+
+.act2geo-pistas-controls button {
+  min-height: 46px !important;
+  padding: 0 20px !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  color: #0058ff !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.1) !important;
+}
+
+.act2geo-pistas-controls button:hover {
+  transform: translateY(-3px) scale(1.03) !important;
+  box-shadow: 0 16px 28px rgba(0, 88, 255, 0.16) !important;
+}
+
+.act2geo-pistas-play {
+  background: #0058ff !important;
+  color: #ffffff !important;
+}
+
+.act2geo-pistas-panel {
+  height: 100% !important;
+  max-height: 100% !important;
+  min-height: 0 !important;
+  align-self: stretch !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 14px !important;
+  overflow: hidden !important;
+  padding: 8px 0 4px !important;
+}
+
+.act2geo-pistas-panel > h3 {
+  width: fit-content !important;
+  margin: 0 0 8px !important;
+  color: #0058ff !important;
+  font-size: 25px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  position: relative !important;
+}
+
+.act2geo-pistas-panel > h3::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: -9px !important;
+  height: 5px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #0058ff, #ffb020) !important;
+}
+
+.act2geo-pistas-options {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+  margin: 6px 0 0 !important;
+  flex: 0 0 auto !important;
+}
+
+.act2geo-pistas-option {
+  min-height: 74px !important;
+  border-radius: 20px !important;
+  padding: 13px 16px !important;
+  border: 2px solid rgba(0, 88, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06) !important;
+}
+
+.act2geo-pistas-option:hover {
+  transform: translateY(-3px) !important;
+  border-color: rgba(0, 88, 255, 0.36) !important;
+  box-shadow: 0 15px 26px rgba(0, 88, 255, 0.12) !important;
+}
+
+.act2geo-pistas-option span {
+  margin-bottom: 7px !important;
+  padding: 5px 10px !important;
+  border-radius: 999px !important;
+  background: #eaf2ff !important;
+  color: #0058ff !important;
+  font-size: 10px !important;
+  font-weight: 950 !important;
+}
+
+.act2geo-pistas-option strong {
+  color: #061331 !important;
+  font-size: 14px !important;
+  line-height: 1.08 !important;
+  font-weight: 950 !important;
+}
+
+.act2geo-pistas-option-active {
+  background: linear-gradient(135deg, #eef5ff 0%, #fff4df 100%) !important;
+  border-color: rgba(0, 88, 255, 0.62) !important;
+  box-shadow: 0 16px 28px rgba(0, 88, 255, 0.15) !important;
+}
+
+.act2geo-pistas-transcript {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 20px !important;
+  border-radius: 26px !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  border: 2px solid rgba(0, 88, 255, 0.1) !important;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08) !important;
+}
+
+.act2geo-pistas-transcript h3 {
+  width: fit-content !important;
+  margin: 0 0 16px !important;
+  color: #0058ff !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  position: relative !important;
+}
+
+.act2geo-pistas-transcript h3::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: -8px !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #0058ff, #ffb020) !important;
+}
+
+.act2geo-pistas-transcript p {
+  --progreso-linea: 0%;
+  position: relative !important;
+  margin: 0 0 8px !important;
+  padding: 6px 10px 7px 12px !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  color: #516079 !important;
+  font-size: 13px !important;
+  line-height: 1.34 !important;
+  font-weight: 850 !important;
+  box-shadow: none !important;
+  transform: none !important;
+  overflow: visible !important;
+}
+
+.act2geo-pistas-transcript p::before,
+.act2geo-pistas-transcript p::after {
+  display: none !important;
+}
+
+.act2geo-pistas-transcript p.act2geo-clue-line-active {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 244, 223, 0.98),
+    rgba(234, 242, 255, 0.72)
+  ) !important;
+  color: #061331 !important;
+  box-shadow:
+    0 8px 16px rgba(0, 88, 255, 0.07),
+    inset 4px 0 0 #0058ff !important;
+  transform: translateX(3px) !important;
+}
+
+.act2geo-pistas-transcript p.act2geo-clue-line-done {
+  color: #10203d !important;
+  background: rgba(232, 246, 238, 0.72) !important;
+  box-shadow: inset 4px 0 0 rgba(20, 184, 90, 0.85) !important;
+}
+
+.act2geo-pistas-transcript p.act2geo-clue-line-pending {
+  opacity: 0.72 !important;
+}
+
+@keyframes act2geoPistasFinalIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.965);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 1500px) {
+  .act2geo-pistas-modal {
+    width: min(1220px, calc(100vw - 44px)) !important;
+    height: min(590px, calc(100dvh - 36px)) !important;
+    max-height: min(590px, calc(100dvh - 36px)) !important;
+    grid-template-columns: 230px minmax(0, 1fr) 320px !important;
+    gap: 24px !important;
+    padding: 28px 30px !important;
+  }
+
+  .act2geo-pistas-hero {
+    min-height: 410px !important;
+  }
+
+  .act2geo-pistas-canvas {
+    width: 200px !important;
+    height: 356px !important;
+  }
+
+  .act2geo-pistas-modal-byte .act2geo-pistas-canvas {
+    width: 214px !important;
+    height: 380px !important;
+  }
+
+  .act2geo-pistas-content h2 {
+    font-size: clamp(38px, 4.3vw, 56px) !important;
+  }
+
+  .act2geo-pistas-cloud {
+    min-height: 150px !important;
+    max-height: 172px !important;
+    padding: 26px 30px !important;
+  }
+
+  .act2geo-pistas-cloud p {
+    font-size: 19px !important;
+    max-height: 98px !important;
+  }
+
+  .act2geo-pistas-option {
+    min-height: 66px !important;
+    padding: 11px 14px !important;
+  }
+
+  .act2geo-pistas-transcript {
+    padding: 18px !important;
+  }
+}
+
+@media (max-width: 1199px) {
+  .act2geo-pistas-modal-overlay {
+    padding: 18px !important;
+    overflow-y: auto !important;
+    align-items: flex-start !important;
+  }
+
+  .act2geo-pistas-modal {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    grid-template-columns: 180px minmax(0, 1fr) !important;
+    gap: 18px !important;
+    padding: 28px 26px !important;
+    margin: auto 0 !important;
+    overflow: visible !important;
+  }
+
+  .act2geo-pistas-hero {
+    min-height: 300px !important;
+  }
+
+  .act2geo-pistas-canvas,
+  .act2geo-pistas-modal-byte .act2geo-pistas-canvas {
+    width: 172px !important;
+    height: 306px !important;
+  }
+
+  .act2geo-pistas-panel {
+    grid-column: 1 / -1 !important;
+    height: auto !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    overflow: visible !important;
+  }
+
+  .act2geo-pistas-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .act2geo-pistas-transcript {
+    max-height: 210px !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .act2geo-pistas-modal {
+    grid-template-columns: 1fr !important;
+    text-align: center !important;
+    border-radius: 30px !important;
+    padding: 28px 22px 22px !important;
+  }
+
+  .act2geo-pistas-hero {
+    min-height: 225px !important;
+    order: 1 !important;
+  }
+
+  .act2geo-pistas-canvas,
+  .act2geo-pistas-modal-byte .act2geo-pistas-canvas {
+    width: 145px !important;
+    height: 258px !important;
+  }
+
+  .act2geo-pistas-content {
+    order: 2 !important;
+  }
+
+  .act2geo-pistas-badge,
+  .act2geo-pistas-controls,
+  .act2geo-pistas-panel > h3,
+  .act2geo-pistas-transcript h3 {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-content: center !important;
+  }
+
+  .act2geo-pistas-content h2 {
+    font-size: 34px !important;
+    letter-spacing: -0.9px !important;
+  }
+
+  .act2geo-pistas-cloud {
+    min-height: 134px !important;
+    padding: 22px 20px !important;
+    text-align: center !important;
+  }
+
+  .act2geo-pistas-cloud::before,
+  .act2geo-pistas-cloud-dot {
+    display: none !important;
+  }
+
+  .act2geo-pistas-cloud p {
+    font-size: 16px !important;
+    max-height: 92px !important;
+  }
+
+  .act2geo-pistas-panel {
+    order: 3 !important;
+    text-align: left !important;
+  }
+
+  .act2geo-pistas-options {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .act2geo-pistas-modal-overlay {
+    padding: 12px !important;
+  }
+
+  .act2geo-pistas-modal {
+    padding: 24px 16px 18px !important;
+    border-radius: 26px !important;
+  }
+
+  .act2geo-pistas-close {
+    top: 12px !important;
+    right: 12px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .act2geo-pistas-hero {
+    min-height: 198px !important;
+  }
+
+  .act2geo-pistas-canvas,
+  .act2geo-pistas-modal-byte .act2geo-pistas-canvas {
+    width: 125px !important;
+    height: 222px !important;
+  }
+
+  .act2geo-pistas-content h2 {
+    font-size: 28px !important;
+  }
+
+  .act2geo-pistas-cloud {
+    min-height: 126px !important;
+    padding: 20px 16px !important;
+  }
+
+  .act2geo-pistas-cloud p {
+    font-size: 14.5px !important;
+    line-height: 1.38 !important;
+  }
+
+  .act2geo-pistas-controls {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .act2geo-pistas-controls button {
+    width: 100% !important;
+  }
+
+  .act2geo-pistas-panel > h3 {
+    font-size: 22px !important;
+  }
+}
+
+/* =========================================================
+   AJUSTE FINAL CORREGIDO - MODAL DE PISTAS COMPACTO
+   - Modal de pistas más pequeño, del tamaño del Profesor.
+   - Sin barrita de scroll en el texto de pistas.
+   - Byte/Profesor grandes pero sin agrandar todo el modal.
+   - Nova explica un poco más arriba sin romper responsive.
+   ========================================================= */
+
+/* Subir un poco Nova explica y reducir espacio antes del mapa */
+.act2geo-novaexplain-row {
+  width: min(100%, 990px) !important;
+  max-width: 990px !important;
+  margin-top: -6px !important;
+  margin-bottom: -34px !important;
+  grid-template-columns: 142px minmax(0, 1fr) !important;
+  gap: 12px !important;
+  align-items: center !important;
+}
+
+.act2geo-novaexplain-stage {
+  width: 142px !important;
+  min-width: 142px !important;
+  height: 215px !important;
+  transform: translateY(-14px) !important;
+}
+
+.act2geo-novaexplain-canvas {
+  width: 138px !important;
+  height: 246px !important;
+}
+
+.act2geo-novaexplain-cloud {
+  max-width: 830px !important;
+  min-height: 98px !important;
+  padding: 17px 22px 17px 40px !important;
+  transform: translateY(-14px) !important;
+}
+
+.act2geo-layout {
+  margin-top: -10px !important;
+}
+
+/* Bloquear fondo al abrir modal */
+body:has(.act2geo-pistas-modal-overlay) {
+  overflow: hidden !important;
+}
+
+/* Fondo del modal */
+.act2geo-pistas-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+  padding: 18px 22px !important;
+  background:
+    radial-gradient(circle at 16% 20%, rgba(0, 88, 255, 0.18), transparent 26%),
+    radial-gradient(
+      circle at 82% 14%,
+      rgba(255, 183, 3, 0.22),
+      transparent 28%
+    ),
+    rgba(15, 23, 42, 0.46) !important;
+  backdrop-filter: blur(8px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  overscroll-behavior: contain !important;
+}
+
+/* Modal de pistas: tamaño parecido al modal del Profesor */
+.act2geo-pistas-modal {
+  width: min(1120px, calc(100vw - 46px)) !important;
+  height: auto !important;
+  min-height: 545px !important;
+  max-height: min(585px, calc(100dvh - 46px)) !important;
+  padding: 30px 32px !important;
+  border-radius: 36px !important;
+  border: 2px solid rgba(255, 203, 136, 0.78) !important;
+  background:
+    radial-gradient(
+      circle at 9% 10%,
+      rgba(255, 255, 255, 0.96) 0 82px,
+      transparent 84px
+    ),
+    radial-gradient(
+      circle at 92% -8%,
+      rgba(255, 183, 3, 0.18) 0 102px,
+      transparent 104px
+    ),
+    radial-gradient(
+      circle at 3% 104%,
+      rgba(0, 88, 255, 0.1) 0 72px,
+      transparent 74px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #f9fcff 56%, #fff8ea 100%) !important;
+  box-shadow: 0 32px 80px rgba(15, 23, 42, 0.34) !important;
+  display: grid !important;
+  grid-template-columns: 230px minmax(0, 1fr) 315px !important;
+  gap: 22px !important;
+  align-items: center !important;
+  position: relative !important;
+  overflow: hidden !important;
+  animation: act2geoPistasCompactIn 0.28s ease both !important;
+}
+
+.act2geo-pistas-modal::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 16px !important;
+  border-radius: 28px !important;
+  border: 2px dashed rgba(0, 88, 255, 0.14) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.act2geo-pistas-modal::after {
+  content: "" !important;
+  position: absolute !important;
+  right: 108px !important;
+  top: -46px !important;
+  width: 126px !important;
+  height: 126px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 183, 3, 0.18) !important;
+  box-shadow: 72px 28px 0 rgba(0, 88, 255, 0.075) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+@keyframes act2geoPistasCompactIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.965);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.act2geo-pistas-close {
+  position: absolute !important;
+  top: 18px !important;
+  right: 18px !important;
+  width: 44px !important;
+  height: 44px !important;
+  border: none !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  color: #061331 !important;
+  z-index: 30 !important;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.14) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+}
+
+.act2geo-pistas-close:hover {
+  background: #0058ff !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) scale(1.05) !important;
+}
+
+.act2geo-pistas-hero,
+.act2geo-pistas-content,
+.act2geo-pistas-panel {
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+/* Personaje: grande pero sin hacer enorme el modal */
+.act2geo-pistas-hero {
+  height: 100% !important;
+  min-height: 440px !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  padding-bottom: 20px !important;
+  overflow: visible !important;
+}
+
+.act2geo-pistas-canvas,
+.act2geo-pistas-modal-byte .act2geo-pistas-canvas,
+.act2geo-pistas-modal-profesor .act2geo-pistas-canvas {
+  width: 222px !important;
+  height: 395px !important;
+  object-fit: contain !important;
+  position: relative !important;
+  z-index: 6 !important;
+  filter: drop-shadow(0 20px 22px rgba(0, 88, 255, 0.18)) !important;
+}
+
+.act2geo-pistas-modal-byte .act2geo-pistas-canvas {
+  width: 238px !important;
+  height: 423px !important;
+}
+
+.act2geo-pistas-orbit {
+  position: absolute !important;
+  width: 170px !important;
+  height: 32px !important;
+  bottom: 28px !important;
+  border-radius: 999px !important;
+  background: rgba(0, 88, 255, 0.1) !important;
+  filter: blur(4px) !important;
+  opacity: 0.72 !important;
+  z-index: 2 !important;
+}
+
+.act2geo-pistas-modal-playing .act2geo-pistas-canvas {
+  animation:
+    act2geoPistasPersonajeCompactFloat 2.15s ease-in-out infinite,
+    act2geoPistasPersonajeCompactTalk 0.62s ease-in-out infinite !important;
+}
+
+.act2geo-pistas-modal-playing .act2geo-pistas-orbit {
+  animation: act2geoPistasCompactShadow 2.15s ease-in-out infinite !important;
+}
+
+@keyframes act2geoPistasPersonajeCompactFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-9px) rotate(1deg);
+  }
+}
+
+@keyframes act2geoPistasPersonajeCompactTalk {
+  0%,
+  100% {
+    scale: 1;
+  }
+
+  50% {
+    scale: 1.024;
+  }
+}
+
+@keyframes act2geoPistasCompactShadow {
+  0%,
+  100% {
+    transform: scaleX(1);
+    opacity: 0.72;
+  }
+
+  50% {
+    transform: scaleX(0.84);
+    opacity: 0.42;
+  }
+}
+
+/* Centro */
+.act2geo-pistas-content {
+  min-width: 0 !important;
+  align-self: center !important;
+  padding: 4px 0 0 !important;
+}
+
+.act2geo-pistas-badge {
+  width: fit-content !important;
+  min-height: 32px !important;
+  padding: 0 16px !important;
+  border-radius: 999px !important;
+  background: #eaf2ff !important;
+  color: #0058ff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 12.5px !important;
+  font-weight: 950 !important;
+  box-shadow: 0 10px 20px rgba(0, 88, 255, 0.08) !important;
+}
+
+.act2geo-pistas-content h2 {
+  margin: 14px 0 16px !important;
+  max-width: 500px !important;
+  color: #061331 !important;
+  font-size: clamp(34px, 3vw, 46px) !important;
+  line-height: 0.96 !important;
+  letter-spacing: -1.15px !important;
+  font-weight: 950 !important;
+}
+
+.act2geo-pistas-cloud {
+  width: 100% !important;
+  min-height: 142px !important;
+  max-height: 160px !important;
+  padding: 24px 30px !important;
+  border-radius: 38px 54px 38px 54px !important;
+  background:
+    radial-gradient(
+      circle at 18% -20%,
+      rgba(255, 255, 255, 0.99) 0 46px,
+      transparent 48px
+    ),
+    radial-gradient(
+      circle at 54% -28%,
+      rgba(255, 255, 255, 0.97) 0 58px,
+      transparent 60px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #fffdf8 100%) !important;
+  border: 2px solid rgba(255, 203, 136, 0.68) !important;
+  box-shadow:
+    0 16px 28px rgba(15, 23, 42, 0.08),
+    inset 0 -5px 0 rgba(255, 190, 94, 0.07) !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.act2geo-pistas-cloud::before {
+  content: "" !important;
+  position: absolute !important;
+  left: -26px !important;
+  top: 52px !important;
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 2px solid rgba(255, 203, 136, 0.44) !important;
+  z-index: 2 !important;
+}
+
+.act2geo-pistas-cloud-dot {
+  display: block !important;
+  position: absolute !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 2px solid rgba(255, 203, 136, 0.38) !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+}
+
+.act2geo-pistas-cloud-dot-one {
+  left: -54px !important;
+  top: 80px !important;
+  width: 15px !important;
+  height: 15px !important;
+}
+
+.act2geo-pistas-cloud-dot-two {
+  left: -78px !important;
+  top: 106px !important;
+  width: 10px !important;
+  height: 10px !important;
+}
+
+.act2geo-pistas-cloud p {
+  margin: 0 !important;
+  color: #061331 !important;
+  font-size: 18px !important;
+  line-height: 1.34 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.2px !important;
+  max-height: 96px !important;
+  overflow: hidden !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+}
+
+.act2geo-pistas-controls {
+  margin-top: 16px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+}
+
+.act2geo-pistas-controls button {
+  min-height: 42px !important;
+  padding: 0 17px !important;
+  border: none !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  color: #0058ff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  font-size: 12.5px !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+  box-shadow: 0 11px 20px rgba(15, 23, 42, 0.1) !important;
+}
+
+.act2geo-pistas-play {
+  background: #0058ff !important;
+  color: #ffffff !important;
+}
+
+/* Panel derecho: sin scroll y con todo el texto visible */
+.act2geo-pistas-panel {
+  height: auto !important;
+  max-height: none !important;
+  min-height: 0 !important;
+  align-self: center !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}
+
+.act2geo-pistas-panel > h3 {
+  width: fit-content !important;
+  margin: 0 0 8px !important;
+  color: #0058ff !important;
+  font-size: 22px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  position: relative !important;
+}
+
+.act2geo-pistas-panel > h3::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: -8px !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #0058ff, #ffb020) !important;
+}
+
+.act2geo-pistas-options {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+  margin: 5px 0 0 !important;
+  flex: 0 0 auto !important;
+}
+
+.act2geo-pistas-option {
+  width: 100% !important;
+  min-height: 54px !important;
+  border: 2px solid rgba(0, 88, 255, 0.13) !important;
+  border-radius: 17px !important;
+  padding: 9px 13px !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  font-family: inherit !important;
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.055) !important;
+}
+
+.act2geo-pistas-option:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(0, 88, 255, 0.36) !important;
+  box-shadow: 0 12px 22px rgba(0, 88, 255, 0.1) !important;
+}
+
+.act2geo-pistas-option span {
+  display: inline-flex !important;
+  width: fit-content !important;
+  margin: 0 0 5px !important;
+  padding: 4px 9px !important;
+  border-radius: 999px !important;
+  background: #eaf2ff !important;
+  color: #0058ff !important;
+  font-size: 8.5px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+}
+
+.act2geo-pistas-option strong {
+  display: block !important;
+  color: #061331 !important;
+  font-size: 12.5px !important;
+  line-height: 1.08 !important;
+  font-weight: 950 !important;
+}
+
+.act2geo-pistas-option-active {
+  background: linear-gradient(135deg, #eef5ff 0%, #fff4df 100%) !important;
+  border-color: rgba(0, 88, 255, 0.62) !important;
+  box-shadow: 0 13px 24px rgba(0, 88, 255, 0.13) !important;
+}
+
+.act2geo-pistas-transcript {
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: hidden !important;
+  padding: 16px 17px !important;
+  border-radius: 22px !important;
+  background:
+    radial-gradient(
+      circle at 96% 8%,
+      rgba(0, 88, 255, 0.065) 0 38px,
+      transparent 40px
+    ),
+    rgba(255, 255, 255, 0.92) !important;
+  border: 2px solid rgba(0, 88, 255, 0.1) !important;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.075) !important;
+}
+
+.act2geo-pistas-transcript::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+}
+
+.act2geo-pistas-transcript h3 {
+  width: fit-content !important;
+  margin: 0 0 13px !important;
+  color: #0058ff !important;
+  font-size: 17px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  position: relative !important;
+}
+
+.act2geo-pistas-transcript h3::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: -7px !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #0058ff, #ffb020) !important;
+}
+
+.act2geo-pistas-transcript p {
+  --progreso-linea: 0%;
+  position: relative !important;
+  margin: 0 0 6px !important;
+  padding: 5px 9px 6px 10px !important;
+  border-radius: 11px !important;
+  background: rgba(234, 242, 255, 0.24) !important;
+  color: #536176 !important;
+  font-size: 11.4px !important;
+  line-height: 1.22 !important;
+  font-weight: 850 !important;
+  box-shadow: none !important;
+  transform: none !important;
+  overflow: visible !important;
+}
+
+.act2geo-pistas-transcript p::before,
+.act2geo-pistas-transcript p::after {
+  display: none !important;
+}
+
+.act2geo-pistas-transcript p.act2geo-clue-line-active {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 244, 223, 0.98),
+    rgba(234, 242, 255, 0.76)
+  ) !important;
+  color: #061331 !important;
+  box-shadow:
+    0 7px 14px rgba(0, 88, 255, 0.06),
+    inset 4px 0 0 #0058ff !important;
+  transform: translateX(2px) !important;
+}
+
+.act2geo-pistas-transcript p.act2geo-clue-line-done {
+  color: #10203d !important;
+  background: rgba(232, 246, 238, 0.78) !important;
+  box-shadow: inset 4px 0 0 rgba(20, 184, 90, 0.82) !important;
+}
+
+.act2geo-pistas-transcript p.act2geo-clue-line-pending {
+  opacity: 0.8 !important;
+}
+
+/* Responsive del modal compacto */
+@media (max-width: 1500px) {
+  .act2geo-novaexplain-row {
+    margin-top: -4px !important;
+    margin-bottom: -30px !important;
+  }
+
+  .act2geo-novaexplain-stage,
+  .act2geo-novaexplain-cloud {
+    transform: translateY(-10px) !important;
+  }
+
+  .act2geo-layout {
+    margin-top: -8px !important;
+  }
+
+  .act2geo-pistas-modal {
+    width: min(1040px, calc(100vw - 40px)) !important;
+    min-height: 520px !important;
+    max-height: min(560px, calc(100dvh - 40px)) !important;
+    grid-template-columns: 205px minmax(0, 1fr) 292px !important;
+    gap: 18px !important;
+    padding: 28px 30px !important;
+  }
+
+  .act2geo-pistas-hero {
+    min-height: 400px !important;
+  }
+
+  .act2geo-pistas-canvas,
+  .act2geo-pistas-modal-byte .act2geo-pistas-canvas,
+  .act2geo-pistas-modal-profesor .act2geo-pistas-canvas {
+    width: 195px !important;
+    height: 347px !important;
+  }
+
+  .act2geo-pistas-content h2 {
+    font-size: clamp(31px, 3.4vw, 42px) !important;
+  }
+
+  .act2geo-pistas-cloud {
+    min-height: 132px !important;
+    max-height: 150px !important;
+    padding: 22px 27px !important;
+  }
+
+  .act2geo-pistas-cloud p {
+    font-size: 16.5px !important;
+    max-height: 88px !important;
+  }
+
+  .act2geo-pistas-panel > h3 {
+    font-size: 20px !important;
+  }
+
+  .act2geo-pistas-option {
+    min-height: 50px !important;
+    padding: 8px 12px !important;
+  }
+
+  .act2geo-pistas-transcript {
+    padding: 14px 15px !important;
+  }
+
+  .act2geo-pistas-transcript p {
+    font-size: 10.8px !important;
+    line-height: 1.18 !important;
+    margin-bottom: 5px !important;
+  }
+}
+
+@media (max-width: 1199px) {
+  .act2geo-novaexplain-row {
+    margin-bottom: -12px !important;
+  }
+
+  .act2geo-layout {
+    margin-top: 0 !important;
+  }
+
+  .act2geo-pistas-modal-overlay {
+    align-items: flex-start !important;
+    overflow-y: auto !important;
+    padding: 18px !important;
+  }
+
+  .act2geo-pistas-modal {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    grid-template-columns: 180px minmax(0, 1fr) !important;
+    padding: 28px 26px !important;
+    gap: 18px !important;
+    overflow: visible !important;
+    margin: auto 0 !important;
+  }
+
+  .act2geo-pistas-hero {
+    min-height: 300px !important;
+    padding-bottom: 0 !important;
+  }
+
+  .act2geo-pistas-canvas,
+  .act2geo-pistas-modal-byte .act2geo-pistas-canvas,
+  .act2geo-pistas-modal-profesor .act2geo-pistas-canvas {
+    width: 165px !important;
+    height: 293px !important;
+  }
+
+  .act2geo-pistas-content h2 {
+    font-size: 34px !important;
+    letter-spacing: -0.9px !important;
+  }
+
+  .act2geo-pistas-panel {
+    grid-column: 1 / -1 !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    overflow: visible !important;
+  }
+
+  .act2geo-pistas-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .act2geo-pistas-transcript {
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .act2geo-novaexplain-row {
+    margin-top: 8px !important;
+    margin-bottom: 0 !important;
+    grid-template-columns: 112px minmax(0, 1fr) !important;
+  }
+
+  .act2geo-novaexplain-stage,
+  .act2geo-novaexplain-cloud {
+    transform: translateY(0) !important;
+  }
+
+  .act2geo-layout {
+    margin-top: 0 !important;
+  }
+
+  .act2geo-pistas-modal {
+    grid-template-columns: 1fr !important;
+    text-align: center !important;
+    border-radius: 30px !important;
+    padding: 28px 22px 22px !important;
+  }
+
+  .act2geo-pistas-hero {
+    min-height: 240px !important;
+    order: 1 !important;
+  }
+
+  .act2geo-pistas-canvas,
+  .act2geo-pistas-modal-byte .act2geo-pistas-canvas,
+  .act2geo-pistas-modal-profesor .act2geo-pistas-canvas {
+    width: 145px !important;
+    height: 258px !important;
+  }
+
+  .act2geo-pistas-content {
+    order: 2 !important;
+  }
+
+  .act2geo-pistas-badge,
+  .act2geo-pistas-controls,
+  .act2geo-pistas-panel > h3,
+  .act2geo-pistas-transcript h3 {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-content: center !important;
+  }
+
+  .act2geo-pistas-content h2 {
+    font-size: 32px !important;
+  }
+
+  .act2geo-pistas-cloud {
+    min-height: 128px !important;
+    padding: 21px 20px !important;
+    text-align: center !important;
+  }
+
+  .act2geo-pistas-cloud::before,
+  .act2geo-pistas-cloud-dot {
+    display: none !important;
+  }
+
+  .act2geo-pistas-cloud p {
+    font-size: 15.5px !important;
+    max-height: 90px !important;
+  }
+
+  .act2geo-pistas-panel {
+    order: 3 !important;
+    text-align: left !important;
+  }
+
+  .act2geo-pistas-options {
+    grid-template-columns: 1fr !important;
+  }
+
+  .act2geo-pistas-transcript p {
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .act2geo-pistas-modal-overlay {
+    padding: 12px !important;
+  }
+
+  .act2geo-pistas-modal {
+    padding: 24px 16px 18px !important;
+    border-radius: 26px !important;
+  }
+
+  .act2geo-pistas-close {
+    top: 12px !important;
+    right: 12px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .act2geo-pistas-hero {
+    min-height: 205px !important;
+  }
+
+  .act2geo-pistas-canvas,
+  .act2geo-pistas-modal-byte .act2geo-pistas-canvas,
+  .act2geo-pistas-modal-profesor .act2geo-pistas-canvas {
+    width: 125px !important;
+    height: 222px !important;
+  }
+
+  .act2geo-pistas-content h2 {
+    font-size: 27px !important;
+  }
+
+  .act2geo-pistas-cloud {
+    min-height: 124px !important;
+    padding: 20px 16px !important;
+  }
+
+  .act2geo-pistas-cloud p {
+    font-size: 14px !important;
+    line-height: 1.36 !important;
+  }
+
+  .act2geo-pistas-controls {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .act2geo-pistas-controls button {
+    width: 100% !important;
+  }
+
+  .act2geo-pistas-panel > h3 {
+    font-size: 21px !important;
+  }
+}
+/* =========================================================
+   ACT 2 - MISIÓN COMPLETADA + SOMBRA ERROR
+   Diseño agregado al final. No cambia el tablero ni las cards.
+   ========================================================= */
+
+body:has(.act2geo-complete-modal-overlay),
+body:has(.act2geo-sombra-modal-overlay) {
+  overflow: hidden !important;
+}
+
+/* =========================
+   SOMBRA - RESPUESTA INCORRECTA
+   ========================= */
+.act2geo-sombra-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+  padding: 24px !important;
+  background:
+    radial-gradient(
+      circle at 18% 18%,
+      rgba(124, 80, 255, 0.24),
+      transparent 30%
+    ),
+    radial-gradient(circle at 82% 12%, rgba(255, 183, 3, 0.2), transparent 26%),
+    rgba(15, 23, 42, 0.52) !important;
+  backdrop-filter: blur(9px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  animation: act2geoModalFade 0.24s ease both !important;
+}
+
+.act2geo-sombra-modal {
+  width: min(1120px, calc(100vw - 48px)) !important;
+  height: min(560px, calc(100dvh - 48px)) !important;
+  padding: 32px 36px !important;
+  border-radius: 34px !important;
+  border: 2px solid rgba(155, 124, 255, 0.7) !important;
+  background:
+    radial-gradient(
+      circle at 9% 10%,
+      rgba(255, 255, 255, 0.98) 0 88px,
+      transparent 90px
+    ),
+    radial-gradient(
+      circle at 92% -8%,
+      rgba(255, 183, 3, 0.16) 0 108px,
+      transparent 110px
+    ),
+    radial-gradient(
+      circle at 4% 106%,
+      rgba(124, 80, 255, 0.12) 0 82px,
+      transparent 84px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #f4efff 56%, #fff8ea 100%) !important;
+  box-shadow: 0 34px 86px rgba(15, 23, 42, 0.36) !important;
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: 250px minmax(0, 1fr) 300px !important;
+  gap: 28px !important;
+  align-items: center !important;
+  overflow: hidden !important;
+  animation: act2geoModalPop 0.32s ease both !important;
+}
+
+.act2geo-sombra-modal::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 18px !important;
+  border-radius: 27px !important;
+  border: 2px dashed rgba(124, 80, 255, 0.18) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.act2geo-sombra-decoration,
+.act2geo-sombra-hero,
+.act2geo-sombra-content,
+.act2geo-sombra-transcript {
+  position: relative !important;
+  z-index: 4 !important;
+}
+
+.act2geo-sombra-glow,
+.act2geo-sombra-dot {
+  position: absolute !important;
+  border-radius: 999px !important;
+  pointer-events: none !important;
+}
+
+.act2geo-sombra-glow-one {
+  width: 110px !important;
+  height: 110px !important;
+  left: 26px !important;
+  top: 92px !important;
+  background: rgba(124, 80, 255, 0.16) !important;
+}
+
+.act2geo-sombra-glow-two {
+  width: 86px !important;
+  height: 86px !important;
+  right: 72px !important;
+  top: -28px !important;
+  background: rgba(255, 183, 3, 0.16) !important;
+}
+
+.act2geo-sombra-dot-one {
+  width: 14px !important;
+  height: 14px !important;
+  left: 66px !important;
+  top: 82px !important;
+  background: #7c50ff !important;
+  box-shadow: 0 0 0 8px rgba(124, 80, 255, 0.12) !important;
+}
+
+.act2geo-sombra-dot-two {
+  width: 10px !important;
+  height: 10px !important;
+  right: 154px !important;
+  top: 72px !important;
+  background: #ffb020 !important;
+}
+
+.act2geo-sombra-dot-three {
+  width: 10px !important;
+  height: 10px !important;
+  left: 222px !important;
+  bottom: 84px !important;
+  background: #7c50ff !important;
+}
+
+.act2geo-sombra-close,
+.act2geo-complete-close {
+  position: absolute !important;
+  top: 18px !important;
+  right: 18px !important;
+  width: 46px !important;
+  height: 46px !important;
+  border: none !important;
+  border-radius: 17px !important;
+  background: #ffffff !important;
+  color: #061331 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  z-index: 30 !important;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.14) !important;
+  transition:
+    transform 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease !important;
+}
+
+.act2geo-sombra-close:hover,
+.act2geo-complete-close:hover {
+  transform: translateY(-2px) scale(1.05) !important;
+  background: #0058ff !important;
+  color: #ffffff !important;
+}
+
+.act2geo-sombra-close svg,
+.act2geo-complete-close svg {
+  font-size: 22px !important;
+}
+
+.act2geo-sombra-hero,
+.act2geo-complete-hero {
+  min-height: 430px !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  overflow: visible !important;
+}
+
+.act2geo-sombra-source-video,
+.act2geo-complete-source-video {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.act2geo-sombra-canvas {
+  width: 232px !important;
+  height: 413px !important;
+  object-fit: contain !important;
+  position: relative !important;
+  z-index: 5 !important;
+  filter: drop-shadow(0 20px 22px rgba(124, 80, 255, 0.22)) !important;
+}
+
+.act2geo-sombra-orbit,
+.act2geo-complete-orbit {
+  position: absolute !important;
+  bottom: 24px !important;
+  width: 180px !important;
+  height: 34px !important;
+  border-radius: 999px !important;
+  background: rgba(124, 80, 255, 0.12) !important;
+  filter: blur(4px) !important;
+  z-index: 2 !important;
+}
+
+.act2geo-sombra-modal-playing .act2geo-sombra-canvas,
+.act2geo-complete-modal-playing .act2geo-complete-canvas {
+  animation:
+    act2geoPersonajeFloat 2.1s ease-in-out infinite,
+    act2geoPersonajeTalk 0.55s ease-in-out infinite !important;
+}
+
+.act2geo-sombra-modal-playing .act2geo-sombra-orbit,
+.act2geo-complete-modal-playing .act2geo-complete-orbit {
+  animation: act2geoOrbitPulse 2.1s ease-in-out infinite !important;
+}
+
+.act2geo-sombra-badge,
+.act2geo-complete-badge {
+  width: fit-content !important;
+  min-height: 34px !important;
+  padding: 0 18px !important;
+  border-radius: 999px !important;
+  background: #efe8ff !important;
+  color: #7148e8 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  box-shadow: 0 10px 20px rgba(124, 80, 255, 0.1) !important;
+}
+
+.act2geo-sombra-content h2,
+.act2geo-complete-content h2 {
+  margin: 16px 0 18px !important;
+  color: #061331 !important;
+  font-size: clamp(38px, 4.2vw, 58px) !important;
+  line-height: 0.94 !important;
+  letter-spacing: -1.4px !important;
+  font-weight: 950 !important;
+}
+
+.act2geo-sombra-cloud,
+.act2geo-complete-cloud {
+  min-height: 150px !important;
+  max-height: 170px !important;
+  padding: 28px 32px !important;
+  border-radius: 42px 60px 42px 60px !important;
+  background: linear-gradient(135deg, #ffffff 0%, #fffdf8 100%) !important;
+  border: 2px solid rgba(155, 124, 255, 0.42) !important;
+  box-shadow:
+    0 18px 34px rgba(15, 23, 42, 0.09),
+    inset 0 -6px 0 rgba(124, 80, 255, 0.06) !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.act2geo-sombra-cloud::before,
+.act2geo-complete-cloud::before {
+  content: "" !important;
+  position: absolute !important;
+  left: -28px !important;
+  top: 58px !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 2px solid rgba(155, 124, 255, 0.34) !important;
+}
+
+.act2geo-sombra-cloud-dot,
+.act2geo-complete-cloud-dot {
+  position: absolute !important;
+  display: block !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  border: 2px solid rgba(155, 124, 255, 0.3) !important;
+  pointer-events: none !important;
+}
+
+.act2geo-sombra-cloud-dot-one,
+.act2geo-complete-cloud-dot-one {
+  left: -58px !important;
+  top: 90px !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.act2geo-sombra-cloud-dot-two,
+.act2geo-complete-cloud-dot-two {
+  left: -84px !important;
+  top: 118px !important;
+  width: 11px !important;
+  height: 11px !important;
+}
+
+.act2geo-sombra-cloud p,
+.act2geo-complete-cloud p {
+  margin: 0 !important;
+  color: #061331 !important;
+  font-size: 20px !important;
+  line-height: 1.34 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.25px !important;
+  max-height: 96px !important;
+  overflow: hidden !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+}
+
+.act2geo-sombra-cursor,
+.act2geo-complete-cursor {
+  display: inline-block !important;
+  width: 3px !important;
+  height: 20px !important;
+  margin-left: 4px !important;
+  border-radius: 999px !important;
+  background: #0058ff !important;
+  vertical-align: -3px !important;
+  animation: act2geoCursorBlink 0.8s infinite !important;
+}
+
+.act2geo-sombra-controls,
+.act2geo-complete-controls {
+  margin-top: 18px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+}
+
+.act2geo-sombra-controls button,
+.act2geo-complete-controls button,
+.act2geo-sombra-try-btn,
+.act2geo-complete-actions button {
+  min-height: 44px !important;
+  border: none !important;
+  border-radius: 999px !important;
+  padding: 0 18px !important;
+  background: #ffffff !important;
+  color: #0058ff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.1) !important;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease !important;
+}
+
+.act2geo-sombra-controls button:hover,
+.act2geo-complete-controls button:hover,
+.act2geo-sombra-try-btn:hover,
+.act2geo-complete-actions button:hover {
+  transform: translateY(-3px) scale(1.03) !important;
+  box-shadow: 0 16px 28px rgba(0, 88, 255, 0.16) !important;
+}
+
+.act2geo-sombra-play {
+  background: #7c50ff !important;
+  color: #ffffff !important;
+}
+
+.act2geo-sombra-try-btn {
+  width: 100% !important;
+  margin-top: 14px !important;
+  background: #7c50ff !important;
+  color: #ffffff !important;
+  font-size: 14px !important;
+}
+
+.act2geo-sombra-transcript,
+.act2geo-complete-transcript {
+  max-height: 420px !important;
+  padding: 22px !important;
+  border-radius: 28px !important;
+  background: rgba(255, 255, 255, 0.86) !important;
+  border: 2px solid rgba(124, 80, 255, 0.1) !important;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08) !important;
+  overflow: hidden !important;
+}
+
+.act2geo-sombra-transcript h3,
+.act2geo-complete-transcript h3 {
+  width: fit-content !important;
+  margin: 0 0 16px !important;
+  color: #7148e8 !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  position: relative !important;
+}
+
+.act2geo-sombra-transcript h3::after,
+.act2geo-complete-transcript h3::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: -8px !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #7148e8, #ffb020) !important;
+}
+
+.act2geo-sombra-transcript p,
+.act2geo-complete-transcript p {
+  --progreso-sombra: 0%;
+  --progreso-complete: 0%;
+  margin: 0 0 10px !important;
+  padding: 9px 12px 10px 14px !important;
+  border-radius: 15px !important;
+  color: #526078 !important;
+  font-size: 13px !important;
+  line-height: 1.34 !important;
+  font-weight: 850 !important;
+  background: rgba(234, 242, 255, 0.32) !important;
+}
+
+.act2geo-sombra-transcript p.act2geo-sombra-line-active,
+.act2geo-complete-transcript p.act2geo-complete-line-active {
+  color: #061331 !important;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 244, 223, 0.98),
+    rgba(234, 242, 255, 0.76)
+  ) !important;
+  box-shadow:
+    0 8px 16px rgba(0, 88, 255, 0.07),
+    inset 4px 0 0 #7c50ff !important;
+}
+
+.act2geo-sombra-transcript p.act2geo-sombra-line-done,
+.act2geo-complete-transcript p.act2geo-complete-line-done {
+  color: #10203d !important;
+  background: rgba(232, 246, 238, 0.82) !important;
+  box-shadow: inset 4px 0 0 rgba(20, 184, 90, 0.85) !important;
+}
+
+.act2geo-sombra-transcript p.act2geo-sombra-line-pending,
+.act2geo-complete-transcript p.act2geo-complete-line-pending {
+  opacity: 0.78 !important;
+}
+
+/* =========================
+   COMPLETADO - RESPUESTA CORRECTA
+   ========================= */
+.act2geo-complete-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+  padding: 20px !important;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(20, 184, 90, 0.2), transparent 28%),
+    radial-gradient(
+      circle at 82% 12%,
+      rgba(255, 183, 3, 0.24),
+      transparent 28%
+    ),
+    rgba(15, 23, 42, 0.52) !important;
+  backdrop-filter: blur(9px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  animation: act2geoModalFade 0.24s ease both !important;
+}
+
+.act2geo-complete-modal {
+  width: min(1200px, calc(100vw - 42px)) !important;
+  height: min(590px, calc(100dvh - 42px)) !important;
+  padding: 32px 34px !important;
+  border-radius: 34px !important;
+  border: 2px solid rgba(255, 176, 32, 0.85) !important;
+  background:
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(255, 255, 255, 0.98) 0 90px,
+      transparent 92px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #fff8ea 100%) !important;
+  box-shadow: 0 34px 86px rgba(15, 23, 42, 0.36) !important;
+  display: grid !important;
+  grid-template-columns: 250px minmax(0, 1fr) 310px !important;
+  gap: 26px !important;
+  align-items: center !important;
+  position: relative !important;
+  overflow: hidden !important;
+  animation: act2geoModalPop 0.32s ease both !important;
+}
+
+.act2geo-complete-modal::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 18px !important;
+  border-radius: 27px !important;
+  border: 2px dashed rgba(255, 176, 32, 0.26) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.act2geo-complete-bg-image {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  opacity: 0.16 !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+  transform: scale(1.12) !important;
+}
+
+.act2geo-complete-party,
+.act2geo-complete-hero,
+.act2geo-complete-content,
+.act2geo-complete-side {
+  position: relative !important;
+  z-index: 4 !important;
+}
+
+.act2geo-complete-confetti,
+.act2geo-complete-floating-star,
+.act2geo-complete-spark {
+  position: absolute !important;
+  pointer-events: none !important;
+}
+
+.act2geo-complete-confetti {
+  width: 11px !important;
+  height: 11px !important;
+  border-radius: 3px !important;
+  background: #ffb020 !important;
+  animation: act2geoConfetti 2.6s ease-in-out infinite !important;
+}
+
+.act2geo-complete-confetti-one {
+  left: 92px !important;
+  top: 72px !important;
+}
+.act2geo-complete-confetti-two {
+  left: 238px !important;
+  bottom: 64px !important;
+  background: #14b85a !important;
+  animation-delay: 0.25s !important;
+}
+.act2geo-complete-confetti-three {
+  right: 326px !important;
+  top: 82px !important;
+  background: #7c50ff !important;
+  animation-delay: 0.4s !important;
+}
+.act2geo-complete-confetti-four {
+  right: 80px !important;
+  bottom: 92px !important;
+  background: #ff8a3d !important;
+  animation-delay: 0.65s !important;
+}
+
+.act2geo-complete-floating-star {
+  color: #ffb703 !important;
+  font-size: 22px !important;
+  text-shadow: 0 8px 16px rgba(255, 183, 3, 0.28) !important;
+  animation: act2geoStarFloat 2.8s ease-in-out infinite !important;
+}
+
+.act2geo-complete-floating-star-one {
+  left: 380px !important;
+  top: 92px !important;
+}
+.act2geo-complete-floating-star-two {
+  right: 378px !important;
+  bottom: 112px !important;
+  animation-delay: 0.35s !important;
+}
+.act2geo-complete-floating-star-three {
+  right: 92px !important;
+  top: 150px !important;
+  animation-delay: 0.7s !important;
+}
+
+.act2geo-complete-check {
+  position: absolute !important;
+  left: -14px !important;
+  top: 76px !important;
+  width: 72px !important;
+  height: 72px !important;
+  border-radius: 999px !important;
+  background: #14b85a !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow:
+    0 0 0 18px rgba(20, 184, 90, 0.14),
+    0 16px 28px rgba(20, 184, 90, 0.26) !important;
+  z-index: 8 !important;
+}
+
+.act2geo-complete-check svg {
+  font-size: 42px !important;
+}
+
+.act2geo-complete-canvas {
+  width: 220px !important;
+  height: 391px !important;
+  object-fit: contain !important;
+  position: relative !important;
+  z-index: 5 !important;
+  filter: drop-shadow(0 20px 22px rgba(255, 137, 0, 0.2)) !important;
+}
+
+.act2geo-complete-orbit {
+  background: rgba(0, 88, 255, 0.1) !important;
+}
+
+.act2geo-complete-spark {
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 999px !important;
+  background: #ffb703 !important;
+  z-index: 6 !important;
+  animation: act2geoSpark 1.8s ease-in-out infinite !important;
+}
+
+.act2geo-complete-spark-one {
+  left: 42px !important;
+  bottom: 132px !important;
+}
+.act2geo-complete-spark-two {
+  right: 42px !important;
+  top: 156px !important;
+  animation-delay: 0.35s !important;
+}
+
+.act2geo-complete-badge {
+  background: #fff1d8 !important;
+  color: #ff6b00 !important;
+}
+
+.act2geo-complete-cloud {
+  border-color: rgba(255, 203, 136, 0.7) !important;
+  box-shadow:
+    0 18px 34px rgba(15, 23, 42, 0.09),
+    inset 0 -6px 0 rgba(255, 190, 94, 0.08) !important;
+}
+
+.act2geo-complete-cloud::before,
+.act2geo-complete-cloud-dot {
+  border-color: rgba(255, 203, 136, 0.4) !important;
+}
+
+.act2geo-complete-play,
+.act2geo-complete-next {
+  background: #0058ff !important;
+  color: #ffffff !important;
+}
+
+.act2geo-complete-summary {
+  margin-top: 18px !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.act2geo-complete-summary article {
+  min-height: 74px !important;
+  padding: 12px 14px !important;
+  border-radius: 18px !important;
+  background: rgba(255, 255, 255, 0.78) !important;
+  border: 2px solid rgba(0, 88, 255, 0.08) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.08) !important;
+}
+
+.act2geo-complete-summary svg {
+  color: #14b85a !important;
+  font-size: 28px !important;
+  flex-shrink: 0 !important;
+}
+
+.act2geo-complete-summary span {
+  display: block !important;
+  color: #2e416d !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+}
+
+.act2geo-complete-summary strong {
+  display: block !important;
+  color: #061331 !important;
+  font-size: 23px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+}
+
+.act2geo-complete-star {
+  color: #ffb703 !important;
+  font-size: 26px !important;
+  line-height: 1 !important;
+}
+
+.act2geo-complete-side {
+  height: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 12px !important;
+}
+
+.act2geo-complete-transcript {
+  max-height: 330px !important;
+  border-color: rgba(255, 176, 32, 0.14) !important;
+}
+
+.act2geo-complete-transcript h3 {
+  color: #0058ff !important;
+}
+
+.act2geo-complete-actions {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+}
+
+.act2geo-complete-actions button {
+  width: 100% !important;
+  min-height: 50px !important;
+}
+
+@keyframes act2geoModalFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes act2geoModalPop {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.965);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes act2geoPersonajeFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(1deg);
+  }
+}
+
+@keyframes act2geoPersonajeTalk {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.025;
+  }
+}
+
+@keyframes act2geoOrbitPulse {
+  0%,
+  100% {
+    transform: scaleX(1);
+    opacity: 0.72;
+  }
+  50% {
+    transform: scaleX(0.84);
+    opacity: 0.44;
+  }
+}
+
+@keyframes act2geoCursorBlink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  46%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes act2geoConfetti {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateY(-12px) rotate(18deg);
+    opacity: 1;
+  }
+}
+
+@keyframes act2geoStarFloat {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.08);
+  }
+}
+
+@keyframes act2geoSpark {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.72;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 1;
+  }
+}
+
+/* =========================
+   RESPONSIVO MODALES ACT 2
+   ========================= */
+@media (max-width: 1500px) {
+  .act2geo-sombra-modal {
+    width: min(1040px, calc(100vw - 40px)) !important;
+    height: min(530px, calc(100dvh - 40px)) !important;
+    grid-template-columns: 220px minmax(0, 1fr) 280px !important;
+    gap: 22px !important;
+    padding: 30px !important;
+  }
+
+  .act2geo-complete-modal {
+    width: min(1080px, calc(100vw - 40px)) !important;
+    height: min(560px, calc(100dvh - 40px)) !important;
+    grid-template-columns: 220px minmax(0, 1fr) 290px !important;
+    gap: 22px !important;
+    padding: 30px !important;
+  }
+
+  .act2geo-sombra-canvas,
+  .act2geo-complete-canvas {
+    width: 196px !important;
+    height: 348px !important;
+  }
+
+  .act2geo-sombra-hero,
+  .act2geo-complete-hero {
+    min-height: 370px !important;
+  }
+
+  .act2geo-sombra-content h2,
+  .act2geo-complete-content h2 {
+    font-size: clamp(34px, 4vw, 50px) !important;
+  }
+
+  .act2geo-sombra-cloud p,
+  .act2geo-complete-cloud p {
+    font-size: 18px !important;
+  }
+
+  .act2geo-complete-transcript,
+  .act2geo-sombra-transcript {
+    padding: 18px !important;
+  }
+}
+
+@media (max-width: 1199px) {
+  .act2geo-sombra-modal-overlay,
+  .act2geo-complete-modal-overlay {
+    align-items: flex-start !important;
+    overflow-y: auto !important;
+    padding: 18px !important;
+  }
+
+  .act2geo-sombra-modal,
+  .act2geo-complete-modal {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    grid-template-columns: 180px minmax(0, 1fr) !important;
+    gap: 18px !important;
+    padding: 28px 26px !important;
+    margin: auto 0 !important;
+    overflow: visible !important;
+  }
+
+  .act2geo-sombra-hero,
+  .act2geo-complete-hero {
+    min-height: 300px !important;
+  }
+
+  .act2geo-sombra-canvas,
+  .act2geo-complete-canvas {
+    width: 165px !important;
+    height: 293px !important;
+  }
+
+  .act2geo-sombra-transcript,
+  .act2geo-complete-side {
+    grid-column: 1 / -1 !important;
+  }
+
+  .act2geo-complete-side {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .act2geo-sombra-modal,
+  .act2geo-complete-modal {
+    grid-template-columns: 1fr !important;
+    text-align: center !important;
+    border-radius: 30px !important;
+    padding: 28px 22px 22px !important;
+  }
+
+  .act2geo-sombra-hero,
+  .act2geo-complete-hero {
+    min-height: 235px !important;
+    order: 1 !important;
+  }
+
+  .act2geo-sombra-canvas,
+  .act2geo-complete-canvas {
+    width: 145px !important;
+    height: 258px !important;
+  }
+
+  .act2geo-sombra-content,
+  .act2geo-complete-content {
+    order: 2 !important;
+  }
+
+  .act2geo-sombra-badge,
+  .act2geo-complete-badge,
+  .act2geo-sombra-controls,
+  .act2geo-complete-controls,
+  .act2geo-sombra-transcript h3,
+  .act2geo-complete-transcript h3 {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-content: center !important;
+  }
+
+  .act2geo-sombra-cloud,
+  .act2geo-complete-cloud {
+    min-height: 132px !important;
+    padding: 22px 20px !important;
+    text-align: center !important;
+  }
+
+  .act2geo-sombra-cloud::before,
+  .act2geo-sombra-cloud-dot,
+  .act2geo-complete-cloud::before,
+  .act2geo-complete-cloud-dot {
+    display: none !important;
+  }
+
+  .act2geo-sombra-cloud p,
+  .act2geo-complete-cloud p {
+    font-size: 16px !important;
+    max-height: 92px !important;
+  }
+
+  .act2geo-sombra-transcript,
+  .act2geo-complete-side {
+    order: 3 !important;
+    text-align: left !important;
+  }
+
+  .act2geo-complete-summary {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .act2geo-sombra-modal-overlay,
+  .act2geo-complete-modal-overlay {
+    padding: 12px !important;
+  }
+
+  .act2geo-sombra-modal,
+  .act2geo-complete-modal {
+    padding: 24px 16px 18px !important;
+    border-radius: 26px !important;
+  }
+
+  .act2geo-sombra-close,
+  .act2geo-complete-close {
+    top: 12px !important;
+    right: 12px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .act2geo-sombra-hero,
+  .act2geo-complete-hero {
+    min-height: 202px !important;
+  }
+
+  .act2geo-sombra-canvas,
+  .act2geo-complete-canvas {
+    width: 126px !important;
+    height: 224px !important;
+  }
+
+  .act2geo-sombra-content h2,
+  .act2geo-complete-content h2 {
+    font-size: 28px !important;
+  }
+
+  .act2geo-sombra-cloud,
+  .act2geo-complete-cloud {
+    min-height: 124px !important;
+    padding: 20px 16px !important;
+  }
+
+  .act2geo-sombra-cloud p,
+  .act2geo-complete-cloud p {
+    font-size: 14.5px !important;
+    line-height: 1.38 !important;
+  }
+
+  .act2geo-sombra-controls,
+  .act2geo-complete-controls,
+  .act2geo-complete-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .act2geo-sombra-controls button,
+  .act2geo-complete-controls button,
+  .act2geo-sombra-try-btn,
+  .act2geo-complete-actions button {
+    width: 100% !important;
+  }
+}
+
+/* =========================================================
+   ACT 2 - ARREGLO REAL FINAL: MODALES ACOMODADOS
+   Problema corregido:
+   - .act2geo-sombra-decoration y .act2geo-complete-party estaban ocupando
+     una columna del grid y movían TODO el diseño.
+   - Ahora son decoración absoluta y ya no empujan al personaje/texto.
+   - Modal compacto, centrado, sin barras feas y responsivo.
+   ========================================================= */
+
+body:has(.act2geo-complete-modal-overlay),
+body:has(.act2geo-sombra-modal-overlay) {
+  overflow: hidden !important;
+}
+
+.act2geo-complete-modal-overlay,
+.act2geo-sombra-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 999999 !important;
+  padding: 22px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  overscroll-behavior: contain !important;
+  backdrop-filter: blur(9px) !important;
+}
+
+.act2geo-complete-modal-overlay {
+  background:
+    radial-gradient(
+      circle at 18% 18%,
+      rgba(20, 184, 90, 0.22),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 82% 14%,
+      rgba(255, 183, 3, 0.24),
+      transparent 28%
+    ),
+    rgba(15, 23, 42, 0.52) !important;
+}
+
+.act2geo-sombra-modal-overlay {
+  background:
+    radial-gradient(
+      circle at 18% 18%,
+      rgba(124, 80, 255, 0.25),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 82% 14%,
+      rgba(255, 183, 3, 0.18),
+      transparent 28%
+    ),
+    rgba(15, 23, 42, 0.52) !important;
+}
+
+/* =========================
+   MODAL BASE ORDENADO
+   ========================= */
+
+.act2geo-complete-modal,
+.act2geo-sombra-modal {
+  width: min(1060px, calc(100vw - 48px)) !important;
+  height: min(545px, calc(100dvh - 48px)) !important;
+  min-height: 0 !important;
+  max-height: min(545px, calc(100dvh - 48px)) !important;
+  padding: 30px 34px !important;
+  border-radius: 34px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  display: grid !important;
+  grid-template-columns: 230px minmax(0, 1fr) 300px !important;
+  grid-template-rows: 1fr !important;
+  gap: 24px !important;
+  align-items: center !important;
+  box-shadow: 0 34px 86px rgba(15, 23, 42, 0.36) !important;
+  animation: act2geoModalFinalBonito 0.28s ease both !important;
+}
+
+.act2geo-complete-modal {
+  border: 2px solid rgba(255, 176, 32, 0.88) !important;
+  background:
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(255, 255, 255, 0.98) 0 88px,
+      transparent 90px
+    ),
+    radial-gradient(
+      circle at 90% -8%,
+      rgba(255, 183, 3, 0.18) 0 112px,
+      transparent 114px
+    ),
+    radial-gradient(
+      circle at 4% 106%,
+      rgba(20, 184, 90, 0.11) 0 78px,
+      transparent 80px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #fffaf0 58%, #fff3d9 100%) !important;
+}
+
+.act2geo-sombra-modal {
+  border: 2px solid rgba(155, 124, 255, 0.72) !important;
+  background:
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(255, 255, 255, 0.98) 0 88px,
+      transparent 90px
+    ),
+    radial-gradient(
+      circle at 90% -8%,
+      rgba(255, 183, 3, 0.15) 0 112px,
+      transparent 114px
+    ),
+    radial-gradient(
+      circle at 4% 106%,
+      rgba(124, 80, 255, 0.13) 0 78px,
+      transparent 80px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #f8f4ff 58%, #fff8ea 100%) !important;
+}
+
+.act2geo-complete-modal::before,
+.act2geo-sombra-modal::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 16px !important;
+  border-radius: 27px !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.act2geo-complete-modal::before {
+  border: 2px dashed rgba(255, 176, 32, 0.24) !important;
+}
+
+.act2geo-sombra-modal::before {
+  border: 2px dashed rgba(124, 80, 255, 0.19) !important;
+}
+
+/* CLAVE: estas decoraciones ya NO ocupan columnas del grid */
+.act2geo-complete-party,
+.act2geo-sombra-decoration {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+}
+
+.act2geo-complete-bg-image {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  opacity: 0.13 !important;
+  transform: scale(1.02) !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+}
+
+.act2geo-complete-close,
+.act2geo-sombra-close {
+  position: absolute !important;
+  top: 18px !important;
+  right: 18px !important;
+  width: 44px !important;
+  height: 44px !important;
+  border: none !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  color: #061331 !important;
+  z-index: 30 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.14) !important;
+  transition:
+    transform 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease !important;
+}
+
+.act2geo-complete-close:hover,
+.act2geo-sombra-close:hover {
+  transform: translateY(-2px) scale(1.05) !important;
+  background: #0058ff !important;
+  color: #ffffff !important;
+}
+
+.act2geo-complete-close svg,
+.act2geo-sombra-close svg {
+  font-size: 22px !important;
+}
+
+/* =========================
+   COLUMNAS FIJAS DEL GRID
+   ========================= */
+
+.act2geo-complete-hero,
+.act2geo-sombra-hero {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  position: relative !important;
+  z-index: 5 !important;
+  width: 100% !important;
+  min-height: 430px !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: visible !important;
+}
+
+.act2geo-complete-content,
+.act2geo-sombra-content {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  position: relative !important;
+  z-index: 5 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  align-self: center !important;
+}
+
+.act2geo-complete-side,
+.act2geo-sombra-transcript {
+  grid-column: 3 !important;
+  grid-row: 1 !important;
+  position: relative !important;
+  z-index: 5 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  align-self: center !important;
+}
+
+/* =========================
+   PERSONAJES
+   ========================= */
+
+.act2geo-complete-canvas {
+  width: 205px !important;
+  height: 365px !important;
+  object-fit: contain !important;
+  position: relative !important;
+  z-index: 6 !important;
+  filter: drop-shadow(0 20px 22px rgba(255, 137, 0, 0.2)) !important;
+}
+
+.act2geo-sombra-canvas {
+  width: 225px !important;
+  height: 400px !important;
+  object-fit: contain !important;
+  position: relative !important;
+  z-index: 6 !important;
+  filter: drop-shadow(0 20px 22px rgba(124, 80, 255, 0.24)) !important;
+}
+
+.act2geo-complete-orbit,
+.act2geo-sombra-orbit {
+  position: absolute !important;
+  bottom: 38px !important;
+  left: 50% !important;
+  width: 168px !important;
+  height: 32px !important;
+  border-radius: 999px !important;
+  transform: translateX(-50%) !important;
+  filter: blur(4px) !important;
+  opacity: 0.72 !important;
+  z-index: 2 !important;
+}
+
+.act2geo-complete-orbit {
+  background: rgba(0, 88, 255, 0.1) !important;
+}
+
+.act2geo-sombra-orbit {
+  background: rgba(124, 80, 255, 0.12) !important;
+}
+
+.act2geo-complete-check {
+  position: absolute !important;
+  left: 12px !important;
+  top: 68px !important;
+  width: 58px !important;
+  height: 58px !important;
+  border-radius: 999px !important;
+  background: #14b85a !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow:
+    0 0 0 15px rgba(20, 184, 90, 0.14),
+    0 16px 28px rgba(20, 184, 90, 0.24) !important;
+  z-index: 8 !important;
+}
+
+.act2geo-complete-check svg {
+  font-size: 34px !important;
+}
+
+.act2geo-complete-modal-playing .act2geo-complete-canvas,
+.act2geo-sombra-modal-playing .act2geo-sombra-canvas {
+  animation:
+    act2geoFinalModalFloat 2.1s ease-in-out infinite,
+    act2geoFinalModalTalk 0.56s ease-in-out infinite !important;
+}
+
+/* =========================
+   TÍTULOS Y NUBES
+   ========================= */
+
+.act2geo-complete-badge,
+.act2geo-sombra-badge {
+  width: fit-content !important;
+  min-height: 32px !important;
+  padding: 0 16px !important;
+  border-radius: 999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 12.5px !important;
+  font-weight: 950 !important;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08) !important;
+}
+
+.act2geo-complete-badge {
+  background: #fff1d8 !important;
+  color: #ff6b00 !important;
+}
+
+.act2geo-sombra-badge {
+  background: #efe8ff !important;
+  color: #7148e8 !important;
+}
+
+.act2geo-complete-content h2,
+.act2geo-sombra-content h2 {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 14px 0 16px !important;
+  color: #061331 !important;
+  font-size: clamp(34px, 3.3vw, 48px) !important;
+  line-height: 0.94 !important;
+  letter-spacing: -1.15px !important;
+  font-weight: 950 !important;
+  overflow-wrap: normal !important;
+}
+
+.act2geo-complete-cloud,
+.act2geo-sombra-cloud {
+  width: 100% !important;
+  min-height: 138px !important;
+  max-height: 154px !important;
+  padding: 24px 28px !important;
+  border-radius: 38px 54px 38px 54px !important;
+  background:
+    radial-gradient(
+      circle at 18% -20%,
+      rgba(255, 255, 255, 0.99) 0 46px,
+      transparent 48px
+    ),
+    radial-gradient(
+      circle at 54% -28%,
+      rgba(255, 255, 255, 0.97) 0 58px,
+      transparent 60px
+    ),
+    linear-gradient(135deg, #ffffff 0%, #fffdf8 100%) !important;
+  box-shadow:
+    0 16px 28px rgba(15, 23, 42, 0.08),
+    inset 0 -5px 0 rgba(255, 190, 94, 0.07) !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.act2geo-complete-cloud {
+  border: 2px solid rgba(255, 203, 136, 0.7) !important;
+}
+
+.act2geo-sombra-cloud {
+  border: 2px solid rgba(155, 124, 255, 0.44) !important;
+}
+
+.act2geo-complete-cloud::before,
+.act2geo-sombra-cloud::before {
+  content: "" !important;
+  position: absolute !important;
+  left: -25px !important;
+  top: 52px !important;
+  width: 25px !important;
+  height: 25px !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  z-index: 2 !important;
+}
+
+.act2geo-complete-cloud::before {
+  border: 2px solid rgba(255, 203, 136, 0.44) !important;
+}
+
+.act2geo-sombra-cloud::before {
+  border: 2px solid rgba(155, 124, 255, 0.34) !important;
+}
+
+.act2geo-complete-cloud-dot,
+.act2geo-sombra-cloud-dot {
+  display: block !important;
+  position: absolute !important;
+  border-radius: 999px !important;
+  background: #ffffff !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+}
+
+.act2geo-complete-cloud-dot-one,
+.act2geo-sombra-cloud-dot-one {
+  left: -53px !important;
+  top: 80px !important;
+  width: 15px !important;
+  height: 15px !important;
+}
+
+.act2geo-complete-cloud-dot-two,
+.act2geo-sombra-cloud-dot-two {
+  left: -77px !important;
+  top: 106px !important;
+  width: 10px !important;
+  height: 10px !important;
+}
+
+.act2geo-complete-cloud-dot {
+  border: 2px solid rgba(255, 203, 136, 0.38) !important;
+}
+
+.act2geo-sombra-cloud-dot {
+  border: 2px solid rgba(155, 124, 255, 0.3) !important;
+}
+
+.act2geo-complete-cloud p,
+.act2geo-sombra-cloud p {
+  margin: 0 !important;
+  color: #061331 !important;
+  font-size: 18px !important;
+  line-height: 1.34 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.22px !important;
+  max-height: 90px !important;
+  overflow: hidden !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+}
+
+.act2geo-complete-controls,
+.act2geo-sombra-controls {
+  margin-top: 16px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+}
+
+.act2geo-complete-controls button,
+.act2geo-sombra-controls button,
+.act2geo-sombra-try-btn,
+.act2geo-complete-actions button {
+  min-height: 42px !important;
+  border: none !important;
+  border-radius: 999px !important;
+  padding: 0 17px !important;
+  background: #ffffff !important;
+  color: #0058ff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  font-size: 12.5px !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+  box-shadow: 0 11px 20px rgba(15, 23, 42, 0.1) !important;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease !important;
+}
+
+.act2geo-complete-controls button:hover,
+.act2geo-sombra-controls button:hover,
+.act2geo-sombra-try-btn:hover,
+.act2geo-complete-actions button:hover {
+  transform: translateY(-3px) scale(1.03) !important;
+  box-shadow: 0 16px 28px rgba(0, 88, 255, 0.16) !important;
+}
+
+.act2geo-complete-play,
+.act2geo-complete-next {
+  background: #0058ff !important;
+  color: #ffffff !important;
+}
+
+.act2geo-sombra-play,
+.act2geo-sombra-try-btn {
+  background: #7c50ff !important;
+  color: #ffffff !important;
+}
+
+.act2geo-sombra-try-btn {
+  width: 100% !important;
+  margin-top: 14px !important;
+  font-size: 14px !important;
+}
+
+/* =========================
+   RESUMEN COMPLETADO
+   ========================= */
+
+.act2geo-complete-summary {
+  margin-top: 16px !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 9px !important;
+}
+
+.act2geo-complete-summary article {
+  min-height: 66px !important;
+  padding: 10px 10px !important;
+  border-radius: 17px !important;
+  background: rgba(255, 255, 255, 0.84) !important;
+  border: 2px solid rgba(0, 88, 255, 0.08) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 9px !important;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.07) !important;
+  overflow: hidden !important;
+}
+
+.act2geo-complete-summary svg {
+  color: #14b85a !important;
+  font-size: 25px !important;
+  flex-shrink: 0 !important;
+}
+
+.act2geo-complete-summary span {
+  display: block !important;
+  color: #2e416d !important;
+  font-size: 10.5px !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+}
+
+.act2geo-complete-summary strong {
+  display: block !important;
+  color: #061331 !important;
+  font-size: 21px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+}
+
+.act2geo-complete-star {
+  color: #ffb703 !important;
+  font-size: 24px !important;
+  line-height: 1 !important;
+}
+
+/* =========================
+   TEXTO COMPLETO DERECHA
+   ========================= */
+
+.act2geo-complete-side {
+  height: auto !important;
+  max-height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 12px !important;
+}
+
+.act2geo-complete-transcript,
+.act2geo-sombra-transcript {
+  width: 100% !important;
+  max-height: none !important;
+  overflow: hidden !important;
+  padding: 18px !important;
+  border-radius: 24px !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.075) !important;
+}
+
+.act2geo-complete-transcript {
+  border: 2px solid rgba(255, 176, 32, 0.16) !important;
+}
+
+.act2geo-sombra-transcript {
+  border: 2px solid rgba(124, 80, 255, 0.12) !important;
+}
+
+.act2geo-complete-transcript::-webkit-scrollbar,
+.act2geo-sombra-transcript::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+}
+
+.act2geo-complete-transcript h3,
+.act2geo-sombra-transcript h3 {
+  width: fit-content !important;
+  margin: 0 0 14px !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  position: relative !important;
+}
+
+.act2geo-complete-transcript h3 {
+  color: #0058ff !important;
+}
+
+.act2geo-sombra-transcript h3 {
+  color: #7148e8 !important;
+}
+
+.act2geo-complete-transcript h3::after,
+.act2geo-sombra-transcript h3::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: -7px !important;
+  height: 4px !important;
+  border-radius: 999px !important;
+}
+
+.act2geo-complete-transcript h3::after {
+  background: linear-gradient(90deg, #0058ff, #ffb020) !important;
+}
+
+.act2geo-sombra-transcript h3::after {
+  background: linear-gradient(90deg, #7148e8, #ffb020) !important;
+}
+
+.act2geo-complete-transcript p,
+.act2geo-sombra-transcript p {
+  margin: 0 0 7px !important;
+  padding: 7px 10px 8px 12px !important;
+  border-radius: 12px !important;
+  color: #526078 !important;
+  font-size: 12px !important;
+  line-height: 1.24 !important;
+  font-weight: 850 !important;
+  background: rgba(234, 242, 255, 0.28) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.act2geo-complete-transcript p.act2geo-complete-line-active,
+.act2geo-sombra-transcript p.act2geo-sombra-line-active {
+  color: #061331 !important;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 244, 223, 0.98),
+    rgba(234, 242, 255, 0.76)
+  ) !important;
+  box-shadow:
+    0 7px 14px rgba(0, 88, 255, 0.06),
+    inset 4px 0 0 #0058ff !important;
+}
+
+.act2geo-sombra-transcript p.act2geo-sombra-line-active {
+  box-shadow:
+    0 7px 14px rgba(124, 80, 255, 0.08),
+    inset 4px 0 0 #7c50ff !important;
+}
+
+.act2geo-complete-transcript p.act2geo-complete-line-done,
+.act2geo-sombra-transcript p.act2geo-sombra-line-done {
+  color: #10203d !important;
+  background: rgba(232, 246, 238, 0.8) !important;
+  box-shadow: inset 4px 0 0 rgba(20, 184, 90, 0.84) !important;
+}
+
+.act2geo-complete-transcript p.act2geo-complete-line-pending,
+.act2geo-sombra-transcript p.act2geo-sombra-line-pending {
+  opacity: 0.78 !important;
+}
+
+.act2geo-complete-actions {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 9px !important;
+}
+
+.act2geo-complete-actions button {
+  width: 100% !important;
+  min-height: 45px !important;
+}
+
+/* Decoración completado ajustada */
+.act2geo-complete-confetti,
+.act2geo-complete-floating-star,
+.act2geo-complete-spark,
+.act2geo-sombra-glow,
+.act2geo-sombra-dot {
+  position: absolute !important;
+  pointer-events: none !important;
+}
+
+.act2geo-complete-confetti-one {
+  left: 92px !important;
+  top: 72px !important;
+}
+.act2geo-complete-confetti-two {
+  left: 225px !important;
+  bottom: 76px !important;
+}
+.act2geo-complete-confetti-three {
+  right: 330px !important;
+  top: 72px !important;
+}
+.act2geo-complete-confetti-four {
+  right: 96px !important;
+  bottom: 92px !important;
+}
+.act2geo-complete-floating-star-one {
+  left: 145px !important;
+  bottom: 98px !important;
+}
+.act2geo-complete-floating-star-two {
+  right: 390px !important;
+  bottom: 120px !important;
+}
+.act2geo-complete-floating-star-three {
+  right: 92px !important;
+  top: 144px !important;
+}
+
+@keyframes act2geoModalFinalBonito {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.965);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes act2geoFinalModalFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(1deg);
+  }
+}
+
+@keyframes act2geoFinalModalTalk {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.024;
+  }
+}
+
+/* =========================
+   RESPONSIVO MODALES BONITOS
+   ========================= */
+
+@media (max-width: 1500px) {
+  .act2geo-complete-modal,
+  .act2geo-sombra-modal {
+    width: min(1000px, calc(100vw - 42px)) !important;
+    height: min(525px, calc(100dvh - 42px)) !important;
+    max-height: min(525px, calc(100dvh - 42px)) !important;
+    grid-template-columns: 205px minmax(0, 1fr) 280px !important;
+    gap: 20px !important;
+    padding: 28px 30px !important;
+  }
+
+  .act2geo-complete-hero,
+  .act2geo-sombra-hero {
+    min-height: 390px !important;
+  }
+
+  .act2geo-complete-canvas {
+    width: 185px !important;
+    height: 329px !important;
+  }
+
+  .act2geo-sombra-canvas {
+    width: 198px !important;
+    height: 352px !important;
+  }
+
+  .act2geo-complete-content h2,
+  .act2geo-sombra-content h2 {
+    font-size: clamp(31px, 3.4vw, 42px) !important;
+  }
+
+  .act2geo-complete-cloud,
+  .act2geo-sombra-cloud {
+    min-height: 128px !important;
+    max-height: 145px !important;
+    padding: 22px 26px !important;
+  }
+
+  .act2geo-complete-cloud p,
+  .act2geo-sombra-cloud p {
+    font-size: 16.5px !important;
+    max-height: 84px !important;
+  }
+
+  .act2geo-complete-summary article {
+    min-height: 60px !important;
+    padding: 9px !important;
+  }
+
+  .act2geo-complete-summary strong {
+    font-size: 19px !important;
+  }
+
+  .act2geo-complete-transcript p,
+  .act2geo-sombra-transcript p {
+    font-size: 11.2px !important;
+    line-height: 1.2 !important;
+    margin-bottom: 5px !important;
+  }
+}
+
+@media (max-width: 1199px) {
+  .act2geo-complete-modal-overlay,
+  .act2geo-sombra-modal-overlay {
+    align-items: flex-start !important;
+    overflow-y: auto !important;
+    padding: 18px !important;
+  }
+
+  .act2geo-complete-modal,
+  .act2geo-sombra-modal {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    grid-template-columns: 175px minmax(0, 1fr) !important;
+    gap: 18px !important;
+    padding: 28px 26px !important;
+    margin: auto 0 !important;
+    overflow: visible !important;
+  }
+
+  .act2geo-complete-hero,
+  .act2geo-sombra-hero {
+    grid-column: 1 !important;
+    min-height: 285px !important;
+  }
+
+  .act2geo-complete-content,
+  .act2geo-sombra-content {
+    grid-column: 2 !important;
+  }
+
+  .act2geo-complete-side,
+  .act2geo-sombra-transcript {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+  }
+
+  .act2geo-complete-side {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .act2geo-complete-canvas,
+  .act2geo-sombra-canvas {
+    width: 158px !important;
+    height: 281px !important;
+  }
+
+  .act2geo-complete-transcript,
+  .act2geo-sombra-transcript {
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .act2geo-complete-modal,
+  .act2geo-sombra-modal {
+    grid-template-columns: 1fr !important;
+    text-align: center !important;
+    border-radius: 30px !important;
+    padding: 28px 22px 22px !important;
+  }
+
+  .act2geo-complete-hero,
+  .act2geo-sombra-hero {
+    grid-column: 1 !important;
+    min-height: 230px !important;
+    order: 1 !important;
+  }
+
+  .act2geo-complete-content,
+  .act2geo-sombra-content {
+    grid-column: 1 !important;
+    order: 2 !important;
+  }
+
+  .act2geo-complete-side,
+  .act2geo-sombra-transcript {
+    grid-column: 1 !important;
+    order: 3 !important;
+    text-align: left !important;
+  }
+
+  .act2geo-complete-canvas,
+  .act2geo-sombra-canvas {
+    width: 138px !important;
+    height: 245px !important;
+  }
+
+  .act2geo-complete-badge,
+  .act2geo-sombra-badge,
+  .act2geo-complete-controls,
+  .act2geo-sombra-controls,
+  .act2geo-complete-transcript h3,
+  .act2geo-sombra-transcript h3 {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-content: center !important;
+  }
+
+  .act2geo-complete-content h2,
+  .act2geo-sombra-content h2 {
+    font-size: 32px !important;
+  }
+
+  .act2geo-complete-cloud,
+  .act2geo-sombra-cloud {
+    min-height: 126px !important;
+    padding: 21px 20px !important;
+    text-align: center !important;
+  }
+
+  .act2geo-complete-cloud::before,
+  .act2geo-complete-cloud-dot,
+  .act2geo-sombra-cloud::before,
+  .act2geo-sombra-cloud-dot {
+    display: none !important;
+  }
+
+  .act2geo-complete-summary {
+    grid-template-columns: 1fr !important;
+  }
+
+  .act2geo-complete-transcript p,
+  .act2geo-sombra-transcript p {
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .act2geo-complete-modal-overlay,
+  .act2geo-sombra-modal-overlay {
+    padding: 12px !important;
+  }
+
+  .act2geo-complete-modal,
+  .act2geo-sombra-modal {
+    padding: 24px 16px 18px !important;
+    border-radius: 26px !important;
+  }
+
+  .act2geo-complete-close,
+  .act2geo-sombra-close {
+    top: 12px !important;
+    right: 12px !important;
+    width: 38px !important;
+    height: 38px !important;
+  }
+
+  .act2geo-complete-hero,
+  .act2geo-sombra-hero {
+    min-height: 198px !important;
+  }
+
+  .act2geo-complete-canvas,
+  .act2geo-sombra-canvas {
+    width: 122px !important;
+    height: 217px !important;
+  }
+
+  .act2geo-complete-content h2,
+  .act2geo-sombra-content h2 {
+    font-size: 27px !important;
+  }
+
+  .act2geo-complete-cloud,
+  .act2geo-sombra-cloud {
+    min-height: 122px !important;
+    padding: 20px 16px !important;
+  }
+
+  .act2geo-complete-cloud p,
+  .act2geo-sombra-cloud p {
+    font-size: 14px !important;
+    line-height: 1.36 !important;
+  }
+
+  .act2geo-complete-controls,
+  .act2geo-sombra-controls,
+  .act2geo-complete-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .act2geo-complete-controls button,
+  .act2geo-sombra-controls button,
+  .act2geo-sombra-try-btn,
+  .act2geo-complete-actions button {
+    width: 100% !important;
+  }
+}
