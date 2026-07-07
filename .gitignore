@@ -58,3 +58,9 @@ server/.env.local
 
 client/.env
 client/.env.local
+
+# ============================================
+# Archivos compilados de TypeScript en src/
+# ============================================
+server/src/**/*.js
+!server/src/**/*.ts
