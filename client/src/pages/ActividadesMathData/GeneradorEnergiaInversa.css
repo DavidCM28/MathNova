@@ -1117,50 +1117,15 @@
   filter: drop-shadow(0 14px 30px rgba(0,0,0,0.22));
 }
 
-.res-trofeo-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-left: -24px;
-  padding-bottom: 18px;
+.res-trofeo-estrella-img {
+  height: 300px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  margin-left: -18px;
   position: relative;
   z-index: 3;
-}
-
-.res-mision-badge {
-  background: linear-gradient(145deg, #f59e0b, #d97706);
-  border-radius: 20px;
-  padding: 14px 20px;
-  text-align: center;
-  box-shadow: 0 12px 28px rgba(245,158,11,0.55);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: -16px;
-  position: relative;
-  z-index: 4;
-}
-
-.res-badge-estrella {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-}
-
-.res-mision-badge span {
-  font-size: 13px;
-  font-weight: 900;
-  color: #fff;
-  line-height: 1.2;
-  letter-spacing: 0.5px;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
-}
-
-.res-trofeo-img {
-  width: 175px;
-  object-fit: contain;
-  filter: drop-shadow(0 10px 22px rgba(245,158,11,0.38));
+  filter: drop-shadow(0 14px 26px rgba(245, 158, 11, 0.35));
 }
 
 /* ---- BOTTOM ---- */
@@ -1190,10 +1155,13 @@
 
 /* ---- CARD RESUMEN ---- */
 .res-resumen-card{
-
     position:relative;
-
     z-index:10;
+    background: #fff;
+    border: 1.5px solid #94a3b8;
+    border-radius: 16px;
+    padding: 14px 18px 16px;
+    box-shadow: 0 6px 18px rgba(35,90,140,0.08);
 }
 .res-resumen-header {
   display: flex;
@@ -1758,8 +1726,8 @@
 }
 
 .inc-stat-img {
-  width: 48px;
-  height: 48px;
+  width: 200px;
+  height: 200px;
   object-fit: contain;
   margin-bottom: 0;
   flex-shrink: 0;
@@ -1815,8 +1783,8 @@
 }
 
 .inc-progreso-img {
-  width: 100px;
-  height: 100px;
+  width: 200px;
+  height: 200px;
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -1940,3 +1908,597 @@
 }
 
 .inc-btn-outline:hover { border-color: #0058ff; color: #0058ff; transform: translateY(-2px); }
+
+/* ========================================================= */
+/* PANTALLA: PISTA (¡Aquí tienes una pista!)                 */
+/* ========================================================= */
+
+.pista-page {
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(160deg, #eef5ff 0%, #f4f8ff 45%, #ffffff 100%);
+  font-family: "Poppins", Arial, sans-serif;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.pista-page * { box-sizing: border-box; }
+
+/* ---- DECORACIÓN DE FONDO ---- */
+.pista-decor {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.16;
+  color: #2563eb;
+}
+
+.pista-decor-1 { top: 14%; left: 3%;  font-size: 30px; transform: rotate(-12deg); }
+.pista-decor-2 { top: 6%;  right: 6%; font-size: 34px; color: #7c3aed; }
+.pista-decor-3 { top: 22%; right: 3%; font-size: 26px; color: #16a34a; }
+.pista-decor-4 { bottom: 8%; left: 2%; font-size: 32px; color: #f59e0b; }
+
+/* ---- HEADER ---- */
+.pista-header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+}
+
+.pista-logo { width: 150px; object-fit: contain; }
+
+.pista-inicio-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 12px;
+  background: #ffffff;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #0b1b34;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(35, 90, 140, 0.1);
+  font-family: "Poppins", Arial, sans-serif;
+  transition: all 0.2s ease;
+}
+
+.pista-inicio-btn svg { font-size: 16px; }
+
+.pista-inicio-btn:hover,
+.pista-inicio-btn:focus-visible {
+  border-color: #0058ff;
+  color: #0058ff;
+  transform: translateY(-2px);
+}
+
+/* ---- BODY / LAYOUT PRINCIPAL ---- */
+.pista-body {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 4px 40px 40px;
+}
+
+.pista-left {
+  flex: 1;
+  max-width: 64%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.pista-right {
+  width: 34%;
+  flex-shrink: 0;
+  position: relative;
+  min-height: 600px;
+}
+
+/* ---- VILLANO (columna derecha) ---- */
+.pista-villano-img {
+  position: absolute;
+  right: -18px;
+  top: -6px;
+  height: 92%;
+  max-height: 640px;
+  width: auto;
+  object-fit: contain;
+  z-index: 1;
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.32));
+}
+
+.pista-acciones {
+  position: absolute;
+  bottom: 18px;
+  right: 6px;
+  width: 232px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 3;
+}
+
+/* ---- TÍTULO ---- */
+.pista-titulo-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.pista-icono-titulo {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  border-radius: 16px;
+  background: #dbeafe;
+  color: #2563eb;
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.18);
+}
+
+.pista-titulo {
+  font-size: 30px;
+  font-weight: 900;
+  color: #0b1b34;
+  line-height: 1.15;
+}
+
+.pista-subtitulo {
+  margin-top: 4px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.pista-brand { color: #f97316; font-weight: 900; }
+
+/* ---- CARD PRINCIPAL: "Piensa paso a paso" ---- */
+.pista-card-principal {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 20px 22px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  border: 1.5px solid #eef2f7;
+  box-shadow: 0 10px 26px rgba(35, 90, 140, 0.08);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.pista-card-principal:hover {
+  box-shadow: 0 14px 32px rgba(35, 90, 140, 0.12);
+  transform: translateY(-2px);
+}
+
+.pista-hexagono {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 8px 16px rgba(15, 27, 51, 0.35));
+}
+
+.pista-hexagono img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.pista-hexagono-sm { width: 46px; height: 46px; min-width: 46px; }
+
+.pista-card-principal strong,
+.pista-consejo-card strong {
+  display: block;
+  font-size: 15.5px;
+  font-weight: 900;
+  color: #0b1b34;
+  margin-bottom: 6px;
+}
+
+.pista-card-principal p,
+.pista-consejo-card p {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  line-height: 1.6;
+}
+
+/* ---- SECCIÓN: "Pista para resolver" ---- */
+.pista-seccion-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 900;
+  color: #0b1b34;
+  margin-top: 2px;
+}
+
+.pista-seccion-header svg { color: #2563eb; font-size: 18px; }
+
+/* ---- CONSEJO + TIP RÁPIDO ---- */
+.pista-consejo-row {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.pista-consejo-card {
+  flex: 1.6;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 20px 22px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  border: 1.5px solid #eef2f7;
+  box-shadow: 0 10px 26px rgba(35, 90, 140, 0.08);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.pista-consejo-card:hover {
+  box-shadow: 0 14px 32px rgba(35, 90, 140, 0.12);
+  transform: translateY(-2px);
+}
+
+.pista-tip-card {
+  flex: 1;
+  background: #eff6ff;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 20px;
+  padding: 18px 20px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.pista-tip-card:hover {
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.14);
+  transform: translateY(-2px);
+}
+
+.pista-tip-icono {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 6px 14px rgba(37, 99, 235, 0.35));
+}
+
+.pista-tip-icono img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.pista-tip-card strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 900;
+  color: #0b1b34;
+  margin-bottom: 4px;
+}
+
+.pista-tip-card p {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1e3a5f;
+  line-height: 1.55;
+}
+
+/* ---- RESUMEN DE LA ACTIVIDAD ---- */
+.pista-resumen-card {
+  background: #fff;
+  border: 1.5px solid #94a3b8;
+  border-radius: 16px;
+  padding: 14px 18px 16px;
+  box-shadow: 0 6px 18px rgba(35, 90, 140, 0.08);
+}
+
+.pista-resumen-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 900;
+  color: #0b1b34;
+}
+
+.pista-resumen-header svg { color: #2563eb; font-size: 19px; }
+
+.pista-divider {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 14px 0;
+}
+
+.pista-stats {
+  display: flex;
+  align-items: center;
+}
+
+.pista-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  padding: 0 6px;
+}
+
+.pista-stat-img {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+}
+
+.pista-stat-icon { font-size: 30px; color: #2563eb; }
+.pista-stat-icon-azul { color: #2563eb; }
+
+.pista-stat strong {
+  font-size: 20px;
+  font-weight: 900;
+  color: #0b1b34;
+  line-height: 1;
+}
+
+.pista-stat small {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.pista-stat em {
+  font-size: 10.5px;
+  color: #94a3b8;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.pista-stat-sep {
+  width: 1px;
+  height: 60px;
+  background: #e2e8f0;
+  flex-shrink: 0;
+}
+
+.pista-azul  { color: #2563eb !important; }
+.pista-verde { color: #16a34a !important; }
+
+/* ---- PROGRESO EN EL TEMA ---- */
+.pista-progreso-card {
+  background: #ffffff;
+  border: 1.5px solid #eef2f7;
+  border-radius: 20px;
+  padding: 18px 22px;
+  box-shadow: 0 10px 26px rgba(35, 90, 140, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pista-progreso-img { width: 200px; height: 200px; object-fit: contain; }
+
+.pista-progreso-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pista-progreso-info > small {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.pista-progreso-info > strong {
+  font-size: 15px;
+  font-weight: 900;
+  color: #0b1b34;
+}
+
+.pista-barra-track {
+  width: 100%;
+  height: 18px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.pista-barra-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ade80, #16a34a);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  transition: width 0.4s ease;
+}
+
+.pista-barra-fill span {
+  font-size: 11px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.pista-hito-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f5f3ff;
+  border: 1.5px solid #ddd6fe;
+  border-radius: 14px;
+  padding: 10px 16px;
+  flex-shrink: 0;
+}
+
+.pista-hito-estrella { width: 30px; height: 30px; object-fit: contain; }
+
+.pista-hito-box small {
+  font-size: 10.5px;
+  color: #7c3aed;
+  font-weight: 700;
+}
+
+.pista-hito-pct {
+  font-size: 18px;
+  font-weight: 900;
+  color: #7c3aed;
+  line-height: 1.1;
+}
+
+/* ---- BOTONES ---- */
+.pista-btn {
+  width: 100%;
+  height: 50px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  font-family: "Poppins", Arial, sans-serif;
+}
+
+.pista-btn-azul {
+  background: #0058ff;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 8px 22px rgba(0, 88, 255, 0.32);
+}
+
+.pista-btn-azul:hover,
+.pista-btn-azul:focus-visible {
+  background: #0046cc;
+  transform: translateY(-2px);
+}
+
+.pista-btn-outline {
+  background: #ffffff;
+  color: #0b1b34;
+  border: 1.5px solid #cbd5e1;
+  box-shadow: 0 4px 12px rgba(35, 90, 140, 0.08);
+}
+
+.pista-btn-outline:hover,
+.pista-btn-outline:focus-visible {
+  border-color: #0058ff;
+  color: #0058ff;
+  transform: translateY(-2px);
+}
+
+.pista-btn:focus-visible {
+  outline: 2px solid #0058ff;
+  outline-offset: 2px;
+}
+
+/* ========================================================= */
+/* RESPONSIVO: PANTALLA DE PISTA                              */
+/* ========================================================= */
+
+@media (max-width: 1180px) {
+  .pista-left { max-width: 60%; }
+  .pista-right { width: 38%; }
+  .pista-villano-img { height: 86%; }
+}
+
+@media (max-width: 1024px) {
+  .pista-body {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pista-left { max-width: 100%; }
+
+  .pista-right {
+    width: 100%;
+    min-height: 420px;
+    order: 2;
+  }
+
+  .pista-villano-img {
+    position: relative;
+    right: auto;
+    top: auto;
+    height: 320px;
+    max-height: none;
+    margin: 0 auto;
+    display: block;
+  }
+
+  .pista-acciones {
+    position: relative;
+    bottom: auto;
+    right: auto;
+    width: 100%;
+    max-width: 420px;
+    margin: 16px auto 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .pista-header { padding: 16px 20px; }
+  .pista-logo { width: 120px; }
+
+  .pista-body { padding: 4px 20px 30px; gap: 16px; }
+
+  .pista-titulo { font-size: 22px; }
+  .pista-subtitulo { font-size: 12.5px; }
+
+  .pista-card-principal,
+  .pista-consejo-card,
+  .pista-resumen-card,
+  .pista-progreso-card {
+    padding: 16px 18px;
+    border-radius: 16px;
+  }
+
+  .pista-consejo-row { flex-direction: column; }
+
+  .pista-stats {
+    flex-wrap: wrap;
+    row-gap: 16px;
+  }
+
+  .pista-stat { flex: 1 1 40%; }
+  .pista-stat-sep { display: none; }
+
+  .pista-progreso-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pista-hito-box { justify-content: center; }
+
+  .pista-villano-img { height: 220px; }
+
+  .pista-decor { display: none; }
+}
+
+@media (max-width: 420px) {
+  .pista-inicio-btn span { display: none; }
+  .pista-stat { flex: 1 1 100%; }
+  .pista-stat-sep { display: none; }
+}
