@@ -11,6 +11,7 @@ import byteRobot from "../../assets/mathGeometry/actividades/byte-sigue-exploran
 
 import actividad1 from "../../assets/mathGeometry/actividades/actividad-1-mathgeometry.png";
 import actividad2 from "../../assets/mathGeometry/actividades/actividad-2-mathgeometry.png";
+import actividad3 from "../../assets/mathGeometry/actividades/actividad-3-mathgeometry.png";
 
 import {
   FiGrid,
@@ -71,6 +72,16 @@ function ActividadesMathGeometry() {
       tiempo: "10 min",
       estado: "Pendiente",
       ruta: "/actividades/geometria/actividad-2",
+    },
+    {
+      img: actividad3,
+      numero: "03",
+      titulo: "Detectores de Giro",
+      texto: "Identifica si los ángulos son agudos, rectos u obtusos.",
+      nivel: "Fácil",
+      tiempo: "10 min",
+      estado: "Pendiente",
+      ruta: "/actividades/geometria/actividad-3",
     },
   ];
 
@@ -211,7 +222,7 @@ function ActividadesMathGeometry() {
             <article>
               <FiBookOpen />
               <div>
-                <strong>2</strong>
+                <strong>3</strong>
                 <span>Actividades</span>
               </div>
             </article>
@@ -240,8 +251,8 @@ function ActividadesMathGeometry() {
               <div>
                 <h2>Rectas y Ángulos</h2>
                 <p>
-                  Inicia con actividades cortas para reconocer puntos, segmentos
-                  y caminos dentro de figuras geométricas.
+                  Inicia con actividades cortas para reconocer puntos,
+                  segmentos, caminos y tipos de ángulos de forma visual.
                 </p>
               </div>
             </div>

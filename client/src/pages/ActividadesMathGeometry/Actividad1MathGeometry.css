@@ -13888,3 +13888,15 @@ body:has(.act1geo-byte-modal-overlay) {
     line-height: 1.38 !important;
   }
 }
+
+/* =========================================================
+   AJUSTE FINAL: QUITAR LEYENDA DE RESPUESTA EN FIGURAS
+   =========================================================
+   Ya se quitó el <span> desde el TSX.
+   Esta regla queda como seguro por si el navegador conserva caché
+   o si en algún momento se vuelve a pegar el letrero.
+   ========================================================= */
+
+.act1geo-figure-card span {
+  display: none !important;
+}

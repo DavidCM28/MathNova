@@ -1868,19 +1868,19 @@ function Actividad1MathGeometry() {
   const figuras = [
     {
       id: "triangulo" as FiguraId,
-      nombre: "Triángulo construido",
+      etiquetaAccesible: "Figura geométrica 1",
       img: trianguloFigura,
       correcta: "triangulo" as OpcionId,
     },
     {
       id: "cuadrado" as FiguraId,
-      nombre: "Cuadrado construido",
+      etiquetaAccesible: "Figura geométrica 2",
       img: cuadradoFigura,
       correcta: "cuadrado" as OpcionId,
     },
     {
       id: "rectangulo" as FiguraId,
-      nombre: "Rectángulo construido",
+      etiquetaAccesible: "Figura geométrica 3",
       img: rectanguloFigura,
       correcta: "rectangulo" as OpcionId,
     },
@@ -2205,8 +2205,7 @@ function Actividad1MathGeometry() {
                 {figuras.map((figura) => (
                   <div className="act1geo-row" key={figura.id}>
                     <div className="act1geo-figure-card">
-                      <img src={figura.img} alt={figura.nombre} />
-                      <span>¡{figura.nombre}!</span>
+                      <img src={figura.img} alt={figura.etiquetaAccesible} />
                     </div>
 
                     <div className="act1geo-options">
