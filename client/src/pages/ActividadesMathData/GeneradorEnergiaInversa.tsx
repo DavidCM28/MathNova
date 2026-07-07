@@ -9,7 +9,7 @@ import heroBanner from "../../assets/banner-gen2-MathData.png";
 import personajeAyuda from "../../assets/hola-MathData.png";
 import villanoCompleto from "../../assets/villano-actcomplet.png";
 import villanoIntentar from "../../assets/villano-vintentar.png";
-import trofeoDorado from "../../assets/trofeo-dorado.png";
+import trofeoEstrella1 from "../../assets/trofeo-estrella1.png";
 import estrellaMision from "../../assets/estrella-mision.png";
 import iconoAciertos from "../../assets/icono-aciertos.png";
 import iconoTiempo from "../../assets/icono-tiempo.png";
@@ -18,6 +18,13 @@ import iconoRecompensa from "../../assets/icono-recompensa.png";
 import iconoInsignia from "../../assets/icono-insignia.png";
 import iconoProgreso from "../../assets/icono-progreso.png";
 import villanoMundo from "../../assets/villano_mundo_actividad.png";
+
+import iconoHexagonoPiensa from "../../assets/icono-hexagono-piensa.png";
+import iconoHexagonoConsejo from "../../assets/icono-hexagono-consejo.png";
+import iconoTipRapido from "../../assets/icono-tip-rapido.png";
+import iconoIntentos from "../../assets/icono-intentos.png";
+import iconoAyudaUsada from "../../assets/icono-ayuda-usada.png";
+import villanoPista from "../../assets/villano-pista.png";
 
 import {
   FiGrid,
@@ -31,6 +38,8 @@ import {
   FiRotateCcw,
   FiCheck,
   FiLock,
+  FiHome,
+  FiPieChart,
 } from "react-icons/fi";
 
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
@@ -82,7 +91,7 @@ function GeneradorEnergiaInversa() {
   const [xpGanado, setXpGanado] = useState(0);
   const [progresoPorcentaje, setProgresoPorcentaje] = useState(0);
   const [cargando, setCargando] = useState(false);
-  const [resultado, setResultado] = useState<"exito" | "fallo" | "incompleto" | null>(null);
+  const [resultado, setResultado] = useState<"exito" | "fallo" | "incompleto" | "pista" | null>("exito");
 
 
   const irARuta = (ruta: string) => {
@@ -362,20 +371,18 @@ function GeneradorEnergiaInversa() {
           </div>
         </div>
 
-        {/* DERECHA: villano + trofeo + badge */}
+        {/* DERECHA: villano + trofeo con estrella (imagen combinada) */}
         <div className="res-hero-personajes">
           <img
             src={villanoCompleto}
             alt="Villano celebrando"
             className="res-villano-grande"
           />
-          <div className="res-trofeo-group">
-            <div className="res-mision-badge">
-              <img src={estrellaMision} alt="estrella" className="res-badge-estrella" />
-              <span>MISION<br />CUMPLIDA</span>
-            </div>
-            <img src={trofeoDorado} alt="Trofeo" className="res-trofeo-img" />
-          </div>
+          <img
+            src={trofeoEstrella1}
+            alt="Misión cumplida - Trofeo"
+            className="res-trofeo-estrella-img"
+          />
         </div>
 
       </div>
@@ -535,35 +542,35 @@ function GeneradorEnergiaInversa() {
             </div>
             <div className="res-resumen-stats">
               <div className="res-stat">
-                <span className="res-stat-icono">📋</span>
+                <img src={iconoAciertos} alt="" className="res-stat-img" />
                 <strong>1/3</strong>
                 <small>Aciertos</small>
                 <em>¡Sigue así!</em>
               </div>
               <div className="res-stat-sep" />
               <div className="res-stat">
-                <span className="res-stat-icono">🕐</span>
+                <img src={iconoTiempo} alt="" className="res-stat-img" />
                 <strong>04:28</strong>
                 <small>Tiempo</small>
                 <em>min</em>
               </div>
               <div className="res-stat-sep" />
               <div className="res-stat">
-                <span className="res-stat-icono">🎯</span>
+                <img src={iconoPrecision} alt="" className="res-stat-img" />
                 <strong>33%</strong>
                 <small>Precisión</small>
                 <em>Puedes mejorar</em>
               </div>
               <div className="res-stat-sep" />
               <div className="res-stat">
-                <span className="res-stat-icono res-stat-coin">⭐</span>
+                <img src={iconoRecompensa} alt="" className="res-stat-img" />
                 <strong className="res-pts-azul">+10 pts</strong>
                 <small>Recompensa</small>
                 <em>Puntos ganados</em>
               </div>
               <div className="res-stat-sep" />
               <div className="res-stat">
-                <span className="res-stat-icono">🛡️</span>
+                <img src={iconoInsignia} alt="" className="res-stat-img" />
                 <strong>Sigue intentando</strong>
                 <small>Insignia obtenida</small>
                 <em>¡No te rindas!</em>
@@ -572,21 +579,21 @@ function GeneradorEnergiaInversa() {
           </div>
 
           <div className="res-progreso-card">
-            <div className="res-progreso-left">
-              <span className="res-progreso-icono">📊</span>
-              <div>
-                <small>Tu progreso en el tema:</small>
-                <strong>Encuestas y Frecuencias</strong>
+            <img src={iconoProgreso} alt="" className="res-progreso-img" />
+            <div className="res-progreso-info">
+              <small>Tu progreso en el tema:</small>
+              <strong>Encuestas y Frecuencias</strong>
+              <div className="res-barra-wrap">
                 <div className="res-barra-track">
                   <div className="res-barra-fill res-barra-azul" style={{ width: "60%" }}>
-                    <span className="res-barra-label">60%</span>
+                    <span className="res-barra-pct">60%</span>
                   </div>
                 </div>
                 <small>¡Vas avanzando! Sigue practicando para completar este tema.</small>
               </div>
             </div>
             <div className="res-hito-box">
-              <span>⭐</span>
+              <img src={estrellaMision} alt="" className="res-hito-estrella" />
               <div>
                 <strong>Siguiente hito</strong>
                 <em>80%</em>
@@ -613,7 +620,7 @@ function GeneradorEnergiaInversa() {
             </button>
             <button
               className="res-btn res-btn-outline"
-              onClick={() => {}}
+              onClick={() => setResultado("pista")}
             >
               Ver pista
             </button>
@@ -629,6 +636,219 @@ function GeneradorEnergiaInversa() {
     </div>
   );
 
+
+  // ==========================================
+  // PANTALLA: PISTA (AYUDA)
+  // ==========================================
+
+  if (resultado === "pista") return (
+    <div className="pista-page">
+
+      {/* DECORACIÓN DE FONDO */}
+      <span className="pista-decor pista-decor-1"><FaGem /></span>
+      <span className="pista-decor pista-decor-2"><FiPieChart /></span>
+      <span className="pista-decor pista-decor-3"><FiBarChart2 /></span>
+      <span className="pista-decor pista-decor-4"><GiRingedPlanet /></span>
+
+      {/* HEADER */}
+      <header className="pista-header">
+        <img src={logo} alt="MathNova" className="pista-logo" />
+        <button className="pista-inicio-btn" onClick={() => navigate("/")}>
+          <FiHome />
+          Inicio
+        </button>
+      </header>
+
+      <div className="pista-body">
+
+        {/* COLUMNA IZQUIERDA */}
+        <div className="pista-left">
+
+          {/* TÍTULO */}
+          <div className="pista-titulo-row">
+            <div className="pista-icono-titulo">
+              <FaLightbulb />
+            </div>
+            <div>
+              <h1 className="pista-titulo">¡Aquí tienes una pista!</h1>
+              <p className="pista-subtitulo">
+                Observa con atención esta ayuda para avanzar en la misión de{" "}
+                <span className="pista-brand">MathData</span>.
+              </p>
+            </div>
+          </div>
+
+          {/* CARD PRINCIPAL */}
+          <div className="pista-card-principal">
+            <div className="pista-hexagono">
+              <img src={iconoHexagonoPiensa} alt="" />
+            </div>
+            <div>
+              <strong>¡Piensa paso a paso, explorador!</strong>
+              <p>
+                Recuerda identificar primero el patrón entre reactores y
+                tiempo. En esta misión, si aumentan los reactores, el tiempo
+                disminuye. Si te atoras, vuelve a intentarlo: cada pista te
+                acerca cada vez más a la meta.
+              </p>
+            </div>
+          </div>
+
+          {/* SECCIÓN: PISTA PARA RESOLVER */}
+          <div className="pista-seccion-header">
+            <FaLightbulb />
+            <span>Pista para resolver</span>
+          </div>
+
+          <div className="pista-consejo-row">
+            <div className="pista-consejo-card">
+              <div className="pista-hexagono pista-hexagono-sm">
+                <img src={iconoHexagonoConsejo} alt="" />
+              </div>
+              <div>
+                <strong>Consejo de Divide</strong>
+                <p>
+                  En esta misión, reactores x tiempo siempre debe dar el
+                  mismo número. Observa los ejemplos: 1 × 12, 2 × 6 y 3 × 4.
+                  Si buscas otro valor, piensa qué otro número multiplicado
+                  por el tiempo te da 12.
+                </p>
+              </div>
+            </div>
+
+            <div className="pista-tip-card">
+              <div className="pista-tip-icono">
+                <img src={iconoTipRapido} alt="" />
+              </div>
+              <div>
+                <strong>Tip rápido:</strong>
+                <p>
+                  Si el tiempo es 2 horas, busca qué número multiplicado por
+                  2 da 12.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* RESUMEN DE LA ACTIVIDAD */}
+          <div className="pista-resumen-card">
+            <div className="pista-resumen-header">
+              <FiBarChart2 />
+              <span>Resumen de la actividad</span>
+            </div>
+            <hr className="pista-divider" />
+            <div className="pista-stats">
+
+              <div className="pista-stat">
+                <img src={iconoIntentos} alt="" className="pista-stat-img" />
+                <strong>3</strong>
+                <small>Intentos</small>
+                <em>Sigue así</em>
+              </div>
+
+              <div className="pista-stat-sep" />
+
+              <div className="pista-stat">
+                <img src={iconoAciertos} alt="" className="pista-stat-img" />
+                <strong className="pista-azul">1/3</strong>
+                <small>Aciertos</small>
+                <em>Puedes mejorar</em>
+              </div>
+
+              <div className="pista-stat-sep" />
+
+              <div className="pista-stat">
+                <img src={iconoTiempo} alt="" className="pista-stat-img" />
+                <strong>04:28</strong>
+                <small>Tiempo</small>
+                <em>Sigue practicando</em>
+              </div>
+
+              <div className="pista-stat-sep" />
+
+              <div className="pista-stat">
+                <img src={iconoPrecision} alt="" className="pista-stat-img" />
+                <strong className="pista-verde">33%</strong>
+                <small>Precisión</small>
+                <em>¡Buen uso!</em>
+              </div>
+
+              <div className="pista-stat-sep" />
+
+              <div className="pista-stat">
+                <img src={iconoAyudaUsada} alt="" className="pista-stat-img" />
+                <strong>1 pista</strong>
+                <small>Ayuda usada</small>
+                <em>¡Buen uso!</em>
+              </div>
+
+            </div>
+          </div>
+
+          {/* PROGRESO EN EL TEMA */}
+          <div className="pista-progreso-card">
+            <img src={iconoProgreso} alt="" className="pista-progreso-img" />
+            <div className="pista-progreso-info">
+              <small>Tu progreso en el tema:</small>
+              <strong>Relaciones y Proporciones</strong>
+              <div className="pista-barra-track">
+                <div className="pista-barra-fill" style={{ width: "60%" }}>
+                  <span>60%</span>
+                </div>
+              </div>
+              <small>
+                ¡Vas avanzando! Esta pista te ayudará a acercarte a la
+                respuesta correcta.
+              </small>
+            </div>
+            <div className="pista-hito-box">
+              <img src={estrellaMision} alt="" className="pista-hito-estrella" />
+              <div>
+                <small>Siguiente hito</small>
+                <strong className="pista-hito-pct">80%</strong>
+                <small>Gran Analista</small>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* COLUMNA DERECHA: VILLANO + ACCIONES */}
+        <div className="pista-right">
+          <img
+            src={villanoPista}
+            alt="Villano retador"
+            className="pista-villano-img"
+          />
+
+          <div className="pista-acciones">
+            <button
+              type="button"
+              className="pista-btn pista-btn-azul"
+              onClick={() => setResultado(null)}
+            >
+              <FiRefreshCw /> Repetir actividad
+            </button>
+            <button
+              type="button"
+              className="pista-btn pista-btn-outline"
+              onClick={() => setResultado("pista")}
+            >
+              <FaLightbulb /> Ver Pista
+            </button>
+            <button
+              type="button"
+              className="pista-btn pista-btn-outline"
+              onClick={() => navigate("/actividades-math-data")}
+            >
+              <FiArrowLeft /> Volver a actividades
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
 
   // ==========================================
   // PANTALLA: ACTIVIDAD INCOMPLETA
@@ -804,7 +1024,7 @@ function GeneradorEnergiaInversa() {
           <button className="inc-btn inc-btn-azul" onClick={() => setResultado(null)}>
             <FiRefreshCw /> Continuar actividad
           </button>
-          <button className="inc-btn inc-btn-outline" onClick={() => {}}>
+          <button className="inc-btn inc-btn-outline" onClick={() => setResultado("pista")}>
             <FaLightbulb /> Ver Pista
           </button>
           <button className="inc-btn inc-btn-outline" onClick={() => navigate("/actividades-math-data")}>
