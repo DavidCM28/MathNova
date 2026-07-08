@@ -4,6 +4,18 @@ const pool = require("../db");
 const normalizarRol = (rol) => {
   const valor = String(rol || "").toLowerCase().trim();
 
+  if (
+    [
+      "docente_estudiante",
+      "docente-alumno",
+      "docente_alumno",
+      "maestro_estudiante",
+      "mixto",
+    ].includes(valor)
+  ) {
+    return "docente_estudiante";
+  }
+
   if (["alumno", "student", "usuario", "estudiante"].includes(valor)) {
     return "estudiante";
   }
@@ -73,7 +85,11 @@ const verificarToken = async (req, res, next) => {
           correo, 
           usuario, 
           rol, 
-          estado
+          estado,
+          grado,
+          escuela,
+          fecha_registro,
+          avatar_url
        FROM public.registro
        WHERE id_usuario = $1
        LIMIT 1`,
@@ -103,6 +119,10 @@ const verificarToken = async (req, res, next) => {
       usuario: usuario.usuario,
       rol: normalizarRol(usuario.rol),
       estado: usuario.estado,
+      grado: usuario.grado,
+      escuela: usuario.escuela,
+      fecha_registro: usuario.fecha_registro,
+      avatar_url: usuario.avatar_url,
     };
 
     req.usuario = usuarioAutenticado;
@@ -124,7 +144,13 @@ const permitirRoles = (...rolesPermitidos) => {
     const rolUsuario = normalizarRol(req.usuario?.rol || req.user?.rol);
     const roles = rolesPermitidos.map(normalizarRol);
 
-    if (!roles.includes(rolUsuario)) {
+    const esMixto = rolUsuario === "docente_estudiante";
+
+    const mixtoPuedeEntrar =
+      esMixto &&
+      (roles.includes("estudiante") || roles.includes("docente"));
+
+    if (!roles.includes(rolUsuario) && !mixtoPuedeEntrar) {
       return res.status(403).json({
         ok: false,
         mensaje: "No tienes permisos para esta acción",
