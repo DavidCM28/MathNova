@@ -17,6 +17,15 @@ import ForgotPassword from "./ForgotPassword";
 
 import { iniciarSesion } from "../../services/authService";
 
+type UsuarioLogin = {
+  id_usuario?: number | string;
+  nombre_completo?: string;
+  correo?: string;
+  usuario?: string | null;
+  rol?: string;
+  role_id?: number;
+};
+
 function Login() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -34,7 +43,71 @@ function Login() {
   const [loginPassword, setLoginPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+ const limpiarSesionAnterior = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("authToken");
+  localStorage.removeItem("mathnova_token");
+  localStorage.removeItem("mathnovaToken");
+  localStorage.removeItem("usuario");
+  localStorage.removeItem("user");
+  localStorage.removeItem("mathnova_session");
+  sessionStorage.clear();
+};
+
+  const normalizarRol = (usuario?: UsuarioLogin) => {
+    const rolTexto = String(usuario?.rol || "").toLowerCase().trim();
+
+    if (["alumno", "student", "usuario", "estudiante"].includes(rolTexto)) {
+      return "estudiante";
+    }
+
+    if (["admin", "administrador"].includes(rolTexto)) {
+      return "admin";
+    }
+
+    if (["docente", "profesor", "maestro"].includes(rolTexto)) {
+      return "docente";
+    }
+
+    if (usuario?.role_id === 1) return "docente";
+    if (usuario?.role_id === 2) return "estudiante";
+    if (usuario?.role_id === 3) return "admin";
+
+    return "estudiante";
+  };
+
+  const guardarSesion = (token: string, usuario: UsuarioLogin) => {
+  limpiarSesionAnterior();
+
+  localStorage.setItem("token", token);
+  localStorage.setItem("usuario", JSON.stringify(usuario));
+
+  saveAuthSession(token, usuario);
+};
+
+  const redirigirPorRol = (usuario: UsuarioLogin) => {
+    const rol = normalizarRol(usuario);
+
+    if (state?.from) {
+      navigate(state.from, { replace: true });
+      return;
+    }
+
+    if (rol === "docente") {
+      navigate("/dashboard-docente", { replace: true });
+      return;
+    }
+
+    if (rol === "admin") {
+      navigate("/dashboard-admin", { replace: true });
+      return;
+    }
+
+    navigate("/dashboard", { replace: true });
+  };
+
   const entrarComoEspectador = () => {
+    limpiarSesionAnterior();
     startGuestSession();
     navigate("/dashboard", { replace: true });
   };
@@ -51,36 +124,24 @@ function Login() {
       setLoading(true);
 
       const data = await iniciarSesion({
-        correoUsuario,
+        correoUsuario: correoUsuario.trim(),
         password: loginPassword,
       });
 
-      saveAuthSession(data.token, data.usuario);
+      if (!data?.token) {
+        throw new Error("El servidor no devolvió un token válido.");
+      }
+
+      if (!data?.usuario) {
+        throw new Error("El servidor no devolvió los datos del usuario.");
+      }
+
+      guardarSesion(data.token, data.usuario);
 
       console.log("Usuario logueado:", data.usuario);
+      console.log("Token guardado:", localStorage.getItem("token"));
 
-      // ==========================================================
-      // CAMBIO AQUÍ: Redirección condicional según el rol
-      // ==========================================================
-      if (state?.from) {
-        // Si el usuario intentaba entrar a una página protegida antes de loguearse, va directo allá
-        navigate(state.from, { replace: true });
-      } else {
-        // Extraemos el rol desde los datos devueltos por Supabase
-        const rol = data.usuario.role_id;
-
-        if (rol === 1) {
-          navigate("/dashboard-docente", { replace: true }); // Maestro
-        } else if (rol === 2) {
-          navigate("/dashboard", { replace: true });         // Alumno
-        } else if (rol === 3) {
-          navigate("/dashboard-admin", { replace: true });   // Administrador
-        } else {
-          navigate("/dashboard", { replace: true });         // Respaldo por si acaso
-        }
-      }
-      // ==========================================================
-
+      redirigirPorRol(data.usuario);
     } catch (error) {
       if (error instanceof Error) {
         alert(error.message);
@@ -93,7 +154,7 @@ function Login() {
       setLoading(false);
     }
   };
-  
+
   if (showForgot) {
     return <ForgotPassword onBack={() => setShowForgot(false)} />;
   }

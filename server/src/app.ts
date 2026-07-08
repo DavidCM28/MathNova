@@ -1,10 +1,14 @@
 import express from "express";
 import cors from "cors";
-
-const authRoutes = require("./routes/auth.routes");
-const alumnoRoutes = require("./routes/alumnoRoutes");
-const adminRoutes = require("./routes/adminRoutes");
-const gruposRoutes = require("./routes/grupos.routes");
+import syncRoutes from "./routes/syncRoutes";
+import authRoutes from "./routes/authRoutes";
+import proporcionalidadRoutes from "./routes/proporcionalidadRoutes";
+// @ts-ignore
+import alumnoRoutes from "./routes/alumnoRoutes";
+// @ts-ignore
+import adminRoutes from "./routes/adminRoutes";
+// @ts-ignore
+import gruposRoutes from "./routes/grupos.routes";
 
 const app = express();
 
@@ -24,7 +28,13 @@ app.get("/", (_req, res) => {
   });
 });
 
+// ============================================
+// RUTAS
+// ============================================
+
+app.use("/api", syncRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/proporcionalidad", proporcionalidadRoutes);
 app.use("/api/alumno", alumnoRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/grupos", gruposRoutes);

@@ -91,7 +91,7 @@ function GeneradorEnergiaInversa() {
   const [xpGanado, setXpGanado] = useState(0);
   const [progresoPorcentaje, setProgresoPorcentaje] = useState(0);
   const [cargando, setCargando] = useState(false);
-  const [resultado, setResultado] = useState<"exito" | "fallo" | "incompleto" | "pista" | null>("exito");
+  const [resultado, setResultado] = useState<"exito" | "fallo" | "incompleto" | "pista" | null>(null);
 
 
   const irARuta = (ruta: string) => {
