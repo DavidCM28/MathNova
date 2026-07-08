@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import StartupRedirect from "./routes/StartupRedirect";
 import RequireAuth from "./routes/RequireAuth";
 
 import Login from "./pages/Login/Login";
@@ -18,6 +17,7 @@ import Actividad2MathGeometry from "./pages/ActividadesMathGeometry/Actividad2Ma
 
 import ActividadesMathData from "./pages/ActividadesMathData/ActividadesMathData";
 import GeneradorEnergiaInversa from "./pages/ActividadesMathData/GeneradorEnergiaInversa";
+
 import ActividadesMathNumbers from "./pages/ActividadesMathNumbers/ActividadesMathNumbers";
 import MathNumbersActivityRouter from "./pages/MathNumbersActivities/MathNumbersActivityRouter";
 
@@ -43,62 +43,42 @@ import SettingsAdmin from "./pages/Admin/Settings/SettingsAdmin";
 function App() {
   return (
     <BrowserRouter>
-      <StartupRedirect />
-
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
 
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/seleccion-mundos" element={<SeleccionMundos />} />
-
         <Route
-          path="/actividades/geometria"
-          element={<ActividadesMathGeometry />}
-        />
-
-        <Route
-          path="/actividades-math-data"
-          element={<ActividadesMathData />}
-        />
-
-        <Route
-          path="/actividades-math-numbers"
-          element={<ActividadesMathNumbers />}
-        />
-
-        <Route path="/temas/numeros" element={<ActividadesMathNumbers />}
-        
-        />
-
-        <Route
-          path="/actividades/mathnumbers/:activitySlug"
-          element={<MathNumbersActivityRouter />}
-        />
-
-        <Route
-          path="/actividades/geometria/actividad-1"
+          path="/dashboard"
           element={
-            <RequireAuth>
-              <Actividad1MathGeometry />
+            <RequireAuth rolesPermitidos={["estudiante"]} permitirInvitado>
+              <Dashboard />
             </RequireAuth>
           }
         />
 
         <Route
-          path="/actividades/geometria/actividad-2"
+          path="/seleccion-mundos"
           element={
-            <RequireAuth>
-              <Actividad2MathGeometry />
+            <RequireAuth rolesPermitidos={["estudiante"]} permitirInvitado>
+              <SeleccionMundos />
             </RequireAuth>
           }
         />
 
         <Route
-          path="/actividades-math-data/generador-energia"
+          path="/perfil-alumno"
           element={
-            <RequireAuth>
-              <GeneradorEnergiaInversa />
+            <RequireAuth rolesPermitidos={["estudiante"]}>
+              <PerfilAlumno />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/estadisticas"
+          element={
+            <RequireAuth rolesPermitidos={["estudiante"]}>
+              <Estadisticas />
             </RequireAuth>
           }
         />
@@ -106,7 +86,7 @@ function App() {
         <Route
           path="/retroalimentacion"
           element={
-            <RequireAuth>
+            <RequireAuth rolesPermitidos={["estudiante"]}>
               <Feedback />
             </RequireAuth>
           }
@@ -115,43 +95,93 @@ function App() {
         <Route
           path="/recompensas"
           element={
-            <RequireAuth>
+            <RequireAuth rolesPermitidos={["estudiante"]}>
               <Recompensas />
             </RequireAuth>
           }
         />
 
         <Route
-          path="/estadisticas"
+          path="/actividades/geometria"
           element={
-            <RequireAuth>
-              <Estadisticas />
+            <RequireAuth rolesPermitidos={["estudiante"]} permitirInvitado>
+              <ActividadesMathGeometry />
             </RequireAuth>
           }
         />
 
         <Route
-          path="/perfil-alumno"
+          path="/actividades/geometria/actividad-1"
           element={
-            <RequireAuth>
-              <PerfilAlumno />
+            <RequireAuth rolesPermitidos={["estudiante"]}>
+              <Actividad1MathGeometry />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/actividades/geometria/actividad-2"
+          element={
+            <RequireAuth rolesPermitidos={["estudiante"]}>
+              <Actividad2MathGeometry />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/actividades-math-data"
+          element={
+            <RequireAuth rolesPermitidos={["estudiante"]} permitirInvitado>
+              <ActividadesMathData />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/actividades-math-data/generador-energia"
+          element={
+            <RequireAuth rolesPermitidos={["estudiante"]}>
+              <GeneradorEnergiaInversa />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/actividades-math-numbers"
+          element={
+            <RequireAuth rolesPermitidos={["estudiante"]} permitirInvitado>
+              <ActividadesMathNumbers />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/temas/numeros"
+          element={
+            <RequireAuth rolesPermitidos={["estudiante"]} permitirInvitado>
+              <ActividadesMathNumbers />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/actividades/mathnumbers/:activitySlug"
+          element={
+            <RequireAuth rolesPermitidos={["estudiante"]}>
+              <MathNumbersActivityRouter />
             </RequireAuth>
           }
         />
 
         <Route
           path="/docente"
-          element={
-            <RequireAuth>
-              <DashboardDocente />
-            </RequireAuth>
-          }
+          element={<Navigate to="/dashboard-docente" replace />}
         />
 
         <Route
           path="/dashboard-docente"
           element={
-            <RequireAuth>
+            <RequireAuth rolesPermitidos={["docente"]}>
               <DashboardDocente />
             </RequireAuth>
           }
@@ -160,7 +190,7 @@ function App() {
         <Route
           path="/mis-grupos-docente"
           element={
-            <RequireAuth>
+            <RequireAuth rolesPermitidos={["docente"]}>
               <MisGruposDocente />
             </RequireAuth>
           }
@@ -169,7 +199,7 @@ function App() {
         <Route
           path="/crear-grupo-docente"
           element={
-            <RequireAuth>
+            <RequireAuth rolesPermitidos={["docente"]}>
               <CrearGrupoDocente />
             </RequireAuth>
           }
@@ -178,7 +208,7 @@ function App() {
         <Route
           path="/administrar-alumnos-docente"
           element={
-            <RequireAuth>
+            <RequireAuth rolesPermitidos={["docente"]}>
               <AdministrarAlumnosDocente />
             </RequireAuth>
           }
@@ -187,7 +217,7 @@ function App() {
         <Route
           path="/lista-alumnos-docente"
           element={
-            <RequireAuth>
+            <RequireAuth rolesPermitidos={["docente"]}>
               <ListaAlumnosDocente />
             </RequireAuth>
           }
@@ -196,7 +226,7 @@ function App() {
         <Route
           path="/calificaciones-docente"
           element={
-            <RequireAuth>
+            <RequireAuth rolesPermitidos={["docente"]}>
               <CalificacionesDocente />
             </RequireAuth>
           }
@@ -205,7 +235,7 @@ function App() {
         <Route
           path="/actividades-docente"
           element={
-            <RequireAuth>
+            <RequireAuth rolesPermitidos={["docente"]}>
               <ActividadesDocente />
             </RequireAuth>
           }
@@ -214,7 +244,7 @@ function App() {
         <Route
           path="/retroalimentacion-docente"
           element={
-            <RequireAuth>
+            <RequireAuth rolesPermitidos={["docente"]}>
               <RetroalimentacionDocente />
             </RequireAuth>
           }
@@ -223,7 +253,7 @@ function App() {
         <Route
           path="/evaluaciones-docente"
           element={
-            <RequireAuth>
+            <RequireAuth rolesPermitidos={["docente"]}>
               <EvaluacionesDocente />
             </RequireAuth>
           }
@@ -232,25 +262,18 @@ function App() {
         <Route
           path="/estadisticas-docente"
           element={
-            <RequireAuth>
+            <RequireAuth rolesPermitidos={["docente"]}>
               <EstadisticasDocente />
             </RequireAuth>
           }
         />
 
-        <Route
-          path="/admin"
-          element={
-            <RequireAuth>
-              <DashboardAdmin />
-            </RequireAuth>
-          }
-        />
+        <Route path="/admin" element={<Navigate to="/dashboard-admin" replace />} />
 
         <Route
           path="/dashboard-admin"
           element={
-            <RequireAuth>
+            <RequireAuth rolesPermitidos={["admin"]}>
               <DashboardAdmin />
             </RequireAuth>
           }
@@ -258,17 +281,13 @@ function App() {
 
         <Route
           path="/dashboard-administrador"
-          element={
-            <RequireAuth>
-              <DashboardAdmin />
-            </RequireAuth>
-          }
+          element={<Navigate to="/dashboard-admin" replace />}
         />
 
         <Route
           path="/admin/grupos"
           element={
-            <RequireAuth>
+            <RequireAuth rolesPermitidos={["admin"]}>
               <GroupsAdmin />
             </RequireAuth>
           }
@@ -277,7 +296,7 @@ function App() {
         <Route
           path="/admin/actividades"
           element={
-            <RequireAuth>
+            <RequireAuth rolesPermitidos={["admin"]}>
               <ActivitiesAdmin />
             </RequireAuth>
           }
@@ -286,7 +305,7 @@ function App() {
         <Route
           path="/admin/recursos"
           element={
-            <RequireAuth>
+            <RequireAuth rolesPermitidos={["admin"]}>
               <ResourcesAdmin />
             </RequireAuth>
           }
@@ -295,7 +314,7 @@ function App() {
         <Route
           path="/admin/reportes"
           element={
-            <RequireAuth>
+            <RequireAuth rolesPermitidos={["admin"]}>
               <ReportsAdmin />
             </RequireAuth>
           }
@@ -304,7 +323,7 @@ function App() {
         <Route
           path="/admin/solicitudes"
           element={
-            <RequireAuth>
+            <RequireAuth rolesPermitidos={["admin"]}>
               <RequestsAdmin />
             </RequireAuth>
           }
@@ -313,7 +332,7 @@ function App() {
         <Route
           path="/admin/configuracion"
           element={
-            <RequireAuth>
+            <RequireAuth rolesPermitidos={["admin"]}>
               <SettingsAdmin />
             </RequireAuth>
           }
