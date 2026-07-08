@@ -8,6 +8,18 @@ const router = express.Router();
 const normalizarRol = (rol) => {
   const valor = String(rol || "").toLowerCase().trim();
 
+  if (
+    [
+      "docente_estudiante",
+      "docente-alumno",
+      "docente_alumno",
+      "maestro_estudiante",
+      "mixto",
+    ].includes(valor)
+  ) {
+    return "docente_estudiante";
+  }
+
   if (["alumno", "student", "usuario", "estudiante"].includes(valor)) {
     return "estudiante";
   }
@@ -48,15 +60,27 @@ router.post("/register", async (req, res) => {
       acepto_terminos,
     } = req.body;
 
-    const nombreFinal = nombre_completo || nombreCompleto;
-    const correoFinal = correo || email;
-    const passwordFinal = password || contrasena;
-    const confirmarFinal = confirmar_password || confirmarPassword;
+    const nombreFinal = String(nombre_completo || nombreCompleto || "").trim();
+    const correoLimpio = String(correo || email || "").trim().toLowerCase();
+    const passwordFinal = String(password || contrasena || "");
+    const confirmarFinal = String(confirmar_password || confirmarPassword || "");
 
-    if (!nombreFinal || !correoFinal || !passwordFinal) {
+    const usuarioLimpio =
+      typeof usuario === "string" && usuario.trim() !== ""
+        ? usuario.trim().toLowerCase()
+        : null;
+
+    if (!nombreFinal || !correoLimpio || !passwordFinal) {
       return res.status(400).json({
         ok: false,
         mensaje: "Nombre, correo y contraseña son obligatorios.",
+      });
+    }
+
+    if (!correoLimpio.includes("@")) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: "Ingresa un correo válido.",
       });
     }
 
@@ -74,36 +98,52 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    const correoLimpio = correoFinal.trim().toLowerCase();
-    const usuarioLimpio =
-      usuario && usuario.trim() !== "" ? usuario.trim().toLowerCase() : null;
+    let usuarioExiste;
 
-    const usuarioExiste = await pool.query(
-      `SELECT id_usuario 
-       FROM public.registro 
-       WHERE LOWER(correo) = $1 
-          OR LOWER(COALESCE(usuario, '')) = $2
-       LIMIT 1`,
-      [correoLimpio, usuarioLimpio || ""]
-    );
+    if (usuarioLimpio) {
+      usuarioExiste = await pool.query(
+        `SELECT id_usuario, nombre_completo, correo, usuario, rol, estado
+         FROM public.registro
+         WHERE LOWER(TRIM(correo)) = $1
+            OR LOWER(TRIM(COALESCE(usuario, ''))) = $2
+         LIMIT 1`,
+        [correoLimpio, usuarioLimpio]
+      );
+    } else {
+      usuarioExiste = await pool.query(
+        `SELECT id_usuario, nombre_completo, correo, usuario, rol, estado
+         FROM public.registro
+         WHERE LOWER(TRIM(correo)) = $1
+         LIMIT 1`,
+        [correoLimpio]
+      );
+    }
 
     if (usuarioExiste.rows.length > 0) {
+      const duplicado = usuarioExiste.rows[0];
+
+      const esCorreoDuplicado =
+        String(duplicado.correo || "").trim().toLowerCase() === correoLimpio;
+
       return res.status(409).json({
         ok: false,
-        mensaje: "El correo o usuario ya está registrado.",
+        mensaje: esCorreoDuplicado
+          ? "El correo ya está registrado."
+          : "El usuario ya está registrado.",
+        duplicado,
       });
     }
 
     const passwordHash = await bcrypt.hash(passwordFinal, 10);
 
     const nuevoUsuario = await pool.query(
-      `INSERT INTO public.registro 
+      `INSERT INTO public.registro
         (nombre_completo, correo, usuario, password_hash, rol, estado, acepto_terminos)
-       VALUES 
+       VALUES
         ($1, $2, $3, $4, $5, $6, $7)
        RETURNING id_usuario, nombre_completo, correo, usuario, rol, estado, fecha_registro`,
       [
-        nombreFinal.trim(),
+        nombreFinal,
         correoLimpio,
         usuarioLimpio,
         passwordHash,
@@ -123,6 +163,14 @@ router.post("/register", async (req, res) => {
     });
   } catch (error) {
     console.error("Error en registro:", error);
+
+    if (error.code === "23505") {
+      return res.status(409).json({
+        ok: false,
+        mensaje: "El correo o usuario ya está registrado.",
+        detalle: error.detail,
+      });
+    }
 
     return res.status(500).json({
       ok: false,
@@ -152,17 +200,17 @@ router.post("/login", async (req, res) => {
     }
 
     const usuarioEncontrado = await pool.query(
-      `SELECT 
-          id_usuario, 
-          nombre_completo, 
-          correo, 
-          usuario, 
-          password_hash, 
-          rol, 
+      `SELECT
+          id_usuario,
+          nombre_completo,
+          correo,
+          usuario,
+          password_hash,
+          rol,
           estado
        FROM public.registro
-       WHERE LOWER(correo) = $1 
-          OR LOWER(COALESCE(usuario, '')) = $1
+       WHERE LOWER(TRIM(correo)) = $1
+          OR LOWER(TRIM(COALESCE(usuario, ''))) = $1
        LIMIT 1`,
       [identificador]
     );
@@ -197,9 +245,9 @@ router.post("/login", async (req, res) => {
 
     try {
       await pool.query(
-        `INSERT INTO public.login 
+        `INSERT INTO public.login
           (id_usuario, correo, ip, user_agent, exito)
-         VALUES 
+         VALUES
           ($1, $2, $3, $4, $5)`,
         [
           usuarioDB.id_usuario,

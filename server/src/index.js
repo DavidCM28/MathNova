@@ -7,6 +7,7 @@ const authRoutes = require("./routes/auth.routes");
 const alumnoRoutes = require("./routes/alumnoRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const gruposRoutes = require("./routes/grupos.routes");
+const docenteAlumnosRoutes = require("./routes/docenteAlumnos.routes");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -31,6 +32,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/alumno", alumnoRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/grupos", gruposRoutes);
+app.use("/api/docente/alumnos", docenteAlumnosRoutes);
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Servidor corriendo en http://0.0.0.0:${PORT}`);

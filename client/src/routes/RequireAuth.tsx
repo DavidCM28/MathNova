@@ -12,8 +12,32 @@ type RequireAuthProps = {
   permitirInvitado?: boolean;
 };
 
-const normalizarRol = (rol?: string, roleId?: number) => {
+type SessionUser = {
+  rol?: string;
+  role?: string;
+  tipo_usuario?: string;
+  role_id?: number | string;
+  roleId?: number | string;
+  id_rol?: number | string;
+};
+
+const normalizarRol = (rol?: string, roleId?: number | string) => {
   const valor = String(rol || "").toLowerCase().trim();
+  const idRol = Number(roleId);
+
+  if (
+    [
+      "docente_estudiante",
+      "docente-estudiante",
+      "docente-alumno",
+      "docente_alumno",
+      "maestro_estudiante",
+      "maestro-estudiante",
+      "mixto"
+    ].includes(valor)
+  ) {
+    return "docente_estudiante";
+  }
 
   if (["alumno", "student", "usuario", "estudiante"].includes(valor)) {
     return "estudiante";
@@ -27,11 +51,42 @@ const normalizarRol = (rol?: string, roleId?: number) => {
     return "docente";
   }
 
-  if (roleId === 1) return "docente";
-  if (roleId === 2) return "estudiante";
-  if (roleId === 3) return "admin";
+  if (idRol === 1) return "docente";
+  if (idRol === 2) return "estudiante";
+  if (idRol === 3) return "admin";
+  if (idRol === 4) return "docente_estudiante";
 
-  return "estudiante";
+  return "";
+};
+
+const puedeEntrarPorRol = (rolUsuario: string, rolesPermitidos: string[]) => {
+  if (!rolUsuario) return false;
+
+  if (rolesPermitidos.includes(rolUsuario)) {
+    return true;
+  }
+
+  if (
+    rolUsuario === "docente_estudiante" &&
+    (rolesPermitidos.includes("docente") ||
+      rolesPermitidos.includes("estudiante"))
+  ) {
+    return true;
+  }
+
+  return false;
+};
+
+const obtenerRutaPorRol = (rolUsuario: string) => {
+  if (rolUsuario === "admin") {
+    return "/dashboard-admin";
+  }
+
+  if (rolUsuario === "docente" || rolUsuario === "docente_estudiante") {
+    return "/dashboard-docente";
+  }
+
+  return "/dashboard";
 };
 
 export default function RequireAuth({
@@ -43,6 +98,7 @@ export default function RequireAuth({
 
   const tieneSesion = hasAuthSession();
   const esInvitado = isGuestSession();
+  const usuario = getSessionUser() as SessionUser | null;
 
   if (!tieneSesion && !esInvitado) {
     return (
@@ -65,7 +121,8 @@ export default function RequireAuth({
         replace
         state={{
           from: location.pathname,
-          authMessage: "Esta sección requiere iniciar sesión."
+          authMessage:
+            "Esta sección requiere iniciar sesión. Crea una cuenta para continuar."
         }}
       />
     );
@@ -75,22 +132,29 @@ export default function RequireAuth({
     return <>{children}</>;
   }
 
-  const usuario = getSessionUser();
-  const rolUsuario = normalizarRol(usuario?.rol, usuario?.role_id);
+  if (tieneSesion && !usuario) {
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{
+          from: location.pathname,
+          authMessage: "Tu sesión no es válida. Inicia sesión nuevamente."
+        }}
+      />
+    );
+  }
+
+  const rolUsuario = normalizarRol(
+    usuario?.rol || usuario?.role || usuario?.tipo_usuario,
+    usuario?.role_id || usuario?.roleId || usuario?.id_rol
+  );
 
   if (rolesPermitidos && rolesPermitidos.length > 0) {
     const rolesNormalizados = rolesPermitidos.map((rol) => normalizarRol(rol));
 
-    if (!rolesNormalizados.includes(rolUsuario)) {
-      if (rolUsuario === "admin") {
-        return <Navigate to="/dashboard-admin" replace />;
-      }
-
-      if (rolUsuario === "docente") {
-        return <Navigate to="/dashboard-docente" replace />;
-      }
-
-      return <Navigate to="/dashboard" replace />;
+    if (!puedeEntrarPorRol(rolUsuario, rolesNormalizados)) {
+      return <Navigate to={obtenerRutaPorRol(rolUsuario)} replace />;
     }
   }
 
