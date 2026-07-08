@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdministrarAlumnosDocente.css";
 
@@ -17,7 +17,6 @@ import {
   FiHelpCircle,
   FiSettings,
   FiPlus,
-  FiUser,
   FiSearch,
   FiUpload,
   FiUserPlus,
@@ -30,8 +29,70 @@ import {
   FiInfo,
 } from "react-icons/fi";
 
+type Alumno = {
+  id_alumno: number;
+  iniciales: string;
+  nombre: string;
+  correo: string;
+  usuario: string | null;
+  grupo: string;
+  modulo: string;
+  asistencia: number | null;
+  promedio: number | null;
+  estado: "Activo" | "Rezago";
+  color: string;
+  barra: string;
+  fecha_registro?: string;
+};
+
+type Resumen = {
+  total: number;
+  activos: number;
+  rezago: number;
+  asistencia_baja: number;
+  promedio_general: number | null;
+  porcentaje_activos: number;
+  porcentaje_rezago: number;
+};
+
+type DocenteAlumnosResponse = {
+  ok: boolean;
+  resumen: Resumen;
+  alumnos: Alumno[];
+  mensaje?: string;
+};
+
+const API_DOCENTE_ALUMNOS = "http://localhost:3001/api/docente/alumnos";
+const ALUMNOS_POR_PAGINA = 5;
+
+const resumenInicial: Resumen = {
+  total: 0,
+  activos: 0,
+  rezago: 0,
+  asistencia_baja: 0,
+  promedio_general: null,
+  porcentaje_activos: 0,
+  porcentaje_rezago: 0,
+};
+
+function formatearFecha(fecha?: string) {
+  if (!fecha) return "Sin fecha";
+
+  return new Date(fecha).toLocaleDateString("es-MX", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 function AdministrarAlumnosDocente() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [alumnos, setAlumnos] = useState<Alumno[]>([]);
+  const [resumen, setResumen] = useState<Resumen>(resumenInicial);
+  const [busqueda, setBusqueda] = useState("");
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState("");
+  const [paginaActual, setPaginaActual] = useState(1);
 
   const [gruposOpen, setGruposOpen] = useState(() => {
     return localStorage.getItem("docente-grupos-open") !== "false";
@@ -61,6 +122,90 @@ function AdministrarAlumnosDocente() {
     localStorage.setItem("docente-alumnos-open", String(alumnosOpen));
   }, [alumnosOpen]);
 
+  useEffect(() => {
+    const cargarAlumnos = async () => {
+      try {
+        setCargando(true);
+        setError("");
+        setPaginaActual(1);
+
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          throw new Error("Debes iniciar sesión para ver los alumnos.");
+        }
+
+        const params = new URLSearchParams();
+
+        if (busqueda.trim()) {
+          params.set("buscar", busqueda.trim());
+        }
+
+        const url = params.toString()
+          ? `${API_DOCENTE_ALUMNOS}?${params.toString()}`
+          : API_DOCENTE_ALUMNOS;
+
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const texto = await response.text();
+
+        let data: DocenteAlumnosResponse;
+
+        try {
+          data = texto ? JSON.parse(texto) : null;
+        } catch {
+          throw new Error(
+            "El backend no devolvió JSON. Revisa que la ruta /api/docente/alumnos esté registrada.",
+          );
+        }
+
+        if (!response.ok) {
+          throw new Error(data?.mensaje || "No se pudieron cargar los alumnos.");
+        }
+
+        setResumen(data.resumen || resumenInicial);
+        setAlumnos(data.alumnos || []);
+      } catch (error) {
+        setResumen(resumenInicial);
+        setAlumnos([]);
+
+        setError(
+          error instanceof Error
+            ? error.message
+            : "No se pudieron cargar los alumnos.",
+        );
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    const timer = window.setTimeout(() => {
+      void cargarAlumnos();
+    }, 300);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [busqueda]);
+
+  const totalPaginas = Math.max(
+    1,
+    Math.ceil(alumnos.length / ALUMNOS_POR_PAGINA),
+  );
+
+  const alumnosPagina = useMemo(() => {
+    const inicio = (paginaActual - 1) * ALUMNOS_POR_PAGINA;
+    const fin = inicio + ALUMNOS_POR_PAGINA;
+
+    return alumnos.slice(inicio, fin);
+  }, [alumnos, paginaActual]);
+
+  const alumnosRecientes = alumnos.slice(0, 3);
+
   const irARuta = (ruta: string, menu?: string) => {
     if (menu) {
       setSelectedMenu(menu);
@@ -70,63 +215,18 @@ function AdministrarAlumnosDocente() {
     navigate(ruta);
   };
 
-  const alumnos = [
-    {
-      iniciales: "OM",
-      nombre: "Orellana Martínez, Mariana",
-      grupo: "2°B",
-      modulo: "Ecuaciones lineales",
-      asistencia: "96%",
-      promedio: "8.6",
-      estado: "Activo",
-      color: "blue",
-      barra: "alta",
-    },
-    {
-      iniciales: "VS",
-      nombre: "Valeria Sánchez Torres",
-      grupo: "1°C",
-      modulo: "Fracciones",
-      asistencia: "88%",
-      promedio: "7.4",
-      estado: "Rezago",
-      color: "purple",
-      barra: "media",
-    },
-    {
-      iniciales: "JR",
-      nombre: "Juan Ramírez López",
-      grupo: "2°A",
-      modulo: "Áreas de figuras",
-      asistencia: "92%",
-      promedio: "8.1",
-      estado: "Activo",
-      color: "dark",
-      barra: "alta",
-    },
-    {
-      iniciales: "CT",
-      nombre: "Carla Torres Mendoza",
-      grupo: "1°C",
-      modulo: "Proporciones",
-      asistencia: "76%",
-      promedio: "6.2",
-      estado: "Rezago",
-      color: "green",
-      barra: "baja",
-    },
-    {
-      iniciales: "OL",
-      nombre: "Óscar López Hernández",
-      grupo: "2°B",
-      modulo: "Ecuaciones lineales",
-      asistencia: "61%",
-      promedio: "5.4",
-      estado: "Rezago",
-      color: "orange",
-      barra: "critica",
-    },
-  ];
+  const cambiarPagina = (pagina: number) => {
+    const paginaSegura = Math.min(Math.max(pagina, 1), totalPaginas);
+    setPaginaActual(paginaSegura);
+  };
+
+  const inicioMostrado =
+    alumnos.length === 0 ? 0 : (paginaActual - 1) * ALUMNOS_POR_PAGINA + 1;
+
+  const finMostrado = Math.min(
+    paginaActual * ALUMNOS_POR_PAGINA,
+    alumnos.length,
+  );
 
   return (
     <main className="docente-page">
@@ -327,16 +427,27 @@ function AdministrarAlumnosDocente() {
 
           <label className="admin-search">
             <FiSearch />
-            <input type="text" placeholder="Buscar alumno..." />
+            <input
+              type="text"
+              placeholder="Buscar alumno..."
+              value={busqueda}
+              onChange={(event) => setBusqueda(event.target.value)}
+            />
           </label>
         </section>
+
+        {error && (
+          <section className="admin-table-card">
+            <p>{error}</p>
+          </section>
+        )}
 
         <section className="admin-stats-grid">
           <article className="admin-stat-card blue-card">
             <div>
               <h3>Total de alumnos</h3>
-              <strong>148</strong>
-              <p>+8 respecto al mes anterior</p>
+              <strong>{resumen.total}</strong>
+              <p>Usuarios con rol estudiante</p>
             </div>
 
             <div className="admin-stat-icon">
@@ -347,8 +458,8 @@ function AdministrarAlumnosDocente() {
           <article className="admin-stat-card green-card">
             <div>
               <h3>Activos</h3>
-              <strong>132</strong>
-              <p>89% del total</p>
+              <strong>{resumen.activos}</strong>
+              <p>{resumen.porcentaje_activos}% del total</p>
             </div>
 
             <div className="admin-stat-icon">
@@ -359,8 +470,8 @@ function AdministrarAlumnosDocente() {
           <article className="admin-stat-card orange-card">
             <div>
               <h3>Rezago detectado</h3>
-              <strong>16</strong>
-              <p>11% del total</p>
+              <strong>{resumen.rezago}</strong>
+              <p>{resumen.porcentaje_rezago}% del total</p>
             </div>
 
             <div className="admin-stat-icon">
@@ -371,8 +482,12 @@ function AdministrarAlumnosDocente() {
           <article className="admin-stat-card purple-card">
             <div>
               <h3>Promedio general</h3>
-              <strong>7.8</strong>
-              <p>+0.4 respecto al mes anterior</p>
+              <strong>
+                {resumen.promedio_general !== null
+                  ? resumen.promedio_general
+                  : "—"}
+              </strong>
+              <p>Calculado con datos disponibles</p>
             </div>
 
             <div className="admin-stat-icon">
@@ -393,73 +508,121 @@ function AdministrarAlumnosDocente() {
               <span>Acciones</span>
             </div>
 
-            {alumnos.map((alumno, index) => (
-              <div className="admin-table-row" key={index}>
-                <span className="student-cell">
-                  <b className={`student-avatar ${alumno.color}`}>
-                    {alumno.iniciales}
-                  </b>
-                  {alumno.nombre}
-                </span>
+            {cargando ? (
+              <div className="admin-table-row">
+                <span>Cargando alumnos...</span>
+                <span>—</span>
+                <span>—</span>
+                <span>—</span>
+                <span>—</span>
+                <span>—</span>
+                <span>—</span>
+              </div>
+            ) : alumnosPagina.length > 0 ? (
+              alumnosPagina.map((alumno) => (
+                <div className="admin-table-row" key={alumno.id_alumno}>
+                  <span className="student-cell">
+                    <b className={`student-avatar ${alumno.color}`}>
+                      {alumno.iniciales}
+                    </b>
+                    {alumno.nombre}
+                  </span>
 
-                <span>{alumno.grupo}</span>
-                <span>{alumno.modulo}</span>
+                  <span>{alumno.grupo}</span>
+                  <span>{alumno.modulo}</span>
 
-                <span className="attendance-cell">
-                  {alumno.asistencia}
-                  <i className={`attendance-line ${alumno.barra}`}></i>
-                </span>
+                  <span className="attendance-cell">
+                    {alumno.asistencia !== null ? `${alumno.asistencia}%` : "—"}
+                    <i className={`attendance-line ${alumno.barra}`}></i>
+                  </span>
 
-                <span
-                  className={`average ${
-                    Number(alumno.promedio) < 7 ? "low" : "good"
-                  }`}
-                >
-                  {alumno.promedio}
-                </span>
-
-                <span>
-                  <b
-                    className={`status-pill ${
-                      alumno.estado === "Activo" ? "activo" : "rezago"
+                  <span
+                    className={`average ${
+                      alumno.promedio !== null && alumno.promedio < 7
+                        ? "low"
+                        : "good"
                     }`}
                   >
-                    {alumno.estado}
-                  </b>
-                </span>
+                    {alumno.promedio !== null ? alumno.promedio : "—"}
+                  </span>
 
-                <span className="actions-cell">
-                  <button type="button" aria-label="Ver alumno">
-                    <FiEye />
-                  </button>
+                  <span>
+                    <b
+                      className={`status-pill ${
+                        alumno.estado === "Activo" ? "activo" : "rezago"
+                      }`}
+                    >
+                      {alumno.estado}
+                    </b>
+                  </span>
 
-                  <button type="button" aria-label="Editar alumno">
-                    <FiEdit2 />
-                  </button>
+                  <span className="actions-cell">
+                    <button type="button" aria-label="Ver alumno">
+                      <FiEye />
+                    </button>
 
-                  <button
-                    type="button"
-                    className="delete"
-                    aria-label="Eliminar alumno"
-                  >
-                    <FiTrash2 />
-                  </button>
-                </span>
+                    <button type="button" aria-label="Editar alumno">
+                      <FiEdit2 />
+                    </button>
+
+                    <button
+                      type="button"
+                      className="delete"
+                      aria-label="Eliminar alumno"
+                    >
+                      <FiTrash2 />
+                    </button>
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="admin-table-row">
+                <span>No se encontraron alumnos.</span>
+                <span>—</span>
+                <span>—</span>
+                <span>—</span>
+                <span>—</span>
+                <span>—</span>
+                <span>—</span>
               </div>
-            ))}
+            )}
           </div>
 
           <div className="admin-table-bottom">
-            <p>Mostrando 1 a 5 de 148 alumnos</p>
+            <p>
+              Mostrando {inicioMostrado} a {finMostrado} de {alumnos.length}{" "}
+              alumnos
+            </p>
 
             <div className="pagination">
-              <button type="button">{"<"}</button>
-              <button type="button" className="current">
-                1
+              <button
+                type="button"
+                onClick={() => cambiarPagina(paginaActual - 1)}
+                disabled={paginaActual === 1}
+              >
+                {"<"}
               </button>
-              <button type="button">2</button>
-              <button type="button">3</button>
-              <button type="button">{">"}</button>
+
+              {Array.from({ length: totalPaginas }, (_, index) => index + 1)
+                .slice(0, 3)
+                .map((pagina) => (
+                  <button
+                    type="button"
+                    key={pagina}
+                    className={paginaActual === pagina ? "current" : ""}
+                    onClick={() => cambiarPagina(pagina)}
+                  >
+                    {pagina}
+                  </button>
+                ))}
+
+              <button
+                type="button"
+                onClick={() => cambiarPagina(paginaActual + 1)}
+                disabled={paginaActual === totalPaginas}
+              >
+                {">"}
+              </button>
             </div>
           </div>
         </section>
@@ -471,23 +634,23 @@ function AdministrarAlumnosDocente() {
               Alumnos recientes
             </h2>
 
-            <div className="recent-row">
-              <span className="mini-avatar green">LM</span>
-              <p>Lis Medina García</p>
-              <b>12 may. 2025</b>
-            </div>
-
-            <div className="recent-row">
-              <span className="mini-avatar pink">NG</span>
-              <p>Natalia Gómez Ruiz</p>
-              <b>10 may. 2025</b>
-            </div>
-
-            <div className="recent-row">
-              <span className="mini-avatar blue">EP</span>
-              <p>Emilio Pérez Juárez</p>
-              <b>9 may. 2025</b>
-            </div>
+            {alumnosRecientes.length > 0 ? (
+              alumnosRecientes.map((alumno) => (
+                <div className="recent-row" key={alumno.id_alumno}>
+                  <span className={`mini-avatar ${alumno.color}`}>
+                    {alumno.iniciales}
+                  </span>
+                  <p>{alumno.nombre}</p>
+                  <b>{formatearFecha(alumno.fecha_registro)}</b>
+                </div>
+              ))
+            ) : (
+              <div className="recent-row">
+                <span className="mini-avatar blue">—</span>
+                <p>No hay alumnos recientes</p>
+                <b>—</b>
+              </div>
+            )}
 
             <button type="button" className="link-btn">
               Ver todos los alumnos
@@ -503,20 +666,25 @@ function AdministrarAlumnosDocente() {
 
             <div className="alert-line alert-red">
               <span></span>
-              <p>16 alumnos presentan rezago en uno o más módulos.</p>
+              <p>
+                {resumen.rezago} alumnos presentan rezago o bajo rendimiento.
+              </p>
               <button type="button">Ver detalles</button>
             </div>
 
             <div className="alert-line alert-orange">
               <span></span>
-              <p>5 alumnos tienen asistencia menor al 70%.</p>
+              <p>
+                {resumen.asistencia_baja} alumnos tienen asistencia menor al
+                70%.
+              </p>
               <button type="button">Ver detalles</button>
             </div>
 
             <div className="alert-line alert-blue">
               <span></span>
-              <p>3 módulos próximos a evaluación final.</p>
-              <button type="button">Ver calendario</button>
+              <p>{resumen.total} alumnos registrados como estudiantes.</p>
+              <button type="button">Ver alumnos</button>
             </div>
 
             <button type="button" className="link-btn">

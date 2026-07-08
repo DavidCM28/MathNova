@@ -1,12 +1,16 @@
-const express = require("express");
-const cors = require("cors");
 require("dotenv").config();
 
+const express = require("express");
+const cors = require("cors");
+
 const authRoutes = require("./routes/auth.routes");
+const alumnoRoutes = require("./routes/alumnoRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 const gruposRoutes = require("./routes/grupos.routes");
-const listaAlumnosRoutes = require("./routes/listaAlumnos.routes");
+const docenteAlumnosRoutes = require("./routes/docenteAlumnos.routes");
 
 const app = express();
+const PORT = process.env.PORT || 3001;
 
 app.use(
   cors({
@@ -20,16 +24,17 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.json({
     ok: true,
-    mensaje: "Servidor de MathNova funcionando correctamente.",
+    mensaje: "Servidor MathNova funcionando correctamente",
   });
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/alumno", alumnoRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/grupos", gruposRoutes);
-app.use("/api/lista-alumnos", listaAlumnosRoutes);
+app.use("/api/docente/alumnos", docenteAlumnosRoutes);
 
-const PORT = process.env.PORT || 3001;
-
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Servidor corriendo en http://0.0.0.0:${PORT}`);
+  console.log("Base de datos Supabase conectada correctamente.");
 });
