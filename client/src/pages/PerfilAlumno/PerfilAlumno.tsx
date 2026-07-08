@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   obtenerPerfilAlumno,
   obtenerProgresoAlumno,
 } from "../../services/alumnoService";
 
-import type { Alumno, Actividad } from "../../services/alumnoService";
+import type { ActividadProgreso } from "../../services/alumnoService";
 
 import "../Dashboard/Dashboard.css";
 import "./PerfilAlumno.css";
@@ -45,6 +45,7 @@ import {
 } from "react-icons/fi";
 
 import { GiRingedPlanet, GiTrophyCup, GiFlame } from "react-icons/gi";
+import { clearAuthSession } from "../../utils/authSession";
 
 type MundoCompletado = {
   id: number;
@@ -58,10 +59,32 @@ type InsigniaAlumno = {
   estado: string;
 };
 
-type AlumnoPerfil = Alumno & {
+type ResumenAlumno = {
+  leccionesCompletadas?: number;
+  estrellasGanadas?: number;
+  rachaActual?: number;
+  promedioGeneral?: number;
+  tiempoEstudio?: {
+    minutos?: number;
+    actividadesCompletas?: number;
+  };
+};
+
+type AlumnoPerfil = {
+  id?: number | string;
+  id_usuario?: number | string;
+  nombreCompleto?: string;
+  nombre_completo?: string;
+  correo?: string;
+  usuario?: string | null;
+  rol?: string;
+  estado?: boolean;
+  fecha_registro?: string;
   miembro_desde?: string;
   grado?: string;
   escuela?: string;
+  avatar_url?: string | null;
+
   nivel?: number;
   titulo?: string;
   estrellas_totales?: number;
@@ -70,11 +93,18 @@ type AlumnoPerfil = Alumno & {
   tiempo_estudio_segundos?: number;
   tiempo_estudio?: string;
   progreso_general?: number;
+
   mundos_completados?: MundoCompletado[];
   insignias?: InsigniaAlumno[];
 };
 
-type ActividadPerfil = Actividad & {
+type ActividadPerfil = ActividadProgreso & {
+  id?: number | string;
+  titulo?: string;
+  estado?: string;
+  porcentaje?: number;
+  tema?: string;
+  modulo?: string;
   updated_at?: string | number | Date | null;
 };
 
@@ -95,6 +125,27 @@ function PerfilAlumno() {
     };
   }, [menuOpen]);
 
+  const obtenerUsuarioLocal = () => {
+    try {
+      return JSON.parse(localStorage.getItem("usuario") || "null");
+    } catch {
+      return null;
+    }
+  };
+
+  const formatearMinutos = (minutos?: number) => {
+    const total = Number(minutos || 0);
+
+    if (total < 60) {
+      return `${total}m`;
+    }
+
+    const horas = Math.floor(total / 60);
+    const resto = total % 60;
+
+    return resto > 0 ? `${horas}h ${resto}m` : `${horas}h`;
+  };
+
   useEffect(() => {
     const cargarPerfil = async () => {
       try {
@@ -113,8 +164,88 @@ function PerfilAlumno() {
           obtenerProgresoAlumno(),
         ]);
 
-        setAlumno(perfilData as AlumnoPerfil);
-        setActividades(actividadesData as ActividadPerfil[]);
+        const perfil = perfilData?.perfil ?? perfilData?.usuario ?? {};
+        const resumen: ResumenAlumno = perfilData?.resumen ?? {};
+        const usuarioLocal = obtenerUsuarioLocal();
+
+        const minutosEstudio = Number(resumen?.tiempoEstudio?.minutos || 0);
+
+        const alumnoNormalizado: AlumnoPerfil = {
+          id: perfil.id ?? perfil.id_usuario ?? usuarioLocal?.id_usuario,
+          id_usuario: perfil.id_usuario ?? perfil.id ?? usuarioLocal?.id_usuario,
+
+          nombre_completo:
+            perfil.nombre_completo ??
+            perfil.nombreCompleto ??
+            usuarioLocal?.nombre_completo ??
+            usuarioLocal?.nombreCompleto ??
+            usuarioLocal?.usuario ??
+            "Alumno",
+
+          nombreCompleto:
+            perfil.nombreCompleto ??
+            perfil.nombre_completo ??
+            usuarioLocal?.nombre_completo ??
+            usuarioLocal?.nombreCompleto ??
+            usuarioLocal?.usuario ??
+            "Alumno",
+
+          correo: perfil.correo ?? usuarioLocal?.correo ?? "Sin correo",
+          usuario: perfil.usuario ?? usuarioLocal?.usuario ?? null,
+          rol: perfil.rol ?? usuarioLocal?.rol ?? "estudiante",
+          estado: perfil.estado ?? true,
+
+          grado: perfil.grado ?? usuarioLocal?.grado ?? "Sin asignar",
+          escuela: perfil.escuela ?? usuarioLocal?.escuela ?? "MathNova",
+          fecha_registro:
+            perfil.fecha_registro ??
+            perfil.miembro_desde ??
+            usuarioLocal?.fecha_registro,
+
+          miembro_desde:
+            perfil.miembro_desde ??
+            perfil.fecha_registro ??
+            usuarioLocal?.fecha_registro,
+
+          avatar_url: perfil.avatar_url ?? usuarioLocal?.avatar_url ?? null,
+
+          nivel: perfil.nivel ?? 1,
+          titulo: perfil.titulo ?? "Aprendiz Nova",
+
+          estrellas_totales: Number(
+            resumen.estrellasGanadas ?? perfil.estrellas_totales ?? 0
+          ),
+
+          racha_actual: Number(
+            resumen.rachaActual ?? perfil.racha_actual ?? 0
+          ),
+
+          lecciones_completadas: Number(
+            resumen.leccionesCompletadas ??
+              resumen.tiempoEstudio?.actividadesCompletas ??
+              perfil.lecciones_completadas ??
+              0
+          ),
+
+          tiempo_estudio_segundos:
+            perfil.tiempo_estudio_segundos ?? minutosEstudio * 60,
+
+          tiempo_estudio:
+            perfil.tiempo_estudio ?? formatearMinutos(minutosEstudio),
+
+          progreso_general: Number(
+            resumen.promedioGeneral ?? perfil.progreso_general ?? 0
+          ),
+        };
+
+        const actividadesNormalizadas = Array.isArray(actividadesData)
+          ? actividadesData
+          : Array.isArray(perfilData?.actividadesRecientes)
+          ? perfilData.actividadesRecientes
+          : [];
+
+        setAlumno(alumnoNormalizado);
+        setActividades(actividadesNormalizadas as ActividadPerfil[]);
       } catch (error) {
         console.error("Error al cargar perfil del alumno:", error);
         setError("No se pudo cargar el perfil del alumno.");
@@ -132,8 +263,7 @@ function PerfilAlumno() {
   };
 
   const cerrarSesion = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
+    clearAuthSession();
     navigate("/login", { replace: true });
   };
 
@@ -175,11 +305,27 @@ function PerfilAlumno() {
     });
   };
 
+  const obtenerNombreMundo = (nombre: string) => {
+    const nombres: Record<string, string> = {
+      MathNumbers: "Planeta Números",
+      MathGeometry: "Mundo Geometría",
+      MathData: "Galaxia Datos",
+      "Planeta Números": "Planeta Números",
+      "Mundo Geometría": "Mundo Geometría",
+      "Galaxia Datos": "Galaxia Datos",
+    };
+
+    return nombres[nombre] || nombre;
+  };
+
   const obtenerImagenMundo = (nombre: string) => {
     const imagenes: Record<string, string> = {
       MathNumbers: mundo1,
       MathGeometry: mundo2,
       MathData: mundo3,
+      "Planeta Números": mundo1,
+      "Mundo Geometría": mundo2,
+      "Galaxia Datos": mundo3,
     };
 
     return imagenes[nombre] || mundo1;
@@ -196,41 +342,107 @@ function PerfilAlumno() {
     return imagenes[nombre] || primerosPasos;
   };
 
-  const actividadReciente = actividades
-    .filter(
-      (actividad) =>
-        actividad.estado === "completada" || actividad.estado === "en_curso"
-    )
-    .slice(0, 3);
+  const actividadesSeguras = Array.isArray(actividades) ? actividades : [];
 
-  const textoActividad = (actividad: ActividadPerfil) => {
-    if (actividad.estado === "completada") {
-      return `Completaste la actividad “${actividad.titulo}”`;
+  const leccionesCompletadas = Number(alumno?.lecciones_completadas ?? 0);
+  const progresoGeneral = Number(alumno?.progreso_general ?? 0);
+  const segundosEstudio = Number(alumno?.tiempo_estudio_segundos ?? 0);
+
+  const progresoMetaHoras = Math.min((segundosEstudio / 18000) * 100, 100);
+  const progresoMetaActividades = Math.min((leccionesCompletadas / 20) * 100, 100);
+
+  const actividadReciente = useMemo(() => {
+    return actividadesSeguras
+      .map((actividad) => ({
+        ...actividad,
+        titulo:
+          actividad.titulo ||
+          actividad.actividadNombre ||
+          actividad.actividadSlug ||
+          "Actividad",
+        estado:
+          actividad.estado || (actividad.completada ? "completada" : "en_curso"),
+        updated_at: actividad.updated_at || actividad.fechaCompletado || null,
+      }))
+      .slice(0, 3);
+  }, [actividadesSeguras]);
+
+  const mundosCompletados: MundoCompletado[] = useMemo(() => {
+    if (alumno?.mundos_completados && alumno.mundos_completados.length > 0) {
+      return alumno.mundos_completados;
     }
 
-    return `Iniciaste la actividad “${actividad.titulo}”`;
+    const mundosBase = [
+      { id: 1, nombre: "MathNumbers" },
+      { id: 2, nombre: "MathGeometry" },
+      { id: 3, nombre: "MathData" },
+    ];
+
+    return mundosBase.map((mundo) => ({
+      ...mundo,
+      completado: actividadesSeguras.some(
+        (actividad) => actividad.mundo === mundo.nombre && actividad.completada
+      ),
+    }));
+  }, [alumno?.mundos_completados, actividadesSeguras]);
+
+  const insignias: InsigniaAlumno[] = useMemo(() => {
+    if (alumno?.insignias && alumno.insignias.length > 0) {
+      return alumno.insignias;
+    }
+
+    const algunMundoCompletado = mundosCompletados.some(
+      (mundo) => mundo.completado
+    );
+
+    return [
+      {
+        id: 1,
+        nombre: "Primeros Pasos",
+        estado: leccionesCompletadas > 0 ? "Desbloqueada" : "Bloqueada",
+      },
+      {
+        id: 2,
+        nombre: "Explorador",
+        estado: algunMundoCompletado ? "Desbloqueada" : "Bloqueada",
+      },
+      {
+        id: 3,
+        nombre: "Cálculo Ágil",
+        estado: progresoGeneral >= 80 ? "Desbloqueada" : "Bloqueada",
+      },
+      {
+        id: 4,
+        nombre: "Constancia",
+        estado: Number(alumno?.racha_actual || 0) >= 3 ? "Desbloqueada" : "Bloqueada",
+      },
+    ];
+  }, [
+    alumno?.insignias,
+    alumno?.racha_actual,
+    mundosCompletados,
+    leccionesCompletadas,
+    progresoGeneral,
+  ]);
+
+  const textoActividad = (actividad: ActividadPerfil) => {
+    const titulo =
+      actividad.titulo || actividad.actividadNombre || actividad.actividadSlug;
+
+    if (actividad.estado === "completada" || actividad.completada) {
+      return `Completaste la actividad “${titulo}”`;
+    }
+
+    return `Iniciaste la actividad “${titulo}”`;
   };
 
   const iconoActividad = (actividad: ActividadPerfil) => {
-    if (actividad.estado === "completada") {
+    if (actividad.estado === "completada" || actividad.completada) {
       return <FiCheckCircle className="green-icon" />;
     }
 
     return <FiBookOpen className="blue-icon" />;
   };
-
-  const mundosCompletados: MundoCompletado[] =
-  alumno?.mundos_completados ?? [];
-
-const insignias: InsigniaAlumno[] =
-  alumno?.insignias ?? [];
-
-  const segundosEstudio = alumno?.tiempo_estudio_segundos ?? 0;
-  const leccionesCompletadas = alumno?.lecciones_completadas ?? 0;
-  const progresoGeneral = alumno?.progreso_general ?? 0;
-
-  const progresoMetaHoras = Math.min((segundosEstudio / 18000) * 100, 100);
-  const progresoMetaActividades = Math.min((progresoGeneral / 100) * 100, 100);
 
   if (cargando) {
     return (
@@ -333,13 +545,13 @@ const insignias: InsigniaAlumno[] =
         <section className="perfil-top-grid">
           <article className="perfil-main-card">
             <img
-              src={alexPerfil}
+              src={alumno?.avatar_url || alexPerfil}
               alt={alumno?.nombre_completo || "Alumno"}
               className="alex-img"
             />
 
             <div className="perfil-name">
-              <h2>{alumno?.nombre_completo ?? "Alumno"}</h2>
+              <h2>{alumno?.nombre_completo || "Alumno"}</h2>
 
               <span>
                 ⭐ Nivel {alumno?.nivel ?? 1} •{" "}
@@ -399,25 +611,29 @@ const insignias: InsigniaAlumno[] =
             <div className="dato-row">
               <FiUser />
               <span>Nombre completo</span>
-              <strong>{alumno?.nombre_completo ?? "Sin nombre"}</strong>
+              <strong>{alumno?.nombre_completo || "Sin nombre"}</strong>
             </div>
 
             <div className="dato-row">
               <FiBookOpen />
               <span>Grado</span>
-              <strong>{alumno?.grado ?? "Sin asignar"}</strong>
+              <strong>{alumno?.grado || "Sin asignar"}</strong>
             </div>
 
             <div className="dato-row">
               <FiHome />
               <span>Escuela</span>
-              <strong>{alumno?.escuela ?? "MathNova"}</strong>
+              <strong>{alumno?.escuela || "MathNova"}</strong>
             </div>
 
             <div className="dato-row">
               <FiCalendar />
               <span>Miembro desde</span>
-              <strong>{formatearFecha(alumno?.miembro_desde)}</strong>
+              <strong>
+                {formatearFecha(
+                  alumno?.miembro_desde || alumno?.fecha_registro
+                )}
+              </strong>
             </div>
           </article>
 
@@ -430,7 +646,7 @@ const insignias: InsigniaAlumno[] =
                   <div className="mundo-img-box">
                     <img
                       src={obtenerImagenMundo(mundo.nombre)}
-                      alt={mundo.nombre}
+                      alt={obtenerNombreMundo(mundo.nombre)}
                     />
 
                     {mundo.completado && (
@@ -440,7 +656,7 @@ const insignias: InsigniaAlumno[] =
                     )}
                   </div>
 
-                  <span>{mundo.nombre}</span>
+                  <span>{obtenerNombreMundo(mundo.nombre)}</span>
                 </div>
               ))}
             </div>
@@ -486,15 +702,22 @@ const insignias: InsigniaAlumno[] =
             <h2>Actividad reciente</h2>
 
             {actividadReciente.length > 0 ? (
-              actividadReciente.map((actividad) => (
-                <div className="actividad-row" key={actividad.id}>
+              actividadReciente.map((actividad, index) => (
+                <div
+                  className="actividad-row"
+                  key={
+                    actividad.id ||
+                    actividad.actividadSlug ||
+                    `${actividad.mundo}-${index}`
+                  }
+                >
                   {iconoActividad(actividad)}
 
                   <span>{textoActividad(actividad)}</span>
 
                   <small>{formatearFechaActividad(actividad.updated_at)}</small>
 
-                  <strong>⭐ +{actividad.puntaje || 0}</strong>
+                  <strong>⭐ +{actividad.estrellas || 0}</strong>
                 </div>
               ))
             ) : (
@@ -560,7 +783,7 @@ const insignias: InsigniaAlumno[] =
                 <span style={{ width: `${progresoMetaActividades}%` }}></span>
               </div>
 
-              <strong>{Math.round((progresoGeneral / 100) * 20)}/20</strong>
+              <strong>{Math.min(leccionesCompletadas, 20)}/20</strong>
               <b>⭐ +100</b>
             </div>
 

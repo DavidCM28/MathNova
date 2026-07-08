@@ -1,309 +1,512 @@
 const pool = require("../db");
 
-const formatearTiempo = (segundos) => {
-  const minutosTotales = Math.floor(segundos / 60);
-  const horas = Math.floor(minutosTotales / 60);
-  const minutos = minutosTotales % 60;
+const diasSemana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
-  if (horas <= 0) {
-    return `${minutos}m`;
+const mundoNombre = {
+  MathNumbers: "Planeta Números",
+  MathGeometry: "Mundo Geometría",
+  MathData: "Galaxia Datos"
+};
+
+const columnasProgresoRequeridas = [
+  "usuario_id",
+  "mundo",
+  "actividad_slug",
+  "actividad_nombre",
+  "puntaje",
+  "estrellas",
+  "completada",
+  "tiempo_segundos",
+  "respuestas_correctas",
+  "total_preguntas",
+  "fecha_inicio",
+  "fecha_completado"
+];
+
+const crearEstadisticasVacias = () => ({
+  leccionesCompletadas: 0,
+  estrellasGanadas: 0,
+  rachaActual: 0,
+  promedioGeneral: 0,
+  progresoSemanal: diasSemana.map((dia) => ({
+    dia,
+    lecciones: 0
+  })),
+  rendimientoPorTema: [
+    { tema: "MathNumbers", promedio: 0 },
+    { tema: "MathGeometry", promedio: 0 },
+    { tema: "MathData", promedio: 0 }
+  ],
+  dominioPorMundo: [
+    { mundo: "Planeta Números", promedio: 0 },
+    { mundo: "Mundo Geometría", promedio: 0 },
+    { mundo: "Galaxia Datos", promedio: 0 }
+  ],
+  tiempoEstudio: {
+    minutos: 0,
+    actividadesCompletas: 0,
+    semanal: diasSemana.map((dia) => ({
+      dia,
+      minutos: 0
+    }))
+  }
+});
+
+const obtenerUsuarioAutenticado = (req) => {
+  const usuario = req.usuario || req.user;
+  const usuarioId = usuario?.id_usuario || usuario?.id || usuario?.usuario_id;
+
+  if (!usuario || !usuarioId) {
+    return null;
   }
 
-  return `${horas}h ${minutos}m`;
+  return {
+    ...usuario,
+    id_usuario: usuarioId
+  };
+};
+
+const existeTablaProgreso = async () => {
+  const result = await pool.query(
+    `SELECT EXISTS (
+      SELECT FROM information_schema.tables
+      WHERE table_schema = 'public'
+      AND table_name = 'progreso_alumno'
+    ) AS existe`
+  );
+
+  return Boolean(result.rows[0]?.existe);
+};
+
+const tablaProgresoLista = async () => {
+  const existe = await existeTablaProgreso();
+
+  if (!existe) {
+    return false;
+  }
+
+  const result = await pool.query(
+    `SELECT column_name
+     FROM information_schema.columns
+     WHERE table_schema = 'public'
+     AND table_name = 'progreso_alumno'`
+  );
+
+  const columnas = result.rows.map((row) => row.column_name);
+
+  return columnasProgresoRequeridas.every((columna) =>
+    columnas.includes(columna)
+  );
+};
+
+const obtenerInicioSemana = () => {
+  const hoy = new Date();
+  const dia = hoy.getDay();
+  const diferencia = dia === 0 ? -6 : 1 - dia;
+
+  const inicio = new Date(hoy);
+  inicio.setDate(hoy.getDate() + diferencia);
+  inicio.setHours(0, 0, 0, 0);
+
+  const fin = new Date(inicio);
+  fin.setDate(inicio.getDate() + 7);
+
+  return { inicio, fin };
+};
+
+const fechaKey = (fecha) => {
+  if (!fecha) return "";
+
+  const d = new Date(fecha);
+
+  if (Number.isNaN(d.getTime())) {
+    return "";
+  }
+
+  return d.toISOString().slice(0, 10);
+};
+
+const calcularRacha = (fechas) => {
+  if (!fechas || fechas.length === 0) return 0;
+
+  const dias = new Set(
+    fechas
+      .map((item) => fechaKey(item.dia))
+      .filter((dia) => dia !== "")
+  );
+
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  const ayer = new Date(hoy);
+  ayer.setDate(hoy.getDate() - 1);
+
+  const hoyKey = fechaKey(hoy);
+  const ayerKey = fechaKey(ayer);
+
+  let inicio = null;
+
+  if (dias.has(hoyKey)) {
+    inicio = hoy;
+  } else if (dias.has(ayerKey)) {
+    inicio = ayer;
+  } else {
+    return 0;
+  }
+
+  let racha = 0;
+  const cursor = new Date(inicio);
+
+  while (dias.has(fechaKey(cursor))) {
+    racha += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  return racha;
+};
+
+const obtenerResumenAlumno = async (usuarioId) => {
+  const resumenResult = await pool.query(
+    `SELECT
+      COUNT(*) FILTER (WHERE completada = true)::int AS lecciones_completadas,
+      COALESCE(SUM(estrellas), 0)::int AS estrellas_ganadas,
+      COALESCE(ROUND(AVG(puntaje) FILTER (WHERE completada = true)), 0)::int AS promedio_general,
+      COALESCE(ROUND(SUM(tiempo_segundos) / 60.0), 0)::int AS minutos
+     FROM public.progreso_alumno
+     WHERE usuario_id = $1`,
+    [usuarioId]
+  );
+
+  return resumenResult.rows[0] || {};
 };
 
 const obtenerPerfilAlumno = async (req, res) => {
   try {
-    const idUsuario = req.usuario.id_usuario;
+    const usuario = obtenerUsuarioAutenticado(req);
 
-    const usuarioResult = await pool.query(
-      `SELECT 
-        id_usuario,
-        nombre_completo,
-        correo,
-        usuario,
-        rol,
-        estado,
-        fecha_registro
-      FROM public.registro
-      WHERE id_usuario = $1`,
-      [idUsuario]
-    );
-
-    if (usuarioResult.rows.length === 0) {
-      return res.status(404).json({
+    if (!usuario) {
+      return res.status(401).json({
         ok: false,
-        mensaje: "Alumno no encontrado",
+        mensaje: "No hay usuario autenticado"
       });
     }
 
-    const statsResult = await pool.query(
-      `SELECT
-        COUNT(a.id)::int AS total_actividades,
-        COUNT(p.id) FILTER (WHERE p.estado = 'completada')::int AS completadas,
-        COUNT(p.id) FILTER (WHERE p.estado = 'en_curso')::int AS en_curso,
-        COALESCE(ROUND(AVG(p.puntaje) FILTER (WHERE p.estado = 'completada')), 0)::int AS promedio,
-        COALESCE(SUM(p.tiempo_segundos), 0)::int AS tiempo_total,
-        ROUND(
-          CASE 
-            WHEN COUNT(a.id) = 0 THEN 0
-            ELSE COUNT(p.id) FILTER (WHERE p.estado = 'completada') * 100.0 / COUNT(a.id)
-          END
-        )::int AS progreso_general
-      FROM public.actividades a
-      LEFT JOIN public.progreso_alumno p
-        ON p.actividad_id = a.id
-        AND p.alumno_id = $1`,
-      [idUsuario]
-    );
+    const progresoListo = await tablaProgresoLista();
 
-    const usuario = usuarioResult.rows[0];
-    const stats = statsResult.rows[0];
+    let resumen = crearEstadisticasVacias();
+    let actividadesRecientes = [];
 
-    const nivel = Math.floor(stats.completadas / 3) + 1;
-    const estrellasTotales = stats.completadas * 25 + stats.promedio;
+    if (progresoListo) {
+      const resumenDB = await obtenerResumenAlumno(usuario.id_usuario);
 
-    res.json({
+      const fechasResult = await pool.query(
+        `SELECT DISTINCT DATE(fecha_completado) AS dia
+         FROM public.progreso_alumno
+         WHERE usuario_id = $1
+         AND completada = true
+         AND fecha_completado IS NOT NULL
+         ORDER BY dia DESC`,
+        [usuario.id_usuario]
+      );
+
+      const recientesResult = await pool.query(
+        `SELECT mundo, actividad_slug, actividad_nombre, puntaje, estrellas, completada, fecha_completado
+         FROM public.progreso_alumno
+         WHERE usuario_id = $1
+         ORDER BY COALESCE(fecha_completado, fecha_inicio) DESC
+         LIMIT 5`,
+        [usuario.id_usuario]
+      );
+
+      resumen = {
+        ...resumen,
+        leccionesCompletadas: Number(resumenDB.lecciones_completadas || 0),
+        estrellasGanadas: Number(resumenDB.estrellas_ganadas || 0),
+        promedioGeneral: Number(resumenDB.promedio_general || 0),
+        rachaActual: calcularRacha(fechasResult.rows),
+        tiempoEstudio: {
+          ...resumen.tiempoEstudio,
+          minutos: Number(resumenDB.minutos || 0),
+          actividadesCompletas: Number(resumenDB.lecciones_completadas || 0)
+        }
+      };
+
+      actividadesRecientes = recientesResult.rows.map((item) => ({
+        mundo: item.mundo,
+        actividadSlug: item.actividad_slug,
+        actividadNombre: item.actividad_nombre,
+        puntaje: Number(item.puntaje || 0),
+        estrellas: Number(item.estrellas || 0),
+        completada: Boolean(item.completada),
+        fechaCompletado: item.fecha_completado
+      }));
+    }
+
+    return res.json({
       ok: true,
-      alumno: {
+      perfil: {
+        id: usuario.id_usuario,
         id_usuario: usuario.id_usuario,
+        nombreCompleto: usuario.nombre_completo,
         nombre_completo: usuario.nombre_completo,
         correo: usuario.correo,
         usuario: usuario.usuario,
         rol: usuario.rol,
-        estado: usuario.estado,
-        miembro_desde: usuario.fecha_registro,
-        grado: "Secundaria",
-        escuela: "MathNova Academy",
-        nivel,
-        titulo:
-          nivel >= 5
-            ? "Maestro Nova"
-            : nivel >= 3
-            ? "Explorador Matemático"
-            : "Aprendiz Nova",
-        estrellas_totales: estrellasTotales,
-        racha_actual: stats.completadas,
-        lecciones_completadas: stats.completadas,
-        tiempo_estudio_segundos: stats.tiempo_total,
-        tiempo_estudio: formatearTiempo(stats.tiempo_total),
-        progreso_general: stats.progreso_general,
-        promedio: stats.promedio,
-        total_actividades: stats.total_actividades,
-        actividades_en_curso: stats.en_curso,
-        mundos_completados: [
-          {
-            id: 1,
-            nombre: "MathNumbers",
-            completado: stats.progreso_general >= 30,
-          },
-          {
-            id: 2,
-            nombre: "MathGeometry",
-            completado: stats.progreso_general >= 60,
-          },
-          {
-            id: 3,
-            nombre: "MathData",
-            completado: stats.progreso_general >= 90,
-          },
-        ],
-        insignias: [
-          {
-            id: 1,
-            nombre: "Primeros Pasos",
-            estado: stats.completadas >= 1 ? "Completada" : "Bloqueada",
-          },
-          {
-            id: 2,
-            nombre: "Explorador",
-            estado: estrellasTotales >= 100 ? "Completada" : "Bloqueada",
-          },
-          {
-            id: 3,
-            nombre: "Cálculo Ágil",
-            estado: stats.progreso_general >= 50 ? "Completada" : "Bloqueada",
-          },
-          {
-            id: 4,
-            nombre: "Constancia",
-            estado: stats.completadas >= 5 ? "Nivel 2" : "Nivel 1",
-          },
-        ],
+        estado: usuario.estado
       },
+      resumen,
+      actividadesRecientes
     });
   } catch (error) {
-    console.error("Error al obtener perfil del alumno:", error.message);
+    console.error("Error al obtener perfil del alumno:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       ok: false,
-      mensaje: "Error interno en el servidor",
-    });
-  }
-};
-
-const obtenerProgresoAlumno = async (req, res) => {
-  try {
-    const idUsuario = req.usuario.id_usuario;
-
-    const result = await pool.query(
-      `SELECT 
-        a.id,
-        a.titulo,
-        a.modulo,
-        a.tema,
-        a.dificultad,
-        a.duracion_min,
-        COALESCE(p.estado, 'pendiente') AS estado,
-        COALESCE(p.porcentaje, 0) AS porcentaje,
-        COALESCE(p.puntaje, 0) AS puntaje,
-        COALESCE(p.intentos, 0) AS intentos,
-        COALESCE(p.tiempo_segundos, 0) AS tiempo_segundos,
-        p.updated_at
-      FROM public.actividades a
-      LEFT JOIN public.progreso_alumno p
-        ON p.actividad_id = a.id
-        AND p.alumno_id = $1
-      ORDER BY COALESCE(p.updated_at, '1900-01-01') DESC, a.id ASC`,
-      [idUsuario]
-    );
-
-    res.json({
-      ok: true,
-      actividades: result.rows,
-    });
-  } catch (error) {
-    console.error("Error al obtener progreso del alumno:", error.message);
-
-    res.status(500).json({
-      ok: false,
-      mensaje: "Error interno en el servidor",
+      mensaje: error.message || "No se pudo cargar el perfil del alumno"
     });
   }
 };
 
 const obtenerEstadisticasAlumno = async (req, res) => {
   try {
-    const idUsuario = req.usuario.id_usuario;
+    const usuario = obtenerUsuarioAutenticado(req);
 
-    const result = await pool.query(
-      `SELECT
-        COUNT(a.id)::int AS total_actividades,
-        COUNT(p.id) FILTER (WHERE p.estado = 'completada')::int AS completadas,
-        COUNT(p.id) FILTER (WHERE p.estado = 'en_curso')::int AS en_curso,
-        COUNT(a.id)::int - COUNT(p.id) FILTER (WHERE p.estado IN ('completada', 'en_curso'))::int AS pendientes,
-        COALESCE(ROUND(AVG(p.puntaje) FILTER (WHERE p.estado = 'completada')), 0)::int AS promedio,
-        COALESCE(SUM(p.tiempo_segundos), 0)::int AS tiempo_total,
-        ROUND(
-          CASE 
-            WHEN COUNT(a.id) = 0 THEN 0
-            ELSE COUNT(p.id) FILTER (WHERE p.estado = 'completada') * 100.0 / COUNT(a.id)
-          END
-        )::int AS progreso_general
-      FROM public.actividades a
-      LEFT JOIN public.progreso_alumno p
-        ON p.actividad_id = a.id
-        AND p.alumno_id = $1`,
-      [idUsuario]
+    if (!usuario) {
+      return res.status(401).json({
+        ok: false,
+        mensaje: "No hay usuario autenticado"
+      });
+    }
+
+    const progresoListo = await tablaProgresoLista();
+
+    if (!progresoListo) {
+      return res.json({
+        ok: true,
+        estadisticas: crearEstadisticasVacias()
+      });
+    }
+
+    const { inicio, fin } = obtenerInicioSemana();
+
+    const resumen = await obtenerResumenAlumno(usuario.id_usuario);
+
+    const semanalResult = await pool.query(
+      `SELECT DATE(fecha_completado) AS dia, COUNT(*)::int AS lecciones
+       FROM public.progreso_alumno
+       WHERE usuario_id = $1
+       AND completada = true
+       AND fecha_completado >= $2
+       AND fecha_completado < $3
+       GROUP BY DATE(fecha_completado)
+       ORDER BY dia`,
+      [usuario.id_usuario, inicio, fin]
     );
 
-    const estadisticas = result.rows[0];
+    const tiempoSemanalResult = await pool.query(
+      `SELECT DATE(fecha_completado) AS dia, COALESCE(ROUND(SUM(tiempo_segundos) / 60.0), 0)::int AS minutos
+       FROM public.progreso_alumno
+       WHERE usuario_id = $1
+       AND completada = true
+       AND fecha_completado >= $2
+       AND fecha_completado < $3
+       GROUP BY DATE(fecha_completado)
+       ORDER BY dia`,
+      [usuario.id_usuario, inicio, fin]
+    );
 
-    res.json({
+    const rendimientoResult = await pool.query(
+      `SELECT mundo, COALESCE(ROUND(AVG(puntaje)), 0)::int AS promedio
+       FROM public.progreso_alumno
+       WHERE usuario_id = $1
+       AND completada = true
+       GROUP BY mundo`,
+      [usuario.id_usuario]
+    );
+
+    const fechasResult = await pool.query(
+      `SELECT DISTINCT DATE(fecha_completado) AS dia
+       FROM public.progreso_alumno
+       WHERE usuario_id = $1
+       AND completada = true
+       AND fecha_completado IS NOT NULL
+       ORDER BY dia DESC`,
+      [usuario.id_usuario]
+    );
+
+    const base = crearEstadisticasVacias();
+
+    const progresoSemanal = base.progresoSemanal.map((item, index) => {
+      const fecha = new Date(inicio);
+      fecha.setDate(inicio.getDate() + index);
+
+      const encontrado = semanalResult.rows.find(
+        (row) => fechaKey(row.dia) === fechaKey(fecha)
+      );
+
+      return {
+        dia: item.dia,
+        lecciones: encontrado ? Number(encontrado.lecciones || 0) : 0
+      };
+    });
+
+    const tiempoSemanal = base.tiempoEstudio.semanal.map((item, index) => {
+      const fecha = new Date(inicio);
+      fecha.setDate(inicio.getDate() + index);
+
+      const encontrado = tiempoSemanalResult.rows.find(
+        (row) => fechaKey(row.dia) === fechaKey(fecha)
+      );
+
+      return {
+        dia: item.dia,
+        minutos: encontrado ? Number(encontrado.minutos || 0) : 0
+      };
+    });
+
+    const rendimientoPorTema = base.rendimientoPorTema.map((item) => {
+      const encontrado = rendimientoResult.rows.find(
+        (row) => row.mundo === item.tema
+      );
+
+      return {
+        tema: item.tema,
+        promedio: encontrado ? Number(encontrado.promedio || 0) : 0
+      };
+    });
+
+    const dominioPorMundo = rendimientoPorTema.map((item) => ({
+      mundo: mundoNombre[item.tema] || item.tema,
+      promedio: item.promedio
+    }));
+
+    return res.json({
       ok: true,
       estadisticas: {
-        ...estadisticas,
-        nivel: Math.floor(estadisticas.completadas / 3) + 1,
-        tiempo_formateado: formatearTiempo(estadisticas.tiempo_total),
-      },
+        leccionesCompletadas: Number(resumen.lecciones_completadas || 0),
+        estrellasGanadas: Number(resumen.estrellas_ganadas || 0),
+        rachaActual: calcularRacha(fechasResult.rows),
+        promedioGeneral: Number(resumen.promedio_general || 0),
+        progresoSemanal,
+        rendimientoPorTema,
+        dominioPorMundo,
+        tiempoEstudio: {
+          minutos: Number(resumen.minutos || 0),
+          actividadesCompletas: Number(resumen.lecciones_completadas || 0),
+          semanal: tiempoSemanal
+        }
+      }
     });
   } catch (error) {
-    console.error("Error al obtener estadísticas del alumno:", error.message);
+    console.error("Error al obtener estadísticas del alumno:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       ok: false,
-      mensaje: "Error interno en el servidor",
+      mensaje: error.message || "No se pudieron cargar las estadísticas del alumno"
     });
   }
 };
 
-const guardarProgresoActividad = async (req, res) => {
+const guardarProgresoAlumno = async (req, res) => {
   try {
-    const idUsuario = req.usuario.id_usuario;
+    const usuario = obtenerUsuarioAutenticado(req);
 
-    const { actividad_id, estado, porcentaje, puntaje, tiempo_segundos } =
-      req.body;
-
-    if (!actividad_id || !estado) {
-      return res.status(400).json({
+    if (!usuario) {
+      return res.status(401).json({
         ok: false,
-        mensaje: "La actividad y el estado son obligatorios",
+        mensaje: "No hay usuario autenticado"
       });
     }
 
-    const estadosPermitidos = ["pendiente", "en_curso", "completada"];
+    const progresoListo = await tablaProgresoLista();
 
-    if (!estadosPermitidos.includes(estado)) {
-      return res.status(400).json({
+    if (!progresoListo) {
+      return res.status(500).json({
         ok: false,
-        mensaje: "Estado no válido",
+        mensaje: "La tabla progreso_alumno no existe o está incompleta"
       });
     }
 
-    const actividadExiste = await pool.query(
-      `SELECT id FROM public.actividades WHERE id = $1`,
-      [actividad_id]
-    );
+    const {
+      mundo,
+      actividadSlug,
+      actividadNombre,
+      puntaje,
+      estrellas,
+      completada,
+      tiempoSegundos,
+      respuestasCorrectas,
+      totalPreguntas
+    } = req.body;
 
-    if (actividadExiste.rows.length === 0) {
-      return res.status(404).json({
+    if (!mundo || !actividadSlug || !actividadNombre) {
+      return res.status(400).json({
         ok: false,
-        mensaje: "La actividad no existe",
+        mensaje: "Faltan datos de la actividad"
       });
     }
 
     const result = await pool.query(
-      `INSERT INTO public.progreso_alumno
-        (alumno_id, actividad_id, estado, porcentaje, puntaje, intentos, tiempo_segundos, updated_at)
-      VALUES
-        ($1, $2, $3, $4, $5, 1, $6, NOW())
-      ON CONFLICT (alumno_id, actividad_id)
+      `INSERT INTO public.progreso_alumno (
+        usuario_id,
+        mundo,
+        actividad_slug,
+        actividad_nombre,
+        puntaje,
+        estrellas,
+        completada,
+        tiempo_segundos,
+        respuestas_correctas,
+        total_preguntas,
+        fecha_completado
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CASE WHEN $7 = true THEN NOW() ELSE NULL END)
+      ON CONFLICT (usuario_id, actividad_slug)
       DO UPDATE SET
-        estado = EXCLUDED.estado,
-        porcentaje = EXCLUDED.porcentaje,
-        puntaje = EXCLUDED.puntaje,
-        intentos = public.progreso_alumno.intentos + 1,
+        mundo = EXCLUDED.mundo,
+        actividad_nombre = EXCLUDED.actividad_nombre,
+        puntaje = GREATEST(public.progreso_alumno.puntaje, EXCLUDED.puntaje),
+        estrellas = GREATEST(public.progreso_alumno.estrellas, EXCLUDED.estrellas),
+        completada = public.progreso_alumno.completada OR EXCLUDED.completada,
         tiempo_segundos = public.progreso_alumno.tiempo_segundos + EXCLUDED.tiempo_segundos,
-        updated_at = NOW()
+        respuestas_correctas = GREATEST(public.progreso_alumno.respuestas_correctas, EXCLUDED.respuestas_correctas),
+        total_preguntas = GREATEST(public.progreso_alumno.total_preguntas, EXCLUDED.total_preguntas),
+        fecha_completado = CASE
+          WHEN EXCLUDED.completada = true THEN NOW()
+          ELSE public.progreso_alumno.fecha_completado
+        END
       RETURNING *`,
       [
-        idUsuario,
-        actividad_id,
-        estado,
-        porcentaje ?? 0,
-        puntaje ?? 0,
-        tiempo_segundos ?? 0,
+        usuario.id_usuario,
+        mundo,
+        actividadSlug,
+        actividadNombre,
+        Number(puntaje || 0),
+        Number(estrellas || 0),
+        Boolean(completada),
+        Number(tiempoSegundos || 0),
+        Number(respuestasCorrectas || 0),
+        Number(totalPreguntas || 0)
       ]
     );
 
-    res.json({
+    return res.json({
       ok: true,
       mensaje: "Progreso guardado correctamente",
-      progreso: result.rows[0],
+      progreso: result.rows[0]
     });
   } catch (error) {
-    console.error("Error al guardar progreso del alumno:", error.message);
+    console.error("Error al guardar progreso:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       ok: false,
-      mensaje: "Error interno en el servidor",
+      mensaje: error.message || "No se pudo guardar el progreso"
     });
   }
 };
 
 module.exports = {
   obtenerPerfilAlumno,
-  obtenerProgresoAlumno,
   obtenerEstadisticasAlumno,
-  guardarProgresoActividad,
+  guardarProgresoAlumno
 };

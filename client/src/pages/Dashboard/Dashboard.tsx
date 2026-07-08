@@ -36,17 +36,54 @@ import {
   obtenerProgresoAlumno,
 } from "../../services/alumnoService";
 
-import type {
-  Alumno,
-  Actividad,
-  EstadisticasAlumno,
-} from "../../services/alumnoService";
+import type { ActividadProgreso } from "../../services/alumnoService";
 
 import {
   clearAuthSession,
   getDisplayName,
   isGuestSession,
 } from "../../utils/authSession";
+
+type Alumno = {
+  id?: number | string;
+  id_usuario?: number | string;
+  nombreCompleto?: string;
+  nombre_completo?: string;
+  correo?: string;
+  usuario?: string | null;
+  rol?: string;
+  estado?: boolean;
+  estrellas_totales?: number;
+  racha_actual?: number;
+};
+
+type Actividad = ActividadProgreso & {
+  titulo?: string;
+  estado?: string;
+  porcentaje?: number;
+  tema?: string;
+  modulo?: string;
+};
+
+type EstadisticasAlumno = {
+  completadas?: number;
+  promedio?: number;
+  progreso_general?: number;
+  tiempo_formateado?: string;
+
+  leccionesCompletadas?: number;
+  estrellasGanadas?: number;
+  rachaActual?: number;
+  promedioGeneral?: number;
+  progresoSemanal?: { dia: string; lecciones: number }[];
+  rendimientoPorTema?: { tema: string; promedio: number }[];
+  dominioPorMundo?: { mundo: string; promedio: number }[];
+  tiempoEstudio?: {
+    minutos: number;
+    actividadesCompletas: number;
+    semanal: { dia: string; minutos: number }[];
+  };
+};
 
 function Dashboard() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -61,8 +98,14 @@ function Dashboard() {
 
   const modoInvitado = isGuestSession();
 
-  const nombreUsuario = alumno?.nombre_completo
-    ? alumno.nombre_completo.split(" ")[0]
+  const nombreAlumno =
+    alumno?.nombre_completo ||
+    alumno?.nombreCompleto ||
+    alumno?.usuario ||
+    alumno?.correo;
+
+  const nombreUsuario = nombreAlumno
+    ? String(nombreAlumno).split(" ")[0]
     : getDisplayName();
 
   const cargarDashboard = useCallback(async () => {
@@ -94,9 +137,9 @@ function Dashboard() {
           obtenerProgresoAlumno(),
         ]);
 
-      setAlumno(perfilData);
-      setEstadisticas(estadisticasData);
-      setActividades(actividadesData);
+      setAlumno(perfilData?.perfil ?? perfilData);
+      setEstadisticas(estadisticasData?.estadisticas ?? estadisticasData);
+      setActividades(Array.isArray(actividadesData) ? actividadesData : []);
     } catch (error) {
       const mensaje =
         error instanceof Error
@@ -104,6 +147,7 @@ function Dashboard() {
           : "No se pudo cargar el dashboard";
 
       setErrorDashboard(mensaje);
+      setActividades([]);
       console.error("Error al cargar dashboard:", error);
     } finally {
       setCargando(false);
@@ -133,38 +177,62 @@ function Dashboard() {
   };
 
   const numero = (valor: number | string | null | undefined) => {
-    return Number(valor ?? 0);
+    const convertido = Number(valor ?? 0);
+    return Number.isNaN(convertido) ? 0 : convertido;
   };
 
-  const leccionesCompletadas = numero(estadisticas?.completadas);
-  const estrellasTotales = numero(alumno?.estrellas_totales ?? 0);
-  const rachaActual = numero(alumno?.racha_actual ?? 0);
-  const promedioGeneral = numero(estadisticas?.promedio);
-  const progresoGeneral = numero(estadisticas?.progreso_general);
+  const actividadesSeguras = Array.isArray(actividades) ? actividades : [];
+
+  const leccionesCompletadas = numero(
+    estadisticas?.leccionesCompletadas ?? estadisticas?.completadas
+  );
+
+  const estrellasTotales = numero(
+    estadisticas?.estrellasGanadas ?? alumno?.estrellas_totales
+  );
+
+  const rachaActual = numero(
+    estadisticas?.rachaActual ?? alumno?.racha_actual
+  );
+
+  const promedioGeneral = numero(
+    estadisticas?.promedioGeneral ?? estadisticas?.promedio
+  );
+
+  const progresoGeneral = numero(
+    estadisticas?.progreso_general ?? estadisticas?.promedioGeneral
+  );
 
   const actividadActual =
-    actividades.find((actividad) => actividad.estado === "en_curso") ||
-    actividades.find((actividad) => actividad.estado === "pendiente") ||
-    actividades[0];
+    actividadesSeguras.find(
+      (actividad) =>
+        actividad.estado === "en_curso" || actividad.completada === false
+    ) ||
+    actividadesSeguras.find((actividad) => actividad.estado === "pendiente") ||
+    actividadesSeguras[0];
 
   const tituloActividad = modoInvitado
     ? "Explora MathNova"
-    : actividadActual?.titulo || "MathNova";
+    : actividadActual?.titulo ||
+      actividadActual?.actividadNombre ||
+      actividadActual?.actividadSlug ||
+      "MathNova";
 
   const progresoCurso =
     actividadActual?.estado === "en_curso"
-      ? numero(actividadActual.porcentaje)
+      ? numero(actividadActual.porcentaje ?? actividadActual.puntaje)
       : progresoGeneral;
 
   const progresoVisual = modoInvitado
     ? 0
     : Math.min(Math.max(progresoCurso, 0), 100);
 
-  const tieneProgreso = actividades.some(
+  const tieneProgreso = actividadesSeguras.some(
     (actividad) =>
       actividad.estado === "completada" ||
       actividad.estado === "en_curso" ||
-      actividad.porcentaje > 0
+      actividad.completada === true ||
+      numero(actividad.porcentaje ?? actividad.puntaje) > 0
   );
 
   const modulosRecomendados = tieneProgreso
@@ -369,7 +437,10 @@ function Dashboard() {
                     className="progress-blue"
                     style={{ width: `${progresoVisual}%` }}
                   ></span>
-                  <span className="progress-green" style={{ width: "0%" }}></span>
+                  <span
+                    className="progress-green"
+                    style={{ width: "0%" }}
+                  ></span>
                 </div>
               </div>
 
@@ -400,10 +471,13 @@ function Dashboard() {
               <div className="modules-empty-box">
                 <p>Aún no hay módulos recomendados.</p>
                 <span>
-                  Inicia sesión para que Nova pueda sugerirte qué practicar
-                  según tu progreso.
+                  Inicia una actividad para que Nova pueda sugerirte qué
+                  practicar según tu progreso.
                 </span>
-                <button type="button" onClick={() => irARuta("/seleccion-mundos")}>
+                <button
+                  type="button"
+                  onClick={() => irARuta("/seleccion-mundos")}
+                >
                   Explorar mundos
                 </button>
               </div>

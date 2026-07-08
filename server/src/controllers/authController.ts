@@ -4,6 +4,68 @@ import jwt from "jsonwebtoken";
 const pool = require("../db");
 import authService, { type RegisterData } from "../services/authService";
 
+type UsuarioDB = {
+  id_usuario: number | string;
+  nombre_completo?: string;
+  correo?: string;
+  usuario?: string | null;
+  password_hash?: string;
+  password?: string;
+  contrasena?: string;
+  role_id?: number | string | null;
+  rol?: string | null;
+  estado?: boolean | null;
+};
+
+const obtenerJwtSecret = () => {
+  const secret = process.env.JWT_SECRET;
+
+  if (!secret) {
+    throw new Error("JWT_SECRET no está definido en el archivo .env");
+  }
+
+  return String(secret).trim();
+};
+
+const normalizarRol = (rol?: string | null, roleId?: number | string | null) => {
+  const valor = String(rol || "").toLowerCase().trim();
+
+  if (["alumno", "student", "usuario", "estudiante"].includes(valor)) {
+    return "estudiante";
+  }
+
+  if (["admin", "administrador"].includes(valor)) {
+    return "admin";
+  }
+
+  if (["docente", "profesor", "maestro"].includes(valor)) {
+    return "docente";
+  }
+
+  const id = Number(roleId);
+
+  if (id === 1) return "docente";
+  if (id === 2) return "estudiante";
+  if (id === 3) return "admin";
+
+  return "estudiante";
+};
+
+const buscarUsuario = async (identificador: string) => {
+  const limpio = identificador.trim().toLowerCase();
+
+  const result = await pool.query(
+    `SELECT *
+     FROM public.usuario
+     WHERE LOWER(correo) = $1
+        OR LOWER(usuario) = $1
+     LIMIT 1`,
+    [limpio]
+  );
+
+  return result.rows[0] as UsuarioDB | undefined;
+};
+
 class AuthController {
   async register(req: Request, res: Response): Promise<void> {
     try {
@@ -36,8 +98,11 @@ class AuthController {
       const { correo, email, usuario, correoUsuario, password, contrasena } =
         req.body;
 
-      const identificador = correo || email || usuario || correoUsuario;
-      const passwordFinal = password || contrasena;
+      const identificador = String(
+        correo || email || usuario || correoUsuario || ""
+      ).trim();
+
+      const passwordFinal = String(password || contrasena || "");
 
       if (!identificador || !passwordFinal) {
         res.status(400).json({
@@ -47,22 +112,9 @@ class AuthController {
         return;
       }
 
-      const usuarioEncontrado = await pool.query(
-        `SELECT 
-          id_usuario,
-          nombre_completo,
-          correo,
-          usuario,
-          password_hash,
-          role_id,
-          estado
-        FROM public.registro
-        WHERE correo = $1 OR usuario = $1
-        LIMIT 1`,
-        [identificador]
-      );
+      const usuarioDB = await buscarUsuario(identificador);
 
-      if (usuarioEncontrado.rows.length === 0) {
+      if (!usuarioDB) {
         res.status(401).json({
           ok: false,
           mensaje: "Credenciales incorrectas.",
@@ -70,9 +122,7 @@ class AuthController {
         return;
       }
 
-      const usuarioDB = usuarioEncontrado.rows[0];
-
-      if (!usuarioDB.estado) {
+      if (usuarioDB.estado === false) {
         res.status(403).json({
           ok: false,
           mensaje: "La cuenta está desactivada.",
@@ -80,9 +130,22 @@ class AuthController {
         return;
       }
 
+      const passwordHash =
+        usuarioDB.password_hash || usuarioDB.password || usuarioDB.contrasena;
+
+      if (!passwordHash) {
+        console.error("Usuario sin password_hash:", usuarioDB.id_usuario);
+
+        res.status(500).json({
+          ok: false,
+          mensaje: "El usuario no tiene contraseña registrada correctamente.",
+        });
+        return;
+      }
+
       const passwordCorrecto = await bcrypt.compare(
         passwordFinal,
-        usuarioDB.password_hash
+        passwordHash
       );
 
       if (!passwordCorrecto) {
@@ -93,28 +156,35 @@ class AuthController {
         return;
       }
 
+      const rol = normalizarRol(usuarioDB.rol, usuarioDB.role_id);
+      const jwtSecret = obtenerJwtSecret();
+
       const token = jwt.sign(
         {
           id_usuario: usuarioDB.id_usuario,
           correo: usuarioDB.correo,
-          role_id: usuarioDB.role_id
+          rol,
+          role_id: usuarioDB.role_id ?? null,
         },
-        process.env.JWT_SECRET || "mathnova_secret",
+        jwtSecret,
         {
-          expiresIn: "2h",
+          expiresIn: "7d",
         }
       );
 
       res.json({
         ok: true,
+        success: true,
         mensaje: "Inicio de sesión correcto.",
+        message: "Inicio de sesión correcto.",
         token,
         usuario: {
           id_usuario: usuarioDB.id_usuario,
           nombre_completo: usuarioDB.nombre_completo,
           correo: usuarioDB.correo,
           usuario: usuarioDB.usuario,
-          role_id: usuarioDB.role_id,
+          rol,
+          role_id: usuarioDB.role_id ?? null,
         },
       });
     } catch (error: unknown) {
@@ -122,7 +192,11 @@ class AuthController {
 
       res.status(500).json({
         ok: false,
-        mensaje: "Error interno del servidor.",
+        success: false,
+        mensaje:
+          error instanceof Error
+            ? error.message
+            : "Error interno del servidor.",
       });
     }
   }

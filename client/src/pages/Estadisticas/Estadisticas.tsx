@@ -21,11 +21,9 @@ import {
   obtenerProgresoAlumno,
 } from "../../services/alumnoService";
 
-import type {
-  Alumno,
-  Actividad,
-  EstadisticasAlumno,
-} from "../../services/alumnoService";
+import type { ActividadProgreso } from "../../services/alumnoService";
+
+import { clearAuthSession } from "../../utils/authSession";
 
 import {
   FiGrid,
@@ -43,6 +41,63 @@ import {
 import { FaChartLine, FaChartPie, FaLightbulb, FaStar } from "react-icons/fa";
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
+type Alumno = {
+  id?: number | string;
+  id_usuario?: number | string;
+  nombreCompleto?: string;
+  nombre_completo?: string;
+  correo?: string;
+  usuario?: string | null;
+  rol?: string;
+  estado?: boolean;
+  estrellas_totales?: number;
+  racha_actual?: number;
+};
+
+type Actividad = ActividadProgreso & {
+  titulo?: string;
+  estado?: string;
+  porcentaje?: number;
+  tema?: string;
+  modulo?: string;
+};
+
+type EstadisticasAlumno = {
+  completadas?: number;
+  promedio?: number;
+  progreso_general?: number;
+  tiempo_formateado?: string;
+
+  leccionesCompletadas?: number;
+  estrellasGanadas?: number;
+  rachaActual?: number;
+  promedioGeneral?: number;
+
+  progresoSemanal?: {
+    dia: string;
+    lecciones: number;
+  }[];
+
+  rendimientoPorTema?: {
+    tema: string;
+    promedio: number;
+  }[];
+
+  dominioPorMundo?: {
+    mundo: string;
+    promedio: number;
+  }[];
+
+  tiempoEstudio?: {
+    minutos: number;
+    actividadesCompletas: number;
+    semanal: {
+      dia: string;
+      minutos: number;
+    }[];
+  };
+};
+
 function Estadisticas() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [alumno, setAlumno] = useState<Alumno | null>(null);
@@ -50,6 +105,7 @@ function Estadisticas() {
     useState<EstadisticasAlumno | null>(null);
   const [actividades, setActividades] = useState<Actividad[]>([]);
   const [cargando, setCargando] = useState(true);
+  const [errorEstadisticas, setErrorEstadisticas] = useState("");
 
   const navigate = useNavigate();
 
@@ -72,6 +128,7 @@ function Estadisticas() {
 
       try {
         setCargando(true);
+        setErrorEstadisticas("");
 
         const [perfilData, estadisticasData, actividadesData] =
           await Promise.all([
@@ -80,11 +137,18 @@ function Estadisticas() {
             obtenerProgresoAlumno(),
           ]);
 
-        setAlumno(perfilData);
-        setEstadisticas(estadisticasData);
-        setActividades(actividadesData);
+        setAlumno(perfilData?.perfil ?? perfilData);
+        setEstadisticas(estadisticasData?.estadisticas ?? estadisticasData);
+        setActividades(Array.isArray(actividadesData) ? actividadesData : []);
       } catch (error) {
+        const mensaje =
+          error instanceof Error
+            ? error.message
+            : "No se pudieron cargar las estadísticas";
+
         console.error("Error al cargar estadísticas:", error);
+        setErrorEstadisticas(mensaje);
+        setActividades([]);
       } finally {
         setCargando(false);
       }
@@ -99,68 +163,130 @@ function Estadisticas() {
   };
 
   const cerrarSesion = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
+    clearAuthSession();
     navigate("/login", { replace: true });
   };
 
   const numero = (valor: number | string | null | undefined) => {
-    return Number(valor ?? 0);
+    const convertido = Number(valor ?? 0);
+    return Number.isNaN(convertido) ? 0 : convertido;
   };
 
-  const leccionesCompletadas = numero(estadisticas?.completadas);
-  const estrellasGanadas = numero(alumno?.estrellas_totales);
-  const rachaActual = numero(alumno?.racha_actual);
-  const promedioGeneral = numero(estadisticas?.promedio);
-  const progresoGeneral = numero(estadisticas?.progreso_general);
-  const tiempoEstudio = estadisticas?.tiempo_formateado || "0m";
+  const actividadesSeguras = Array.isArray(actividades) ? actividades : [];
+
+  const leccionesCompletadas = numero(
+    estadisticas?.leccionesCompletadas ?? estadisticas?.completadas
+  );
+
+  const estrellasGanadas = numero(
+    estadisticas?.estrellasGanadas ?? alumno?.estrellas_totales
+  );
+
+  const rachaActual = numero(
+    estadisticas?.rachaActual ?? alumno?.racha_actual
+  );
+
+  const promedioGeneral = numero(
+    estadisticas?.promedioGeneral ?? estadisticas?.promedio
+  );
+
+  const progresoGeneral = numero(
+    estadisticas?.progreso_general ?? estadisticas?.promedioGeneral
+  );
+
+  const minutosEstudio = numero(estadisticas?.tiempoEstudio?.minutos);
+
+  const tiempoEstudio =
+    estadisticas?.tiempo_formateado || `${minutosEstudio}m`;
 
   const progresoSemanal = useMemo(() => {
     const dias = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
-    const total = leccionesCompletadas;
-    const base = Math.floor(total / dias.length);
-    const sobrante = total % dias.length;
+    const datosBackend = Array.isArray(estadisticas?.progresoSemanal)
+      ? estadisticas.progresoSemanal
+      : [];
 
-    const valores = dias.map((dia, index) => ({
-      dia,
-      valor: base + (index < sobrante ? 1 : 0),
-    }));
+    const valores = dias.map((dia) => {
+      const encontrado = datosBackend.find((item) => item.dia === dia);
+
+      return {
+        dia,
+        valor: numero(encontrado?.lecciones),
+      };
+    });
+
+    const totalBackend = valores.reduce((total, item) => total + item.valor, 0);
+
+    if (totalBackend === 0 && leccionesCompletadas > 0) {
+      const base = Math.floor(leccionesCompletadas / dias.length);
+      const sobrante = leccionesCompletadas % dias.length;
+
+      return dias.map((dia, index) => {
+        const valor = base + (index < sobrante ? 1 : 0);
+        const maximo = Math.max(leccionesCompletadas, 1);
+
+        return {
+          dia,
+          valor,
+          altura: `${Math.max(
+            (valor / maximo) * 88,
+            valor > 0 ? 18 : 4
+          )}%`,
+          index,
+        };
+      });
+    }
 
     const maximo = Math.max(...valores.map((item) => item.valor), 1);
 
     return valores.map((item, index) => ({
       ...item,
-      altura: `${Math.max((item.valor / maximo) * 88, item.valor > 0 ? 18 : 4)}%`,
+      altura: `${Math.max(
+        (item.valor / maximo) * 88,
+        item.valor > 0 ? 18 : 4
+      )}%`,
       index,
     }));
-  }, [leccionesCompletadas]);
+  }, [estadisticas?.progresoSemanal, leccionesCompletadas]);
 
   const rendimientoPorTema = useMemo(() => {
-    const grupos = actividades.reduce<Record<string, { total: number; suma: number }>>(
-      (acumulador, actividad) => {
-        const tema = actividad.tema || actividad.modulo || "General";
-
-        if (!acumulador[tema]) {
-          acumulador[tema] = {
-            total: 0,
-            suma: 0,
-          };
-        }
-
-        acumulador[tema].total += 1;
-        acumulador[tema].suma += numero(actividad.porcentaje);
-
-        return acumulador;
-      },
-      {}
-    );
+    const datosBackend = Array.isArray(estadisticas?.rendimientoPorTema)
+      ? estadisticas.rendimientoPorTema
+      : [];
 
     const colores = ["blue", "green", "purple", "orange", "cyan"];
 
+    if (datosBackend.length > 0) {
+      return datosBackend.slice(0, 5).map((item, index) => ({
+        tema: item.tema,
+        porcentaje: numero(item.promedio),
+        color: colores[index % colores.length],
+      }));
+    }
+
+    const grupos = actividadesSeguras.reduce<
+      Record<string, { total: number; suma: number }>
+    >((acumulador, actividad) => {
+      const tema =
+        actividad.tema || actividad.modulo || actividad.mundo || "General";
+
+      if (!acumulador[tema]) {
+        acumulador[tema] = {
+          total: 0,
+          suma: 0,
+        };
+      }
+
+      acumulador[tema].total += 1;
+      acumulador[tema].suma += numero(
+        actividad.porcentaje ?? actividad.puntaje
+      );
+
+      return acumulador;
+    }, {});
+
     const temas = Object.entries(grupos).map(([tema, datos], index) => ({
       tema,
-      porcentaje:
-        datos.total > 0 ? Math.round(datos.suma / datos.total) : 0,
+      porcentaje: datos.total > 0 ? Math.round(datos.suma / datos.total) : 0,
       color: colores[index % colores.length],
     }));
 
@@ -173,38 +299,49 @@ function Estadisticas() {
     }
 
     return temas.slice(0, 5);
-  }, [actividades]);
+  }, [actividadesSeguras, estadisticas?.rendimientoPorTema]);
 
   const dominioPorMundo = useMemo(() => {
+    const datosBackend = Array.isArray(estadisticas?.dominioPorMundo)
+      ? estadisticas.dominioPorMundo
+      : [];
+
+    if (datosBackend.length > 0) {
+      return datosBackend.map((item) => ({
+        nombre: item.mundo,
+        porcentaje: numero(item.promedio),
+      }));
+    }
+
     const nombres: Record<string, string> = {
       MathNumbers: "Planeta Números",
       MathGeometry: "Mundo Geometría",
       MathData: "Galaxia Datos",
     };
 
-    const grupos = actividades.reduce<Record<string, { total: number; suma: number }>>(
-      (acumulador, actividad) => {
-        const modulo = actividad.modulo || "General";
+    const grupos = actividadesSeguras.reduce<
+      Record<string, { total: number; suma: number }>
+    >((acumulador, actividad) => {
+      const modulo = actividad.modulo || actividad.mundo || "General";
 
-        if (!acumulador[modulo]) {
-          acumulador[modulo] = {
-            total: 0,
-            suma: 0,
-          };
-        }
+      if (!acumulador[modulo]) {
+        acumulador[modulo] = {
+          total: 0,
+          suma: 0,
+        };
+      }
 
-        acumulador[modulo].total += 1;
-        acumulador[modulo].suma += numero(actividad.porcentaje);
+      acumulador[modulo].total += 1;
+      acumulador[modulo].suma += numero(
+        actividad.porcentaje ?? actividad.puntaje
+      );
 
-        return acumulador;
-      },
-      {}
-    );
+      return acumulador;
+    }, {});
 
     const mundos = Object.entries(grupos).map(([modulo, datos]) => ({
       nombre: nombres[modulo] || modulo,
-      porcentaje:
-        datos.total > 0 ? Math.round(datos.suma / datos.total) : 0,
+      porcentaje: datos.total > 0 ? Math.round(datos.suma / datos.total) : 0,
     }));
 
     if (mundos.length === 0) {
@@ -216,7 +353,41 @@ function Estadisticas() {
     }
 
     return mundos;
-  }, [actividades]);
+  }, [actividadesSeguras, estadisticas?.dominioPorMundo]);
+
+  const tiempoSemanal = useMemo(() => {
+    const dias = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+    const datos = Array.isArray(estadisticas?.tiempoEstudio?.semanal)
+      ? estadisticas.tiempoEstudio.semanal
+      : [];
+
+    return dias.map((dia) => {
+      const encontrado = datos.find((item) => item.dia === dia);
+
+      return {
+        dia,
+        minutos: numero(encontrado?.minutos),
+      };
+    });
+  }, [estadisticas?.tiempoEstudio?.semanal]);
+
+  const puntosTiempo = useMemo(() => {
+    const maximo = Math.max(...tiempoSemanal.map((item) => item.minutos), 1);
+
+    return tiempoSemanal.map((item, index) => {
+      const x = index === 0 ? 10 : 10 + index * 81.5;
+      const y = 130 - (item.minutos / maximo) * 108;
+
+      return {
+        x,
+        y,
+      };
+    });
+  }, [tiempoSemanal]);
+
+  const polylineTiempo = puntosTiempo
+    .map((punto) => `${punto.x},${punto.y}`)
+    .join(" ");
 
   const textoPromedio =
     promedioGeneral >= 80
@@ -296,7 +467,11 @@ function Estadisticas() {
 
         <header className="stats-header">
           <h1>Estadísticas</h1>
-          <p>Visualiza tu progreso y rendimiento.</p>
+          <p>
+            {errorEstadisticas
+              ? errorEstadisticas
+              : "Visualiza tu progreso y rendimiento."}
+          </p>
         </header>
 
         <section className="stats-summary">
@@ -479,15 +654,16 @@ function Estadisticas() {
                   <line x1="0" y1="90" x2="520" y2="90" />
                   <line x1="0" y1="125" x2="520" y2="125" />
 
-                  <polyline points="10,130 85,108 165,82 245,42 325,70 405,22 500,72" />
+                  <polyline points={polylineTiempo} />
 
-                  <circle cx="10" cy="130" r="6" />
-                  <circle cx="85" cy="108" r="6" />
-                  <circle cx="165" cy="82" r="6" />
-                  <circle cx="245" cy="42" r="6" />
-                  <circle cx="325" cy="70" r="6" />
-                  <circle cx="405" cy="22" r="6" />
-                  <circle cx="500" cy="72" r="6" />
+                  {puntosTiempo.map((punto, index) => (
+                    <circle
+                      key={`${punto.x}-${index}`}
+                      cx={punto.x}
+                      cy={punto.y}
+                      r="6"
+                    />
+                  ))}
                 </svg>
 
                 <div className="chart-days">
@@ -525,7 +701,7 @@ function Estadisticas() {
                 </b>
                 <p>Tu progreso se actualiza al completar actividades.</p>
               </div>
-              <button onClick={() => irARuta("/temas/geometria")}>
+              <button onClick={() => irARuta("/actividades/geometria")}>
                 Practicar ahora
               </button>
             </div>
@@ -538,7 +714,7 @@ function Estadisticas() {
                 <b>Mantén tu racha activa cada día.</b>
                 <p>
                   {rachaActual > 0
-                    ? `¡${rachaActual} actividades completadas!`
+                    ? `¡${rachaActual} días de racha!`
                     : "Completa tu primera actividad para iniciar tu racha."}
                 </p>
               </div>
