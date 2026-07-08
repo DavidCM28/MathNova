@@ -19,13 +19,13 @@ import incisoTriangulo from "../../assets/mathGeometry/actividad1/inciso-a-trian
 import incisoCuadrado from "../../assets/mathGeometry/actividad1/inciso-b-cuadrado-mathgeometry.png";
 import incisoRectangulo from "../../assets/mathGeometry/actividad1/inciso-c-rectangulo-mathgeometry.png";
 
-import audioBienvenida from "../../assets/mathGeometry/actividad1/act_1_nova_bienvenida_MathGeometry.mp3";
+import audioBienvenida from "../../assets/mathGeometry/actividad1/act_1_nueva_introduccion_bienvenida_MathGeometry.mp3";
 import videoNovaExplicando from "../../assets/mathGeometry/actividad1/nova_explicando_act_1_MathGeometry.mp4";
 import audioNovaCompletado from "../../assets/mathGeometry/actividad1/nova_actividad_completada_MathGeometry.mp3";
 import bannerCompletado from "../../assets/mathGeometry/actividad1/activida_completada_banner_MathGeometry.png";
 
 import videoProfeAstro from "../../assets/mathGeometry/actividad1/instrucciones_profe_astro_MathGeometry.mp4";
-import audioProfeAstro from "../../assets/mathGeometry/actividad1/act1_instruccion_profe_astro_MathGeometry.mp3";
+import audioProfeAstro from "../../assets/mathGeometry/actividad1/act_1_nueva_profe_astro_MathGeometry.mp3";
 
 import videoBytePistas from "../../assets/mathGeometry/actividad1/byte_aciertos_y_pistas_MathGeometry.mp4";
 import audioByteTriangulo from "../../assets/mathGeometry/actividad1/act_1_pista_byte_triangulo_MathGeometry.mp3";
@@ -97,57 +97,35 @@ const REINICIO_BYTE_AL_TERMINAR_MS = 650;
 const guionBienvenida = [
   {
     inicio: 0,
-    fin: 3.4,
+    fin: 2.6,
     texto: "¡Hola, explorador de MathNova!",
   },
   {
-    inicio: 3.4,
-    fin: 7.4,
-    texto: "Hoy vamos a ayudarme a avanzar por un camino muy especial.",
-  },
-  {
-    inicio: 7.4,
-    fin: 11.8,
-    texto: "En esta misión usaremos puntos para construir figuras geométricas.",
-  },
-  {
-    inicio: 11.8,
-    fin: 15.7,
+    inicio: 2.6,
+    fin: 8.5,
     texto:
-      "Tu tarea será unir los puntos correctos para formar figuras como triángulos,",
+      "Observa cada figura y elige una de las opciones que se muestran: triángulo, cuadrado o rectángulo.",
   },
   {
-    inicio: 15.7,
-    fin: 18.6,
-    texto: "cuadrados y rectángulos.",
+    inicio: 8.5,
+    fin: 12.0,
+    texto: "Fíjate en sus lados y en su forma antes de responder.",
   },
   {
-    inicio: 18.6,
-    fin: 23.0,
-    texto:
-      "No te preocupes, primero veremos ejemplos sencillos para que sepas qué hacer.",
-  },
-  {
-    inicio: 23.0,
-    fin: 26.6,
-    texto: "Aquí nadie pierde, solo aprendemos intentando.",
-  },
-  {
-    inicio: 26.6,
-    fin: 30.2,
-    texto: "¡Así que ponte tu casco espacial y comencemos!",
+    inicio: 12.0,
+    fin: 14.1,
+    texto: "¡Vamos a comenzar la misión!",
   },
 ];
 
 const textoInicialBienvenida =
   "Presiona iniciar para escuchar la explicación de Nova.";
 
-const textoFinalBienvenida =
-  "Aquí nadie pierde, solo aprendemos intentando. ¡Así que ponte tu casco espacial y comencemos!";
+const textoFinalBienvenida = "¡Vamos a comenzar la misión!";
 
 const guionNovaCompletado = [
   "¡Misión completada!",
-  "Hoy construiste figuras geométricas uniendo puntos.",
+  "Hoy identificaste figuras geométricas observando sus lados y su forma.",
   "Aprendiste a identificar triángulos, cuadrados y rectángulos observando sus lados y su forma.",
   "Cada figura completada quedó registrada como evidencia de tu avance.",
   "¡Muy buen trabajo, explorador! Nos vemos en la siguiente misión de MathNova.",
@@ -163,20 +141,20 @@ const RUTA_ACTIVIDAD_2 = "/actividades/geometria/actividad-2";
 const RUTA_ACTIVIDADES_GEOMETRIA = "/actividades/geometria";
 
 const guionProfeAstro = [
-  "En la pantalla verás varios puntos.",
-  "Para completar el camino, debes seleccionar los puntos correctos y unirlos siguiendo la figura que se te muestra.",
-  "Observa muy bien la forma que necesitas construir.",
-  "Si la figura tiene tres lados, puede ser un triángulo.",
+  "En la pantalla verás varias figuras geométricas ya formadas.",
+  "Tu tarea será observar cada imagen y elegir una de las opciones que aparecen: triángulo, cuadrado o rectángulo.",
+  "Fíjate muy bien en la forma de cada figura.",
+  "Si tiene tres lados, puede ser un triángulo.",
   "Si tiene cuatro lados iguales, puede ser un cuadrado.",
   "Y si tiene cuatro lados, pero dos son más largos que los otros, puede ser un rectángulo.",
-  "Cuando termines de unir los puntos, revisaremos juntos si la figura está completa.",
+  "Cuando selecciones tus respuestas, revisaremos juntos si elegiste las figuras correctas.",
 ];
 
 const textoInicialProfe =
   "Presiona reproducir para escuchar el consejo del Profesor Astro.";
 
 const textoFinalProfe =
-  "Cuando termines de unir los puntos, revisaremos juntos si la figura está completa.";
+  "Cuando selecciones tus respuestas, revisaremos juntos si elegiste las figuras correctas.";
 
 const pistasByte: Record<
   PistaByteId,
@@ -191,12 +169,12 @@ const pistasByte: Record<
   triangulo: {
     nombre: "Triángulo",
     tituloModal: "Pista para el triángulo",
-    etiqueta: "3 puntos y 3 lados",
+    etiqueta: "3 lados",
     audio: audioByteTriangulo,
     guion: [
       "Pista espacial:",
-      "Un triángulo se forma con tres puntos y tiene tres lados.",
-      "Busca tres puntos que puedan unirse para crear una figura cerrada.",
+      "Un triángulo tiene tres lados.",
+      "Busca la figura cerrada que tenga tres lados.",
       "¡Creo que ya casi lo tienes!",
     ],
   },
@@ -208,7 +186,7 @@ const pistasByte: Record<
     guion: [
       "Pista de explorador:",
       "Un cuadrado tiene cuatro lados iguales.",
-      "Busca cuatro puntos que formen una figura pareja, como una ventanita espacial.",
+      "Busca una figura pareja con cuatro lados iguales, como una ventanita espacial.",
       "¡A mí me encantan las ventanitas espaciales!",
     ],
   },
@@ -234,7 +212,7 @@ const ordenPistasByte: PistaByteId[] = ["triangulo", "cuadrado", "rectangulo"];
 
 const guionSombraError = [
   "Casi lo logras.",
-  "Observa otra vez los puntos y fíjate bien en la forma que queremos construir.",
+  "Observa otra vez cada figura y fíjate bien en su forma antes de responder.",
   "Recuerda: no pasa nada si te equivocas.",
   "En MathNova podemos volver a intentarlo.",
   "¡Vamos una vez más!",
@@ -2087,8 +2065,8 @@ function Actividad1MathGeometry() {
               <h1>Actividad 1 - El Constructor de Caminos</h1>
 
               <p className="act1geo-subtitle">
-                Une puntos para formar figuras básicas como triángulos,
-                cuadrados y rectángulos.
+                Observa figuras básicas e identifica si son triángulos,
+                cuadrados o rectángulos.
               </p>
 
               <div className="act1geo-pills">
@@ -2199,7 +2177,7 @@ function Actividad1MathGeometry() {
 
           <section className="act1geo-layout">
             <article className="act1geo-board">
-              <h2>Observa los puntos y descubre la figura</h2>
+              <h2>Observa cada figura y elige su nombre correcto</h2>
 
               <div className="act1geo-rows">
                 {figuras.map((figura) => (

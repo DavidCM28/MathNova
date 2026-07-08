@@ -15,6 +15,7 @@ import Estadisticas from "./pages/Estadisticas/Estadisticas";
 import ActividadesMathGeometry from "./pages/ActividadesMathGeometry/ActividadesMathGeometry";
 import Actividad1MathGeometry from "./pages/ActividadesMathGeometry/Actividad1MathGeometry";
 import Actividad2MathGeometry from "./pages/ActividadesMathGeometry/Actividad2MathGeometry";
+import Actividad3MathGeometry from "./pages/ActividadesMathGeometry/Actividad3MathGeometry";
 
 import ActividadesMathData from "./pages/ActividadesMathData/ActividadesMathData";
 import GeneradorEnergiaInversa from "./pages/ActividadesMathData/GeneradorEnergiaInversa";
@@ -58,25 +59,6 @@ function App() {
         />
 
         <Route
-          path="/actividades-math-data"
-          element={<ActividadesMathData />}
-        />
-
-        <Route
-          path="/actividades-math-numbers"
-          element={<ActividadesMathNumbers />}
-        />
-
-        <Route path="/temas/numeros" element={<ActividadesMathNumbers />}
-        
-        />
-
-        <Route
-          path="/actividades/mathnumbers/:activitySlug"
-          element={<MathNumbersActivityRouter />}
-        />
-
-        <Route
           path="/actividades/geometria/actividad-1"
           element={
             <RequireAuth>
@@ -92,6 +74,32 @@ function App() {
               <Actividad2MathGeometry />
             </RequireAuth>
           }
+        />
+
+        <Route
+          path="/actividades/geometria/actividad-3"
+          element={
+            <RequireAuth>
+              <Actividad3MathGeometry />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/actividades-math-data"
+          element={<ActividadesMathData />}
+        />
+
+        <Route
+          path="/actividades-math-numbers"
+          element={<ActividadesMathNumbers />}
+        />
+
+        <Route path="/temas/numeros" element={<ActividadesMathNumbers />} />
+
+        <Route
+          path="/actividades/mathnumbers/:activitySlug"
+          element={<MathNumbersActivityRouter />}
         />
 
         <Route
