@@ -44,25 +44,27 @@ import {
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 import { FaStar, FaShieldAlt, FaGem, FaLightbulb, FaHandPointUp } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
+import { getSessionUser } from "../../utils/authSession";
 
 // ============================================
 // CONFIGURACIÓN DEL BACKEND
 // ============================================
 
 const API_URL = "http://localhost:3001/api";
-const ID_ESTUDIANTE = 2; // ⚠️ Reemplazar con el ID real del estudiante
+const usuarioSesion = getSessionUser();
+const ID_ESTUDIANTE = usuarioSesion?.id_usuario;
 
 // ============================================
 // DATOS INICIALES (NO MODIFICAR)
 // ============================================
 
 const filasIniciales = [
-  { x: 1, y: "12", editable: false, correcto: true },
-  { x: 2, y: "6", editable: false, correcto: true },
-  { x: 3, y: "4", editable: false, correcto: true },
-  { x: 4, y: "", editable: true, correcto: null },
-  { x: 6, y: "", editable: true, correcto: null },
-  { x: 12, y: "", editable: true, correcto: null },
+  { x: 1, y: "12", editable: false, correcto: true, bloqueada: false },
+  { x: 2, y: "6", editable: false, correcto: true, bloqueada: false },
+  { x: 3, y: "4", editable: false, correcto: true, bloqueada: false },
+  { x: 4, y: "", editable: true, correcto: null, bloqueada: false },
+  { x: 6, y: "", editable: true, correcto: null, bloqueada: false },
+  { x: 12, y: "", editable: true, correcto: null, bloqueada: false },
 ];
 
 const puntosIniciales = [
@@ -92,7 +94,6 @@ function GeneradorEnergiaInversa() {
   const [cargando, setCargando] = useState(false);
   const [resultado, setResultado] = useState<"exito" | "fallo" | "incompleto" | "pista" | null>(null);
 
-
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
     navigate(ruta);
@@ -115,7 +116,7 @@ function GeneradorEnergiaInversa() {
             const nuevosValores = filasIniciales.map((fila) => {
               const valorGuardado = (progreso.valores_tabla as Record<string, number>)[String(fila.x)];
               if (valorGuardado !== undefined) {
-                return { ...fila, y: String(valorGuardado), correcto: true };
+                return { ...fila, y: String(valorGuardado), correcto: true, bloqueada: true };
               }
               return fila;
             });
@@ -125,6 +126,7 @@ function GeneradorEnergiaInversa() {
           if (progreso.completada) {
             setActividadCompletada(true);
             setXpGanado(progreso.xp_obtenido || 0);
+            setResultado(progreso.prediccion_correcta ? "exito" : "fallo");
           }
         }
       } catch (error) {
@@ -152,6 +154,33 @@ function GeneradorEnergiaInversa() {
     } catch (error) {
       console.error("Error al guardar progreso:", error);
     }
+  };
+
+  // ==========================================
+  // REINICIAR ACTIVIDAD
+  // ==========================================
+
+  const handleReiniciarActividad = async () => {
+    try {
+      await fetch(`${API_URL}/proporcionalidad/reiniciar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_estudiante: ID_ESTUDIANTE,
+        }),
+      });
+    } catch (error) {
+      console.error("Error al reiniciar actividad:", error);
+    }
+
+    setResultado(null);
+    setActividadCompletada(false);
+    setFilas(filasIniciales);
+    setPuntos(puntosIniciales);
+    setMensajeFeedback("");
+    setProgresoPorcentaje(0);
+    setRespuesta("");
+    setXpGanado(0);
   };
 
   // ==========================================
@@ -186,11 +215,21 @@ function GeneradorEnergiaInversa() {
         const resultado = data.data;
 
         setFilas((prev) =>
-          prev.map((f, i) =>
-            i === index
-              ? { ...f, correcto: resultado.correcto }
-              : f
-          )
+          prev.map((f, i) => {
+            if (i !== index) return f;
+
+            if (resultado.celda_completada && !resultado.correcto) {
+              // Se agotaron los 3 intentos: se revela la respuesta y se bloquea
+              return {
+                ...f,
+                y: String(resultado.respuesta_correcta),
+                correcto: false,
+                bloqueada: true,
+              };
+            }
+
+            return { ...f, correcto: resultado.correcto };
+          })
         );
 
         setMensajeFeedback(resultado.mensaje);
@@ -202,7 +241,7 @@ function GeneradorEnergiaInversa() {
           }
         }
 
-        const celdasCompletadas = filas.filter(f => f.correcto === true).length;
+        const celdasCompletadas = filas.filter(f => f.correcto === true || f.bloqueada).length;
         const totalCeldas = filas.length;
         setProgresoPorcentaje(Math.round((celdasCompletadas / totalCeldas) * 100));
       }
@@ -247,15 +286,15 @@ function GeneradorEnergiaInversa() {
           setXpGanado(100);
           setProgresoPorcentaje(100);
           await guardarProgreso(8);
-          alert("🎉 ¡Misión completada! Has ganado 100 XP.");
+          setResultado("exito");
         } else if (resultado.completada) {
           setActividadCompletada(true);
           setXpGanado(50);
           setProgresoPorcentaje(100);
           await guardarProgreso(8);
-          alert("📚 Actividad completada con ayuda. Has ganado 50 XP.");
+          setResultado("fallo");
         } else {
-          alert(`❌ ${resultado.mensaje}`);
+          // El mensaje ya se muestra con setMensajeFeedback arriba
         }
       } else if (data.success === false) {
         alert(`❌ ${data.mensaje || "Error al procesar la respuesta."}`);
@@ -479,7 +518,7 @@ function GeneradorEnergiaInversa() {
           </button>
           <button
             className="res-btn res-btn-outline"
-            onClick={() => setResultado(null)}
+            onClick={handleReiniciarActividad}
           >
             Repetir actividad
           </button>
@@ -609,7 +648,7 @@ function GeneradorEnergiaInversa() {
           <div className="res-acciones">
             <button
               className="res-btn res-btn-azul"
-              onClick={() => setResultado(null)}
+              onClick={handleReiniciarActividad}
             >
               Intentar de nuevo
             </button>
@@ -630,7 +669,6 @@ function GeneradorEnergiaInversa() {
       </div>
 
   );
-
 
   // ==========================================
   // PANTALLA: PISTA (AYUDA)
@@ -820,7 +858,7 @@ function GeneradorEnergiaInversa() {
             <button
               type="button"
               className="pista-btn pista-btn-azul"
-              onClick={() => setResultado(null)}
+              onClick={handleReiniciarActividad}
             >
               <FiRefreshCw /> Repetir actividad
             </button>
@@ -1235,7 +1273,7 @@ function GeneradorEnergiaInversa() {
                             borderColor: fila.correcto === true ? "#28a745" : fila.correcto === false ? "#dc3545" : undefined,
                             backgroundColor: fila.correcto === true ? "#d4edda" : fila.correcto === false ? "#f8d7da" : undefined
                           }}
-                          disabled={cargando || fila.correcto === true || actividadCompletada}
+                          disabled={cargando || fila.correcto === true || fila.bloqueada || actividadCompletada}
                         />
                       ) : (
                         fila.y

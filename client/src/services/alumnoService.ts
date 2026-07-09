@@ -1,76 +1,66 @@
-const API_URL = "http://localhost:3001/api/alumno";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 
-export type EstadoActividad = "pendiente" | "en_curso" | "completada";
-
-export type Alumno = {
-  id_usuario: number;
-  nombre_completo: string;
-  correo: string;
-  usuario: string | null;
-  rol: string;
-  estado: boolean;
-  miembro_desde?: string;
-  grado?: string;
-  escuela?: string;
-  nivel?: number;
-  titulo?: string;
-  estrellas_totales?: number;
-  racha_actual?: number;
-  lecciones_completadas?: number;
-  tiempo_estudio_segundos?: number;
-  tiempo_estudio?: string;
-  progreso_general?: number;
-  promedio?: number;
-  total_actividades?: number;
-  actividades_en_curso?: number;
-  mundos_completados?: unknown[];
-  insignias?: unknown[];
+export type ActividadProgreso = {
+  mundo: string;
+  actividadSlug: string;
+  actividadNombre: string;
+  puntaje: number;
+  estrellas: number;
+  completada: boolean;
+  fechaCompletado?: string | null;
 };
 
-export type Actividad = {
-  id: number;
-  titulo: string;
-  modulo: string;
-  tema: string;
-  dificultad: string;
-  duracion_min: number;
-  estado: EstadoActividad;
-  porcentaje: number;
-  puntaje: number;
-  intentos: number;
-  tiempo_segundos: number;
-  updated_at?: string | null;
+export type Alumno = {
+  id?: number | string;
+  id_usuario?: number | string;
+  nombreCompleto?: string;
+  nombre_completo?: string;
+  correo?: string;
+  usuario?: string | null;
+  rol?: string;
+  estado?: boolean;
+  estrellas_totales?: number;
+  racha_actual?: number;
+};
+
+export type Actividad = ActividadProgreso & {
+  titulo?: string;
+  estado?: string;
+  porcentaje?: number;
+  tema?: string;
+  modulo?: string;
 };
 
 export type EstadisticasAlumno = {
-  total_actividades: number;
-  completadas: number;
-  en_curso: number;
-  pendientes: number;
-  promedio: number;
-  tiempo_total: number;
-  progreso_general: number;
-  nivel: number;
-  tiempo_formateado: string;
+  completadas?: number;
+  promedio?: number;
+  progreso_general?: number;
+  tiempo_formateado?: string;
+
+  leccionesCompletadas?: number;
+  estrellasGanadas?: number;
+  rachaActual?: number;
+  promedioGeneral?: number;
+  progresoSemanal?: { dia: string; lecciones: number }[];
+  rendimientoPorTema?: { tema: string; promedio: number }[];
+  dominioPorMundo?: { mundo: string; promedio: number }[];
+  tiempoEstudio?: {
+    minutos: number;
+    actividadesCompletas: number;
+    semanal: { dia: string; minutos: number }[];
+  };
 };
 
-type ApiResponse<T> = {
-  ok: boolean;
-  mensaje?: string;
-} & T;
+const getToken = () => {
+  return localStorage.getItem("token");
+};
 
-const obtenerToken = () => {
-  const token = localStorage.getItem("token");
+const authHeaders = () => {
+  const token = getToken();
 
   if (!token) {
-    throw new Error("No hay sesión activa. Inicia sesión nuevamente.");
+    throw new Error("No hay token guardado. Inicia sesión otra vez.");
   }
-
-  return token;
-};
-
-const obtenerHeaders = () => {
-  const token = obtenerToken();
 
   return {
     "Content-Type": "application/json",
@@ -78,114 +68,72 @@ const obtenerHeaders = () => {
   };
 };
 
-const procesarRespuesta = async <T>(response: Response): Promise<T> => {
+const requestJSON = async (url: string, options: RequestInit = {}) => {
+  const response = await fetch(url, options);
+  const contentType = response.headers.get("content-type") || "";
+
+  if (!contentType.includes("application/json")) {
+    const text = await response.text();
+
+    throw new Error(
+      `El servidor no devolvió JSON. URL: ${url}. Respuesta: ${text.slice(
+        0,
+        120
+      )}`
+    );
+  }
+
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.mensaje || "Error en la solicitud");
+    throw new Error(data.mensaje || "Error en la petición");
   }
 
   return data;
 };
 
-export const obtenerPerfilAlumno = async (): Promise<Alumno> => {
-  const response = await fetch(`${API_URL}/perfil`, {
-    method: "GET",
-    headers: obtenerHeaders(),
-  });
-
-  const data = await procesarRespuesta<ApiResponse<{ alumno: Alumno }>>(
-    response
-  );
-
-  return data.alumno;
+const asegurarArray = <T>(valor: unknown): T[] => {
+  return Array.isArray(valor) ? valor : [];
 };
 
-export const obtenerProgresoAlumno = async (): Promise<Actividad[]> => {
-  const response = await fetch(`${API_URL}/progreso`, {
+export const obtenerPerfilAlumno = async () => {
+  return requestJSON(`${API_URL}/alumno/perfil`, {
     method: "GET",
-    headers: obtenerHeaders(),
+    headers: authHeaders(),
   });
-
-  const data = await procesarRespuesta<ApiResponse<{ actividades: Actividad[] }>>(
-    response
-  );
-
-  return data.actividades;
 };
 
-export const obtenerEstadisticasAlumno =
-  async (): Promise<EstadisticasAlumno> => {
-    const response = await fetch(`${API_URL}/estadisticas`, {
-      method: "GET",
-      headers: obtenerHeaders(),
-    });
+export const obtenerEstadisticasAlumno = async () => {
+  return requestJSON(`${API_URL}/alumno/estadisticas`, {
+    method: "GET",
+    headers: authHeaders(),
+  });
+};
 
-    const data = await procesarRespuesta<
-      ApiResponse<{ estadisticas: EstadisticasAlumno }>
-    >(response);
+export const obtenerProgresoAlumno = async (): Promise<ActividadProgreso[]> => {
+  const data = await obtenerPerfilAlumno();
 
-    return data.estadisticas;
-  };
+  const actividades = asegurarArray<ActividadProgreso>(
+    data.actividadesRecientes || data.actividades || data.progreso
+  );
 
-export const guardarProgresoActividad = async (
-  actividadId: number,
-  estado: EstadoActividad,
-  porcentaje: number,
-  puntaje: number,
-  tiempoSegundos: number
-) => {
-  const response = await fetch(`${API_URL}/progreso`, {
+  return actividades;
+};
+
+export const guardarProgresoAlumno = async (payload: {
+  mundo: string;
+  actividadSlug: string;
+  actividadNombre: string;
+  puntaje: number;
+  estrellas: number;
+  completada: boolean;
+  tiempoSegundos?: number;
+  respuestasCorrectas?: number;
+  totalPreguntas?: number;
+}) => {
+  return requestJSON(`${API_URL}/alumno/progreso`, {
     method: "POST",
-    headers: obtenerHeaders(),
-    body: JSON.stringify({
-      actividad_id: actividadId,
-      estado,
-      porcentaje,
-      puntaje,
-      tiempo_segundos: tiempoSegundos,
-    }),
+    headers: authHeaders(),
+    body: JSON.stringify(payload),
   });
-
-  return procesarRespuesta<
-    ApiResponse<{
-      progreso: {
-        id: number;
-        alumno_id: number;
-        actividad_id: number;
-        estado: EstadoActividad;
-        porcentaje: number;
-        puntaje: number;
-        intentos: number;
-        tiempo_segundos: number;
-        updated_at: string;
-      };
-    }>
-  >(response);
-};
-
-
-
-export const reiniciarProgresoAlumno = async () => {
-  const response = await fetch(`${API_URL}/progreso`, {
-    method: "DELETE",
-    headers: obtenerHeaders(),
-  });
-
-  return procesarRespuesta<{
-    ok: boolean;
-    mensaje: string;
-  }>(response);
-};
-
-export const reiniciarActividadAlumno = async (actividadId: number) => {
-  const response = await fetch(`${API_URL}/progreso/${actividadId}`, {
-    method: "DELETE",
-    headers: obtenerHeaders(),
-  });
-
-  return procesarRespuesta<{
-    ok: boolean;
-    mensaje: string;
-  }>(response);
 };

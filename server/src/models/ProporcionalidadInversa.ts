@@ -12,6 +12,8 @@ export interface ProporcionalidadInversaAttributes {
   completada: boolean;
   tiempo_total: number;
   xp_obtenido: number;
+  intentos_completados: number;
+  historial_intentos: object[];
 }
 
 export interface ProporcionalidadInversaCreationAttributes
@@ -21,19 +23,21 @@ export class ProporcionalidadInversa
   extends Model<ProporcionalidadInversaAttributes, ProporcionalidadInversaCreationAttributes>
   implements ProporcionalidadInversaAttributes
 {
-  public id!: number;
-  public id_estudiante!: number;
-  public valores_tabla!: object;
-  public intentos_tabla!: object;
-  public prediccion!: number | null;
-  public prediccion_correcta!: boolean | null;
-  public pantalla_actual!: number;
-  public completada!: boolean;
-  public tiempo_total!: number;
-  public xp_obtenido!: number;
+  declare id: number;
+  declare id_estudiante: number;
+  declare valores_tabla: object;
+  declare intentos_tabla: object;
+  declare prediccion: number | null;
+  declare prediccion_correcta: boolean | null;
+  declare pantalla_actual: number;
+  declare completada: boolean;
+  declare tiempo_total: number;
+  declare xp_obtenido: number;
+  declare intentos_completados: number;
+  declare historial_intentos: object[];
 
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 }
 
 ProporcionalidadInversa.init(
@@ -47,7 +51,7 @@ ProporcionalidadInversa.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'usuario',
+        model: 'registro', // ✅ CAMBIADO: antes era 'usuario'
         key: 'id_usuario',
       },
     },
@@ -88,6 +92,17 @@ ProporcionalidadInversa.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
+    },
+    // ✅ NUEVO: para el sistema de reinicio de actividad
+    intentos_completados: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    historial_intentos: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      defaultValue: [],
     },
   },
   {

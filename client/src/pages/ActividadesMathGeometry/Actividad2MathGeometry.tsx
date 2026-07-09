@@ -10,12 +10,18 @@ import byteAct2 from "../../assets/mathGeometry/actividad2/byte-act2-mathgeometr
 import profesorExplicando from "../../assets/mathGeometry/actividad2/profesor-explicando.png";
 import sombraError from "../../assets/mathGeometry/actividad2/sombra-error.png";
 import mapaPuente from "../../assets/mathGeometry/actividad2/act2-mathgeometry-puente.png";
+import mapaPuenteCompleto from "../../assets/mathGeometry/actividad2/act_2_puente_2_MathGeometry.png";
 import piezaCamino3 from "../../assets/mathGeometry/actividad2/pieza-camino-3-mathgeometry.png";
 import piezaCamino2 from "../../assets/mathGeometry/actividad2/pieza-camino-2-mathgeometry.png";
 import piezaCamino1 from "../../assets/mathGeometry/actividad2/pieza-camino-1-mathgeometry.png";
+import piezaCamino1DerechaRota from "../../assets/mathGeometry/actividad2/pieza_camino_1_derecha_rota_MathGeometry.png";
+import piezaCamino1IzquierdaRota from "../../assets/mathGeometry/actividad2/pieza_camino_1_izquierda_rota_MathGeometry.png";
+import piezaCamino2DerechaRota from "../../assets/mathGeometry/actividad2/pieza_camino_2_derecha_rota_MathGeometry.png";
+import piezaCamino2IzquierdaRota from "../../assets/mathGeometry/actividad2/pieza_camino_2_izquierda_rota_MathGeometry.png";
 
 import audioBienvenidaNova from "../../assets/mathGeometry/actividad2/act_2_nova_bienvenidaa_MathGeometry.mp3";
 import videoNovaExplicando from "../../assets/mathGeometry/actividad2/nova_explicando_act_2_MathGeometry.mp4";
+import videoNovaPuente from "../../assets/mathGeometry/actividad2/act_2_nova_pasando_el_puente_MathGeometry.mp4";
 import videoBytePistasAct2 from "../../assets/mathGeometry/actividad2/byte_aciertos_y_pistas_act_2__MathGeometry.mp4";
 import videoProfesorPistasAct2 from "../../assets/mathGeometry/actividad2/instrucciones_profe_astro_act_2_MathGeometry.mp4";
 import audioProfesorAstro from "../../assets/mathGeometry/actividad2/act_2_profesor_astro_MathGeometry.mp3";
@@ -53,12 +59,23 @@ import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
 type SegmentoId = "pieza3" | "pieza2" | "pieza1";
 type EstadoExplicacion = "inicio" | "reproduciendo" | "pausado" | "terminado";
+type EstadoPuenteAct2 =
+  | "reposo"
+  | "corriendo-correcto"
+  | "corriendo-error"
+  | "finalizado-correcto"
+  | "finalizado-error";
 type PistaAct2Id = "recto" | "giro" | "diagonal";
 type PersonajePistaAct2 = "byte" | "profesor";
 
 const VELOCIDAD_TEXTO_NOVA_ACT2 = 1.55;
 const VELOCIDAD_TEXTO_PISTA_ACT2 = 1.75;
 const REFRESCO_TEXTO_PISTA_ACT2_MS = 45;
+
+const DURACION_PUENTE_CORRECTO_ACT2_MS = 2700;
+const DURACION_PUENTE_ERROR_ACT2_MS = 3350;
+const TIEMPO_RUPTURA_PUENTE_ERROR_ACT2_MS = 1180;
+const MINIMO_RESTANTE_PUENTE_ACT2_MS = 280;
 
 const pistasAct2: Record<
   PistaAct2Id,
@@ -391,6 +408,21 @@ function Actividad2MathGeometry() {
     null,
   );
   const [revisado, setRevisado] = useState(false);
+  const [intentosAct2, setIntentosAct2] = useState(0);
+  const [estadoPuenteAct2, setEstadoPuenteAct2] =
+    useState<EstadoPuenteAct2>("reposo");
+  const [piezaRotaVisibleAct2, setPiezaRotaVisibleAct2] = useState(false);
+
+  const videoPuenteRef = useRef<HTMLVideoElement | null>(null);
+  const canvasPuenteRef = useRef<HTMLCanvasElement | null>(null);
+  const timeoutPuenteRef = useRef<number | null>(null);
+  const timeoutInicioPuenteRef = useRef<number | null>(null);
+  const tiempoRestantePuenteRef = useRef<number | null>(null);
+  const timeoutRupturaPuenteRef = useRef<number | null>(null);
+  const timeoutInicioRupturaPuenteRef = useRef<number | null>(null);
+  const tiempoRestanteRupturaPuenteRef = useRef<number | null>(null);
+  const resultadoPendientePuenteRef = useRef<"correcto" | "error" | null>(null);
+  const [puentePausadoAct2, setPuentePausadoAct2] = useState(false);
 
   const [textoBienvenidaNova, setTextoBienvenidaNova] = useState("");
   const [estadoBienvenidaNova, setEstadoBienvenidaNova] =
@@ -554,6 +586,65 @@ function Actividad2MathGeometry() {
     return () => {
       video.removeEventListener("loadeddata", dibujarPrimerFrame);
       window.cancelAnimationFrame(animationFrame);
+    };
+  }, []);
+
+  useEffect(() => {
+    const video = videoPuenteRef.current;
+    const canvas = canvasPuenteRef.current;
+
+    if (!video || !canvas) return;
+
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+    if (!ctx) return;
+
+    const canvasWidth = 360;
+    const canvasHeight = 640;
+
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    let animationFrame = 0;
+    let ultimoDibujo = 0;
+
+    const dibujarNovaPuenteSinFondo = (tiempo: number) => {
+      if (tiempo - ultimoDibujo > 33 && video.readyState >= 2) {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        dibujarVideoNovaAct2SinEstirar(ctx, video, canvasWidth, canvasHeight);
+        limpiarFondoClaroNovaAct2(ctx, canvasWidth, canvasHeight);
+        ultimoDibujo = tiempo;
+      }
+
+      animationFrame = window.requestAnimationFrame(dibujarNovaPuenteSinFondo);
+    };
+
+    const dibujarPrimerFrame = () => {
+      if (video.readyState >= 2) {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        dibujarVideoNovaAct2SinEstirar(ctx, video, canvasWidth, canvasHeight);
+        limpiarFondoClaroNovaAct2(ctx, canvasWidth, canvasHeight);
+      }
+    };
+
+    video.addEventListener("loadeddata", dibujarPrimerFrame);
+    animationFrame = window.requestAnimationFrame(dibujarNovaPuenteSinFondo);
+
+    return () => {
+      video.removeEventListener("loadeddata", dibujarPrimerFrame);
+      window.cancelAnimationFrame(animationFrame);
+    };
+  }, [estadoPuenteAct2]);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutPuenteRef.current !== null) {
+        window.clearTimeout(timeoutPuenteRef.current);
+      }
+
+      if (timeoutRupturaPuenteRef.current !== null) {
+        window.clearTimeout(timeoutRupturaPuenteRef.current);
+      }
     };
   }, []);
 
@@ -1507,9 +1598,7 @@ function Actividad2MathGeometry() {
   const reiniciarActividadAct2 = () => {
     cerrarSombraAct2();
     cerrarCompletadoAct2();
-    setSegmentoSeleccionado(null);
-    setSegmentoColocado(null);
-    setRevisado(false);
+    reiniciarEstadoInicialAct2();
   };
 
   const volverAActividadesAct2 = () => {
@@ -1561,9 +1650,238 @@ function Actividad2MathGeometry() {
     pausarProfesorAstroAct2();
     pausarSombraAct2();
     pausarCompletadoAct2();
+    limpiarControlPausaPuenteAct2();
+    detenerVideoPuenteAct2();
     setMenuOpen(false);
     navigate(ruta);
   };
+
+  const limpiarTimeoutPuenteAct2 = () => {
+    if (timeoutPuenteRef.current !== null) {
+      window.clearTimeout(timeoutPuenteRef.current);
+      timeoutPuenteRef.current = null;
+    }
+
+    timeoutInicioPuenteRef.current = null;
+  };
+
+  const limpiarTimeoutRupturaPuenteAct2 = () => {
+    if (timeoutRupturaPuenteRef.current !== null) {
+      window.clearTimeout(timeoutRupturaPuenteRef.current);
+      timeoutRupturaPuenteRef.current = null;
+    }
+
+    timeoutInicioRupturaPuenteRef.current = null;
+  };
+
+  const limpiarControlPausaPuenteAct2 = () => {
+    limpiarTimeoutPuenteAct2();
+    limpiarTimeoutRupturaPuenteAct2();
+    tiempoRestantePuenteRef.current = null;
+    tiempoRestanteRupturaPuenteRef.current = null;
+    resultadoPendientePuenteRef.current = null;
+    setPiezaRotaVisibleAct2(false);
+    setPuentePausadoAct2(false);
+  };
+
+  const detenerVideoPuenteAct2 = () => {
+    const video = videoPuenteRef.current;
+
+    if (!video) return;
+
+    video.pause();
+    video.currentTime = 0;
+  };
+
+  const reiniciarBienvenidaNovaAct2 = () => {
+    const audio = audioNovaRef.current;
+    const video = videoNovaRef.current;
+
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    if (video) {
+      video.pause();
+      video.currentTime = 0;
+    }
+
+    setTextoBienvenidaNova("");
+    setEstadoBienvenidaNova("inicio");
+  };
+
+  const reiniciarEstadoInicialAct2 = () => {
+    limpiarControlPausaPuenteAct2();
+    detenerVideoPuenteAct2();
+    setSegmentoSeleccionado(null);
+    setSegmentoColocado(null);
+    setRevisado(false);
+    setIntentosAct2(0);
+    setEstadoPuenteAct2("reposo");
+    reiniciarBienvenidaNovaAct2();
+  };
+
+  const finalizarIntentoPuenteAct2 = (esCorrecta: boolean) => {
+    limpiarControlPausaPuenteAct2();
+    setRevisado(true);
+    setEstadoPuenteAct2(
+      esCorrecta ? "finalizado-correcto" : "finalizado-error",
+    );
+    detenerVideoPuenteAct2();
+
+    if (esCorrecta) {
+      abrirCompletadoAct2(true);
+    } else {
+      abrirSombraAct2(true);
+    }
+  };
+
+  const programarFinalPuenteAct2 = (
+    esCorrecta: boolean,
+    duracionRestante: number,
+  ) => {
+    limpiarTimeoutPuenteAct2();
+
+    const duracionSegura = Math.max(
+      MINIMO_RESTANTE_PUENTE_ACT2_MS,
+      duracionRestante,
+    );
+
+    resultadoPendientePuenteRef.current = esCorrecta ? "correcto" : "error";
+    tiempoRestantePuenteRef.current = duracionSegura;
+    timeoutInicioPuenteRef.current = Date.now();
+
+    timeoutPuenteRef.current = window.setTimeout(() => {
+      finalizarIntentoPuenteAct2(esCorrecta);
+    }, duracionSegura);
+  };
+
+  const programarRupturaPuenteAct2 = (duracionRestante: number) => {
+    limpiarTimeoutRupturaPuenteAct2();
+
+    const duracionSegura = Math.max(60, duracionRestante);
+    tiempoRestanteRupturaPuenteRef.current = duracionSegura;
+    timeoutInicioRupturaPuenteRef.current = Date.now();
+
+    timeoutRupturaPuenteRef.current = window.setTimeout(() => {
+      timeoutRupturaPuenteRef.current = null;
+      timeoutInicioRupturaPuenteRef.current = null;
+      tiempoRestanteRupturaPuenteRef.current = null;
+      setPiezaRotaVisibleAct2(true);
+    }, duracionSegura);
+  };
+
+  const estaCruzandoPuenteAct2 =
+    estadoPuenteAct2 === "corriendo-correcto" ||
+    estadoPuenteAct2 === "corriendo-error";
+
+  const pausarCrucePuenteAct2 = () => {
+    if (!estaCruzandoPuenteAct2 || puentePausadoAct2) return;
+
+    const video = videoPuenteRef.current;
+    video?.pause();
+
+    if (timeoutPuenteRef.current !== null) {
+      window.clearTimeout(timeoutPuenteRef.current);
+      timeoutPuenteRef.current = null;
+    }
+
+    const inicio = timeoutInicioPuenteRef.current ?? Date.now();
+    const restanteActual =
+      tiempoRestantePuenteRef.current ??
+      (estadoPuenteAct2 === "corriendo-correcto"
+        ? DURACION_PUENTE_CORRECTO_ACT2_MS
+        : DURACION_PUENTE_ERROR_ACT2_MS);
+    const transcurrido = Date.now() - inicio;
+    tiempoRestantePuenteRef.current = Math.max(
+      MINIMO_RESTANTE_PUENTE_ACT2_MS,
+      restanteActual - transcurrido,
+    );
+    timeoutInicioPuenteRef.current = null;
+
+    if (
+      estadoPuenteAct2 === "corriendo-error" &&
+      !piezaRotaVisibleAct2 &&
+      timeoutRupturaPuenteRef.current !== null
+    ) {
+      window.clearTimeout(timeoutRupturaPuenteRef.current);
+      timeoutRupturaPuenteRef.current = null;
+
+      const inicioRuptura = timeoutInicioRupturaPuenteRef.current ?? Date.now();
+      const restanteRupturaActual =
+        tiempoRestanteRupturaPuenteRef.current ??
+        TIEMPO_RUPTURA_PUENTE_ERROR_ACT2_MS;
+      const transcurridoRuptura = Date.now() - inicioRuptura;
+
+      tiempoRestanteRupturaPuenteRef.current = Math.max(
+        60,
+        restanteRupturaActual - transcurridoRuptura,
+      );
+      timeoutInicioRupturaPuenteRef.current = null;
+    }
+
+    setPuentePausadoAct2(true);
+  };
+
+  const reanudarCrucePuenteAct2 = async () => {
+    if (!estaCruzandoPuenteAct2 || !puentePausadoAct2) return;
+
+    const resultadoPendiente = resultadoPendientePuenteRef.current;
+    const esCorrecta =
+      resultadoPendiente === "correcto" ||
+      estadoPuenteAct2 === "corriendo-correcto";
+    const video = videoPuenteRef.current;
+
+    try {
+      if (video) {
+        video.muted = true;
+        video.loop = true;
+        video.playsInline = true;
+        await video.play();
+      }
+    } catch {
+      /* Si el navegador bloquea el video, el control de tiempo continúa. */
+    }
+
+    setPuentePausadoAct2(false);
+    programarFinalPuenteAct2(
+      esCorrecta,
+      tiempoRestantePuenteRef.current ??
+        (esCorrecta
+          ? DURACION_PUENTE_CORRECTO_ACT2_MS
+          : DURACION_PUENTE_ERROR_ACT2_MS),
+    );
+
+    if (!esCorrecta && !piezaRotaVisibleAct2) {
+      programarRupturaPuenteAct2(
+        tiempoRestanteRupturaPuenteRef.current ??
+          TIEMPO_RUPTURA_PUENTE_ERROR_ACT2_MS,
+      );
+    }
+  };
+
+  const alternarCrucePuenteAct2 = () => {
+    if (puentePausadoAct2) {
+      reanudarCrucePuenteAct2();
+    } else {
+      pausarCrucePuenteAct2();
+    }
+  };
+
+  const cerrarSombraYReiniciarAct2 = () => {
+    cerrarSombraAct2();
+    reiniciarEstadoInicialAct2();
+  };
+
+  const cerrarCompletadoYReiniciarAct2 = () => {
+    cerrarCompletadoAct2();
+    reiniciarEstadoInicialAct2();
+  };
+
+  const puedeElegirSegmentoAct2 =
+    estadoPuenteAct2 !== "corriendo-correcto" &&
+    estadoPuenteAct2 !== "corriendo-error";
 
   const segmentos = [
     {
@@ -1586,38 +1904,85 @@ function Actividad2MathGeometry() {
     },
   ];
 
-  const piezaActual =
-    segmentos.find((segmento) => segmento.id === segmentoColocado) || null;
+  const piezasRotasAct2: Partial<
+    Record<
+      SegmentoId,
+      {
+        izquierda: string;
+        derecha: string;
+        altIzquierda: string;
+        altDerecha: string;
+      }
+    >
+  > = {
+    pieza1: {
+      izquierda: piezaCamino1IzquierdaRota,
+      derecha: piezaCamino1DerechaRota,
+      altIzquierda: "Mitad izquierda rota del segmento ondulado",
+      altDerecha: "Mitad derecha rota del segmento ondulado",
+    },
+    pieza2: {
+      izquierda: piezaCamino2IzquierdaRota,
+      derecha: piezaCamino2DerechaRota,
+      altIzquierda: "Mitad izquierda rota del segmento recto",
+      altDerecha: "Mitad derecha rota del segmento recto",
+    },
+  };
+
+  const piezaRotaColocadaAct2 =
+    segmentoColocado && piezaRotaVisibleAct2
+      ? piezasRotasAct2[segmentoColocado]
+      : null;
 
   const respuestaCorrecta = segmentoColocado === "pieza3";
 
-  const seleccionarSegmento = (id: SegmentoId) => {
-    setSegmentoSeleccionado(id);
-    setSegmentoColocado(id);
-    setRevisado(false);
-  };
+  const animarIntentoPuenteAct2 = async (id: SegmentoId) => {
+    if (!puedeElegirSegmentoAct2) return;
 
-  const comprobarRespuesta = () => {
+    pausarExplicacionNova();
     pausarPistaAct2();
     pausarProfesorAstroAct2();
     pausarSombraAct2();
     pausarCompletadoAct2();
+    limpiarControlPausaPuenteAct2();
 
-    const piezaParaRevisar = segmentoColocado || segmentoSeleccionado;
+    const esCorrecta = id === "pieza3";
+    const video = videoPuenteRef.current;
 
-    if (!piezaParaRevisar) {
-      setRevisado(true);
-      return;
+    setSegmentoSeleccionado(id);
+    setSegmentoColocado(id);
+    setPiezaRotaVisibleAct2(false);
+    setRevisado(false);
+    setIntentosAct2((intentosActuales) => Math.min(intentosActuales + 1, 3));
+    setEstadoPuenteAct2(esCorrecta ? "corriendo-correcto" : "corriendo-error");
+
+    if (video) {
+      try {
+        video.pause();
+        video.currentTime = 0;
+        video.muted = true;
+        video.loop = true;
+        video.playsInline = true;
+        await video.play();
+      } catch {
+        /* La animación visual del canvas sigue aunque el navegador bloquee autoplay. */
+      }
     }
 
-    setSegmentoColocado(piezaParaRevisar);
-    setRevisado(true);
+    programarFinalPuenteAct2(
+      esCorrecta,
+      esCorrecta
+        ? DURACION_PUENTE_CORRECTO_ACT2_MS
+        : DURACION_PUENTE_ERROR_ACT2_MS,
+    );
 
-    if (piezaParaRevisar === "pieza3") {
-      abrirCompletadoAct2(true);
-    } else {
-      abrirSombraAct2(true);
+    if (!esCorrecta) {
+      programarRupturaPuenteAct2(TIEMPO_RUPTURA_PUENTE_ERROR_ACT2_MS);
     }
+  };
+
+  const seleccionarSegmento = (id: SegmentoId) => {
+    animarIntentoPuenteAct2(id);
   };
 
   const pausarExplicacionNova = () => {
@@ -1925,7 +2290,9 @@ function Actividad2MathGeometry() {
           <section className="act2geo-layout">
             <article className="act2geo-challenge-card">
               <div
-                className="act2geo-map-wrap"
+                className={`act2geo-map-wrap act2geo-map-wrap-${estadoPuenteAct2} ${
+                  puentePausadoAct2 ? "act2geo-bridge-paused" : ""
+                }`}
                 onDragOver={(event) => event.preventDefault()}
                 onDrop={(event) => {
                   event.preventDefault();
@@ -1935,29 +2302,118 @@ function Actividad2MathGeometry() {
                   ) as SegmentoId;
 
                   if (id) {
-                    setSegmentoSeleccionado(id);
-                    setSegmentoColocado(id);
-                    setRevisado(false);
+                    animarIntentoPuenteAct2(id);
                   }
                 }}
               >
-                <img src={mapaPuente} alt="Ruta perdida" />
+                <img
+                  src={
+                    estadoPuenteAct2 === "corriendo-correcto" ||
+                    estadoPuenteAct2 === "finalizado-correcto"
+                      ? mapaPuenteCompleto
+                      : mapaPuente
+                  }
+                  alt="Ruta perdida"
+                  className="act2geo-map-image"
+                />
 
-                <div
-                  className={`act2geo-drop-zone ${
-                    piezaActual ? "act2geo-drop-filled" : ""
-                  }`}
-                >
-                  {piezaActual ? (
-                    <img
-                      src={piezaActual.img}
-                      alt={piezaActual.nombre}
-                      className="act2geo-placed-piece"
-                    />
-                  ) : (
+                {estadoPuenteAct2 === "reposo" && (
+                  <div className="act2geo-drop-zone">
                     <span>Arrastra aquí</span>
-                  )}
-                </div>
+                  </div>
+                )}
+
+                {segmentoColocado && (
+                  <div
+                    className={`act2geo-placed-segment-on-map act2geo-placed-segment-${segmentoColocado} ${
+                      segmentoColocado === "pieza3"
+                        ? "act2geo-placed-segment-ok"
+                        : "act2geo-placed-segment-bad"
+                    } ${
+                      segmentoColocado !== "pieza3" && !piezaRotaVisibleAct2
+                        ? "act2geo-placed-segment-before-break"
+                        : ""
+                    } ${
+                      piezaRotaColocadaAct2
+                        ? "act2geo-placed-segment-broken act2geo-placed-segment-breaking"
+                        : ""
+                    } ${
+                      estadoPuenteAct2 === "finalizado-error"
+                        ? "act2geo-placed-segment-empty"
+                        : ""
+                    }`}
+                    aria-hidden="true"
+                  >
+                    {piezaRotaColocadaAct2 ? (
+                      <div className="act2geo-broken-piece-stage">
+                        <img
+                          src={piezaRotaColocadaAct2.izquierda}
+                          alt={piezaRotaColocadaAct2.altIzquierda}
+                          className="act2geo-broken-piece-half act2geo-broken-piece-left"
+                        />
+
+                        <img
+                          src={piezaRotaColocadaAct2.derecha}
+                          alt={piezaRotaColocadaAct2.altDerecha}
+                          className="act2geo-broken-piece-half act2geo-broken-piece-right"
+                        />
+
+                        <span className="act2geo-break-dust act2geo-break-dust-one"></span>
+                        <span className="act2geo-break-dust act2geo-break-dust-two"></span>
+                        <span className="act2geo-break-dust act2geo-break-dust-three"></span>
+                      </div>
+                    ) : (
+                      <img
+                        src={
+                          segmentos.find(
+                            (segmento) => segmento.id === segmentoColocado,
+                          )?.img
+                        }
+                        alt=""
+                      />
+                    )}
+                  </div>
+                )}
+
+                <video
+                  ref={videoPuenteRef}
+                  src={videoNovaPuente}
+                  className="act2geo-bridge-nova-source-video"
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  aria-hidden="true"
+                />
+
+                {estadoPuenteAct2 !== "reposo" && (
+                  <canvas
+                    ref={canvasPuenteRef}
+                    className={`act2geo-bridge-nova-canvas act2geo-bridge-nova-${estadoPuenteAct2}`}
+                    role="img"
+                    aria-label="Nova cruzando el puente"
+                  />
+                )}
+
+                {estaCruzandoPuenteAct2 && (
+                  <button
+                    type="button"
+                    className={`act2geo-bridge-toggle-btn ${
+                      puentePausadoAct2
+                        ? "act2geo-bridge-toggle-paused"
+                        : "act2geo-bridge-toggle-running"
+                    }`}
+                    onClick={alternarCrucePuenteAct2}
+                    aria-label={
+                      puentePausadoAct2
+                        ? "Seguir cruce del puente"
+                        : "Parar cruce del puente"
+                    }
+                  >
+                    {puentePausadoAct2 ? <FiPlay /> : <FiPause />}
+                    <span>{puentePausadoAct2 ? "Seguir" : "Parar"}</span>
+                  </button>
+                )}
               </div>
 
               <h2>Elige o arrastra el segmento que falta:</h2>
@@ -1972,7 +2428,8 @@ function Actividad2MathGeometry() {
                     <button
                       key={segmento.id}
                       type="button"
-                      draggable
+                      draggable={puedeElegirSegmentoAct2}
+                      disabled={!puedeElegirSegmentoAct2}
                       className={`act2geo-option-card ${
                         seleccionado ? "act2geo-selected" : ""
                       } ${
@@ -1986,6 +2443,11 @@ function Actividad2MathGeometry() {
                       }`}
                       onClick={() => seleccionarSegmento(segmento.id)}
                       onDragStart={(event) => {
+                        if (!puedeElegirSegmentoAct2) {
+                          event.preventDefault();
+                          return;
+                        }
+
                         event.dataTransfer.setData("segmento", segmento.id);
                       }}
                     >
@@ -2044,14 +2506,6 @@ function Actividad2MathGeometry() {
                 </div>
               </button>
 
-              <button
-                className="act2geo-check-btn"
-                type="button"
-                onClick={comprobarRespuesta}
-              >
-                Comprobar
-              </button>
-
               <div
                 className={`act2geo-answer-box ${
                   revisado && respuestaCorrecta ? "act2geo-answer-ok" : ""
@@ -2060,12 +2514,16 @@ function Actividad2MathGeometry() {
                 <FiCheck />
                 <span>
                   {!segmentoColocado
-                    ? "Arrastra una pieza al puente"
-                    : revisado && respuestaCorrecta
-                      ? "Respuesta correcta"
-                      : revisado && !respuestaCorrecta
-                        ? "Intenta con otro segmento"
-                        : "Segmento colocado"}
+                    ? "Elige o arrastra una pieza para que Nova avance"
+                    : estadoPuenteAct2 === "corriendo-correcto"
+                      ? "Nova está cruzando el puente"
+                      : estadoPuenteAct2 === "corriendo-error"
+                        ? "Nova está probando esa ruta"
+                        : revisado && respuestaCorrecta
+                          ? "¡Correcto! Nova llegó al final"
+                          : revisado && !respuestaCorrecta
+                            ? "Casi. Elige otra pieza para intentarlo de nuevo"
+                            : "Preparando la ruta de Nova"}
                 </span>
               </div>
             </aside>
@@ -2084,7 +2542,7 @@ function Actividad2MathGeometry() {
               <FiTarget />
               <div>
                 <span>Intentos</span>
-                <strong>1/3</strong>
+                <strong>{intentosAct2}/3</strong>
               </div>
             </article>
 
@@ -2362,7 +2820,7 @@ function Actividad2MathGeometry() {
         {modalSombraOpen && (
           <div
             className="act2geo-sombra-modal-overlay"
-            onClick={cerrarSombraAct2}
+            onClick={cerrarSombraYReiniciarAct2}
           >
             <section
               className={`act2geo-sombra-modal ${
@@ -2386,7 +2844,7 @@ function Actividad2MathGeometry() {
               <button
                 type="button"
                 className="act2geo-sombra-close"
-                onClick={cerrarSombraAct2}
+                onClick={cerrarSombraYReiniciarAct2}
                 aria-label="Cerrar mensaje de Sombra"
               >
                 <FiX />
@@ -2491,7 +2949,7 @@ function Actividad2MathGeometry() {
         {modalCompletadoOpen && (
           <div
             className="act2geo-complete-modal-overlay"
-            onClick={cerrarCompletadoAct2}
+            onClick={cerrarCompletadoYReiniciarAct2}
           >
             <section
               className={`act2geo-complete-modal ${
@@ -2530,7 +2988,7 @@ function Actividad2MathGeometry() {
               <button
                 type="button"
                 className="act2geo-complete-close"
-                onClick={cerrarCompletadoAct2}
+                onClick={cerrarCompletadoYReiniciarAct2}
                 aria-label="Cerrar misión completada"
               >
                 <FiX />
