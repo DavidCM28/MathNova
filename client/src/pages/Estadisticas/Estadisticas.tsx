@@ -18,12 +18,18 @@ import promedioIcon from "../../assets/promedio-general.png";
 import {
   obtenerEstadisticasAlumno,
   obtenerPerfilAlumno,
-  obtenerProgresoAlumno,
+  obtenerProgresoAlumno as obtenerProgresoAlumnoAnterior,
 } from "../../services/alumnoService";
 
 import type { ActividadProgreso } from "../../services/alumnoService";
 
-import { clearAuthSession } from "../../utils/authSession";
+import {
+  obtenerResumenAlumno,
+  obtenerProgresoAlumno as obtenerProgresoAlumnoReal,
+  type ProgresoActividad as ProgresoActividadReal,
+} from "../../services/progresoService";
+
+import { clearAuthSession, getSessionUser } from "../../utils/authSession";
 
 import {
   FiGrid,
@@ -54,13 +60,21 @@ type Alumno = {
   racha_actual?: number;
 };
 
-type Actividad = ActividadProgreso & {
-  titulo?: string;
-  estado?: string;
-  porcentaje?: number;
-  tema?: string;
-  modulo?: string;
-};
+type Actividad = Partial<ActividadProgreso> &
+  Partial<ProgresoActividadReal> & {
+    titulo?: string;
+    estado?: string;
+    porcentaje?: number;
+    puntaje?: number;
+    tema?: string | null;
+    modulo?: string;
+    mundo?: string;
+    actividad_titulo?: string;
+    actividad_codigo?: string;
+    completada?: boolean;
+    estrellas_obtenidas?: number;
+    fecha_ultimo_intento?: string | number | Date | null;
+  };
 
 type EstadisticasAlumno = {
   completadas?: number;
@@ -72,6 +86,13 @@ type EstadisticasAlumno = {
   estrellasGanadas?: number;
   rachaActual?: number;
   promedioGeneral?: number;
+
+  estrellas_totales?: number;
+  xp_total?: number;
+  actividades_completadas?: number;
+  actividades_intentadas?: number;
+  precision_promedio?: number;
+  tiempo_total_segundos?: number;
 
   progresoSemanal?: {
     dia: string;
@@ -117,9 +138,60 @@ function Estadisticas() {
     };
   }, [menuOpen]);
 
+  const obtenerUsuarioLocal = () => {
+    const claves = ["usuario", "mathnova_user", "user"];
+
+    for (const clave of claves) {
+      try {
+        const valorLocal = localStorage.getItem(clave);
+        const valorSesion = sessionStorage.getItem(clave);
+        const valor = valorLocal || valorSesion;
+
+        if (valor) {
+          return JSON.parse(valor);
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    return getSessionUser();
+  };
+
+  const obtenerIdUsuario = (perfil?: Alumno | null) => {
+    const usuarioLocal = obtenerUsuarioLocal();
+
+    return (
+      perfil?.id_usuario ||
+      perfil?.id ||
+      usuarioLocal?.id_usuario ||
+      usuarioLocal?.id ||
+      usuarioLocal?.usuario_id ||
+      usuarioLocal?.id_alumno ||
+      null
+    );
+  };
+
+  const formatearMinutos = (minutos?: number) => {
+    const total = Number(minutos || 0);
+
+    if (total < 60) {
+      return `${total}m`;
+    }
+
+    const horas = Math.floor(total / 60);
+    const resto = total % 60;
+
+    return resto > 0 ? `${horas}h ${resto}m` : `${horas}h`;
+  };
+
   useEffect(() => {
     const cargarEstadisticas = async () => {
-      const token = localStorage.getItem("token");
+      const token =
+        localStorage.getItem("token") ||
+        sessionStorage.getItem("token") ||
+        localStorage.getItem("mathnova_token") ||
+        sessionStorage.getItem("mathnova_token");
 
       if (!token) {
         navigate("/login", { replace: true });
@@ -130,16 +202,146 @@ function Estadisticas() {
         setCargando(true);
         setErrorEstadisticas("");
 
-        const [perfilData, estadisticasData, actividadesData] =
-          await Promise.all([
-            obtenerPerfilAlumno(),
-            obtenerEstadisticasAlumno(),
-            obtenerProgresoAlumno(),
-          ]);
+        const [perfilData, estadisticasData] = await Promise.all([
+          obtenerPerfilAlumno(),
+          obtenerEstadisticasAlumno().catch(() => null),
+        ]);
 
-        setAlumno(perfilData?.perfil ?? perfilData);
-        setEstadisticas(estadisticasData?.estadisticas ?? estadisticasData);
-        setActividades(Array.isArray(actividadesData) ? actividadesData : []);
+        const perfil = perfilData?.perfil ?? perfilData;
+        const idUsuario = obtenerIdUsuario(perfil);
+
+        let resumenNuevo: EstadisticasAlumno = {};
+        let actividadesNuevas: Actividad[] = [];
+
+        if (idUsuario) {
+          try {
+            const [resumenResponse, progresoResponse] = await Promise.all([
+              obtenerResumenAlumno(idUsuario),
+              obtenerProgresoAlumnoReal(idUsuario),
+            ]);
+
+            resumenNuevo = resumenResponse?.resumen ?? {};
+
+            actividadesNuevas = Array.isArray(progresoResponse?.progreso)
+              ? progresoResponse.progreso.map((actividad) => ({
+                  ...actividad,
+                  titulo: actividad.actividad_titulo,
+                  estado: actividad.completada ? "completada" : "en_curso",
+                  porcentaje: Number(actividad.precision ?? 0),
+                  modulo: actividad.mundo,
+                  tema: actividad.tema || actividad.mundo || "General",
+                  puntaje: Number(actividad.precision ?? 0),
+                }))
+              : [];
+          } catch (errorProgreso) {
+            console.warn(
+              "No se pudo cargar el progreso real del alumno:",
+              errorProgreso
+            );
+          }
+        }
+
+        let actividadesAnteriores: Actividad[] = [];
+
+        if (actividadesNuevas.length === 0) {
+          try {
+            const actividadesData = await obtenerProgresoAlumnoAnterior();
+            actividadesAnteriores = Array.isArray(actividadesData)
+              ? actividadesData
+              : [];
+          } catch {
+            actividadesAnteriores = [];
+          }
+        }
+
+        const estadisticasAnteriores: EstadisticasAlumno =
+          estadisticasData?.estadisticas ?? estadisticasData ?? {};
+
+        const tiempoTotalSegundos = Number(
+          resumenNuevo.tiempo_total_segundos ??
+            estadisticasAnteriores.tiempo_total_segundos ??
+            0
+        );
+
+        const minutosTotales = Math.floor(tiempoTotalSegundos / 60);
+
+        const estadisticasNormalizadas: EstadisticasAlumno = {
+          ...estadisticasAnteriores,
+          ...resumenNuevo,
+
+          leccionesCompletadas: Number(
+            resumenNuevo.actividades_completadas ??
+              resumenNuevo.leccionesCompletadas ??
+              estadisticasAnteriores.leccionesCompletadas ??
+              estadisticasAnteriores.completadas ??
+              0
+          ),
+
+          completadas: Number(
+            resumenNuevo.actividades_completadas ??
+              estadisticasAnteriores.completadas ??
+              estadisticasAnteriores.leccionesCompletadas ??
+              0
+          ),
+
+          estrellasGanadas: Number(
+            resumenNuevo.estrellas_totales ??
+              resumenNuevo.estrellasGanadas ??
+              estadisticasAnteriores.estrellasGanadas ??
+              perfil?.estrellas_totales ??
+              0
+          ),
+
+          promedioGeneral: Math.round(
+            Number(
+              resumenNuevo.precision_promedio ??
+                resumenNuevo.promedioGeneral ??
+                estadisticasAnteriores.promedioGeneral ??
+                estadisticasAnteriores.promedio ??
+                0
+            )
+          ),
+
+          promedio: Math.round(
+            Number(
+              resumenNuevo.precision_promedio ??
+                estadisticasAnteriores.promedio ??
+                estadisticasAnteriores.promedioGeneral ??
+                0
+            )
+          ),
+
+          progreso_general: Math.round(
+            Number(
+              resumenNuevo.precision_promedio ??
+                estadisticasAnteriores.progreso_general ??
+                estadisticasAnteriores.promedioGeneral ??
+                0
+            )
+          ),
+
+          tiempo_formateado:
+            estadisticasAnteriores.tiempo_formateado ||
+            formatearMinutos(minutosTotales),
+
+          tiempoEstudio: {
+            minutos: Number(
+              estadisticasAnteriores.tiempoEstudio?.minutos ?? minutosTotales
+            ),
+            actividadesCompletas: Number(
+              resumenNuevo.actividades_completadas ??
+                estadisticasAnteriores.tiempoEstudio?.actividadesCompletas ??
+                0
+            ),
+            semanal: estadisticasAnteriores.tiempoEstudio?.semanal ?? [],
+          },
+        };
+
+        setAlumno(perfil);
+        setEstadisticas(estadisticasNormalizadas);
+        setActividades(
+          actividadesNuevas.length > 0 ? actividadesNuevas : actividadesAnteriores
+        );
       } catch (error) {
         const mensaje =
           error instanceof Error
@@ -175,26 +377,41 @@ function Estadisticas() {
   const actividadesSeguras = Array.isArray(actividades) ? actividades : [];
 
   const leccionesCompletadas = numero(
-    estadisticas?.leccionesCompletadas ?? estadisticas?.completadas
+    estadisticas?.actividades_completadas ??
+      estadisticas?.leccionesCompletadas ??
+      estadisticas?.completadas
   );
 
   const estrellasGanadas = numero(
-    estadisticas?.estrellasGanadas ?? alumno?.estrellas_totales
+    estadisticas?.estrellas_totales ??
+      estadisticas?.estrellasGanadas ??
+      alumno?.estrellas_totales
   );
 
   const rachaActual = numero(
     estadisticas?.rachaActual ?? alumno?.racha_actual
   );
 
-  const promedioGeneral = numero(
-    estadisticas?.promedioGeneral ?? estadisticas?.promedio
+  const promedioGeneral = Math.round(
+    numero(
+      estadisticas?.precision_promedio ??
+        estadisticas?.promedioGeneral ??
+        estadisticas?.promedio
+    )
   );
 
-  const progresoGeneral = numero(
-    estadisticas?.progreso_general ?? estadisticas?.promedioGeneral
+  const progresoGeneral = Math.round(
+    numero(
+      estadisticas?.precision_promedio ??
+        estadisticas?.progreso_general ??
+        estadisticas?.promedioGeneral
+    )
   );
 
-  const minutosEstudio = numero(estadisticas?.tiempoEstudio?.minutos);
+  const minutosEstudio = numero(
+    estadisticas?.tiempoEstudio?.minutos ??
+      Math.floor(numero(estadisticas?.tiempo_total_segundos) / 60)
+  );
 
   const tiempoEstudio =
     estadisticas?.tiempo_formateado || `${minutosEstudio}m`;
@@ -278,7 +495,7 @@ function Estadisticas() {
 
       acumulador[tema].total += 1;
       acumulador[tema].suma += numero(
-        actividad.porcentaje ?? actividad.puntaje
+        actividad.porcentaje ?? actividad.precision ?? actividad.puntaje
       );
 
       return acumulador;
@@ -333,7 +550,7 @@ function Estadisticas() {
 
       acumulador[modulo].total += 1;
       acumulador[modulo].suma += numero(
-        actividad.porcentaje ?? actividad.puntaje
+        actividad.porcentaje ?? actividad.precision ?? actividad.puntaje
       );
 
       return acumulador;

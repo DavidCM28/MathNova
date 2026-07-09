@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { obtenerPerfilAlumno } from "../../services/alumnoService";
 import {
-  obtenerPerfilAlumno,
-  obtenerProgresoAlumno,
-} from "../../services/alumnoService";
-
-import type { ActividadProgreso } from "../../services/alumnoService";
+  obtenerResumenAlumno,
+  obtenerProgresoAlumno as obtenerProgresoActividades,
+  type ProgresoActividad as ProgresoActividadReal,
+} from "../../services/progresoService";
 
 import "../Dashboard/Dashboard.css";
 import "./PerfilAlumno.css";
@@ -45,7 +45,7 @@ import {
 } from "react-icons/fi";
 
 import { GiRingedPlanet, GiTrophyCup, GiFlame } from "react-icons/gi";
-import { clearAuthSession } from "../../utils/authSession";
+import { clearAuthSession, getSessionUser } from "../../utils/authSession";
 
 type MundoCompletado = {
   id: number;
@@ -68,6 +68,12 @@ type ResumenAlumno = {
     minutos?: number;
     actividadesCompletas?: number;
   };
+  estrellas_totales?: number;
+  xp_total?: number;
+  actividades_completadas?: number;
+  actividades_intentadas?: number;
+  precision_promedio?: number;
+  tiempo_total_segundos?: number;
 };
 
 type AlumnoPerfil = {
@@ -98,14 +104,24 @@ type AlumnoPerfil = {
   insignias?: InsigniaAlumno[];
 };
 
-type ActividadPerfil = ActividadProgreso & {
+type ActividadPerfil = Partial<ProgresoActividadReal> & {
   id?: number | string;
   titulo?: string;
+  actividadNombre?: string;
+  actividadSlug?: string;
   estado?: string;
   porcentaje?: number;
-  tema?: string;
+  tema?: string | null;
   modulo?: string;
   updated_at?: string | number | Date | null;
+  fechaCompletado?: string | number | Date | null;
+  estrellas?: number;
+  completada?: boolean;
+  mundo?: string;
+  actividad_titulo?: string;
+  actividad_codigo?: string;
+  estrellas_obtenidas?: number;
+  fecha_ultimo_intento?: string | number | Date | null;
 };
 
 function PerfilAlumno() {
@@ -126,11 +142,37 @@ function PerfilAlumno() {
   }, [menuOpen]);
 
   const obtenerUsuarioLocal = () => {
-    try {
-      return JSON.parse(localStorage.getItem("usuario") || "null");
-    } catch {
-      return null;
+    const claves = ["usuario", "mathnova_user", "user"];
+
+    for (const clave of claves) {
+      try {
+        const valorLocal = localStorage.getItem(clave);
+        const valorSesion = sessionStorage.getItem(clave);
+        const valor = valorLocal || valorSesion;
+
+        if (valor) {
+          return JSON.parse(valor);
+        }
+      } catch {
+        continue;
+      }
     }
+
+    return getSessionUser();
+  };
+
+  const obtenerIdUsuario = (perfil?: AlumnoPerfil | null) => {
+    const usuarioLocal = obtenerUsuarioLocal();
+
+    return (
+      perfil?.id_usuario ||
+      perfil?.id ||
+      usuarioLocal?.id_usuario ||
+      usuarioLocal?.id ||
+      usuarioLocal?.usuario_id ||
+      usuarioLocal?.id_alumno ||
+      null
+    );
   };
 
   const formatearMinutos = (minutos?: number) => {
@@ -149,7 +191,11 @@ function PerfilAlumno() {
   useEffect(() => {
     const cargarPerfil = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token =
+          localStorage.getItem("token") ||
+          sessionStorage.getItem("token") ||
+          localStorage.getItem("mathnova_token") ||
+          sessionStorage.getItem("mathnova_token");
 
         if (!token) {
           navigate("/login", { replace: true });
@@ -159,16 +205,79 @@ function PerfilAlumno() {
         setCargando(true);
         setError("");
 
-        const [perfilData, actividadesData] = await Promise.all([
-          obtenerPerfilAlumno(),
-          obtenerProgresoAlumno(),
-        ]);
-
+        const perfilData = await obtenerPerfilAlumno();
         const perfil = perfilData?.perfil ?? perfilData?.usuario ?? {};
-        const resumen: ResumenAlumno = perfilData?.resumen ?? {};
         const usuarioLocal = obtenerUsuarioLocal();
 
-        const minutosEstudio = Number(resumen?.tiempoEstudio?.minutos || 0);
+        const idUsuario = obtenerIdUsuario(perfil);
+
+        let resumenProgresoData: {
+          resumen?: ResumenAlumno;
+          mundos?: Array<{
+            mundo: string;
+            completadas: number;
+            intentadas: number;
+            estrellas: number;
+            xp: number;
+            precision: number;
+          }>;
+        } | null = null;
+
+        let progresoData: { progreso?: ProgresoActividadReal[] } | null = null;
+
+        if (idUsuario) {
+          try {
+            const [resumenResponse, progresoResponse] = await Promise.all([
+              obtenerResumenAlumno(idUsuario),
+              obtenerProgresoActividades(idUsuario),
+            ]);
+
+            resumenProgresoData = resumenResponse;
+            progresoData = progresoResponse;
+          } catch (errorProgreso) {
+            console.warn(
+              "No se pudo cargar el progreso nuevo del alumno:",
+              errorProgreso
+            );
+          }
+        }
+
+        const resumenAnterior: ResumenAlumno = perfilData?.resumen ?? {};
+        const resumenNuevo: ResumenAlumno = resumenProgresoData?.resumen ?? {};
+        const resumen: ResumenAlumno = {
+          ...resumenAnterior,
+          ...resumenNuevo,
+        };
+
+        const tiempoTotalSegundos = Number(
+          resumen.tiempo_total_segundos ?? perfil.tiempo_estudio_segundos ?? 0
+        );
+
+        const minutosEstudio = Number(
+          resumen?.tiempoEstudio?.minutos ?? Math.floor(tiempoTotalSegundos / 60)
+        );
+
+        const actividadesCompletadas = Number(
+          resumen.actividades_completadas ??
+            resumen.leccionesCompletadas ??
+            resumen.tiempoEstudio?.actividadesCompletas ??
+            perfil.lecciones_completadas ??
+            0
+        );
+
+        const estrellasTotales = Number(
+          resumen.estrellas_totales ??
+            resumen.estrellasGanadas ??
+            perfil.estrellas_totales ??
+            0
+        );
+
+        const progresoPromedio = Number(
+          resumen.precision_promedio ??
+            resumen.promedioGeneral ??
+            perfil.progreso_general ??
+            0
+        );
 
         const alumnoNormalizado: AlumnoPerfil = {
           id: perfil.id ?? perfil.id_usuario ?? usuarioLocal?.id_usuario,
@@ -209,40 +318,40 @@ function PerfilAlumno() {
 
           avatar_url: perfil.avatar_url ?? usuarioLocal?.avatar_url ?? null,
 
-          nivel: perfil.nivel ?? 1,
+          nivel: perfil.nivel ?? Math.max(1, Math.floor(estrellasTotales / 6) + 1),
           titulo: perfil.titulo ?? "Aprendiz Nova",
 
-          estrellas_totales: Number(
-            resumen.estrellasGanadas ?? perfil.estrellas_totales ?? 0
-          ),
-
-          racha_actual: Number(
-            resumen.rachaActual ?? perfil.racha_actual ?? 0
-          ),
-
-          lecciones_completadas: Number(
-            resumen.leccionesCompletadas ??
-              resumen.tiempoEstudio?.actividadesCompletas ??
-              perfil.lecciones_completadas ??
-              0
-          ),
-
-          tiempo_estudio_segundos:
-            perfil.tiempo_estudio_segundos ?? minutosEstudio * 60,
-
+          estrellas_totales: estrellasTotales,
+          racha_actual: Number(resumen.rachaActual ?? perfil.racha_actual ?? 0),
+          lecciones_completadas: actividadesCompletadas,
+          tiempo_estudio_segundos: tiempoTotalSegundos,
           tiempo_estudio:
             perfil.tiempo_estudio ?? formatearMinutos(minutosEstudio),
-
-          progreso_general: Number(
-            resumen.promedioGeneral ?? perfil.progreso_general ?? 0
-          ),
+          progreso_general: Math.round(progresoPromedio),
         };
 
-        const actividadesNormalizadas = Array.isArray(actividadesData)
-          ? actividadesData
-          : Array.isArray(perfilData?.actividadesRecientes)
+        const actividadesDesdeProgreso = Array.isArray(progresoData?.progreso)
+          ? progresoData.progreso.map((actividad) => ({
+              ...actividad,
+              id: actividad.id_progreso,
+              titulo: actividad.actividad_titulo,
+              actividadNombre: actividad.actividad_titulo,
+              actividadSlug: actividad.actividad_codigo,
+              estado: actividad.completada ? "completada" : "en_curso",
+              porcentaje: Number(actividad.precision ?? 0),
+              updated_at: actividad.fecha_ultimo_intento,
+              estrellas: Number(actividad.estrellas_obtenidas ?? 0),
+            }))
+          : [];
+
+        const actividadesAnteriores = Array.isArray(perfilData?.actividadesRecientes)
           ? perfilData.actividadesRecientes
           : [];
+
+        const actividadesNormalizadas =
+          actividadesDesdeProgreso.length > 0
+            ? actividadesDesdeProgreso
+            : actividadesAnteriores;
 
         setAlumno(alumnoNormalizado);
         setActividades(actividadesNormalizadas as ActividadPerfil[]);
@@ -357,12 +466,18 @@ function PerfilAlumno() {
         ...actividad,
         titulo:
           actividad.titulo ||
+          actividad.actividad_titulo ||
           actividad.actividadNombre ||
           actividad.actividadSlug ||
+          actividad.actividad_codigo ||
           "Actividad",
         estado:
           actividad.estado || (actividad.completada ? "completada" : "en_curso"),
-        updated_at: actividad.updated_at || actividad.fechaCompletado || null,
+        updated_at:
+          actividad.updated_at ||
+          actividad.fecha_ultimo_intento ||
+          actividad.fechaCompletado ||
+          null,
       }))
       .slice(0, 3);
   }, [actividadesSeguras]);
@@ -427,7 +542,12 @@ function PerfilAlumno() {
 
   const textoActividad = (actividad: ActividadPerfil) => {
     const titulo =
-      actividad.titulo || actividad.actividadNombre || actividad.actividadSlug;
+      actividad.titulo ||
+      actividad.actividad_titulo ||
+      actividad.actividadNombre ||
+      actividad.actividadSlug ||
+      actividad.actividad_codigo ||
+      "Actividad";
 
     if (actividad.estado === "completada" || actividad.completada) {
       return `Completaste la actividad “${titulo}”`;
@@ -707,7 +827,9 @@ function PerfilAlumno() {
                   className="actividad-row"
                   key={
                     actividad.id ||
+                    actividad.id_progreso ||
                     actividad.actividadSlug ||
+                    actividad.actividad_codigo ||
                     `${actividad.mundo}-${index}`
                   }
                 >
@@ -717,7 +839,7 @@ function PerfilAlumno() {
 
                   <small>{formatearFechaActividad(actividad.updated_at)}</small>
 
-                  <strong>⭐ +{actividad.estrellas || 0}</strong>
+                  <strong>⭐ +{actividad.estrellas_obtenidas ?? actividad.estrellas ?? 0}</strong>
                 </div>
               ))
             ) : (
