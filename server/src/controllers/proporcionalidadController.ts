@@ -200,6 +200,44 @@ class ProporcionalidadController {
       });
     }
   }
+
+  // ✅ NUEVO: reiniciar actividad (conserva historial de intentos anteriores)
+  async reiniciarActividad(req: Request, res: Response): Promise<void> {
+    try {
+      const { id_estudiante } = req.body;
+
+      if (!id_estudiante) {
+        res.status(400).json({
+          success: false,
+          mensaje: 'Falta id_estudiante',
+        });
+        return;
+      }
+
+      const result = await proporcionalidadService.reiniciarActividad(Number(id_estudiante));
+
+      if (!result) {
+        res.status(404).json({
+          success: false,
+          mensaje: 'No se encontró progreso para este estudiante',
+        });
+        return;
+      }
+
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+
+    } catch (error) {
+      console.error('Error en reiniciarActividad:', error);
+      res.status(500).json({
+        success: false,
+        mensaje: 'Error interno del servidor',
+        error: process.env.NODE_ENV === 'development' ? error : undefined,
+      });
+    }
+  }
 }
 
 export default new ProporcionalidadController();

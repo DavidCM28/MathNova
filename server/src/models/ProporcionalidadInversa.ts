@@ -12,6 +12,8 @@ export interface ProporcionalidadInversaAttributes {
   completada: boolean;
   tiempo_total: number;
   xp_obtenido: number;
+  intentos_completados: number;
+  historial_intentos: object[];
 }
 
 export interface ProporcionalidadInversaCreationAttributes
@@ -31,6 +33,8 @@ export class ProporcionalidadInversa
   declare completada: boolean;
   declare tiempo_total: number;
   declare xp_obtenido: number;
+  declare intentos_completados: number;
+  declare historial_intentos: object[];
 
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
@@ -88,6 +92,17 @@ ProporcionalidadInversa.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0,
+    },
+    // ✅ NUEVO: para el sistema de reinicio de actividad
+    intentos_completados: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    historial_intentos: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      defaultValue: [],
     },
   },
   {

@@ -28,6 +28,11 @@ export interface PrediccionResponse {
   completada?: boolean;
 }
 
+export interface ReiniciarResponse {
+  mensaje: string;
+  intentos_completados: number;
+}
+
 class ProporcionalidadService {
   private readonly CONSTANTE = 12;
 
@@ -57,6 +62,8 @@ class ProporcionalidadService {
         completada: false,
         tiempo_total: 0,
         xp_obtenido: 0,
+        intentos_completados: 0,
+        historial_intentos: [],
       });
     }
 
@@ -198,6 +205,7 @@ class ProporcionalidadService {
       intentos_tabla: progreso.intentos_tabla,
       completada: progreso.completada,
       xp_obtenido: progreso.xp_obtenido,
+      intentos_completados: progreso.intentos_completados,
     };
   }
 
@@ -231,6 +239,50 @@ class ProporcionalidadService {
     return {
       mensaje: '🎉 Actividad completada. ¡Buen trabajo, agente!',
       xp_obtenido: progreso.xp_obtenido,
+    };
+  }
+
+  // ✅ NUEVO: reiniciar actividad conservando el historial de intentos anteriores
+  async reiniciarActividad(id_estudiante: number): Promise<ReiniciarResponse | null> {
+    const progreso = await ProporcionalidadInversa.findOne({
+      where: { id_estudiante },
+    });
+
+    if (!progreso) {
+      return null;
+    }
+
+    const historial = (progreso.historial_intentos as any[]) || [];
+    let nuevosIntentosCompletados = progreso.intentos_completados;
+
+    // Solo archivamos en el historial si la actividad ya estaba completada
+    if (progreso.completada) {
+      historial.push({
+        fecha: new Date().toISOString(),
+        prediccion_correcta: progreso.prediccion_correcta,
+        xp_obtenido: progreso.xp_obtenido,
+        tiempo_total: progreso.tiempo_total,
+        valores_tabla: progreso.valores_tabla,
+      });
+      nuevosIntentosCompletados = progreso.intentos_completados + 1;
+    }
+
+    await progreso.update({
+      valores_tabla: {},
+      intentos_tabla: {},
+      prediccion: null,
+      prediccion_correcta: null,
+      pantalla_actual: 1,
+      completada: false,
+      tiempo_total: 0,
+      xp_obtenido: 0,
+      intentos_completados: nuevosIntentosCompletados,
+      historial_intentos: historial,
+    });
+
+    return {
+      mensaje: 'Actividad reiniciada, puedes intentarlo de nuevo.',
+      intentos_completados: nuevosIntentosCompletados,
     };
   }
 }

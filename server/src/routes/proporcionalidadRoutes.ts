@@ -8,5 +8,6 @@ router.post('/prediccion', proporcionalidadController.validarPrediccion.bind(pro
 router.get('/progreso/:id_estudiante', proporcionalidadController.obtenerProgreso.bind(proporcionalidadController));
 router.post('/guardar-progreso', proporcionalidadController.guardarProgreso.bind(proporcionalidadController));
 router.post('/finalizar', proporcionalidadController.finalizarActividad.bind(proporcionalidadController));
+router.post('/reiniciar', proporcionalidadController.reiniciarActividad.bind(proporcionalidadController)); // ✅ NUEVO
 
 export default router;
