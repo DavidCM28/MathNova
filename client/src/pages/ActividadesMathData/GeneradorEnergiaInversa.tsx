@@ -45,13 +45,16 @@ import {
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 import { FaStar, FaShieldAlt, FaGem, FaLightbulb, FaHandPointUp } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
+import { getSessionUser } from "../../utils/authSession";
 
 // ============================================
 // CONFIGURACIÓN DEL BACKEND
 // ============================================
 
 const API_URL = "http://localhost:3001/api";
-const ID_ESTUDIANTE = 2; // ⚠️ Reemplazar con el ID real del estudiante
+// Después:
+const usuarioSesion = getSessionUser();
+const ID_ESTUDIANTE = usuarioSesion?.id_usuario;
 
 // ============================================
 // DATOS INICIALES (NO MODIFICAR)
