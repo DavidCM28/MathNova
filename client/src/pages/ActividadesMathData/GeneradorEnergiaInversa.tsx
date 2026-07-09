@@ -7,9 +7,8 @@ import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 
 import heroBanner from "../../assets/banner-gen2-MathData.png";
 import personajeAyuda from "../../assets/hola-MathData.png";
-import villanoCompleto from "../../assets/villano-actcomplet.png";
+import villanoTrofeoCompleto from "../../assets/villano-trofeo-completo.png";
 import villanoIntentar from "../../assets/villano-vintentar.png";
-import trofeoEstrella1 from "../../assets/trofeo-estrella1.png";
 import estrellaMision from "../../assets/estrella-mision.png";
 import iconoAciertos from "../../assets/icono-aciertos.png";
 import iconoTiempo from "../../assets/icono-tiempo.png";
@@ -371,24 +370,20 @@ function GeneradorEnergiaInversa() {
           </div>
         </div>
 
-        {/* DERECHA: villano + trofeo con estrella (imagen combinada) */}
-        <div className="res-hero-personajes">
-          <img
-            src={villanoCompleto}
-            alt="Villano celebrando"
-            className="res-villano-grande"
-          />
-          <img
-            src={trofeoEstrella1}
-            alt="Misión cumplida - Trofeo"
-            className="res-trofeo-estrella-img"
-          />
-        </div>
+        {/* DERECHA: villano + trofeo + estrella (una sola imagen combinada) */}
 
       </div>
 
       {/* BOTTOM */}
       <div className="res-bottom">
+                <div className="res-villano-exito-group">
+          <img
+            src={villanoTrofeoCompleto}
+            alt="Villano celebrando con trofeo"
+            className="res-villano-trofeo-img"
+          />
+        </div>
+
 
         {/* COLUMNA IZQUIERDA */}
         <div className="res-bottom-left">
@@ -511,6 +506,14 @@ function GeneradorEnergiaInversa() {
       </header>
 
       <div className="res-body">
+          <div className="res-hero-personajes">
+    <img
+      src={villanoIntentar}
+      alt="Villano retando"
+      className="res-villano-img"
+    />
+  </div>
+
         <div className="res-left">
           <div className="res-titulo-row">
             <div className="res-icono-retry">&#x1F504;</div>
@@ -603,14 +606,6 @@ function GeneradorEnergiaInversa() {
           </div>
         </div>
 
-        <div className="res-right">
-          <div className="res-villano-wrap">
-            <div className="res-bubble-villano">
-              ¡Observa los datos<br />y vuelve a intentarlo!
-            </div>
-            <img src={villanoIntentar} alt="Villano retando" className="res-villano-img" />
-          </div>
-
           <div className="res-acciones">
             <button
               className="res-btn res-btn-azul"
@@ -633,7 +628,7 @@ function GeneradorEnergiaInversa() {
           </div>
         </div>
       </div>
-    </div>
+
   );
 
 

@@ -305,6 +305,8 @@ function ActividadesMathData() {
                       onClick={() => {
                         if (index === 0) {
                           navigate("/actividades-math-data/generador-energia");
+                        } else if (index === 1) {
+                          navigate("/actividades-math-data/rampas-lanzamiento");
                         }
                       }}
                     >

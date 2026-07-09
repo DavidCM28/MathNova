@@ -18,6 +18,7 @@ import Actividad2MathGeometry from "./pages/ActividadesMathGeometry/Actividad2Ma
 
 import ActividadesMathData from "./pages/ActividadesMathData/ActividadesMathData";
 import GeneradorEnergiaInversa from "./pages/ActividadesMathData/GeneradorEnergiaInversa";
+import RampasDeLanzamiento from "./pages/ActividadesMathData/RampasDeLanzamiento";
 import ActividadesMathNumbers from "./pages/ActividadesMathNumbers/ActividadesMathNumbers";
 import MathNumbersActivityRouter from "./pages/MathNumbersActivities/MathNumbersActivityRouter";
 
@@ -103,6 +104,14 @@ function App() {
           }
         />
 
+        <Route
+          path="/actividades-math-data/rampas-lanzamiento"
+          element={
+            <RequireAuth>
+              <RampasDeLanzamiento />
+            </RequireAuth>
+          }
+        />
         <Route
           path="/retroalimentacion"
           element={
