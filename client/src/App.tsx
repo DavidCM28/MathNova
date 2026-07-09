@@ -1,6 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import RequireAuth from "./routes/RequireAuth";
+import {
+  getSessionUser,
+  hasAuthSession,
+  isGuestSession
+} from "./utils/authSession";
 
 import Login from "./pages/Login/Login";
 
@@ -41,11 +46,97 @@ import ReportsAdmin from "./pages/Admin/Reports/ReportsAdmin";
 import RequestsAdmin from "./pages/Admin/Requests/RequestsAdmin";
 import SettingsAdmin from "./pages/Admin/Settings/SettingsAdmin";
 
+
+type SessionUser = {
+  rol?: string;
+  role?: string;
+  tipo_usuario?: string;
+  role_id?: number | string;
+  roleId?: number | string;
+  id_rol?: number | string;
+};
+
+const normalizarRol = (rol?: string, roleId?: number | string) => {
+  const valor = String(rol || "").toLowerCase().trim();
+  const idRol = Number(roleId);
+
+  if (
+    [
+      "docente_estudiante",
+      "docente-estudiante",
+      "docente-alumno",
+      "docente_alumno",
+      "maestro_estudiante",
+      "maestro-estudiante",
+      "mixto"
+    ].includes(valor)
+  ) {
+    return "docente_estudiante";
+  }
+
+  if (["alumno", "student", "usuario", "estudiante"].includes(valor)) {
+    return "estudiante";
+  }
+
+  if (["admin", "administrador"].includes(valor)) {
+    return "admin";
+  }
+
+  if (["docente", "profesor", "maestro"].includes(valor)) {
+    return "docente";
+  }
+
+  if (idRol === 1) return "docente";
+  if (idRol === 2) return "estudiante";
+  if (idRol === 3) return "admin";
+  if (idRol === 4) return "docente_estudiante";
+
+  return "";
+};
+
+const obtenerRutaInicial = () => {
+  const tieneSesion = hasAuthSession();
+  const esInvitado = isGuestSession();
+
+  if (!tieneSesion && !esInvitado) {
+    return "/login";
+  }
+
+  if (esInvitado && !tieneSesion) {
+    return "/dashboard";
+  }
+
+  const usuario = getSessionUser() as SessionUser | null;
+
+  if (!usuario) {
+    return "/login";
+  }
+
+  const rolUsuario = normalizarRol(
+    usuario.rol || usuario.role || usuario.tipo_usuario,
+    usuario.role_id || usuario.roleId || usuario.id_rol
+  );
+
+  if (rolUsuario === "admin") {
+    return "/dashboard-admin";
+  }
+
+  if (rolUsuario === "docente" || rolUsuario === "docente_estudiante") {
+    return "/dashboard-docente";
+  }
+
+  return "/dashboard";
+};
+
+function StartupRedirect() {
+  return <Navigate to={obtenerRutaInicial()} replace />;
+}
+
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<StartupRedirect />} />
         <Route path="/login" element={<Login />} />
 
         <Route
@@ -351,7 +442,7 @@ function App() {
           }
         />
 
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<StartupRedirect />} />
       </Routes>
     </BrowserRouter>
   );

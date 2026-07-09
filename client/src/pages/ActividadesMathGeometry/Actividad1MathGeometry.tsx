@@ -1,5 +1,7 @@
 import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getSessionUser, hasAuthSession, isGuestSession } from "../../utils/authSession";
+
 import "./Actividad1MathGeometry.css";
 
 import logo from "../../assets/logo_MathNova.png";
@@ -61,6 +63,15 @@ type FiguraId = "triangulo" | "cuadrado" | "rectangulo";
 type OpcionId = "triangulo" | "cuadrado" | "rectangulo";
 type PistaByteId = "triangulo" | "cuadrado" | "rectangulo";
 type EstadoExplicacion = "inicio" | "reproduciendo" | "pausado" | "terminado";
+
+type SessionUser = {
+  rol?: string;
+  role?: string;
+  tipo_usuario?: string;
+  role_id?: number | string;
+  roleId?: number | string;
+  id_rol?: number | string;
+};
 
 /*
   AQUÍ AJUSTAS LA VELOCIDAD DEL TEXTO:
@@ -576,6 +587,47 @@ function Actividad1MathGeometry() {
   });
 
   const navigate = useNavigate();
+
+  const obtenerDashboardPrincipal = () => {
+    if (isGuestSession() && !hasAuthSession()) {
+      return "/dashboard";
+    }
+
+    const usuario = getSessionUser() as SessionUser | null;
+
+    const rol = String(
+      usuario?.rol || usuario?.role || usuario?.tipo_usuario || "",
+    )
+      .toLowerCase()
+      .trim();
+
+    const roleId = Number(
+      usuario?.role_id || usuario?.roleId || usuario?.id_rol || 0,
+    );
+
+    if (rol === "admin" || rol === "administrador" || roleId === 3) {
+      return "/dashboard-admin";
+    }
+
+    if (
+      rol === "docente" ||
+      rol === "profesor" ||
+      rol === "maestro" ||
+      rol === "docente_estudiante" ||
+      rol === "docente-estudiante" ||
+      rol === "docente_alumno" ||
+      rol === "docente-alumno" ||
+      rol === "maestro_estudiante" ||
+      rol === "maestro-estudiante" ||
+      rol === "mixto" ||
+      roleId === 1 ||
+      roleId === 4
+    ) {
+      return "/dashboard-docente";
+    }
+
+    return "/dashboard";
+  };
 
   const pistaByteActiva = pistaByteSeleccionada
     ? pistasByte[pistaByteSeleccionada]
@@ -1819,7 +1871,7 @@ function Actividad1MathGeometry() {
     pausarCompletado();
     pausarSombra();
     setMenuOpen(false);
-    navigate(ruta);
+    navigate(ruta, { replace: true });
   };
 
   const opciones = [
@@ -1963,7 +2015,7 @@ function Actividad1MathGeometry() {
           <button
             type="button"
             className="act1geo-menu-item"
-            onClick={() => irARuta("/")}
+            onClick={() => irARuta(obtenerDashboardPrincipal())}
           >
             <FiGrid />
             <span>Dashboard principal</span>
@@ -2998,7 +3050,7 @@ function Actividad1MathGeometry() {
 
         <footer className="act1geo-footer">
           <div className="act1geo-footer-icons">
-            <button type="button" onClick={() => navigate("/login")}>
+            <button type="button" onClick={() => irARuta(obtenerDashboardPrincipal())}>
               <FiLogOut />
             </button>
 
