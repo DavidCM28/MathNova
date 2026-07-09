@@ -21,19 +21,19 @@ export class ProporcionalidadInversa
   extends Model<ProporcionalidadInversaAttributes, ProporcionalidadInversaCreationAttributes>
   implements ProporcionalidadInversaAttributes
 {
-  public id!: number;
-  public id_estudiante!: number;
-  public valores_tabla!: object;
-  public intentos_tabla!: object;
-  public prediccion!: number | null;
-  public prediccion_correcta!: boolean | null;
-  public pantalla_actual!: number;
-  public completada!: boolean;
-  public tiempo_total!: number;
-  public xp_obtenido!: number;
+  declare id: number;
+  declare id_estudiante: number;
+  declare valores_tabla: object;
+  declare intentos_tabla: object;
+  declare prediccion: number | null;
+  declare prediccion_correcta: boolean | null;
+  declare pantalla_actual: number;
+  declare completada: boolean;
+  declare tiempo_total: number;
+  declare xp_obtenido: number;
 
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 }
 
 ProporcionalidadInversa.init(
@@ -47,7 +47,7 @@ ProporcionalidadInversa.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'usuario',
+        model: 'registro', // ✅ CAMBIADO: antes era 'usuario'
         key: 'id_usuario',
       },
     },

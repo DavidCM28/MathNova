@@ -8,6 +8,7 @@ const alumnoRoutes = require("./routes/alumnoRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const gruposRoutes = require("./routes/grupos.routes");
 const progresoRoutes = require("./routes/progreso.routes");
+const proporcionalidadRoutes = require("./routes/proporcionalidadRoutes").default;
 // const docenteAlumnosRoutes = require("./routes/docenteAlumnos.routes");
 
 const app = express();
@@ -34,6 +35,7 @@ app.use("/api/alumno", alumnoRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/grupos", gruposRoutes);
 app.use("/api/progreso", progresoRoutes);
+app.use("/api/proporcionalidad", proporcionalidadRoutes);
 // app.use("/api/docente/alumnos", docenteAlumnosRoutes);
 
 app.listen(PORT, "0.0.0.0", () => {
