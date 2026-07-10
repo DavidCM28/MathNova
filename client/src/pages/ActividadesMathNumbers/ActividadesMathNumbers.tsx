@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ActividadesMathNumbers.css";
 
@@ -39,6 +39,7 @@ import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
 function ActividadesMathNumbers() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [busqueda, setBusqueda] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,6 +63,13 @@ function ActividadesMathNumbers() {
 
     navigate(`/actividades/mathnumbers/${slug}`);
   };
+
+  const normalizarTexto = (texto: string) =>
+    texto
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim();
 
   const actividades = [
     {
@@ -145,6 +153,33 @@ function ActividadesMathNumbers() {
       slug: "",
     },
   ];
+
+  const actividadesVisibles = useMemo(
+    () => actividades.filter((item) => item.slug),
+    []
+  );
+
+  const actividadesFiltradas = useMemo(() => {
+    const textoBuscado = normalizarTexto(busqueda);
+
+    if (!textoBuscado) {
+      return actividadesVisibles;
+    }
+
+    return actividadesVisibles.filter((item) => {
+      const contenido = normalizarTexto(
+        `${item.titulo} ${item.texto} ${item.nivel} ${item.tiempo} ${item.slug}`
+      );
+
+      return contenido.includes(textoBuscado);
+    });
+  }, [busqueda, actividadesVisibles]);
+
+  const gridClassName = `numbersx-activities-grid ${
+    actividadesFiltradas.length <= 3
+      ? `numbersx-grid-${actividadesFiltradas.length}`
+      : "numbersx-grid-many"
+  }`;
 
   return (
     <main className="numbersx-page">
@@ -282,53 +317,73 @@ function ActividadesMathNumbers() {
             <div className="numbersx-search-area">
               <div className="numbersx-search-box">
                 <FiSearch />
-                <input placeholder="Buscar actividades o temas..." />
+                <input
+                  type="search"
+                  value={busqueda}
+                  placeholder="Buscar actividades o temas..."
+                  onChange={(event) => setBusqueda(event.target.value)}
+                />
               </div>
 
-              <button className="numbersx-filter-btn">
+              <button
+                type="button"
+                className="numbersx-filter-btn"
+                onClick={() => setBusqueda("")}
+              >
                 <FiFilter />
-                Filtros
+                Limpiar
               </button>
             </div>
           </div>
 
-          <div className="numbersx-activities-grid">
-            {actividades.map((item, index) => (
-              <article className="numbersx-activity-card" key={index}>
-                <img src={item.img} alt={item.titulo} />
+          {actividadesFiltradas.length > 0 ? (
+            <div className={gridClassName}>
+              {actividadesFiltradas.map((item, index) => (
+                <article className="numbersx-activity-card" key={index}>
+                  <img src={item.img} alt={item.titulo} />
 
-                <div className="numbersx-activity-info">
-                  <h3>{item.titulo}</h3>
+                  <div className="numbersx-activity-info">
+                    <h3>{item.titulo}</h3>
 
-                  <p>{item.texto}</p>
+                    <p>{item.texto}</p>
 
-                  <span
-                    className={
-                      item.nivel === "Fácil"
-                        ? "numbersx-easy"
-                        : "numbersx-medium"
-                    }
-                  >
-                    {item.nivel}
-                  </span>
-
-                  <div className="numbersx-activity-bottom">
-                    <small>
-                      <FiClock />
-                      {item.tiempo}
-                    </small>
-
-                    <button
-                      type="button"
-                      onClick={() => iniciarActividad(item.slug)}
+                    <span
+                      className={
+                        item.nivel === "Fácil"
+                          ? "numbersx-easy"
+                          : "numbersx-medium"
+                      }
                     >
-                      Iniciar
-                    </button>
+                      {item.nivel}
+                    </span>
+
+                    <div className="numbersx-activity-bottom">
+                      <small>
+                        <FiClock />
+                        {item.tiempo}
+                      </small>
+
+                      <button
+                        type="button"
+                        onClick={() => iniciarActividad(item.slug)}
+                      >
+                        Iniciar
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
-          </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="numbersx-empty-search">
+              <FiSearch />
+              <h2>No se encontraron actividades</h2>
+              <p>Intenta buscar por nombre, tema, nivel o tiempo.</p>
+              <button type="button" onClick={() => setBusqueda("")}>
+                Ver actividades disponibles
+              </button>
+            </div>
+          )}
         </section>
 
         <footer className="numbersx-footer">
