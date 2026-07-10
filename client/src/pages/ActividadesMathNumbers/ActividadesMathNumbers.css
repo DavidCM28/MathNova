@@ -5,7 +5,7 @@
 
 .numbersx-page {
   width: 100%;
-  min-height: 100vh;
+  min-height: 100dvh;
   background: #f2f8df;
   display: flex;
   font-family: "Poppins", Arial, sans-serif;
@@ -20,7 +20,7 @@
 .numbersx-sidebar {
   width: 305px;
   min-width: 305px;
-  min-height: 100vh;
+  min-height: 100dvh;
   background: #ffffff;
   border-radius: 0 34px 34px 0;
   padding: 34px 28px 24px;
@@ -33,7 +33,10 @@
 
 .numbersx-sidebar-logo {
   width: 205px;
+  max-width: 100%;
+  height: auto;
   margin-bottom: 34px;
+  object-fit: contain;
 }
 
 .numbersx-sidebar-menu {
@@ -88,7 +91,8 @@
 
 .numbersx-sidebar-bottom {
   width: 100%;
-  margin-top: 78px;
+  margin-top: auto;
+  padding-top: 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -96,6 +100,7 @@
 
 .numbersx-hello-box {
   width: 250px;
+  max-width: 100%;
   min-height: 82px;
   background: #ffffff;
   border-radius: 24px;
@@ -112,6 +117,7 @@
   width: 76px;
   height: 76px;
   object-fit: contain;
+  flex-shrink: 0;
 }
 
 .numbersx-hello-box span {
@@ -123,6 +129,7 @@
 
 .numbersx-weekly-progress {
   width: 265px;
+  max-width: 100%;
   height: 280px;
   background: #ffffff;
   border-radius: 24px;
@@ -137,6 +144,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
 }
 
 .numbersx-weekly-head strong {
@@ -214,9 +222,10 @@
 .numbersx-content {
   flex: 1;
   min-width: 0;
-  min-height: 100vh;
+  min-height: 100dvh;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: radial-gradient(circle at top right, rgba(129, 214, 66, 0.18), transparent 35%), linear-gradient(180deg, #f0f8df 0%, #fbfff5 55%, #f3f8e7 100%);
 }
 
@@ -225,44 +234,52 @@
   right: 0;
   top: 0;
   width: 100%;
-  height: 174px;
+  height: clamp(185px, 15vw, 240px);
   object-fit: cover;
   object-position: center top;
   z-index: 1;
+  pointer-events: none;
 }
 
 .numbersx-main {
+  width: 100%;
+  max-width: 1580px;
+  margin: 0 auto;
   position: relative;
   z-index: 5;
-  padding: 30px 22px 18px 42px;
+  padding: clamp(24px, 2vw, 34px) clamp(18px, 2.4vw, 42px) 26px;
 }
 
 .numbersx-header {
-  min-height: 175px;
-  display: flex;
+  width: 100%;
+  min-height: 190px;
+  display: grid;
+  grid-template-columns: minmax(300px, 680px) minmax(360px, 640px);
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: start;
   gap: 24px;
   position: relative;
 }
 
 .numbersx-title-box {
-  max-width: 660px;
+  width: 100%;
+  max-width: 680px;
   padding-top: 2px;
 }
 
 .numbersx-header h1 {
   margin: 0;
-  font-size: 42px;
-  line-height: 1;
+  font-size: clamp(36px, 3.2vw, 56px);
+  line-height: 0.98;
   font-weight: 900;
   color: #071331;
-  letter-spacing: -0.8px;
+  letter-spacing: -1px;
 }
 
 .numbersx-header p {
   margin: 12px 0 24px;
-  font-size: 16px;
+  font-size: clamp(14px, 1.1vw, 18px);
+  line-height: 1.35;
   color: #071331;
   font-weight: 800;
 }
@@ -274,20 +291,23 @@
 }
 
 .numbersx-status-tabs button {
-  height: 55px;
-  padding: 0 28px;
+  min-width: 150px;
+  height: 58px;
+  padding: 0 24px;
   border: 1.5px solid rgba(77, 158, 42, 0.18);
-  border-radius: 13px;
+  border-radius: 14px;
   background: #ffffff;
   font-size: 14px;
   font-weight: 900;
   cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   color: #315170;
   box-shadow: 0 8px 20px rgba(55, 113, 36, 0.11);
   transition: all 0.25s ease;
+  white-space: nowrap;
 }
 
 .numbersx-status-tabs button:hover {
@@ -309,15 +329,19 @@
 }
 
 .numbersx-search-area {
-  margin-top: 88px;
+  width: 100%;
+  margin-top: clamp(70px, 6vw, 92px);
   display: flex;
+  justify-content: flex-end;
   align-items: center;
   gap: 16px;
 }
 
 .numbersx-search-box {
-  width: 420px;
-  height: 56px;
+  flex: 1 1 420px;
+  max-width: 540px;
+  min-width: 260px;
+  height: 58px;
   background: #ffffff;
   border-radius: 15px;
   display: flex;
@@ -338,6 +362,7 @@
   border: none;
   outline: none;
   width: 100%;
+  min-width: 0;
   height: 100%;
   background: #ffffff !important;
   color: #26364e !important;
@@ -347,7 +372,7 @@
 }
 
 .numbersx-search-box input::placeholder {
-  color: #718096;
+  color: #071331;
   opacity: 1;
 }
 
@@ -361,8 +386,8 @@
 }
 
 .numbersx-filter-btn {
-  height: 56px;
-  padding: 0 22px;
+  height: 58px;
+  padding: 0 24px;
   border: 1.5px solid rgba(190, 222, 156, 0.72);
   border-radius: 15px;
   background: #ffffff;
@@ -371,10 +396,12 @@
   font-size: 14px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   cursor: pointer;
   box-shadow: 0 8px 22px rgba(55, 113, 36, 0.12);
   transition: all 0.25s ease;
+  white-space: nowrap;
 }
 
 .numbersx-filter-btn:hover {
@@ -383,57 +410,93 @@
 }
 
 .numbersx-activities-grid {
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(5, minmax(165px, 1fr));
-  gap: 16px;
-  padding-right: 8px;
+  gap: clamp(18px, 1.6vw, 26px);
+  padding: 0;
+  align-items: stretch;
+  justify-content: center;
+  margin: 10px auto 0;
+}
+
+.numbersx-grid-0 {
+  max-width: 100%;
+  grid-template-columns: 1fr;
+}
+
+.numbersx-grid-1 {
+  max-width: 420px;
+  grid-template-columns: minmax(280px, 420px);
+}
+
+.numbersx-grid-2 {
+  max-width: 860px;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+}
+
+.numbersx-grid-3 {
+  max-width: 1180px;
+  grid-template-columns: repeat(3, minmax(260px, 1fr));
+}
+
+.numbersx-grid-many {
+  max-width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .numbersx-activity-card {
+  width: 100%;
+  min-width: 0;
+  min-height: 365px;
   background: #ffffff;
   border: 1.5px solid rgba(204, 224, 180, 0.9);
-  border-radius: 18px;
+  border-radius: 22px;
   overflow: hidden;
-  min-height: 240px;
-  box-shadow: 0 12px 26px rgba(55, 113, 36, 0.11);
+  box-shadow: 0 14px 30px rgba(55, 113, 36, 0.12);
   transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .numbersx-activity-card:hover {
-  transform: translateY(-8px) scale(1.018);
-  box-shadow: 0 20px 38px rgba(55, 113, 36, 0.22);
-  border-color: rgba(76, 175, 34, 0.48);
+  transform: translateY(-8px) scale(1.015);
+  box-shadow: 0 22px 42px rgba(55, 113, 36, 0.22);
+  border-color: rgba(76, 175, 34, 0.5);
 }
 
 .numbersx-activity-card > img {
-  width: calc(100% - 20px);
-  height: 102px;
-  margin: 10px 10px 0;
+  width: 100%;
+  height: clamp(205px, 13vw, 245px);
+  margin: 0;
   object-fit: cover;
   object-position: center;
   display: block;
-  border-radius: 12px;
-  border: 1px solid rgba(204, 224, 180, 0.8);
+  flex-shrink: 0;
+  border-radius: 0;
+  border: none;
   background: #f7ffe7;
 }
 
 .numbersx-activity-info {
-  padding: 8px 12px 10px;
+  padding: 14px 16px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .numbersx-activity-info h3 {
   margin: 0;
-  font-size: 15px;
-  line-height: 1.08;
+  font-size: clamp(14px, 1vw, 17px);
+  line-height: 1.12;
   color: #071331;
   font-weight: 900;
 }
 
 .numbersx-activity-info p {
-  min-height: 42px;
-  margin: 5px 0 9px;
-  font-size: 11.5px;
-  line-height: 1.22;
+  min-height: 46px;
+  margin: 7px 0 12px;
+  font-size: 12px;
+  line-height: 1.28;
   color: #2d3748;
   font-weight: 700;
 }
@@ -443,6 +506,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: fit-content;
   min-width: 48px;
   height: 24px;
   padding: 0 10px;
@@ -462,10 +526,11 @@
 }
 
 .numbersx-activity-bottom {
-  margin-top: 15px;
+  margin-top: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .numbersx-activity-bottom small {
@@ -475,15 +540,17 @@
   color: #111827;
   font-size: 11px;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 .numbersx-activity-bottom small svg {
   font-size: 13px;
+  flex-shrink: 0;
 }
 
 .numbersx-activity-bottom button {
-  width: 70px;
-  height: 30px;
+  min-width: 74px;
+  height: 32px;
   border: none;
   border-radius: 8px;
   background: #0b72ef;
@@ -504,10 +571,11 @@
   position: relative;
   z-index: 10;
   min-height: 62px;
-  margin: 0 28px 0 34px;
+  margin: 18px clamp(18px, 2.4vw, 42px) 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 18px;
 }
 
 .numbersx-footer p {
@@ -552,10 +620,11 @@
   }
 }
 
-@media (max-width: 1300px) {
+@media (max-width: 1420px) {
   .numbersx-sidebar {
     width: 270px;
     min-width: 270px;
+    padding-inline: 24px;
   }
 
   .numbersx-sidebar-logo {
@@ -567,30 +636,45 @@
     padding: 0 14px;
   }
 
-  .numbersx-main {
-    padding: 28px 26px 22px;
+  .numbersx-header {
+    grid-template-columns: minmax(300px, 630px) minmax(330px, 570px);
   }
 
+  .numbersx-status-tabs button {
+    min-width: 140px;
+    padding-inline: 18px;
+  }
+
+  .numbersx-grid-3 {
+    max-width: 1050px;
+    grid-template-columns: repeat(3, minmax(230px, 1fr));
+  }
+
+  .numbersx-grid-many {
+    grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
+  }
+}
+
+@media (max-width: 1180px) {
   .numbersx-header {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     min-height: auto;
+    gap: 18px;
   }
 
   .numbersx-search-area {
-    margin-top: 8px;
-    width: 100%;
+    margin-top: 0;
+    justify-content: stretch;
   }
 
   .numbersx-search-box {
-    width: 100%;
+    max-width: none;
   }
 
-  .numbersx-activities-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .numbersx-bg {
-    height: 210px;
+  .numbersx-grid-3,
+  .numbersx-grid-many {
+    max-width: 860px;
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
   }
 }
 
@@ -602,10 +686,10 @@
   .numbersx-hamburger-btn {
     display: flex;
     position: fixed;
-    top: 24px;
-    left: 22px;
-    width: 74px;
-    height: 74px;
+    top: 20px;
+    left: 18px;
+    width: 66px;
+    height: 66px;
     border: none;
     background: #ffffff;
     border-radius: 20px;
@@ -621,8 +705,8 @@
   }
 
   .numbersx-hamburger-btn img {
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
     object-fit: contain;
   }
 
@@ -658,6 +742,7 @@
 
   .numbersx-sidebar-bottom {
     margin-top: 22px;
+    padding-top: 22px;
   }
 
   .numbersx-weekly-progress {
@@ -665,20 +750,21 @@
     height: 240px;
   }
 
-  .numbersx-main {
-    padding: 120px 18px 25px;
+  .numbersx-bg {
+    height: 250px;
   }
 
-  .numbersx-bg {
-    height: 230px;
+  .numbersx-main {
+    padding: 104px 18px 26px;
   }
 
   .numbersx-header h1 {
-    font-size: 36px;
+    font-size: clamp(34px, 8vw, 46px);
   }
 
   .numbersx-header p {
     font-size: 15px;
+    margin-bottom: 18px;
   }
 
   .numbersx-status-tabs {
@@ -686,8 +772,11 @@
   }
 
   .numbersx-status-tabs button {
+    min-width: 0;
+    flex: 1 1 160px;
+    height: 54px;
     padding: 0 14px;
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .numbersx-search-area {
@@ -695,15 +784,192 @@
     align-items: stretch;
   }
 
-  .numbersx-activities-grid {
-    grid-template-columns: 1fr;
+  .numbersx-search-box {
+    flex-basis: auto;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .numbersx-filter-btn {
+    width: 100%;
+  }
+
+  .numbersx-grid-2,
+  .numbersx-grid-3,
+  .numbersx-grid-many {
+    max-width: 100%;
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+  }
+
+  .numbersx-activity-card > img {
+    width: 100%;
+    height: 210px;
+    margin: 0;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 0;
+    border: none;
   }
 
   .numbersx-footer {
-    margin: 0;
-    padding: 20px;
+    margin-inline: 18px;
+    padding: 18px 0;
     justify-content: center;
-    gap: 18px;
     flex-direction: column;
   }
+}
+
+@media (max-width: 650px) {
+  .numbersx-main {
+    padding: 96px 14px 24px;
+  }
+
+  .numbersx-bg {
+    height: 255px;
+  }
+
+  .numbersx-header h1 {
+    font-size: clamp(29px, 10vw, 38px);
+    letter-spacing: -0.5px;
+  }
+
+  .numbersx-header p {
+    font-size: 14px;
+  }
+
+  .numbersx-status-tabs {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .numbersx-status-tabs button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .numbersx-search-box,
+  .numbersx-filter-btn {
+    height: 54px;
+  }
+
+  .numbersx-search-box {
+    padding-inline: 16px;
+  }
+
+  .numbersx-search-box input {
+    font-size: 13px;
+  }
+
+  .numbersx-activities-grid,
+  .numbersx-grid-1,
+  .numbersx-grid-2,
+  .numbersx-grid-3,
+  .numbersx-grid-many {
+    max-width: 100%;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .numbersx-activity-card {
+    min-height: auto;
+  }
+
+  .numbersx-activity-card > img {
+    width: 100%;
+    height: 215px;
+    margin: 0;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 0;
+    border: none;
+  }
+
+  .numbersx-activity-info h3 {
+    font-size: 16px;
+  }
+
+  .numbersx-activity-info p {
+    min-height: auto;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 390px) {
+  .numbersx-main {
+    padding-inline: 12px;
+  }
+
+  .numbersx-activity-card > img {
+    width: 100%;
+    height: 185px;
+    margin: 0;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 0;
+    border: none;
+  }
+
+  .numbersx-activity-bottom {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .numbersx-activity-bottom button {
+    width: 100%;
+  }
+}
+.numbersx-empty-search {
+  width: min(100%, 620px);
+  min-height: 250px;
+  margin: 18px auto 0;
+  padding: 34px 24px;
+  border-radius: 24px;
+  background: #ffffff;
+  border: 1.5px solid rgba(204, 224, 180, 0.9);
+  box-shadow: 0 14px 30px rgba(55, 113, 36, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.numbersx-empty-search svg {
+  font-size: 42px;
+  color: #0f8f4c;
+}
+
+.numbersx-empty-search h2 {
+  margin: 0;
+  color: #071331;
+  font-size: clamp(22px, 2vw, 30px);
+  line-height: 1.05;
+  font-weight: 900;
+}
+
+.numbersx-empty-search p {
+  margin: 0;
+  color: #2d3748;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.numbersx-empty-search button {
+  min-width: 210px;
+  height: 42px;
+  border: none;
+  border-radius: 12px;
+  background: #0f8f4c;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(15, 143, 76, 0.24);
+  transition: all 0.25s ease;
+}
+
+.numbersx-empty-search button:hover {
+  background: #0b753e;
+  transform: translateY(-3px) scale(1.03);
 }
