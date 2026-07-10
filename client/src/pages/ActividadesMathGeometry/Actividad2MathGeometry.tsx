@@ -2308,10 +2308,9 @@ function Actividad2MathGeometry() {
               >
                 <img
                   src={
-                    estadoPuenteAct2 === "corriendo-correcto" ||
-                    estadoPuenteAct2 === "finalizado-correcto"
-                      ? mapaPuenteCompleto
-                      : mapaPuente
+                    estadoPuenteAct2 === "reposo"
+                      ? mapaPuente
+                      : mapaPuenteCompleto
                   }
                   alt="Ruta perdida"
                   className="act2geo-map-image"
