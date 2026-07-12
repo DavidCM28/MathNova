@@ -237,9 +237,9 @@ export default function RampasDeLanzamiento() {
       <main className="rmp-main">
         <header className="rmp-header">
           <div className="rmp-header-izquierda">
-            <button className="rmp-volver" type="button" onClick={() => navigate("/temas")}>
-              <FiArrowLeft /> Volver al tema
-            </button>
+        <button className="rmp-volver" type="button" onClick={() => navigate("/actividades-math-data")}>
+        <FiArrowLeft /> Volver al tema
+        </button>
             <span className="rmp-actividad-pill">Actividad 1 de 1</span>
           </div>
           <button className="rmp-ayuda-btn" type="button" aria-label="Ayuda">

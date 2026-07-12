@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./GeneradorEnergiaInversa.css";
 
@@ -25,6 +25,16 @@ import iconoIntentos from "../../assets/icono-intentos.png";
 import iconoAyudaUsada from "../../assets/icono-ayuda-usada.png";
 import villanoPista from "../../assets/villano-pista.png";
 
+// ============================================
+// TRANSMISIÓN DEL VILLANO (video + audio)
+// Por ahora solo tenemos lista la animación/audio de INICIO.
+// Cuando tengas listos los de éxito/fallo, agrega sus imports aquí
+// siguiendo el mismo patrón.
+// AJUSTA ESTOS 2 NOMBRES DE ARCHIVO A LOS TUYOS
+// ============================================
+import villanoHablandoVideo from "../../assets/villano-hablando.mp4";
+import audioVillanoDesafio from "../../assets/villano-audio-desafio.mp3";
+
 import {
   FiGrid,
   FiMessageSquare,
@@ -39,10 +49,13 @@ import {
   FiLock,
   FiHome,
   FiPieChart,
+  FiPlay,
+  FiPause,
+  FiX,
 } from "react-icons/fi";
 
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
-import { FaStar, FaShieldAlt, FaGem, FaLightbulb, FaHandPointUp } from "react-icons/fa";
+import { FaStar, FaShieldAlt, FaGem, FaLightbulb, FaHandPointUp, FaBroadcastTower } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
 import { getSessionUser } from "../../utils/authSession";
 
@@ -77,6 +90,146 @@ const EJE_X_MAX = 12;
 const EJE_Y_MAX = 14;
 
 // ============================================
+// COMPONENTE: TRANSMISIÓN DEL VILLANO
+// Reutilizable en: inicio (modal) y, más adelante, éxito/fallo (tarjeta)
+// ============================================
+
+type VillanoTransmisionProps = {
+  subtitulo: string;
+  videoSrc: string;
+  audioSrc: string;
+  modo?: "modal" | "inline";
+  titulo?: string;
+  botonAccionTexto?: string;
+  onClose?: () => void;
+};
+
+function VillanoTransmision({
+  subtitulo,
+  videoSrc,
+  audioSrc,
+  modo = "inline",
+  titulo = "Transmisión interceptada",
+  botonAccionTexto,
+  onClose,
+}: VillanoTransmisionProps) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [reproduciendo, setReproduciendo] = useState(false);
+  const [progreso, setProgreso] = useState(0);
+
+  const alternarReproduccion = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (audio.paused || audio.ended) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  };
+
+  const reiniciarAudio = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = 0;
+    audio.play();
+  };
+
+  const actualizarProgreso = () => {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    setProgreso((audio.currentTime / audio.duration) * 100);
+  };
+
+  return (
+    <div className={`vt-card vt-${modo}`}>
+      <div className="vt-scanlines" aria-hidden="true" />
+
+      {modo === "modal" && onClose && (
+        <button
+          type="button"
+          className="vt-close"
+          onClick={onClose}
+          aria-label="Cerrar transmisión"
+        >
+          <FiX />
+        </button>
+      )}
+
+      <div className="vt-header">
+        <span className="vt-live-dot" />
+        <FaBroadcastTower />
+        <span>{titulo}</span>
+      </div>
+
+      <div className="vt-body">
+        <div className="vt-video-wrap">
+          <span className="vt-canvas-glow" aria-hidden="true" />
+
+          <video
+            ref={videoRef}
+            src={videoSrc}
+            className="vt-video"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            aria-label="Villano transmitiendo un mensaje"
+          />
+        </div>
+
+        <div className="vt-text">
+          <p className="vt-subtitulo">&ldquo;{subtitulo}&rdquo;</p>
+
+          <div className="vt-controls">
+            <button
+              type="button"
+              className="vt-btn vt-btn-play"
+              onClick={alternarReproduccion}
+              aria-label={reproduciendo ? "Pausar audio" : "Reproducir audio"}
+            >
+              {reproduciendo ? <FiPause /> : <FiPlay />}
+              {reproduciendo ? "Pausar" : "Reproducir"}
+            </button>
+
+            <button
+              type="button"
+              className="vt-btn vt-btn-restart"
+              onClick={reiniciarAudio}
+              aria-label="Reiniciar audio"
+            >
+              <FiRotateCcw />
+              Reiniciar
+            </button>
+          </div>
+
+          <div className="vt-progress-track">
+            <div className="vt-progress-fill" style={{ width: `${progreso}%` }} />
+          </div>
+        </div>
+      </div>
+
+      <audio
+        ref={audioRef}
+        src={audioSrc}
+        onPlay={() => setReproduciendo(true)}
+        onPause={() => setReproduciendo(false)}
+        onEnded={() => setReproduciendo(false)}
+        onTimeUpdate={actualizarProgreso}
+      />
+
+      {modo === "modal" && onClose && (
+        <button type="button" className="vt-cta" onClick={onClose}>
+          {botonAccionTexto || "Aceptar el desafío ⚡"}
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ============================================
 // COMPONENTE PRINCIPAL
 // ============================================
 
@@ -93,6 +246,7 @@ function GeneradorEnergiaInversa() {
   const [progresoPorcentaje, setProgresoPorcentaje] = useState(0);
   const [cargando, setCargando] = useState(false);
   const [resultado, setResultado] = useState<"exito" | "fallo" | "incompleto" | "pista" | null>(null);
+  const [mostrarIntroVillano, setMostrarIntroVillano] = useState(false);
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
@@ -1077,6 +1231,21 @@ function GeneradorEnergiaInversa() {
 
   return (
     <main className="gen1-page">
+      {/* TRANSMISIÓN DEL VILLANO: aparece antes de comenzar el desafío */}
+      {mostrarIntroVillano && (
+        <div className="vt-overlay">
+          <VillanoTransmision
+            titulo="Transmisión interceptada"
+            subtitulo="¡Ja! He bloqueado los reactores de tu base. Sin embargo, sin energía el escudo caerá antes del amanecer y la base quedará expuesta. Pero te haré un trato: si logras descubrir cuántos reactores necesitas para recargar el escudo a tiempo, quizás te deje intentarlo. ¿Crees que puedes con eso?"
+            videoSrc={villanoHablandoVideo}
+            audioSrc={audioVillanoDesafio}
+            modo="modal"
+            botonAccionTexto="Aceptar el desafío ⚡"
+            onClose={() => setMostrarIntroVillano(false)}
+          />
+        </div>
+      )}
+
       <button
         type="button"
         className={`gen1-hamburger-btn ${menuOpen ? "gen1-hamburger-open" : ""}`}
@@ -1205,8 +1374,6 @@ function GeneradorEnergiaInversa() {
         </div>
 
         <div className="gen1-hero">
-          <img src={heroBanner} alt="" className="gen1-hero-bg" />
-
           <div className="gen1-hero-text">
             <h1>
               Generador de Energía Inversa <span>⚡</span>
@@ -1217,6 +1384,21 @@ function GeneradorEnergiaInversa() {
               reactores y completa la tabla y la gráfica para descubrir el
               patrón de proporcionalidad inversa.
             </p>
+
+            <button
+              type="button"
+              className="gen1-villano-trigger"
+              onClick={() => setMostrarIntroVillano(true)}
+              aria-label="Abrir mensaje interceptado del villano"
+            >
+              <span className="gen1-villano-trigger-dot" />
+              <FaBroadcastTower />
+              Mensaje interceptado
+            </button>
+          </div>
+
+          <div className="gen1-hero-imagen-wrap">
+            <img src={heroBanner} alt="" className="gen1-hero-bg" />
           </div>
         </div>
 
