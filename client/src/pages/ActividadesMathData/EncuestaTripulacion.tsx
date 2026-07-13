@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { getSessionUser } from "../../utils/authSession";
 
 import logo from "../../assets/logo_MathNova.png";
 import "./EncuestaTripulacion.css";
@@ -43,6 +44,12 @@ import {
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
 /* =========================================================
+   CONFIGURACIÓN DEL BACKEND
+========================================================= */
+
+const API_URL = "http://localhost:3001/api";
+
+/* =========================================================
    DATOS DE LA MISIÓN
 ========================================================= */
 
@@ -69,11 +76,6 @@ function palitos(n: number) {
 
 type EstadoFila = "correcto" | "pendiente" | "incorrecto";
 
-function calcularEstado(valor: string, correcto: number, verificado: boolean): EstadoFila {
-  if (!verificado) return "pendiente";
-  return valor.trim() === String(correcto) ? "correcto" : "incorrecto";
-}
-
 /* =========================================================
    COMPONENTE PRINCIPAL
 ========================================================= */
@@ -81,39 +83,199 @@ function calcularEstado(valor: string, correcto: number, verificado: boolean): E
 export default function EncuestaTripulacion() {
   const navigate = useNavigate();
 
+  // El ID del estudiante se obtiene de la sesión activa en cada render
+  const usuarioSesion = getSessionUser();
+  const ID_ESTUDIANTE = usuarioSesion?.id_usuario;
+
   const [frecDesierto, setFrecDesierto] = useState("");
   const [frecCueva, setFrecCueva] = useState("");
-  const [tablaVerificada, setTablaVerificada] = useState(false);
+
+  const [estadoDesierto, setEstadoDesierto] = useState<EstadoFila>("pendiente");
+  const [estadoCueva, setEstadoCueva] = useState<EstadoFila>("pendiente");
+  const [bloqueadaDesierto, setBloqueadaDesierto] = useState(false);
+  const [bloqueadaCueva, setBloqueadaCueva] = useState(false);
+  const [mensajeCeldaDesierto, setMensajeCeldaDesierto] = useState("");
+  const [mensajeCeldaCueva, setMensajeCeldaCueva] = useState("");
 
   const [moduloSeleccionado, setModuloSeleccionado] = useState<Modulo | null>(null);
 
   const [resultado, setResultado] = useState<"exito" | "fallo" | null>(null);
   const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
   const [audioReproduciendo, setAudioReproduciendo] = useState(false);
+  const [cargandoTabla, setCargandoTabla] = useState(false);
+  const [cargandoEnvio, setCargandoEnvio] = useState(false);
 
-  const estadoDesierto = calcularEstado(frecDesierto, VOTOS.desierto, tablaVerificada);
-  const estadoCueva = calcularEstado(frecCueva, VOTOS.cueva, tablaVerificada);
+  // ==========================================
+  // CARGAR PROGRESO GUARDADO
+  // ==========================================
 
-  const verificarTabla = () => {
-    setTablaVerificada(true);
+  useEffect(() => {
+    const cargarProgreso = async () => {
+      try {
+        const response = await fetch(`${API_URL}/tripulacion/progreso/${ID_ESTUDIANTE}`);
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const progreso = data.data;
+          const valores = (progreso.valores_tabla || {}) as Record<string, number>;
+          const intentos = (progreso.intentos_tabla || {}) as Record<string, number>;
+
+          if (valores.desierto !== undefined) {
+            setFrecDesierto(String(valores.desierto));
+            setEstadoDesierto("correcto");
+            setBloqueadaDesierto((intentos.desierto || 0) >= 3);
+          }
+
+          if (valores.cueva !== undefined) {
+            setFrecCueva(String(valores.cueva));
+            setEstadoCueva("correcto");
+            setBloqueadaCueva((intentos.cueva || 0) >= 3);
+          }
+
+          if (progreso.modulo_seleccionado) {
+            setModuloSeleccionado(progreso.modulo_seleccionado as Modulo);
+          }
+
+          if (progreso.completada) {
+            setResultado(progreso.resultado_correcto ? "exito" : "fallo");
+          }
+        }
+      } catch (error) {
+        console.error("Error al cargar progreso:", error);
+      }
+    };
+
+    cargarProgreso();
+  }, []);
+
+  // ==========================================
+  // VALIDAR TABLA CON EL BACKEND (celda por celda)
+  // ==========================================
+
+  const verificarTabla = async () => {
+    setCargandoTabla(true);
+    try {
+      if (!bloqueadaDesierto && frecDesierto.trim() !== "") {
+        const response = await fetch(`${API_URL}/tripulacion/validar-celda`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id_estudiante: ID_ESTUDIANTE,
+            celda: "desierto",
+            valor: Number(frecDesierto),
+          }),
+        });
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const resultadoCelda = data.data;
+          setMensajeCeldaDesierto(resultadoCelda.mensaje);
+
+          if (resultadoCelda.celda_completada && !resultadoCelda.correcto) {
+            // 3er intento fallido: se revela la respuesta y se bloquea
+            setFrecDesierto(String(resultadoCelda.respuesta_correcta));
+            setEstadoDesierto("incorrecto");
+            setBloqueadaDesierto(true);
+          } else if (resultadoCelda.correcto) {
+            setEstadoDesierto("correcto");
+          } else {
+            setEstadoDesierto("incorrecto");
+          }
+        }
+      }
+
+      if (!bloqueadaCueva && frecCueva.trim() !== "") {
+        const response = await fetch(`${API_URL}/tripulacion/validar-celda`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id_estudiante: ID_ESTUDIANTE,
+            celda: "cueva",
+            valor: Number(frecCueva),
+          }),
+        });
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const resultadoCelda = data.data;
+          setMensajeCeldaCueva(resultadoCelda.mensaje);
+
+          if (resultadoCelda.celda_completada && !resultadoCelda.correcto) {
+            setFrecCueva(String(resultadoCelda.respuesta_correcta));
+            setEstadoCueva("incorrecto");
+            setBloqueadaCueva(true);
+          } else if (resultadoCelda.correcto) {
+            setEstadoCueva("correcto");
+          } else {
+            setEstadoCueva("incorrecto");
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error al verificar la tabla:", error);
+    } finally {
+      setCargandoTabla(false);
+    }
   };
 
   const tablaCompleta =
-    tablaVerificada && estadoDesierto === "correcto" && estadoCueva === "correcto";
+    (estadoDesierto === "correcto" || bloqueadaDesierto) &&
+    (estadoCueva === "correcto" || bloqueadaCueva);
 
-  const enviarCentroDeMando = () => {
-    const todoCorrecto =
-      estadoDesierto === "correcto" &&
-      estadoCueva === "correcto" &&
-      moduloSeleccionado === MODULO_MAS_VOTADO;
+  // ==========================================
+  // ENVIAR AL CENTRO DE MANDO (módulo ganador)
+  // ==========================================
 
-    setResultado(todoCorrecto ? "exito" : "fallo");
+  const enviarCentroDeMando = async () => {
+    if (!moduloSeleccionado) return;
+
+    setCargandoEnvio(true);
+    try {
+      const response = await fetch(`${API_URL}/tripulacion/validar-modulo`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_estudiante: ID_ESTUDIANTE,
+          modulo: moduloSeleccionado,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        setResultado(data.data.correcto ? "exito" : "fallo");
+      }
+    } catch (error) {
+      console.error("Error al enviar al Centro de Mando:", error);
+      alert("❌ Error al conectar con el servidor.");
+    } finally {
+      setCargandoEnvio(false);
+    }
   };
 
-  const handleReiniciarActividad = () => {
+  // ==========================================
+  // REINICIAR ACTIVIDAD
+  // ==========================================
+
+  const handleReiniciarActividad = async () => {
+    try {
+      await fetch(`${API_URL}/tripulacion/reiniciar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE }),
+      });
+    } catch (error) {
+      console.error("Error al reiniciar actividad:", error);
+    }
+
     setFrecDesierto("");
     setFrecCueva("");
-    setTablaVerificada(false);
+    setEstadoDesierto("pendiente");
+    setEstadoCueva("pendiente");
+    setBloqueadaDesierto(false);
+    setBloqueadaCueva(false);
+    setMensajeCeldaDesierto("");
+    setMensajeCeldaCueva("");
     setModuloSeleccionado(null);
     setResultado(null);
   };
@@ -682,7 +844,11 @@ export default function EncuestaTripulacion() {
                       value={frecDesierto}
                       onChange={(e) => setFrecDesierto(e.target.value)}
                       aria-label="Frecuencia absoluta del módulo Desierto"
+                      disabled={cargandoTabla || bloqueadaDesierto}
                     />
+                    {mensajeCeldaDesierto && (
+                      <p className="enc-mensaje-celda">{mensajeCeldaDesierto}</p>
+                    )}
                   </td>
                   <td>
                     <span className={`enc-estado enc-estado-${estadoDesierto}`}>
@@ -719,7 +885,11 @@ export default function EncuestaTripulacion() {
                       value={frecCueva}
                       onChange={(e) => setFrecCueva(e.target.value)}
                       aria-label="Frecuencia absoluta del módulo Cueva de Cristal"
+                      disabled={cargandoTabla || bloqueadaCueva}
                     />
+                    {mensajeCeldaCueva && (
+                      <p className="enc-mensaje-celda">{mensajeCeldaCueva}</p>
+                    )}
                   </td>
                   <td>
                     <span className={`enc-estado enc-estado-${estadoCueva}`}>
@@ -757,8 +927,13 @@ export default function EncuestaTripulacion() {
               </tbody>
             </table>
 
-            <button type="button" className="enc-verificar-tabla-btn" onClick={verificarTabla}>
-              <FiCheck /> Verificar tabla
+            <button
+              type="button"
+              className="enc-verificar-tabla-btn"
+              onClick={verificarTabla}
+              disabled={cargandoTabla}
+            >
+              <FiCheck /> {cargandoTabla ? "Verificando..." : "Verificar tabla"}
             </button>
           </div>
         </div>
@@ -782,6 +957,7 @@ export default function EncuestaTripulacion() {
                   }`}
                   onClick={() => setModuloSeleccionado(m)}
                   aria-pressed={moduloSeleccionado === m}
+                  disabled={!tablaCompleta}
                 >
                   <span className="enc-modulo-icono" aria-hidden="true" />
                   {NOMBRE_MODULO[m]}
@@ -804,8 +980,13 @@ export default function EncuestaTripulacion() {
               </div>
             )}
 
-            <button type="button" className="enc-enviar-btn" onClick={enviarCentroDeMando}>
-              <FiSend /> Enviar al Centro de Mando
+            <button
+              type="button"
+              className="enc-enviar-btn"
+              onClick={enviarCentroDeMando}
+              disabled={!moduloSeleccionado || cargandoEnvio}
+            >
+              <FiSend /> {cargandoEnvio ? "Enviando..." : "Enviar al Centro de Mando"}
             </button>
           </div>
 
@@ -886,7 +1067,7 @@ export default function EncuestaTripulacion() {
         </div>
       )}
 
-      {!tablaCompleta && tablaVerificada && (
+      {!tablaCompleta && (
         <p className="enc-visually-hidden" role="status">
           Todavía hay filas de la tabla que no coinciden, revísalas antes de
           enviar tu reporte.
