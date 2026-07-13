@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { getSessionUser } from "../../utils/authSession";
 import logo from "../../assets/logo_MathNova.png";
 import interferenciaDivideImg from "../../assets/interferencia-divide.png";
 import baitSaludoImg from "../../assets/bait-saludo.png";
@@ -33,6 +34,12 @@ import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 import "./RampasDeLanzamiento.css";
 
 /* =========================================================
+   CONFIGURACIÓN DEL BACKEND
+========================================================= */
+
+const API_URL = "http://localhost:3001/api";
+
+/* =========================================================
    DATOS DE LA MISIÓN
    (fijos por ahora; se pueden mover a props/backend después)
 ========================================================= */
@@ -57,9 +64,6 @@ const DATOS_DESCENSO: Punto[] = [
   { x: 4, y: -8 },
   { x: 5, y: -10 },
 ];
-
-const PENDIENTE_ASCENSO_CORRECTA = "3";
-const PENDIENTE_DESCENSO_CORRECTA = "2"; // se escribe como y = -2x
 
 type Pendiente = "positiva" | "negativa" | null;
 
@@ -149,6 +153,10 @@ function GraficaRampa({ color, puntos, esAscenso }: GraficaRampaProps) {
 export default function RampasDeLanzamiento() {
   const navigate = useNavigate();
 
+  // El ID del estudiante se obtiene de la sesión activa en cada render
+  const usuarioSesion = getSessionUser();
+  const ID_ESTUDIANTE = usuarioSesion?.id_usuario;
+
   const [pendienteAscenso, setPendienteAscenso] = useState<Pendiente>(null);
   const [pendienteDescenso, setPendienteDescenso] = useState<Pendiente>(null);
   const [ecAscenso, setEcAscenso] = useState("");
@@ -162,23 +170,95 @@ export default function RampasDeLanzamiento() {
   const [resultado, setResultado] = useState<"exito" | "fallo" | null>(null);
   const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
   const [audioReproduciendo, setAudioReproduciendo] = useState(false);
+  const [cargando, setCargando] = useState(false);
 
-  const verificarRespuestas = () => {
-    const todoCorrecto =
-      pendienteAscenso === "positiva" &&
-      pendienteDescenso === "negativa" &&
-      ecAscenso.trim() === PENDIENTE_ASCENSO_CORRECTA &&
-      ecDescenso.trim() === PENDIENTE_DESCENSO_CORRECTA &&
-      bitPendienteAscenso.trim() === PENDIENTE_ASCENSO_CORRECTA &&
-      bitEcAscenso.trim() === PENDIENTE_ASCENSO_CORRECTA &&
-      (bitPendienteDescenso.trim() === `-${PENDIENTE_DESCENSO_CORRECTA}` ||
-        bitPendienteDescenso.trim() === `−${PENDIENTE_DESCENSO_CORRECTA}`) &&
-      bitEcDescenso.trim() === PENDIENTE_DESCENSO_CORRECTA;
+  // ==========================================
+  // CARGAR PROGRESO GUARDADO
+  // ==========================================
 
-    setResultado(todoCorrecto ? "exito" : "fallo");
+  useEffect(() => {
+    const cargarProgreso = async () => {
+      try {
+        const response = await fetch(`${API_URL}/rampas/progreso/${ID_ESTUDIANTE}`);
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const progreso = data.data;
+
+          if (progreso.pendiente_ascenso) setPendienteAscenso(progreso.pendiente_ascenso);
+          if (progreso.pendiente_descenso) setPendienteDescenso(progreso.pendiente_descenso);
+          if (progreso.ecuacion_ascenso) setEcAscenso(progreso.ecuacion_ascenso);
+          if (progreso.ecuacion_descenso) setEcDescenso(progreso.ecuacion_descenso);
+          if (progreso.bitacora_pendiente_ascenso) setBitPendienteAscenso(progreso.bitacora_pendiente_ascenso);
+          if (progreso.bitacora_ecuacion_ascenso) setBitEcAscenso(progreso.bitacora_ecuacion_ascenso);
+          if (progreso.bitacora_pendiente_descenso) setBitPendienteDescenso(progreso.bitacora_pendiente_descenso);
+          if (progreso.bitacora_ecuacion_descenso) setBitEcDescenso(progreso.bitacora_ecuacion_descenso);
+
+          if (progreso.completada) {
+            setResultado(progreso.resultado_correcto ? "exito" : "fallo");
+          }
+        }
+      } catch (error) {
+        console.error("Error al cargar progreso:", error);
+      }
+    };
+
+    cargarProgreso();
+  }, []);
+
+  // ==========================================
+  // VERIFICAR RESPUESTAS CON EL BACKEND
+  // ==========================================
+
+  const verificarRespuestas = async () => {
+    setCargando(true);
+    try {
+      const response = await fetch(`${API_URL}/rampas/verificar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_estudiante: ID_ESTUDIANTE,
+          pendiente_ascenso: pendienteAscenso,
+          pendiente_descenso: pendienteDescenso,
+          ecuacion_ascenso: ecAscenso,
+          ecuacion_descenso: ecDescenso,
+          bitacora_pendiente_ascenso: bitPendienteAscenso,
+          bitacora_ecuacion_ascenso: bitEcAscenso,
+          bitacora_pendiente_descenso: bitPendienteDescenso,
+          bitacora_ecuacion_descenso: bitEcDescenso,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        setResultado(data.data.correcto ? "exito" : "fallo");
+      } else {
+        alert("❌ Error al procesar la respuesta.");
+      }
+    } catch (error) {
+      console.error("Error al verificar respuestas:", error);
+      alert("❌ Error al conectar con el servidor.");
+    } finally {
+      setCargando(false);
+    }
   };
 
-  const handleReiniciarActividad = () => {
+  // ==========================================
+  // REINICIAR ACTIVIDAD
+  // ==========================================
+
+  const handleReiniciarActividad = async () => {
+    try {
+      await fetch(`${API_URL}/rampas/reiniciar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE }),
+      });
+    } catch (error) {
+      console.error("Error al reiniciar actividad:", error);
+    }
+
     setPendienteAscenso(null);
     setPendienteDescenso(null);
     setEcAscenso("");
@@ -905,8 +985,9 @@ export default function RampasDeLanzamiento() {
               className="rmp-verificar-btn"
               type="button"
               onClick={verificarRespuestas}
+              disabled={cargando}
             >
-              <FiSend /> Verificar respuestas
+              <FiSend /> {cargando ? "Verificando..." : "Verificar respuestas"}
             </button>
           </div>
         </div>
