@@ -301,14 +301,16 @@ function ActividadesMathData() {
                       {item.tiempo}
                     </small>
 
-                    <button
-                      onClick={() => {
-                        if (index === 0) {
-                          navigate("/actividades-math-data/generador-energia");
-                        } else if (index === 1) {
-                          navigate("/actividades-math-data/rampas-lanzamiento");
-                        }
-                      }}
+<button
+  onClick={() => {
+    if (index === 0) {
+      navigate("/actividades-math-data/generador-energia");
+    } else if (index === 1) {
+      navigate("/actividades-math-data/rampas-lanzamiento");
+    } else if (index === 2) {
+      navigate("/actividades-math-data/encuesta-tripulacion");
+    }
+  }}
                     >
                       Iniciar
                     </button>

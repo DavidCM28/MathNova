@@ -34,6 +34,9 @@ import villanoPista from "../../assets/villano-pista.png";
 // ============================================
 import villanoHablandoVideo from "../../assets/villano-hablando.mp4";
 import audioVillanoDesafio from "../../assets/villano-audio-desafio.mp3";
+import baitHablandoVideo from "../../assets/bait-hablando.mp4";
+import pistaAudio from "../../assets/pista-audio.mp3";
+import baitPistaImg from "../../assets/bait-pista.png";
 
 import {
   FiGrid,
@@ -45,6 +48,7 @@ import {
   FiSettings,
   FiArrowLeft,
   FiRotateCcw,
+  FiRotateCw,
   FiCheck,
   FiLock,
   FiHome,
@@ -90,50 +94,67 @@ const EJE_X_MAX = 12;
 const EJE_Y_MAX = 14;
 
 // ============================================
-// COMPONENTE: TRANSMISIÓN DEL VILLANO
-// Reutilizable en: inicio (modal) y, más adelante, éxito/fallo (tarjeta)
+// COMPONENTE: PISTA DE BAIT (modal con video real)
+// Mismo estilo visual y de comportamiento que las
+// actividades 2 y 3 (Rampas de Lanzamiento / Encuesta).
 // ============================================
 
-type VillanoTransmisionProps = {
-  subtitulo: string;
+type PistaBaitModalProps = {
+  tema?: "azul" | "rojo";
+  titulo?: string;
+  contenido: string;
   videoSrc: string;
   audioSrc: string;
-  modo?: "modal" | "inline";
-  titulo?: string;
-  botonAccionTexto?: string;
-  onClose?: () => void;
+  botonTexto?: string;
+  onClose: () => void;
 };
 
-function VillanoTransmision({
-  subtitulo,
+const SALTO_SEGUNDOS = 10;
+
+function PistaBaitModal({
+  tema = "azul",
+  titulo = "Pista de Bait",
+  contenido,
   videoSrc,
   audioSrc,
-  modo = "inline",
-  titulo = "Transmisión interceptada",
-  botonAccionTexto,
+  botonTexto = "Cerrar y volver a la actividad",
   onClose,
-}: VillanoTransmisionProps) {
+}: PistaBaitModalProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [reproduciendo, setReproduciendo] = useState(false);
   const [progreso, setProgreso] = useState(0);
 
+  const sincronizarVideoConAudio = () => {
+    const audio = audioRef.current;
+    const video = videoRef.current;
+    if (!audio || !video) return;
+    if (Math.abs(video.currentTime - audio.currentTime) > 0.35) {
+      video.currentTime = audio.currentTime;
+    }
+  };
+
   const alternarReproduccion = () => {
     const audio = audioRef.current;
+    const video = videoRef.current;
     if (!audio) return;
 
     if (audio.paused || audio.ended) {
       audio.play();
+      video?.play();
     } else {
       audio.pause();
+      video?.pause();
     }
   };
 
-  const reiniciarAudio = () => {
+  const saltar = (segundos: number) => {
     const audio = audioRef.current;
-    if (!audio) return;
-    audio.currentTime = 0;
-    audio.play();
+    const video = videoRef.current;
+    if (!audio || !audio.duration) return;
+    const nuevoTiempo = Math.min(Math.max(audio.currentTime + segundos, 0), audio.duration);
+    audio.currentTime = nuevoTiempo;
+    if (video) video.currentTime = nuevoTiempo;
   };
 
   const actualizarProgreso = () => {
@@ -143,88 +164,80 @@ function VillanoTransmision({
   };
 
   return (
-    <div className={`vt-card vt-${modo}`}>
-      <div className="vt-scanlines" aria-hidden="true" />
-
-      {modo === "modal" && onClose && (
+    <div className="pb-overlay" role="dialog" aria-modal="true" aria-label={titulo}>
+      <div className={`pb-modal pb-modal-${tema}`}>
         <button
           type="button"
-          className="vt-close"
+          className="pb-cerrar"
           onClick={onClose}
-          aria-label="Cerrar transmisión"
+          aria-label="Cerrar"
         >
           <FiX />
         </button>
-      )}
 
-      <div className="vt-header">
-        <span className="vt-live-dot" />
-        <FaBroadcastTower />
-        <span>{titulo}</span>
-      </div>
-
-      <div className="vt-body">
-        <div className="vt-video-wrap">
-          <span className="vt-canvas-glow" aria-hidden="true" />
-
+        <div className="pb-video-wrap">
           <video
             ref={videoRef}
             src={videoSrc}
-            className="vt-video"
-            autoPlay
-            loop
+            className="pb-video"
             muted
             playsInline
             preload="auto"
-            aria-label="Villano transmitiendo un mensaje"
+            onTimeUpdate={sincronizarVideoConAudio}
+            aria-hidden="true"
           />
         </div>
 
-        <div className="vt-text">
-          <p className="vt-subtitulo">&ldquo;{subtitulo}&rdquo;</p>
+        <h3>{titulo}</h3>
 
-          <div className="vt-controls">
-            <button
-              type="button"
-              className="vt-btn vt-btn-play"
-              onClick={alternarReproduccion}
-              aria-label={reproduciendo ? "Pausar audio" : "Reproducir audio"}
-            >
-              {reproduciendo ? <FiPause /> : <FiPlay />}
-              {reproduciendo ? "Pausar" : "Reproducir"}
-            </button>
+        <p>{contenido}</p>
 
-            <button
-              type="button"
-              className="vt-btn vt-btn-restart"
-              onClick={reiniciarAudio}
-              aria-label="Reiniciar audio"
-            >
-              <FiRotateCcw />
-              Reiniciar
-            </button>
-          </div>
+        <div className="pb-controles">
+          <button
+            type="button"
+            className={`pb-btn-salto pb-btn-salto-${tema}`}
+            onClick={() => saltar(-SALTO_SEGUNDOS)}
+            aria-label={`Retroceder ${SALTO_SEGUNDOS} segundos`}
+          >
+            <FiRotateCcw /> {SALTO_SEGUNDOS}s
+          </button>
 
-          <div className="vt-progress-track">
-            <div className="vt-progress-fill" style={{ width: `${progreso}%` }} />
-          </div>
+          <button
+            type="button"
+            className={`pb-btn-play pb-btn-play-${tema}`}
+            onClick={alternarReproduccion}
+            aria-label={reproduciendo ? "Pausar" : "Reproducir"}
+          >
+            {reproduciendo ? <FiPause /> : <FiPlay />}
+          </button>
+
+          <button
+            type="button"
+            className={`pb-btn-salto pb-btn-salto-${tema}`}
+            onClick={() => saltar(SALTO_SEGUNDOS)}
+            aria-label={`Adelantar ${SALTO_SEGUNDOS} segundos`}
+          >
+            {SALTO_SEGUNDOS}s <FiRotateCw />
+          </button>
         </div>
-      </div>
 
-      <audio
-        ref={audioRef}
-        src={audioSrc}
-        onPlay={() => setReproduciendo(true)}
-        onPause={() => setReproduciendo(false)}
-        onEnded={() => setReproduciendo(false)}
-        onTimeUpdate={actualizarProgreso}
-      />
+        <div className="pb-progress-track">
+          <div className={`pb-progress-fill pb-progress-fill-${tema}`} style={{ width: `${progreso}%` }} />
+        </div>
 
-      {modo === "modal" && onClose && (
-        <button type="button" className="vt-cta" onClick={onClose}>
-          {botonAccionTexto || "Aceptar el desafío ⚡"}
+        <audio
+          ref={audioRef}
+          src={audioSrc}
+          onPlay={() => setReproduciendo(true)}
+          onPause={() => setReproduciendo(false)}
+          onEnded={() => setReproduciendo(false)}
+          onTimeUpdate={actualizarProgreso}
+        />
+
+        <button type="button" className={`pb-cerrar-btn pb-cerrar-btn-${tema}`} onClick={onClose}>
+          {botonTexto}
         </button>
-      )}
+      </div>
     </div>
   );
 }
@@ -247,6 +260,7 @@ function GeneradorEnergiaInversa() {
   const [cargando, setCargando] = useState(false);
   const [resultado, setResultado] = useState<"exito" | "fallo" | "incompleto" | "pista" | null>(null);
   const [mostrarIntroVillano, setMostrarIntroVillano] = useState(false);
+  const [mostrarPistaModal, setMostrarPistaModal] = useState(false);
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
@@ -808,7 +822,7 @@ function GeneradorEnergiaInversa() {
             </button>
             <button
               className="res-btn res-btn-outline"
-              onClick={() => setResultado("pista")}
+              onClick={() => setMostrarPistaModal(true)}
             >
               Ver pista
             </button>
@@ -820,6 +834,15 @@ function GeneradorEnergiaInversa() {
             </button>
           </div>
         </div>
+
+        {mostrarPistaModal && (
+          <PistaBaitModal
+            contenido="¡No te dejes engañar por el mago! Recuerda que reactores ÷ tiempo siempre es igual a 12. Si te atoras, observa la tabla, identifica ese patrón y úsalo para encontrar la respuesta. ¡Tú puedes, agente!"
+            videoSrc={baitHablandoVideo}
+            audioSrc={pistaAudio}
+            onClose={() => setMostrarPistaModal(false)}
+          />
+        )}
       </div>
 
   );
@@ -1019,7 +1042,7 @@ function GeneradorEnergiaInversa() {
             <button
               type="button"
               className="pista-btn pista-btn-outline"
-              onClick={() => setResultado("pista")}
+              onClick={() => setMostrarPistaModal(true)}
             >
               <FaLightbulb /> Ver Pista
             </button>
@@ -1034,6 +1057,15 @@ function GeneradorEnergiaInversa() {
         </div>
 
       </div>
+
+      {mostrarPistaModal && (
+        <PistaBaitModal
+          contenido="¡No te dejes engañar por el mago! Recuerda que reactores ÷ tiempo siempre es igual a 12. Si te atoras, observa la tabla, identifica ese patrón y úsalo para encontrar la respuesta. ¡Tú puedes, agente!"
+          videoSrc={baitHablandoVideo}
+          audioSrc={pistaAudio}
+          onClose={() => setMostrarPistaModal(false)}
+        />
+      )}
     </div>
   );
 
@@ -1211,7 +1243,7 @@ function GeneradorEnergiaInversa() {
           <button className="inc-btn inc-btn-azul" onClick={() => setResultado(null)}>
             <FiRefreshCw /> Continuar actividad
           </button>
-          <button className="inc-btn inc-btn-outline" onClick={() => setResultado("pista")}>
+          <button className="inc-btn inc-btn-outline" onClick={() => setMostrarPistaModal(true)}>
             <FaLightbulb /> Ver Pista
           </button>
           <button className="inc-btn inc-btn-outline" onClick={() => navigate("/actividades-math-data")}>
@@ -1222,6 +1254,15 @@ function GeneradorEnergiaInversa() {
       </div>
 
       </div>
+
+      {mostrarPistaModal && (
+        <PistaBaitModal
+          contenido="¡No te dejes engañar por el mago! Recuerda que reactores ÷ tiempo siempre es igual a 12. Si te atoras, observa la tabla, identifica ese patrón y úsalo para encontrar la respuesta. ¡Tú puedes, agente!"
+          videoSrc={baitHablandoVideo}
+          audioSrc={pistaAudio}
+          onClose={() => setMostrarPistaModal(false)}
+        />
+      )}
     </div>
   );
 
@@ -1233,17 +1274,25 @@ function GeneradorEnergiaInversa() {
     <main className="gen1-page">
       {/* TRANSMISIÓN DEL VILLANO: aparece antes de comenzar el desafío */}
       {mostrarIntroVillano && (
-        <div className="vt-overlay">
-          <VillanoTransmision
-            titulo="Transmisión interceptada"
-            subtitulo="¡Ja! He bloqueado los reactores de tu base. Sin embargo, sin energía el escudo caerá antes del amanecer y la base quedará expuesta. Pero te haré un trato: si logras descubrir cuántos reactores necesitas para recargar el escudo a tiempo, quizás te deje intentarlo. ¿Crees que puedes con eso?"
-            videoSrc={villanoHablandoVideo}
-            audioSrc={audioVillanoDesafio}
-            modo="modal"
-            botonAccionTexto="Aceptar el desafío ⚡"
-            onClose={() => setMostrarIntroVillano(false)}
-          />
-        </div>
+        <PistaBaitModal
+          tema="rojo"
+          titulo="Transmisión interceptada"
+          contenido="¡Ja! He bloqueado los reactores de tu base. Sin embargo, sin energía el escudo caerá antes del amanecer y la base quedará expuesta. Pero te haré un trato: si logras descubrir cuántos reactores necesitas para recargar el escudo a tiempo, quizás te deje intentarlo. ¿Crees que puedes con eso?"
+          videoSrc={villanoHablandoVideo}
+          audioSrc={audioVillanoDesafio}
+          botonTexto="Aceptar el desafío ⚡"
+          onClose={() => setMostrarIntroVillano(false)}
+        />
+      )}
+
+      {/* PISTA DE BAIT: aparece al presionar el botón de pista en "Predice y responde" */}
+      {mostrarPistaModal && (
+        <PistaBaitModal
+          contenido="¡No te dejes engañar por el mago! Recuerda que reactores ÷ tiempo siempre es igual a 12. Si te atoras, observa la tabla, identifica ese patrón y úsalo para encontrar la respuesta. ¡Tú puedes, agente!"
+          videoSrc={baitHablandoVideo}
+          audioSrc={pistaAudio}
+          onClose={() => setMostrarPistaModal(false)}
+        />
       )}
 
       <button
@@ -1275,7 +1324,7 @@ function GeneradorEnergiaInversa() {
             onClick={() => irARuta("/seleccion-mundos")}
           >
             <GiRingedPlanet />
-            <span>Selección de mundos matemáticos</span>
+            <span>Selección de mundos</span>
           </button>
 
           <button
@@ -1376,7 +1425,7 @@ function GeneradorEnergiaInversa() {
         <div className="gen1-hero">
           <div className="gen1-hero-text">
             <h1>
-              Generador de Energía Inversa <span>⚡</span>
+              Generador de Energía Inversa⚡ <span></span>
             </h1>
             <p>
               La base MathNova necesita recargar su escudo de protección
@@ -1567,13 +1616,17 @@ function GeneradorEnergiaInversa() {
               <span>reactores</span>
             </div>
 
-            <div className="gen1-pista-box">
-              <FaLightbulb />
+            <button
+              type="button"
+              className="gen1-pista-box"
+              onClick={() => setMostrarPistaModal(true)}
+            >
+              <img src={baitPistaImg} alt="" className="gen1-pista-icono" />
               <div>
-                <strong>Pista</strong>
+                <strong>Pista de Bait</strong>
                 <p>Usa el patrón que encontraste en la tabla o en la gráfica.</p>
               </div>
-            </div>
+            </button>
 
             <button
               type="button"

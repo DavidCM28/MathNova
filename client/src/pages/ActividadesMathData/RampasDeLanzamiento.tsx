@@ -1,6 +1,19 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/logo_MathNova.png";
+import interferenciaDivideImg from "../../assets/interferencia-divide.png";
+import baitSaludoImg from "../../assets/bait-saludo.png";
+import baitPistaImg from "../../assets/bait-pista.png";
+import holaMathDataImg from "../../assets/hola-MathData.png";
+import villanoTrofeoCompleto from "../../assets/villano-trofeo-completo.png";
+import villanoIntentar from "../../assets/villano-vintentar.png";
+import estrellaMision from "../../assets/estrella-mision.png";
+import iconoAciertos from "../../assets/icono-aciertos.png";
+import iconoTiempo from "../../assets/icono-tiempo.png";
+import iconoPrecision from "../../assets/icono-precision.png";
+import iconoRecompensa from "../../assets/icono-recompensa.png";
+import iconoInsignia from "../../assets/icono-insignia.png";
+import iconoProgreso from "../../assets/icono-progreso.png";
 import {
   FiGrid,
   FiMessageSquare,
@@ -14,9 +27,7 @@ import {
   FiVolume2,
   FiSend,
   FiTarget,
-  FiCheckCircle,
-  FiXCircle,
-  FiPlus,
+  FiX,
 } from "react-icons/fi";
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 import "./RampasDeLanzamiento.css";
@@ -148,7 +159,9 @@ export default function RampasDeLanzamiento() {
   const [bitPendienteDescenso, setBitPendienteDescenso] = useState("");
   const [bitEcDescenso, setBitEcDescenso] = useState("");
 
-  const [resultado, setResultado] = useState<"correcto" | "incorrecto" | null>(null);
+  const [resultado, setResultado] = useState<"exito" | "fallo" | null>(null);
+  const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
+  const [audioReproduciendo, setAudioReproduciendo] = useState(false);
 
   const verificarRespuestas = () => {
     const todoCorrecto =
@@ -162,8 +175,354 @@ export default function RampasDeLanzamiento() {
         bitPendienteDescenso.trim() === `−${PENDIENTE_DESCENSO_CORRECTA}`) &&
       bitEcDescenso.trim() === PENDIENTE_DESCENSO_CORRECTA;
 
-    setResultado(todoCorrecto ? "correcto" : "incorrecto");
+    setResultado(todoCorrecto ? "exito" : "fallo");
   };
+
+  const handleReiniciarActividad = () => {
+    setPendienteAscenso(null);
+    setPendienteDescenso(null);
+    setEcAscenso("");
+    setEcDescenso("");
+    setBitPendienteAscenso("");
+    setBitEcAscenso("");
+    setBitPendienteDescenso("");
+    setBitEcDescenso("");
+    setResultado(null);
+  };
+
+  // ==========================================
+  // PANTALLA: ACTIVIDAD COMPLETADA
+  // ==========================================
+
+  if (resultado === "exito") return (
+    <div className="res-page res-exito-page">
+      <div className="res-confetti" aria-hidden="true">
+        {Array.from({ length: 22 }).map((_, i) => (
+          <span key={i} className={`res-confetti-dot res-confetti-dot-${i % 6}`} />
+        ))}
+      </div>
+
+      <header className="res-header">
+        <img src={logo} alt="MathNova" className="res-logo" />
+        <button className="res-inicio-btn" onClick={() => navigate("/actividades-math-data")}>
+          Inicio
+        </button>
+      </header>
+
+      <div className="res-hero">
+        <div className="res-hero-left">
+          <div className="res-titulo-row">
+            <div className="res-icono-check">✔</div>
+            <div>
+              <h1 className="res-titulo">¡Actividad completada!</h1>
+              <p className="res-subtitulo">
+                Has terminado con éxito la misión de{" "}
+                <span className="res-mathnova-color">MathData</span>.
+              </p>
+            </div>
+          </div>
+
+          <div className="res-mensaje-box res-mensaje-verde">
+            <div className="res-icono-estrella-circle">
+              <img src={estrellaMision} alt="estrella" />
+            </div>
+            <div>
+              <strong>¡Excelente trabajo, piloto!</strong>
+              <p>
+                Calibraste las dos rampas de lanzamiento correctamente.
+                Sigue así y conquista la siguiente misión.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="res-bottom">
+        <div className="res-villano-exito-group">
+          <img
+            src={villanoTrofeoCompleto}
+            alt="Villano celebrando con trofeo"
+            className="res-villano-trofeo-img"
+          />
+        </div>
+
+        <div className="res-bottom-left">
+          <div className="res-resumen-card">
+            <div className="res-resumen-header">
+              <FiBarChart2 />
+              <span>Resumen de la actividad</span>
+            </div>
+            <div className="res-resumen-stats">
+              <div className="res-stat">
+                <img src={iconoAciertos} alt="" className="res-stat-img" />
+                <strong className="res-stat-num-verde">2/2</strong>
+                <small>Rampas correctas</small>
+                <em>¡Perfecto!</em>
+              </div>
+              <div className="res-stat-sep" />
+              <div className="res-stat">
+                <img src={iconoTiempo} alt="" className="res-stat-img" />
+                <strong>—</strong>
+                <small>Tiempo</small>
+                <em>min</em>
+              </div>
+              <div className="res-stat-sep" />
+              <div className="res-stat">
+                <img src={iconoPrecision} alt="" className="res-stat-img" />
+                <strong className="res-stat-num-verde">100%</strong>
+                <small>Precisión</small>
+                <em>¡Impecable!</em>
+              </div>
+              <div className="res-stat-sep" />
+              <div className="res-stat">
+                <img src={iconoRecompensa} alt="" className="res-stat-img" />
+                <strong className="res-pts-naranja">+50 pts</strong>
+                <small>Recompensa</small>
+                <em>Puntos ganados</em>
+              </div>
+              <div className="res-stat-sep" />
+              <div className="res-stat">
+                <img src={iconoInsignia} alt="" className="res-stat-img" />
+                <strong>Misión<br />cumplida</strong>
+                <small>Insignia obtenida</small>
+                <em>¡Felicidades!</em>
+              </div>
+            </div>
+          </div>
+
+          <div className="res-progreso-card">
+            <img src={iconoProgreso} alt="" className="res-progreso-img" />
+            <div className="res-progreso-info">
+              <small>Tu progreso en el tema:</small>
+              <strong>Relaciones y Proporciones</strong>
+              <div className="res-barra-wrap">
+                <div className="res-barra-fill res-barra-verde" style={{ width: "80%" }}>
+                  <span className="res-barra-pct">80%</span>
+                </div>
+                <small>¡Vas muy bien! 20% para completar este tema.</small>
+              </div>
+            </div>
+            <div className="res-hito-box">
+              <img src={estrellaMision} alt="" className="res-hito-estrella" />
+              <div>
+                <small>Siguiente hito</small>
+                <strong className="res-hito-pct">90%</strong>
+                <small>Gran Analista</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="res-bottom-right">
+          <button
+            className="res-btn res-btn-azul"
+            onClick={() => navigate("/actividades-math-data")}
+          >
+            Siguiente actividad
+          </button>
+          <button className="res-btn res-btn-outline" onClick={handleReiniciarActividad}>
+            Repetir actividad
+          </button>
+          <button
+            className="res-btn res-btn-outline"
+            onClick={() => navigate("/actividades-math-data")}
+          >
+            Volver a actividades
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ==========================================
+  // PANTALLA: VUELVE A INTENTARLO
+  // ==========================================
+
+  if (resultado === "fallo") return (
+    <div className="res-page res-fallo-page">
+      <header className="res-header">
+        <img src={logo} alt="MathNova" className="res-logo" />
+        <button className="res-inicio-btn" onClick={() => navigate("/actividades-math-data")}>
+          Inicio
+        </button>
+      </header>
+
+      <div className="res-body">
+        <div className="res-hero-personajes">
+          <img src={villanoIntentar} alt="Villano retando" className="res-villano-img" />
+        </div>
+
+        <div className="res-left">
+          <div className="res-titulo-row">
+            <div className="res-icono-retry">&#x1F504;</div>
+            <div>
+              <h1 className="res-titulo">¡Vuelve a intentarlo!</h1>
+              <p className="res-subtitulo">
+                Aún no completas con éxito la misión de{" "}
+                <span className="res-mathnova-color">MathData</span>.
+              </p>
+            </div>
+          </div>
+
+          <div className="res-mensaje-box res-mensaje-azul">
+            <div className="res-icono-datos">📊</div>
+            <div>
+              <strong>¡No te rindas, piloto!</strong>
+              <p>
+                Revisa la tabla de cada rampa: observa cómo sube o baja la
+                recta, y usa esos valores para calcular la pendiente
+                correcta.
+              </p>
+            </div>
+          </div>
+
+          <div className="res-resumen-card">
+            <div className="res-resumen-header">
+              <FiBarChart2 />
+              <span>Resumen de la actividad</span>
+            </div>
+            <div className="res-resumen-stats">
+              <div className="res-stat">
+                <img src={iconoAciertos} alt="" className="res-stat-img" />
+                <strong>0/2</strong>
+                <small>Rampas correctas</small>
+                <em>¡Sigue así!</em>
+              </div>
+              <div className="res-stat-sep" />
+              <div className="res-stat">
+                <img src={iconoTiempo} alt="" className="res-stat-img" />
+                <strong>—</strong>
+                <small>Tiempo</small>
+                <em>min</em>
+              </div>
+              <div className="res-stat-sep" />
+              <div className="res-stat">
+                <img src={iconoPrecision} alt="" className="res-stat-img" />
+                <strong>0%</strong>
+                <small>Precisión</small>
+                <em>Puedes mejorar</em>
+              </div>
+              <div className="res-stat-sep" />
+              <div className="res-stat">
+                <img src={iconoRecompensa} alt="" className="res-stat-img" />
+                <strong className="res-pts-azul">+10 pts</strong>
+                <small>Recompensa</small>
+                <em>Puntos ganados</em>
+              </div>
+              <div className="res-stat-sep" />
+              <div className="res-stat">
+                <img src={iconoInsignia} alt="" className="res-stat-img" />
+                <strong>Sigue intentando</strong>
+                <small>Insignia obtenida</small>
+                <em>¡No te rindas!</em>
+              </div>
+            </div>
+          </div>
+
+          <div className="res-progreso-card">
+            <img src={iconoProgreso} alt="" className="res-progreso-img" />
+            <div className="res-progreso-info">
+              <small>Tu progreso en el tema:</small>
+              <strong>Relaciones y Proporciones</strong>
+              <div className="res-barra-wrap">
+                <div className="res-barra-fill res-barra-azul" style={{ width: "60%" }}>
+                  <span className="res-barra-pct">60%</span>
+                </div>
+                <small>¡Vas avanzando! Sigue practicando para completar este tema.</small>
+              </div>
+            </div>
+            <div className="res-hito-box">
+              <img src={estrellaMision} alt="" className="res-hito-estrella" />
+              <div>
+                <strong>Siguiente hito</strong>
+                <em>80%</em>
+                <small>Gran Analista</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="res-acciones">
+          <button className="res-btn res-btn-azul" onClick={handleReiniciarActividad}>
+            Intentar de nuevo
+          </button>
+          <button
+            className="res-btn res-btn-outline"
+            onClick={() => setMostrarPistaBait(true)}
+          >
+            Ver pista
+          </button>
+          <button
+            className="res-btn res-btn-outline"
+            onClick={() => navigate("/actividades-math-data")}
+          >
+            {"<-"} Volver a actividades
+          </button>
+        </div>
+      </div>
+
+      {mostrarPistaBait && (
+        <div
+          className="rmp-pista-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Pista de Bait"
+        >
+          <div className="rmp-pista-modal">
+            <button
+              type="button"
+              className="rmp-pista-cerrar"
+              onClick={() => setMostrarPistaBait(false)}
+              aria-label="Cerrar pista"
+            >
+              <FiX />
+            </button>
+
+            <img src={baitPistaImg} alt="Bait" className="rmp-pista-modal-img" />
+
+            <h3>Pista de Bait</h3>
+
+            <button
+              type="button"
+              className="rmp-pista-audio-btn"
+              onClick={() => setAudioReproduciendo((v) => !v)}
+              aria-pressed={audioReproduciendo}
+              aria-label="Reproducir audio de la pista"
+            >
+              <FiVolume2 />
+              {audioReproduciendo ? "Reproduciendo..." : "Escuchar pista"}
+            </button>
+
+            <p>
+              Si la recta sube de izquierda a derecha, la pendiente es{" "}
+              <strong className="rmp-texto-verde">positiva</strong>. Si baja,
+              es <strong className="rmp-texto-rojo">negativa</strong>.
+            </p>
+
+            <div className="rmp-pista-formula">
+              pendiente ={" "}
+              <span className="rmp-formula-frac">
+                <span>cambio vertical</span>
+                <span>cambio horizontal</span>
+              </span>
+            </div>
+
+            <button
+              type="button"
+              className="rmp-pista-cerrar-btn"
+              onClick={() => setMostrarPistaBait(false)}
+            >
+              Cerrar y volver a la actividad
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  // ==========================================
+  // PANTALLA PRINCIPAL: LA ACTIVIDAD
+  // ==========================================
 
   return (
     <div className="rmp-page">
@@ -213,9 +572,11 @@ export default function RampasDeLanzamiento() {
         </nav>
 
         <div className="rmp-sidebar-villano">
-          <div className="rmp-sidebar-villano-avatar">
-            <FiTarget />
-          </div>
+          <img
+            src={holaMathDataImg}
+            alt="Bait animando"
+            className="rmp-sidebar-villano-avatar"
+          />
           <p>¡Tú puedes, acaba con esa rampa!</p>
         </div>
 
@@ -271,14 +632,11 @@ export default function RampasDeLanzamiento() {
             </ul>
           </div>
 
-          <div className="rmp-robot-avatar" aria-hidden="true">
-            <div className="rmp-robot-cara">
-              <span className="rmp-robot-ojo" />
-              <span className="rmp-robot-ojo" />
-              <span className="rmp-robot-sonrisa" />
-            </div>
-            <div className="rmp-robot-panel">+-</div>
-          </div>
+          <img
+            src={baitSaludoImg}
+            alt="Bait saludando"
+            className="rmp-robot-avatar-img"
+          />
 
           <div className="rmp-titulo-bloque">
             <div className="rmp-titulo-row">
@@ -314,16 +672,11 @@ export default function RampasDeLanzamiento() {
             </div>
           </div>
 
-          <div className="rmp-villano-box">
-            <div className="rmp-villano-titulo">INTERFERENCIA DE DIVIDE</div>
-            <div className="rmp-villano-ecuacion">
-              X ÷ 3 = <FiPlus />
-            </div>
-            <p>Si te confundes con el signo, el despegue fallará.</p>
-            <p className="rmp-villano-reto">
-              A ver si puedes descubrir la pendiente correcta.
-            </p>
-          </div>
+          <img
+            src={interferenciaDivideImg}
+            alt="Interferencia de Divide: X ÷ 3 = . Si te confundes con el signo, el despegue fallará. A ver si puedes descubrir la pendiente correcta."
+            className="rmp-villano-box"
+          />
         </div>
 
         {/* GRÁFICAS */}
@@ -526,43 +879,27 @@ export default function RampasDeLanzamiento() {
               <FiInfo /> Completa las respuestas arriba y luego verifica tu
               misión.
             </p>
-
-            {resultado === "correcto" && (
-              <p className="rmp-resultado rmp-resultado-correcto">
-                <FiCheckCircle /> ¡Misión cumplida! Calibraste las dos rampas
-                correctamente.
-              </p>
-            )}
-            {resultado === "incorrecto" && (
-              <p className="rmp-resultado rmp-resultado-incorrecto">
-                <FiXCircle /> Algo no cuadra todavía. Revisa la tabla de cada
-                rampa y vuelve a intentarlo.
-              </p>
-            )}
           </div>
 
           <div className="rmp-pista-card">
-            <div className="rmp-pista-header">
-              <div className="rmp-robot-avatar rmp-robot-avatar-sm" aria-hidden="true">
-                <div className="rmp-robot-cara">
-                  <span className="rmp-robot-ojo" />
-                  <span className="rmp-robot-ojo" />
-                </div>
-              </div>
-              <strong>PISTA DE BIT</strong>
-            </div>
-            <p>
-              Si la recta sube de izquierda a derecha, la pendiente es{" "}
-              <strong className="rmp-texto-verde">positiva</strong>. Si baja,
-              es <strong className="rmp-texto-rojo">negativa</strong>.
+            <button
+              type="button"
+              className="rmp-pista-trigger"
+              onClick={() => setMostrarPistaBait(true)}
+            >
+              <img
+                src={baitPistaImg}
+                alt=""
+                className="rmp-pista-trigger-img"
+                aria-hidden="true"
+              />
+              <strong>Pista de Bait</strong>
+            </button>
+
+            <p className="rmp-pista-preview">
+              ¿Ya sabes si la rampa sube o baja? Presiona el botón de arriba
+              para que Bait te dé una pista.
             </p>
-            <div className="rmp-pista-formula">
-              pendiente ={" "}
-              <span className="rmp-formula-frac">
-                <span>cambio vertical</span>
-                <span>cambio horizontal</span>
-              </span>
-            </div>
 
             <button
               className="rmp-verificar-btn"
@@ -574,6 +911,63 @@ export default function RampasDeLanzamiento() {
           </div>
         </div>
       </main>
+
+      {mostrarPistaBait && (
+        <div
+          className="rmp-pista-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Pista de Bait"
+        >
+          <div className="rmp-pista-modal">
+            <button
+              type="button"
+              className="rmp-pista-cerrar"
+              onClick={() => setMostrarPistaBait(false)}
+              aria-label="Cerrar pista"
+            >
+              <FiX />
+            </button>
+
+            <img src={baitPistaImg} alt="Bait" className="rmp-pista-modal-img" />
+
+            <h3>Pista de Bait</h3>
+
+            <button
+              type="button"
+              className="rmp-pista-audio-btn"
+              onClick={() => setAudioReproduciendo((v) => !v)}
+              aria-pressed={audioReproduciendo}
+              aria-label="Reproducir audio de la pista"
+            >
+              <FiVolume2 />
+              {audioReproduciendo ? "Reproduciendo..." : "Escuchar pista"}
+            </button>
+
+            <p>
+              Si la recta sube de izquierda a derecha, la pendiente es{" "}
+              <strong className="rmp-texto-verde">positiva</strong>. Si baja,
+              es <strong className="rmp-texto-rojo">negativa</strong>.
+            </p>
+
+            <div className="rmp-pista-formula">
+              pendiente ={" "}
+              <span className="rmp-formula-frac">
+                <span>cambio vertical</span>
+                <span>cambio horizontal</span>
+              </span>
+            </div>
+
+            <button
+              type="button"
+              className="rmp-pista-cerrar-btn"
+              onClick={() => setMostrarPistaBait(false)}
+            >
+              Cerrar y volver a la actividad
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

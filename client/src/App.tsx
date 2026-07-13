@@ -24,6 +24,7 @@ import Actividad3MathGeometry from "./pages/ActividadesMathGeometry/Actividad3Ma
 import ActividadesMathData from "./pages/ActividadesMathData/ActividadesMathData";
 import GeneradorEnergiaInversa from "./pages/ActividadesMathData/GeneradorEnergiaInversa";
 import RampasDeLanzamiento from "./pages/ActividadesMathData/RampasDeLanzamiento";
+import EncuestaTripulacion from "./pages/ActividadesMathData/EncuestaTripulacion";
 
 
 import ActividadesMathNumbers from "./pages/ActividadesMathNumbers/ActividadesMathNumbers";
@@ -184,6 +185,14 @@ function App() {
               <RampasDeLanzamiento />
             </RequireAuth>
           }
+        />
+        <Route
+        path="/actividades-math-data/encuesta-tripulacion"
+        element={
+            <RequireAuth>
+              <EncuestaTripulacion />
+            </RequireAuth>
+        }
         />
         <Route
           path="/retroalimentacion"
