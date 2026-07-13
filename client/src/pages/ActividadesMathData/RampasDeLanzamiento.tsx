@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getSessionUser } from "../../utils/authSession";
 import logo from "../../assets/logo_MathNova.png";
@@ -15,6 +15,8 @@ import iconoPrecision from "../../assets/icono-precision.png";
 import iconoRecompensa from "../../assets/icono-recompensa.png";
 import iconoInsignia from "../../assets/icono-insignia.png";
 import iconoProgreso from "../../assets/icono-progreso.png";
+import baitHablandoVideo from "../../assets/bait-hablando.mp4";
+import introBaitAudio from "../../assets/rampas-intro-audio.mp3";
 import {
   FiGrid,
   FiMessageSquare,
@@ -29,6 +31,10 @@ import {
   FiSend,
   FiTarget,
   FiX,
+  FiPlay,
+  FiPause,
+  FiRotateCcw,
+  FiRotateCw,
 } from "react-icons/fi";
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 import "./RampasDeLanzamiento.css";
@@ -147,6 +153,156 @@ function GraficaRampa({ color, puntos, esAscenso }: GraficaRampaProps) {
 }
 
 /* =========================================================
+   COMPONENTE: PISTA DE BAIT (modal con video real)
+   Idéntico al de Generador de Energía, para que las
+   introducciones/pistas con audio se sientan iguales
+   en todas las actividades.
+========================================================= */
+
+type PistaBaitModalProps = {
+  tema?: "azul" | "rojo";
+  titulo?: string;
+  contenido: string;
+  videoSrc: string;
+  audioSrc: string;
+  botonTexto?: string;
+  onClose: () => void;
+};
+
+const SALTO_SEGUNDOS = 10;
+
+function PistaBaitModal({
+  tema = "azul",
+  titulo = "Pista de Bait",
+  contenido,
+  videoSrc,
+  audioSrc,
+  botonTexto = "Cerrar y volver a la actividad",
+  onClose,
+}: PistaBaitModalProps) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [reproduciendo, setReproduciendo] = useState(false);
+  const [progreso, setProgreso] = useState(0);
+
+  const sincronizarVideoConAudio = () => {
+    const audio = audioRef.current;
+    const video = videoRef.current;
+    if (!audio || !video) return;
+    if (Math.abs(video.currentTime - audio.currentTime) > 0.35) {
+      video.currentTime = audio.currentTime;
+    }
+  };
+
+  const alternarReproduccion = () => {
+    const audio = audioRef.current;
+    const video = videoRef.current;
+    if (!audio) return;
+
+    if (audio.paused || audio.ended) {
+      audio.play();
+      video?.play();
+    } else {
+      audio.pause();
+      video?.pause();
+    }
+  };
+
+  const saltar = (segundos: number) => {
+    const audio = audioRef.current;
+    const video = videoRef.current;
+    if (!audio || !audio.duration) return;
+    const nuevoTiempo = Math.min(Math.max(audio.currentTime + segundos, 0), audio.duration);
+    audio.currentTime = nuevoTiempo;
+    if (video) video.currentTime = nuevoTiempo;
+  };
+
+  const actualizarProgreso = () => {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    setProgreso((audio.currentTime / audio.duration) * 100);
+  };
+
+  return (
+    <div className="pb-overlay" role="dialog" aria-modal="true" aria-label={titulo}>
+      <div className={`pb-modal pb-modal-${tema}`}>
+        <button
+          type="button"
+          className="pb-cerrar"
+          onClick={onClose}
+          aria-label="Cerrar"
+        >
+          <FiX />
+        </button>
+
+        <div className="pb-video-wrap">
+          <video
+            ref={videoRef}
+            src={videoSrc}
+            className="pb-video"
+            muted
+            playsInline
+            preload="auto"
+            onTimeUpdate={sincronizarVideoConAudio}
+            aria-hidden="true"
+          />
+        </div>
+
+        <h3>{titulo}</h3>
+
+        <p>{contenido}</p>
+
+        <div className="pb-controles">
+          <button
+            type="button"
+            className={`pb-btn-salto pb-btn-salto-${tema}`}
+            onClick={() => saltar(-SALTO_SEGUNDOS)}
+            aria-label={`Retroceder ${SALTO_SEGUNDOS} segundos`}
+          >
+            <FiRotateCcw /> {SALTO_SEGUNDOS}s
+          </button>
+
+          <button
+            type="button"
+            className={`pb-btn-play pb-btn-play-${tema}`}
+            onClick={alternarReproduccion}
+            aria-label={reproduciendo ? "Pausar" : "Reproducir"}
+          >
+            {reproduciendo ? <FiPause /> : <FiPlay />}
+          </button>
+
+          <button
+            type="button"
+            className={`pb-btn-salto pb-btn-salto-${tema}`}
+            onClick={() => saltar(SALTO_SEGUNDOS)}
+            aria-label={`Adelantar ${SALTO_SEGUNDOS} segundos`}
+          >
+            {SALTO_SEGUNDOS}s <FiRotateCw />
+          </button>
+        </div>
+
+        <div className="pb-progress-track">
+          <div className={`pb-progress-fill pb-progress-fill-${tema}`} style={{ width: `${progreso}%` }} />
+        </div>
+
+        <audio
+          ref={audioRef}
+          src={audioSrc}
+          onPlay={() => setReproduciendo(true)}
+          onPause={() => setReproduciendo(false)}
+          onEnded={() => setReproduciendo(false)}
+          onTimeUpdate={actualizarProgreso}
+        />
+
+        <button type="button" className={`pb-cerrar-btn pb-cerrar-btn-${tema}`} onClick={onClose}>
+          {botonTexto}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
    COMPONENTE PRINCIPAL
 ========================================================= */
 
@@ -169,6 +325,7 @@ export default function RampasDeLanzamiento() {
 
   const [resultado, setResultado] = useState<"exito" | "fallo" | null>(null);
   const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
+  const [mostrarIntroBait, setMostrarIntroBait] = useState(false);
   const [audioReproduciendo, setAudioReproduciendo] = useState(false);
   const [cargando, setCargando] = useState(false);
 
@@ -736,15 +893,18 @@ export default function RampasDeLanzamiento() {
               <div>
                 <strong>¡Hola, piloto!</strong>
                 <p>
-                  En esta misión vas a calibrar dos rampas de lanzamiento.
-                  Primero observa cómo cada recta sube o baja. Luego usa la
-                  tabla para descubrir la pendiente y escribe su ecuación en
-                  la forma y = mx.
+                  Agente, la nave está lista para despegar, pero el sistema
+                  de vuelo necesita que calibres las dos rampas de
+                  lanzamiento. Cada rampa describe una relación entre la
+                  distancia recorrida y la altura de la nave. Deberás
+                  descubrir si la recta sube o baja y escribir su ecuación.
+                  Sin eso, el despegue queda bloqueado. ¡Empieza ya!
                 </p>
               </div>
               <button
                 className="rmp-audio-btn"
                 type="button"
+                onClick={() => setMostrarIntroBait(true)}
                 aria-label="Escuchar instrucciones"
               >
                 <FiVolume2 />
@@ -1048,6 +1208,17 @@ export default function RampasDeLanzamiento() {
             </button>
           </div>
         </div>
+      )}
+
+      {mostrarIntroBait && (
+        <PistaBaitModal
+          titulo="¡Hola, piloto!"
+          contenido="Agente, la nave está lista para despegar, pero el sistema de vuelo necesita que calibres las dos rampas de lanzamiento. Cada rampa describe una relación entre la distancia recorrida y la altura de la nave. Deberás descubrir si la recta sube o baja y escribir su ecuación. Sin eso, el despegue queda bloqueado. ¡Empieza ya!"
+          videoSrc={baitHablandoVideo}
+          audioSrc={introBaitAudio}
+          botonTexto="¡Comenzar misión! 🚀"
+          onClose={() => setMostrarIntroBait(false)}
+        />
       )}
     </div>
   );
