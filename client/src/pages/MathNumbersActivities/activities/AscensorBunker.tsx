@@ -32,8 +32,19 @@ import {
 import { formatSigned } from "../utils/formatSigned";
 
 /*
+  Ruta de esta actividad.
+
+  Se usa para que el botón "Repetir actividad"
+  siempre regrese al Ascensor del Búnker.
+*/
+const ascensorRoute =
+  "/actividades/mathnumbers/ascensor-bunker";
+
+/*
   Orden correcto que valida la actividad.
-  No lo cambies si solamente quieres modificar la guía.
+
+  No lo cambies si solamente quieres modificar
+  los números de la guía visual.
 */
 const correctOrder = [-5, -2, 0, 3, 6];
 
@@ -45,10 +56,12 @@ const floorCards = [3, -5, 0, 6, -2];
 /*
   Números independientes de la Guía visual rápida.
 
-  Puedes cambiar solamente estos números y no se modificará
-  la respuesta correcta ni el funcionamiento de la actividad.
+  Puedes cambiar solamente estos números y no se
+  modificará la respuesta correcta ni el funcionamiento
+  de la actividad.
 
   Ejemplo:
+
   const guideNumbers = [-8, -3, 0, 4, 9];
 */
 const guideNumbers = [-8, -3, 0, 4, 9];
@@ -58,9 +71,9 @@ export function AscensorBunker() {
   const { toast, showToast } = useToast();
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const [selectedFloor, setSelectedFloor] = useState<number | null>(
-    null,
-  );
+
+  const [selectedFloor, setSelectedFloor] =
+    useState<number | null>(null);
 
   const [slots, setSlots] = useState<(number | null)[]>([
     null,
@@ -72,10 +85,14 @@ export function AscensorBunker() {
 
   const [explanation, setExplanation] = useState("");
 
-  const progress = slots.filter((slot) => slot !== null).length;
+  const progress = slots.filter(
+    (slot) => slot !== null,
+  ).length;
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "auto";
+    document.body.style.overflow = menuOpen
+      ? "hidden"
+      : "auto";
 
     return () => {
       document.body.style.overflow = "auto";
@@ -89,10 +106,16 @@ export function AscensorBunker() {
 
   const cerrarSesion = () => {
     clearAuthSession();
-    navigate("/login", { replace: true });
+
+    navigate("/login", {
+      replace: true,
+    });
   };
 
-  const placeFloor = (index: number, value: number) => {
+  const placeFloor = (
+    index: number,
+    value: number,
+  ) => {
     setSlots((current) => {
       const next = current.map((slot) =>
         slot === value ? null : slot,
@@ -110,7 +133,10 @@ export function AscensorBunker() {
     event: DragEvent<HTMLButtonElement>,
     value: number,
   ) => {
-    event.dataTransfer.setData("text/plain", String(value));
+    event.dataTransfer.setData(
+      "text/plain",
+      String(value),
+    );
   };
 
   const dropFloor = (
@@ -138,7 +164,9 @@ export function AscensorBunker() {
       return;
     }
 
-    showToast("Explicación guardada correctamente.");
+    showToast(
+      "Explicación guardada correctamente.",
+    );
   };
 
   const verificar = () => {
@@ -156,15 +184,32 @@ export function AscensorBunker() {
     ).length;
 
     if (total === 5) {
-      showToast("¡Ruta correcta! Ascensor restablecido.");
-
-      window.setTimeout(
-        () =>
-          navigate(
-            "/actividades/mathnumbers/actividad-completada",
-          ),
-        700,
+      showToast(
+        "¡Ruta correcta! Ascensor restablecido.",
       );
+
+      window.setTimeout(() => {
+        navigate(
+          "/actividades/mathnumbers/actividad-completada",
+          {
+            state: {
+              activity: "ascensor-bunker",
+
+              /*
+                Repetir actividad vuelve al Ascensor
+                del Búnker.
+              */
+              retryRoute: ascensorRoute,
+
+              /*
+                Como esta es la última actividad,
+                Siguiente actividad vuelve a la lista.
+              */
+              nextRoute: activityListRoute,
+            },
+          },
+        );
+      }, 700);
 
       return;
     }
@@ -174,15 +219,19 @@ export function AscensorBunker() {
       true,
     );
 
-    window.setTimeout(
-      () =>
-        navigate(
-          total >= 3
-            ? "/actividades/mathnumbers/casi-lo-logras"
-            : "/actividades/mathnumbers/vuelve-a-intentarlo",
-        ),
-      900,
-    );
+    window.setTimeout(() => {
+      navigate(
+        total >= 3
+          ? "/actividades/mathnumbers/casi-lo-logras"
+          : "/actividades/mathnumbers/vuelve-a-intentarlo",
+        {
+          state: {
+            activity: "ascensor-bunker",
+            retryRoute: ascensorRoute,
+          },
+        },
+      );
+    }, 900);
   };
 
   return (
@@ -192,10 +241,15 @@ export function AscensorBunker() {
         className={`mnx-hamburger-btn ${
           menuOpen ? "mnx-hamburger-open" : ""
         }`}
-        onClick={() => setMenuOpen((current) => !current)}
+        onClick={() =>
+          setMenuOpen((current) => !current)
+        }
         aria-label="Abrir menú"
       >
-        <img src={menuHamburguesa} alt="Menú" />
+        <img
+          src={menuHamburguesa}
+          alt="Menú"
+        />
       </button>
 
       {menuOpen && (
@@ -220,55 +274,85 @@ export function AscensorBunker() {
           <button
             className="mnx-menu-item"
             type="button"
-            onClick={() => irARuta("/dashboard")}
+            onClick={() =>
+              irARuta("/dashboard")
+            }
           >
             <FiGrid />
-            <span>Panel de control principal</span>
+
+            <span>
+              Panel de control principal
+            </span>
           </button>
 
           <button
             className="mnx-menu-item mnx-active"
             type="button"
-            onClick={() => irARuta("/seleccion-mundos")}
+            onClick={() =>
+              irARuta("/seleccion-mundos")
+            }
           >
             <GiRingedPlanet />
-            <span>Selección de mundos</span>
+
+            <span>
+              Selección de mundos
+            </span>
           </button>
 
           <button
             className="mnx-menu-item"
             type="button"
-            onClick={() => irARuta("/retroalimentacion")}
+            onClick={() =>
+              irARuta("/retroalimentacion")
+            }
           >
             <FiMessageSquare />
-            <span>Retroalimentación</span>
+
+            <span>
+              Retroalimentación
+            </span>
           </button>
 
           <button
             className="mnx-menu-item"
             type="button"
-            onClick={() => irARuta("/recompensas")}
+            onClick={() =>
+              irARuta("/recompensas")
+            }
           >
             <GiTrophyCup />
-            <span>Recompensas</span>
+
+            <span>
+              Recompensas
+            </span>
           </button>
 
           <button
             className="mnx-menu-item"
             type="button"
-            onClick={() => irARuta("/perfil-alumno")}
+            onClick={() =>
+              irARuta("/perfil-alumno")
+            }
           >
             <FiUser />
-            <span>Perfil del alumno</span>
+
+            <span>
+              Perfil del alumno
+            </span>
           </button>
 
           <button
             className="mnx-menu-item"
             type="button"
-            onClick={() => irARuta("/estadisticas")}
+            onClick={() =>
+              irARuta("/estadisticas")
+            }
           >
             <FiBarChart2 />
-            <span>Estadísticas</span>
+
+            <span>
+              Estadísticas
+            </span>
           </button>
         </nav>
 
@@ -299,7 +383,9 @@ export function AscensorBunker() {
           <button
             type="button"
             className="mnx-cofre-ghost-btn mnx-cofre-wide"
-            onClick={() => irARuta(activityListRoute)}
+            onClick={() =>
+              irARuta(activityListRoute)
+            }
           >
             <span>←</span>
             Salir de la actividad
@@ -309,9 +395,15 @@ export function AscensorBunker() {
         <header className="mnx-cofre-header">
           <div className="mnx-cofre-header-copy">
             <div className="mnx-cofre-crumb">
-              <strong>MathNumbers</strong>
+              <strong>
+                MathNumbers
+              </strong>
+
               <span>/</span>
-              <span>Tema 2: Positivos y negativos</span>
+
+              <span>
+                Tema 2: Positivos y negativos
+              </span>
             </div>
 
             <div className="mnx-cofre-title-row">
@@ -322,25 +414,31 @@ export function AscensorBunker() {
                 <FiTarget />
               </span>
 
-              <h1>El Ascensor del Búnker</h1>
+              <h1>
+                El Ascensor del Búnker
+              </h1>
             </div>
 
             <p>
-              Ordena números positivos y negativos de menor a mayor
-              para restablecer la ruta del ascensor.
+              Ordena números positivos y negativos
+              de menor a mayor para restablecer la
+              ruta del ascensor.
               <br />
-              Cada piso bien ubicado acerca al ascensor a la
-              superficie.
+              Cada piso bien ubicado acerca al
+              ascensor a la superficie.
             </p>
           </div>
 
           <div className="mnx-cofre-welcome-wrap">
             <article className="mnx-cofre-speech">
-              <strong>¡Sistema en espera!</strong>
+              <strong>
+                ¡Sistema en espera!
+              </strong>
 
               <span>
-                Los sótanos son negativos, la superficie es el 0 y
-                las torres son positivas: ordénalos de menor a mayor.
+                Los sótanos son negativos, la
+                superficie es el 0 y las torres son
+                positivas: ordénalos de menor a mayor.
               </span>
             </article>
 
@@ -363,11 +461,14 @@ export function AscensorBunker() {
               <FiTarget />
 
               <div>
-                <strong>Tu misión</strong>
+                <strong>
+                  Tu misión
+                </strong>
 
                 <p>
-                  Ordena las tarjetas de números de menor a mayor
-                  para restablecer la ruta del ascensor.
+                  Ordena las tarjetas de números de
+                  menor a mayor para restablecer la
+                  ruta del ascensor.
                 </p>
               </div>
             </div>
@@ -379,7 +480,9 @@ export function AscensorBunker() {
                 <FiHelpCircle />
               </span>
 
-              <strong>Guía visual rápida</strong>
+              <strong>
+                Guía visual rápida
+              </strong>
             </div>
 
             <div className="mnx-ascensor-guide-labels">
@@ -397,30 +500,33 @@ export function AscensorBunker() {
             </div>
 
             <div className="mnx-ascensor-guide-chips">
-              {guideNumbers.map((value, index) => (
-                <div
-                  key={`${value}-${index}`}
-                  className="mnx-ascensor-chip-wrap"
-                >
-                  <span
-                    className={`mnx-ascensor-chip ${
-                      value < 0
-                        ? "negative"
-                        : value > 0
-                          ? "positive"
-                          : "zero"
-                    }`}
+              {guideNumbers.map(
+                (value, index) => (
+                  <div
+                    key={`${value}-${index}`}
+                    className="mnx-ascensor-chip-wrap"
                   >
-                    {formatSigned(value)}
-                  </span>
-
-                  {index < guideNumbers.length - 1 && (
-                    <span className="mnx-ascensor-chip-arrow">
-                      →
+                    <span
+                      className={`mnx-ascensor-chip ${
+                        value < 0
+                          ? "negative"
+                          : value > 0
+                            ? "positive"
+                            : "zero"
+                      }`}
+                    >
+                      {formatSigned(value)}
                     </span>
-                  )}
-                </div>
-              ))}
+
+                    {index <
+                      guideNumbers.length - 1 && (
+                      <span className="mnx-ascensor-chip-arrow">
+                        →
+                      </span>
+                    )}
+                  </div>
+                ),
+              )}
             </div>
           </section>
 
@@ -429,8 +535,8 @@ export function AscensorBunker() {
               <span>1</span>
 
               <h2>
-                Arrastra o selecciona cada tarjeta y colócala en su
-                piso.
+                Arrastra o selecciona cada tarjeta
+                y colócala en su piso.
               </h2>
             </div>
 
@@ -447,12 +553,16 @@ export function AscensorBunker() {
                         ? "positive"
                         : "zero"
                   } ${
-                    selectedFloor === floor ? "selected" : ""
+                    selectedFloor === floor
+                      ? "selected"
+                      : ""
                   }`}
                   onDragStart={(event) =>
                     dragFloor(event, floor)
                   }
-                  onClick={() => setSelectedFloor(floor)}
+                  onClick={() =>
+                    setSelectedFloor(floor)
+                  }
                 >
                   {formatSigned(floor)}
                 </button>
@@ -473,9 +583,12 @@ export function AscensorBunker() {
                     <button
                       type="button"
                       className={`mnx-ascensor-slot ${
-                        slot !== null ? "filled" : ""
+                        slot !== null
+                          ? "filled"
+                          : ""
                       } ${
-                        slot !== null && slot < 0
+                        slot !== null &&
+                        slot < 0
                           ? "negative"
                           : ""
                       }`}
@@ -483,11 +596,17 @@ export function AscensorBunker() {
                         event.preventDefault()
                       }
                       onDrop={(event) =>
-                        dropFloor(event, index)
+                        dropFloor(
+                          event,
+                          index,
+                        )
                       }
                       onClick={() =>
                         selectedFloor !== null &&
-                        placeFloor(index, selectedFloor)
+                        placeFloor(
+                          index,
+                          selectedFloor,
+                        )
                       }
                     >
                       {slot !== null ? (
@@ -517,9 +636,13 @@ export function AscensorBunker() {
             />
 
             <p>
-              <strong>Recuerda:</strong> los negativos más grandes
-              en valor van más abajo. Observa qué número está más a
-              la izquierda en la recta numérica.
+              <strong>
+                Recuerda:
+              </strong>{" "}
+              los negativos más grandes en valor
+              van más abajo. Observa qué número
+              está más a la izquierda en la recta
+              numérica.
             </p>
 
             <span>↕</span>
@@ -529,7 +652,9 @@ export function AscensorBunker() {
             <div className="mnx-cofre-question-head">
               <span>2</span>
 
-              <h2>¿Por qué este es el orden correcto?</h2>
+              <h2>
+                ¿Por qué este es el orden correcto?
+              </h2>
             </div>
 
             <label className="mnx-ascensor-answer-box">
@@ -537,12 +662,16 @@ export function AscensorBunker() {
                 maxLength={300}
                 value={explanation}
                 onChange={(event) =>
-                  setExplanation(event.target.value)
+                  setExplanation(
+                    event.target.value,
+                  )
                 }
                 placeholder="Escribe tu explicación aquí..."
               />
 
-              <span>{explanation.length} / 300</span>
+              <span>
+                {explanation.length} / 300
+              </span>
             </label>
 
             <button
@@ -566,18 +695,22 @@ export function AscensorBunker() {
             </button>
 
             <p className="mnx-ascensor-progress">
-              Progreso: {progress}/5 pisos colocados
+              Progreso: {progress}/5 pisos
+              colocados
             </p>
 
             <article className="mnx-cofre-evidence-card">
               <div className="mnx-cofre-evidence-title">
                 <FiClipboard />
-                <strong>Evidencia guardada</strong>
+
+                <strong>
+                  Evidencia guardada
+                </strong>
               </div>
 
               <p>
-                Tu orden, intentos y progreso se guardan
-                automáticamente.
+                Tu orden, intentos y progreso se
+                guardan automáticamente.
               </p>
 
               <div className="mnx-cofre-info-row">

@@ -33,36 +33,88 @@ import {
 } from "../mathNumbersAssets";
 import { formatSigned } from "../utils/formatSigned";
 
+const radarRoute =
+  "/actividades/mathnumbers/radar-supervivencia";
+
+const ascensorRoute =
+  "/actividades/mathnumbers/ascensor-bunker";
+
 const signals = [
-  { value: "3", label: "Señal aliada A", type: "ally" },
-  { value: "5", label: "Señal aliada B", type: "ally" },
-  { value: "-2", label: "Señal enemiga C", type: "enemy" },
-  { value: "-4", label: "Señal enemiga D", type: "enemy" },
+  {
+    value: "3",
+    label: "Señal aliada A",
+    type: "ally",
+  },
+  {
+    value: "5",
+    label: "Señal aliada B",
+    type: "ally",
+  },
+  {
+    value: "-2",
+    label: "Señal enemiga C",
+    type: "enemy",
+  },
+  {
+    value: "-4",
+    label: "Señal enemiga D",
+    type: "enemy",
+  },
 ] as const;
 
 const targets = ["-4", "-2", "3", "5"] as const;
-const numberLine = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5];
 
-type SignalValue = (typeof signals)[number]["value"];
+const numberLine = [
+  -5,
+  -4,
+  -3,
+  -2,
+  -1,
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+];
+
+type SignalValue =
+  (typeof signals)[number]["value"];
 
 const getSignal = (value?: string) =>
-  signals.find((signal) => signal.value === value);
+  signals.find(
+    (signal) => signal.value === value,
+  );
 
-const numberToColumn = (value: string | number) => Number(value) + 6;
+const numberToColumn = (
+  value: string | number,
+) => Number(value) + 6;
 
 export function RadarSupervivencia() {
   const navigate = useNavigate();
   const { toast, showToast } = useToast();
 
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [selectedSignal, setSelectedSignal] = useState<SignalValue | null>(null);
-  const [placements, setPlacements] = useState<Record<string, string>>({});
-  const [explanation, setExplanation] = useState("");
+  const [menuOpen, setMenuOpen] =
+    useState(false);
 
-  const progress = Object.keys(placements).length;
+  const [
+    selectedSignal,
+    setSelectedSignal,
+  ] = useState<SignalValue | null>(null);
+
+  const [placements, setPlacements] =
+    useState<Record<string, string>>({});
+
+  const [explanation, setExplanation] =
+    useState("");
+
+  const progress =
+    Object.keys(placements).length;
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "auto";
+    document.body.style.overflow = menuOpen
+      ? "hidden"
+      : "auto";
 
     return () => {
       document.body.style.overflow = "auto";
@@ -76,34 +128,59 @@ export function RadarSupervivencia() {
 
   const cerrarSesion = () => {
     clearAuthSession();
-    navigate("/login", { replace: true });
+
+    navigate("/login", {
+      replace: true,
+    });
   };
 
-  const setPlacementWithoutDuplicate = (target: string, value: string) => {
+  const setPlacementWithoutDuplicate = (
+    target: string,
+    value: string,
+  ) => {
     setPlacements((current) => {
       const next: Record<string, string> = {};
 
-      Object.entries(current).forEach(([currentTarget, currentValue]) => {
-        if (currentValue !== value && currentTarget !== target) {
-          next[currentTarget] = currentValue;
-        }
-      });
+      Object.entries(current).forEach(
+        ([currentTarget, currentValue]) => {
+          if (
+            currentValue !== value &&
+            currentTarget !== target
+          ) {
+            next[currentTarget] =
+              currentValue;
+          }
+        },
+      );
 
       next[target] = value;
+
       return next;
     });
   };
 
-  const placeSignal = (target: string, value: string) => {
-    setPlacementWithoutDuplicate(target, value);
-    setSelectedSignal(value as SignalValue);
+  const placeSignal = (
+    target: string,
+    value: string,
+  ) => {
+    setPlacementWithoutDuplicate(
+      target,
+      value,
+    );
+
+    setSelectedSignal(
+      value as SignalValue,
+    );
   };
 
   const dragSignal = (
     event: DragEvent<HTMLButtonElement>,
     value: string,
   ) => {
-    event.dataTransfer.setData("text/plain", value);
+    event.dataTransfer.setData(
+      "text/plain",
+      value,
+    );
   };
 
   const dropSignal = (
@@ -111,7 +188,11 @@ export function RadarSupervivencia() {
     target: string,
   ) => {
     event.preventDefault();
-    const value = event.dataTransfer.getData("text/plain");
+
+    const value =
+      event.dataTransfer.getData(
+        "text/plain",
+      );
 
     if (value) {
       placeSignal(target, value);
@@ -120,29 +201,53 @@ export function RadarSupervivencia() {
 
   const guardarExplicacion = () => {
     if (!explanation.trim()) {
-      showToast("Escribe una explicación corta antes de guardarla.", true);
+      showToast(
+        "Escribe una explicación corta antes de guardarla.",
+        true,
+      );
+
       return;
     }
 
-    showToast("Explicación guardada como evidencia.");
+    showToast(
+      "Explicación guardada como evidencia.",
+    );
   };
 
   const comprobar = () => {
     if (progress < 4) {
-      showToast("Ubica las cuatro señales para activar el radar.", true);
+      showToast(
+        "Ubica las cuatro señales para activar el radar.",
+        true,
+      );
+
       return;
     }
 
     const total = targets.filter(
-      (target) => placements[target] === target,
+      (target) =>
+        placements[target] === target,
     ).length;
 
     if (total === 4) {
-      showToast("¡Excelente! Radar calibrado.");
-      window.setTimeout(
-        () => navigate("/actividades/mathnumbers/actividad-completada"),
-        700,
+      showToast(
+        "¡Excelente! Radar calibrado.",
       );
+
+      window.setTimeout(() => {
+        navigate(
+          "/actividades/mathnumbers/actividad-completada",
+          {
+            state: {
+              activity:
+                "radar-supervivencia",
+              retryRoute: radarRoute,
+              nextRoute: ascensorRoute,
+            },
+          },
+        );
+      }, 700);
+
       return;
     }
 
@@ -151,15 +256,20 @@ export function RadarSupervivencia() {
       true,
     );
 
-    window.setTimeout(
-      () =>
-        navigate(
-          total >= 2
-            ? "/actividades/mathnumbers/casi-lo-logras"
-            : "/actividades/mathnumbers/vuelve-a-intentarlo",
-        ),
-      900,
-    );
+    window.setTimeout(() => {
+      navigate(
+        total >= 2
+          ? "/actividades/mathnumbers/casi-lo-logras"
+          : "/actividades/mathnumbers/vuelve-a-intentarlo",
+        {
+          state: {
+            activity:
+              "radar-supervivencia",
+            retryRoute: radarRoute,
+          },
+        },
+      );
+    }, 900);
   };
 
   return (
@@ -167,80 +277,129 @@ export function RadarSupervivencia() {
       <button
         type="button"
         className={`mnx-hamburger-btn ${
-          menuOpen ? "mnx-hamburger-open" : ""
+          menuOpen
+            ? "mnx-hamburger-open"
+            : ""
         }`}
-        onClick={() => setMenuOpen((current) => !current)}
+        onClick={() =>
+          setMenuOpen(
+            (current) => !current,
+          )
+        }
         aria-label="Abrir menú"
       >
-        <img src={menuHamburguesa} alt="Menú" />
+        <img
+          src={menuHamburguesa}
+          alt="Menú"
+        />
       </button>
 
       {menuOpen && (
         <div
           className="mnx-menu-overlay"
-          onClick={() => setMenuOpen(false)}
+          onClick={() =>
+            setMenuOpen(false)
+          }
         />
       )}
 
       <aside
         className={`mnx-sidebar ${
-          menuOpen ? "mnx-sidebar-open" : ""
+          menuOpen
+            ? "mnx-sidebar-open"
+            : ""
         }`}
       >
-        <img src={logo} alt="MathNova" className="mnx-sidebar-logo" />
+        <img
+          src={logo}
+          alt="MathNova"
+          className="mnx-sidebar-logo"
+        />
 
         <nav className="mnx-sidebar-menu">
           <button
             className="mnx-menu-item"
             type="button"
-            onClick={() => irARuta("/dashboard")}
+            onClick={() =>
+              irARuta("/dashboard")
+            }
           >
             <FiGrid />
-            <span>Panel de control principal</span>
+
+            <span>
+              Panel de control principal
+            </span>
           </button>
 
           <button
             className="mnx-menu-item mnx-active"
             type="button"
-            onClick={() => irARuta("/seleccion-mundos")}
+            onClick={() =>
+              irARuta(
+                "/seleccion-mundos",
+              )
+            }
           >
             <GiRingedPlanet />
-            <span>Selección de mundos</span>
+
+            <span>
+              Selección de mundos
+            </span>
           </button>
 
           <button
             className="mnx-menu-item"
             type="button"
-            onClick={() => irARuta("/retroalimentacion")}
+            onClick={() =>
+              irARuta(
+                "/retroalimentacion",
+              )
+            }
           >
             <FiMessageSquare />
-            <span>Retroalimentación</span>
+
+            <span>
+              Retroalimentación
+            </span>
           </button>
 
           <button
             className="mnx-menu-item"
             type="button"
-            onClick={() => irARuta("/recompensas")}
+            onClick={() =>
+              irARuta("/recompensas")
+            }
           >
             <GiTrophyCup />
+
             <span>Recompensas</span>
           </button>
 
           <button
             className="mnx-menu-item"
             type="button"
-            onClick={() => irARuta("/perfil-alumno")}
+            onClick={() =>
+              irARuta(
+                "/perfil-alumno",
+              )
+            }
           >
             <FiUser />
-            <span>Perfil del alumno</span>
+
+            <span>
+              Perfil del alumno
+            </span>
           </button>
 
           <button
             className="mnx-menu-item"
             type="button"
-            onClick={() => irARuta("/estadisticas")}
+            onClick={() =>
+              irARuta("/estadisticas")
+            }
           >
             <FiBarChart2 />
+
             <span>Estadísticas</span>
           </button>
         </nav>
@@ -269,44 +428,71 @@ export function RadarSupervivencia() {
             Ayuda
           </button>
 
-          <button 
-  type="button" 
-  className="mnx-cofre-ghost-btn mnx-cofre-wide" 
-  onClick={() => irARuta(activityListRoute)}
->
-  <span>←</span>
-  Salir de la actividad
-</button>
+          <button
+            type="button"
+            className="mnx-cofre-ghost-btn mnx-cofre-wide"
+            onClick={() =>
+              irARuta(
+                activityListRoute,
+              )
+            }
+          >
+            <span>←</span>
+            Salir de la actividad
+          </button>
         </div>
 
         <header className="mnx-cofre-header">
           <div className="mnx-cofre-header-copy">
             <div className="mnx-cofre-crumb">
-              <strong>MathNumbers</strong>
+              <strong>
+                MathNumbers
+              </strong>
+
               <span>/</span>
-              <span>Tema 2: Positivos y negativos</span>
+
+              <span>
+                Tema 2: Positivos y
+                negativos
+              </span>
             </div>
 
             <div className="mnx-cofre-title-row">
-              <span className="mnx-radar-title-icon" aria-hidden="true">
+              <span
+                className="mnx-radar-title-icon"
+                aria-hidden="true"
+              >
                 <FiTarget />
               </span>
-              <h1>El Radar de Supervivencia</h1>
+
+              <h1>
+                El Radar de
+                Supervivencia
+              </h1>
             </div>
 
             <p>
-              Ubica números positivos y negativos en la recta numérica.
+              Ubica números positivos y
+              negativos en la recta
+              numérica.
               <br />
-              Cada señal correcta ayudará a calibrar el radar de la base.
+              Cada señal correcta ayudará
+              a calibrar el radar de la
+              base.
             </p>
           </div>
 
           <div className="mnx-cofre-welcome-wrap">
             <article className="mnx-cofre-speech">
-              <strong>¡Atención, explorador!</strong>
+              <strong>
+                ¡Atención, explorador!
+              </strong>
+
               <span>
-                Usa el 0 como punto de referencia: los negativos van a la
-                izquierda y los positivos a la derecha.
+                Usa el 0 como punto de
+                referencia: los negativos
+                van a la izquierda y los
+                positivos a la derecha.
               </span>
             </article>
 
@@ -320,15 +506,24 @@ export function RadarSupervivencia() {
 
         <section className="mnx-radar-activity-grid">
           <article className="mnx-radar-art">
-            <img src={radarImage} alt="Radar de supervivencia" />
+            <img
+              src={radarImage}
+              alt="Radar de supervivencia"
+            />
 
             <div className="mnx-radar-mission">
               <FiTarget />
+
               <div>
-                <strong>Tu misión</strong>
+                <strong>
+                  Tu misión
+                </strong>
+
                 <p>
-                  Coloca las cuatro señales en la posición correcta de la
-                  recta numérica.
+                  Coloca las cuatro
+                  señales en la posición
+                  correcta de la recta
+                  numérica.
                 </p>
               </div>
             </div>
@@ -337,15 +532,21 @@ export function RadarSupervivencia() {
           <section className="mnx-cofre-guide-card mnx-radar-guide-card">
             <div className="mnx-cofre-card-title">
               <span>↔</span>
-              <strong>Guía visual rápida</strong>
+
+              <strong>
+                Guía visual rápida
+              </strong>
             </div>
 
             <div className="mnx-radar-guide-copy">
               <strong className="negative">
-                Negativos a la izquierda del 0
+                Negativos a la izquierda
+                del 0
               </strong>
+
               <strong className="positive">
-                Positivos a la derecha del 0
+                Positivos a la derecha
+                del 0
               </strong>
             </div>
 
@@ -355,8 +556,11 @@ export function RadarSupervivencia() {
           <section className="mnx-radar-placement-card">
             <div className="mnx-cofre-question-head">
               <span>1</span>
+
               <h2>
-                Arrastra o selecciona cada señal y colócala en su número.
+                Arrastra o selecciona
+                cada señal y colócala en
+                su número.
               </h2>
             </div>
 
@@ -367,17 +571,40 @@ export function RadarSupervivencia() {
                   type="button"
                   draggable
                   className={`mnx-radar-signal ${signal.type} ${
-                    selectedSignal === signal.value ? "selected" : ""
+                    selectedSignal ===
+                    signal.value
+                      ? "selected"
+                      : ""
                   }`}
                   onDragStart={(event) =>
-                    dragSignal(event, signal.value)
+                    dragSignal(
+                      event,
+                      signal.value,
+                    )
                   }
-                  onClick={() => setSelectedSignal(signal.value)}
+                  onClick={() =>
+                    setSelectedSignal(
+                      signal.value,
+                    )
+                  }
                 >
-                  {signal.type === "ally" ? <FiShield /> : <FiTarget />}
+                  {signal.type ===
+                  "ally" ? (
+                    <FiShield />
+                  ) : (
+                    <FiTarget />
+                  )}
+
                   <span>
-                    <small>{signal.label}</small>
-                    <strong>{formatSigned(signal.value)}</strong>
+                    <small>
+                      {signal.label}
+                    </small>
+
+                    <strong>
+                      {formatSigned(
+                        signal.value,
+                      )}
+                    </strong>
                   </span>
                 </button>
               ))}
@@ -385,34 +612,67 @@ export function RadarSupervivencia() {
 
             <div className="mnx-radar-drop-zone">
               <div className="mnx-radar-targets">
-                {targets.map((target) => {
-                  const placedValue = placements[target];
-                  const signal = getSignal(placedValue);
+                {targets.map(
+                  (target) => {
+                    const placedValue =
+                      placements[target];
 
-                  return (
-                    <button
-                      key={target}
-                      type="button"
-                      style={{ gridColumn: numberToColumn(target) }}
-                      className={`mnx-radar-target ${
-                        placedValue ? "filled" : ""
-                      } ${signal?.type || ""}`}
-                      onDragOver={(event) => event.preventDefault()}
-                      onDrop={(event) => dropSignal(event, target)}
-                      onClick={() =>
-                        selectedSignal &&
-                        placeSignal(target, selectedSignal)
-                      }
-                      aria-label={`Colocar señal en ${target}`}
-                    >
-                      {placedValue ? (
-                        formatSigned(placedValue)
-                      ) : (
-                        <FiArrowDown />
-                      )}
-                    </button>
-                  );
-                })}
+                    const signal =
+                      getSignal(
+                        placedValue,
+                      );
+
+                    return (
+                      <button
+                        key={target}
+                        type="button"
+                        style={{
+                          gridColumn:
+                            numberToColumn(
+                              target,
+                            ),
+                        }}
+                        className={`mnx-radar-target ${
+                          placedValue
+                            ? "filled"
+                            : ""
+                        } ${
+                          signal?.type ||
+                          ""
+                        }`}
+                        onDragOver={(
+                          event,
+                        ) =>
+                          event.preventDefault()
+                        }
+                        onDrop={(
+                          event,
+                        ) =>
+                          dropSignal(
+                            event,
+                            target,
+                          )
+                        }
+                        onClick={() =>
+                          selectedSignal &&
+                          placeSignal(
+                            target,
+                            selectedSignal,
+                          )
+                        }
+                        aria-label={`Colocar señal en ${target}`}
+                      >
+                        {placedValue ? (
+                          formatSigned(
+                            placedValue,
+                          )
+                        ) : (
+                          <FiArrowDown />
+                        )}
+                      </button>
+                    );
+                  },
+                )}
               </div>
 
               <NumberAxis variant="work" />
@@ -420,18 +680,32 @@ export function RadarSupervivencia() {
           </section>
 
           <section className="mnx-cofre-reminder-card mnx-radar-reminder">
-            <img src={cofreGuide} alt="Comandante Suma" />
+            <img
+              src={cofreGuide}
+              alt="Comandante Suma"
+            />
+
             <p>
-              <strong>Recuerda:</strong> cuanto más negativo es un número,
-              más lejos queda a la izquierda del cero.
+              <strong>
+                Recuerda:
+              </strong>{" "}
+              cuanto más negativo es un
+              número, más lejos queda a
+              la izquierda del cero.
             </p>
+
             <span>↔</span>
           </section>
 
           <section className="mnx-cofre-question-card mnx-radar-question">
             <div className="mnx-cofre-question-head">
               <span>2</span>
-              <h2>¿Por qué -4 queda más lejos a la izquierda que -2?</h2>
+
+              <h2>
+                ¿Por qué -4 queda más
+                lejos a la izquierda que
+                -2?
+              </h2>
             </div>
 
             <label className="mnx-radar-answer-box">
@@ -439,17 +713,25 @@ export function RadarSupervivencia() {
                 maxLength={300}
                 value={explanation}
                 onChange={(event) =>
-                  setExplanation(event.target.value)
+                  setExplanation(
+                    event.target.value,
+                  )
                 }
                 placeholder="Escribe tu explicación aquí..."
               />
-              <span>{explanation.length} / 300</span>
+
+              <span>
+                {explanation.length} /
+                300
+              </span>
             </label>
 
             <button
               type="button"
               className="mnx-radar-save-btn"
-              onClick={guardarExplicacion}
+              onClick={
+                guardarExplicacion
+              }
             >
               <FiSave />
               Guardar explicación
@@ -467,23 +749,31 @@ export function RadarSupervivencia() {
             </button>
 
             <p className="mnx-radar-progress">
-              Progreso: {progress}/4 señales colocadas
+              Progreso: {progress}/4
+              señales colocadas
             </p>
 
             <article className="mnx-cofre-evidence-card">
               <div className="mnx-cofre-evidence-title">
                 <FiClipboard />
-                <strong>Evidencia guardada</strong>
+
+                <strong>
+                  Evidencia guardada
+                </strong>
               </div>
 
               <p>
-                Tus posiciones y explicación se registran automáticamente.
+                Tus posiciones y
+                explicación se registran
+                automáticamente.
               </p>
 
               <div className="mnx-cofre-info-row">
                 <FiInfo />
+
                 <p>
-                  Podrás revisar tus aciertos y errores en
+                  Podrás revisar tus
+                  aciertos y errores en
                   Retroalimentación.
                 </p>
               </div>
@@ -506,9 +796,15 @@ export function RadarSupervivencia() {
   );
 }
 
-function NumberAxis({ variant }: { variant: "guide" | "work" }) {
+function NumberAxis({
+  variant,
+}: {
+  variant: "guide" | "work";
+}) {
   return (
-    <div className={`mnx-radar-axis mnx-radar-axis-${variant}`}>
+    <div
+      className={`mnx-radar-axis mnx-radar-axis-${variant}`}
+    >
       <span className="mnx-radar-axis-arrow left" />
       <span className="mnx-radar-axis-line" />
       <span className="mnx-radar-axis-arrow right" />
@@ -517,7 +813,11 @@ function NumberAxis({ variant }: { variant: "guide" | "work" }) {
         {numberLine.map((number) => (
           <span
             key={number}
-            className={number === 0 ? "zero" : ""}
+            className={
+              number === 0
+                ? "zero"
+                : ""
+            }
             data-value={number}
           />
         ))}
