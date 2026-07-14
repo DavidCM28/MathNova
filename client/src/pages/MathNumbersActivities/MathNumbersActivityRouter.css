@@ -1,3 +1,7 @@
+/* MathNumbersActivityRouter.css
+   Estilos comunes del layout, sidebar, hero, cards, botones, resultados y responsive general.
+*/
+
 .mnx-page,
 .mnx-page * {
   box-sizing: border-box;
@@ -5,13 +9,13 @@
 
 .mnx-page {
   width: 100%;
-  min-height: 100vh;
-  background: #dcebff;
-  display: flex;
-  gap: 28px;
-  font-family: "Poppins", Arial, sans-serif;
-  color: #071331;
-  overflow-x: hidden;
+    min-height: 100vh;
+    background: #dcebff;
+    display: flex;
+    gap: 28px;
+    font-family: "Poppins", Arial, sans-serif;
+    color: #071331;
+    overflow-x: hidden;
 }
 
 .mnx-hamburger-btn {
@@ -20,45 +24,45 @@
 
 .mnx-sidebar {
   width: 305px;
-  min-width: 305px;
-  min-height: 100vh;
-  background: #ffffff;
-  border-radius: 0 34px 34px 0;
-  padding: 48px 30px 30px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 20;
+    min-width: 305px;
+    min-height: 100vh;
+    background: #ffffff;
+    border-radius: 0 34px 34px 0;
+    padding: 48px 30px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 20;
 }
 
 .mnx-sidebar-logo {
   width: 185px;
-  margin-bottom: 50px;
+    margin-bottom: 50px;
 }
 
 .mnx-sidebar-menu {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .mnx-menu-item {
   width: 100%;
-  min-height: 60px;
-  border: none;
-  background: transparent;
-  color: #111827;
-  display: flex;
-  align-items: center;
-  gap: 17px;
-  font-size: 16px;
-  font-weight: 900;
-  border-radius: 14px;
-  padding: 0 22px;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.25s ease;
+    min-height: 60px;
+    border: none;
+    background: transparent;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 17px;
+    font-size: 16px;
+    font-weight: 900;
+    border-radius: 14px;
+    padding: 0 22px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.25s ease;
 }
 
 .mnx-menu-item span {
@@ -67,14 +71,14 @@
 
 .mnx-menu-item svg {
   font-size: 29px;
-  flex-shrink: 0;
-  transition: transform 0.25s ease;
+    flex-shrink: 0;
+    transition: transform 0.25s ease;
 }
 
 .mnx-menu-item:hover {
   background: #eef5ff;
-  transform: translateX(7px) scale(1.02);
-  box-shadow: 0 8px 18px rgba(0, 88, 255, 0.12);
+    transform: translateX(7px) scale(1.02);
+    box-shadow: 0 8px 18px rgba(0, 88, 255, 0.12);
 }
 
 .mnx-menu-item:hover svg {
@@ -83,26 +87,26 @@
 
 .mnx-menu-item.mnx-active {
   background: #0058ff;
-  color: #ffffff;
+    color: #ffffff;
 }
 
 .mnx-sidebar-fox-box {
   width: 100%;
-  margin-top: auto;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  padding-top: 20px;
-  padding-bottom: 20px;
+    margin-top: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
 .mnx-sidebar-fox {
   width: 500px;
-  max-width: 300%;
-  height: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 12px 18px rgba(0, 88, 255, 0.15));
-  transition: transform 0.3s ease;
+    max-width: 300%;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 12px 18px rgba(0, 88, 255, 0.15));
+    transition: transform 0.3s ease;
 }
 
 .mnx-sidebar-fox:hover {
@@ -111,131 +115,131 @@
 
 .mnx-content {
   flex: 1;
-  min-width: 0;
-  padding-right: 28px;
-  overflow: hidden;
+    min-width: 0;
+    padding-right: 28px;
+    overflow: hidden;
 }
 
- .mnx-hero-section {
+.mnx-hero-section {
   min-height: 540px;
-  background:
-    radial-gradient(circle at 82% 12%, rgba(255, 213, 79, 0.42) 0 0.5rem, transparent 0.55rem),
-    radial-gradient(circle at 92% 28%, rgba(0, 88, 255, 0.13) 0 0.75rem, transparent 0.8rem),
-    radial-gradient(circle at 58% 18%, rgba(0, 166, 81, 0.12) 0 0.55rem, transparent 0.6rem),
-    linear-gradient(120deg, #eaf4ff 0%, #f7fbff 48%, #e7f2ff 100%);
-  border-radius: 0;
-  position: relative;
-  overflow: hidden;
-  padding: 62px 58px 92px 76px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 560px);
-  gap: 30px;
-  align-items: center;
+    background:
+      radial-gradient(circle at 82% 12%, rgba(255, 213, 79, 0.42) 0 0.5rem, transparent 0.55rem),
+      radial-gradient(circle at 92% 28%, rgba(0, 88, 255, 0.13) 0 0.75rem, transparent 0.8rem),
+      radial-gradient(circle at 58% 18%, rgba(0, 166, 81, 0.12) 0 0.55rem, transparent 0.6rem),
+      linear-gradient(120deg, #eaf4ff 0%, #f7fbff 48%, #e7f2ff 100%);
+    border-radius: 0;
+    position: relative;
+    overflow: hidden;
+    padding: 62px 58px 92px 76px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 560px);
+    gap: 30px;
+    align-items: center;
 }
 
 .mnx-hero-section::before {
   content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, rgba(234, 244, 255, 0.94) 0%, rgba(234, 244, 255, 0.78) 42%, rgba(234, 244, 255, 0.24) 72%, rgba(234, 244, 255, 0.08) 100%),
-    repeating-linear-gradient(135deg, rgba(0, 88, 255, 0.055) 0 2px, transparent 2px 36px);
-  z-index: 1;
-  pointer-events: none;
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(234, 244, 255, 0.94) 0%, rgba(234, 244, 255, 0.78) 42%, rgba(234, 244, 255, 0.24) 72%, rgba(234, 244, 255, 0.08) 100%),
+      repeating-linear-gradient(135deg, rgba(0, 88, 255, 0.055) 0 2px, transparent 2px 36px);
+    z-index: 1;
+    pointer-events: none;
 }
 
 .mnx-hero-section::after {
   content: "";
-  position: absolute;
-  right: -80px;
-  bottom: -130px;
-  width: 430px;
-  height: 430px;
-  border-radius: 50%;
-  background: rgba(0, 88, 255, 0.08);
-  z-index: 1;
-  pointer-events: none;
+    position: absolute;
+    right: -80px;
+    bottom: -130px;
+    width: 430px;
+    height: 430px;
+    border-radius: 50%;
+    background: rgba(0, 88, 255, 0.08);
+    z-index: 1;
+    pointer-events: none;
 }
 
 .mnx-hero-text {
   width: min(760px, 100%);
-  position: relative;
-  z-index: 3;
+    position: relative;
+    z-index: 3;
 }
 
 .mnx-breadcrumb {
   display: inline-flex;
-  margin: 0 0 18px;
-  color: #0058ff;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid #b9d6ff;
-  border-radius: 999px;
-  padding: 10px 17px;
-  font-size: 15px;
-  font-weight: 900;
-  box-shadow: 0 12px 28px rgba(0, 88, 255, 0.12);
+    margin: 0 0 18px;
+    color: #0058ff;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid #b9d6ff;
+    border-radius: 999px;
+    padding: 10px 17px;
+    font-size: 15px;
+    font-weight: 900;
+    box-shadow: 0 12px 28px rgba(0, 88, 255, 0.12);
 }
 
 .mnx-hero-text h1 {
   margin: 0;
-  font-size: clamp(44px, 4.7vw, 76px);
-  line-height: 1.08;
-  font-weight: 900;
-  color: #000000;
-  letter-spacing: -1px;
+    font-size: clamp(44px, 4.7vw, 76px);
+    line-height: 1.08;
+    font-weight: 900;
+    color: #000000;
+    letter-spacing: -1px;
 }
 
 .mnx-hero-text > p:not(.mnx-breadcrumb) {
   width: min(680px, 100%);
-  font-size: 22px;
-  line-height: 1.35;
-  color: #1f2937;
-  margin: 24px 0 32px;
-  font-weight: 600;
+    font-size: 22px;
+    line-height: 1.35;
+    color: #1f2937;
+    margin: 24px 0 32px;
+    font-weight: 600;
 }
 
 .mnx-hero-actions {
   display: flex;
-  align-items: center;
-  gap: 22px;
-  flex-wrap: wrap;
+    align-items: center;
+    gap: 22px;
+    flex-wrap: wrap;
 }
 
 .mnx-primary-action,
 .mnx-secondary-action {
   min-height: 58px;
-  border-radius: 13px;
-  font-size: 18px;
-  font-weight: 900;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  white-space: nowrap;
-  transition: all 0.25s ease;
-  text-decoration: none;
+    border-radius: 13px;
+    font-size: 18px;
+    font-weight: 900;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    white-space: nowrap;
+    transition: all 0.25s ease;
+    text-decoration: none;
 }
 
 .mnx-primary-action {
   border: none;
-  background: #0058ff;
-  color: white;
-  padding: 0 30px;
-  box-shadow: 0 12px 26px rgba(0, 88, 255, 0.22);
+    background: #0058ff;
+    color: white;
+    padding: 0 30px;
+    box-shadow: 0 12px 26px rgba(0, 88, 255, 0.22);
 }
 
 .mnx-secondary-action {
   border: 2px solid #0058ff;
-  background: white;
-  color: #0058ff;
-  padding: 0 28px;
+    background: white;
+    color: #0058ff;
+    padding: 0 28px;
 }
 
 .mnx-primary-action:hover,
 .mnx-secondary-action:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 22px rgba(0, 88, 255, 0.2);
+    box-shadow: 0 10px 22px rgba(0, 88, 255, 0.2);
 }
 
 .mnx-primary-action svg,
@@ -245,91 +249,91 @@
 
 .mnx-progress-pill {
   min-width: 300px;
-  min-height: 58px;
-  border-radius: 16px;
-  background: #ffffff;
-  border: 2px solid #dcecff;
-  padding: 10px 18px;
-  box-shadow: 0 12px 26px rgba(0, 88, 255, 0.12);
+    min-height: 58px;
+    border-radius: 16px;
+    background: #ffffff;
+    border: 2px solid #dcecff;
+    padding: 10px 18px;
+    box-shadow: 0 12px 26px rgba(0, 88, 255, 0.12);
 }
 
 .mnx-progress-pill span {
   display: block;
-  color: #111827;
-  font-size: 16px;
-  font-weight: 900;
-  margin-bottom: 8px;
+    color: #111827;
+    font-size: 16px;
+    font-weight: 900;
+    margin-bottom: 8px;
 }
 
 .mnx-progress-pill div {
   width: 100%;
-  height: 13px;
-  border-radius: 999px;
-  background: #d7dde8;
-  overflow: hidden;
+    height: 13px;
+    border-radius: 999px;
+    background: #d7dde8;
+    overflow: hidden;
 }
 
 .mnx-progress-pill i {
   display: block;
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #0058ff, #00a651);
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #0058ff, #00a651);
 }
 
- .mnx-hero-media-card {
+.mnx-hero-media-card {
   position: relative;
-  z-index: 3;
-  width: 100%;
-  min-height: 360px;
-  border-radius: 28px;
-  border: 2px solid rgba(185, 214, 255, 0.9);
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow: 0 20px 38px rgba(0, 88, 255, 0.16);
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
-  gap: 18px;
-  overflow: hidden;
-  padding: 22px;
-  backdrop-filter: blur(6px);
+    z-index: 3;
+    width: 100%;
+    min-height: 360px;
+    border-radius: 28px;
+    border: 2px solid rgba(185, 214, 255, 0.9);
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow: 0 20px 38px rgba(0, 88, 255, 0.16);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 18px;
+    overflow: hidden;
+    padding: 22px;
+    backdrop-filter: blur(6px);
 }
 
 .mnx-hero-media-card::before {
   content: "";
-  position: absolute;
-  inset: 18px;
-  border-radius: 22px;
-  background: linear-gradient(135deg, rgba(234, 244, 255, 0.94), rgba(255, 255, 255, 0.84));
-  z-index: 0;
+    position: absolute;
+    inset: 18px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, rgba(234, 244, 255, 0.94), rgba(255, 255, 255, 0.84));
+    z-index: 0;
 }
 
 .mnx-hero-character {
   position: relative;
-  z-index: 2;
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  max-height: 340px;
-  object-fit: contain;
-  object-position: center;
-  filter: drop-shadow(0 22px 22px rgba(0, 57, 153, 0.18));
+    z-index: 2;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 340px;
+    object-fit: contain;
+    object-position: center;
+    filter: drop-shadow(0 22px 22px rgba(0, 57, 153, 0.18));
 }
 
 .mnx-reward-card {
   position: relative;
-  align-self: flex-end;
-  z-index: 4;
-  min-width: 205px;
-  min-height: 82px;
-  background: rgba(255, 255, 255, 0.98);
-  border-radius: 22px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 14px 20px;
-  box-shadow: 0 15px 34px rgba(0, 88, 255, 0.16);
-  border: 1px solid #dcecff;
+    align-self: flex-end;
+    z-index: 4;
+    min-width: 205px;
+    min-height: 82px;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px;
+    box-shadow: 0 15px 34px rgba(0, 88, 255, 0.16);
+    border: 1px solid #dcecff;
 }
 
 .mnx-reward-card > span {
@@ -338,35 +342,35 @@
 
 .mnx-reward-card small {
   display: block;
-  color: #64748b;
-  font-size: 14px;
-  font-weight: 900;
-  margin-bottom: 4px;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 900;
+    margin-bottom: 4px;
 }
 
 .mnx-reward-card strong {
   display: block;
-  color: #0058ff;
-  font-size: 19px;
-  line-height: 1.1;
-  font-weight: 900;
+    color: #0058ff;
+    font-size: 19px;
+    line-height: 1.1;
+    font-weight: 900;
 }
 
 .mnx-workspace {
   background: #ffffff;
-  border-radius: 24px;
-  margin: -64px 54px 0;
-  padding: 36px 48px 34px;
-  position: relative;
-  z-index: 5;
-  box-shadow: 0 18px 35px rgba(0, 88, 255, 0.1);
+    border-radius: 24px;
+    margin: -64px 54px 0;
+    padding: 36px 48px 34px;
+    position: relative;
+    z-index: 5;
+    box-shadow: 0 18px 35px rgba(0, 88, 255, 0.1);
 }
 
 .mnx-two-column {
   display: grid;
-  grid-template-columns: minmax(300px, 0.95fr) minmax(420px, 1.45fr);
-  gap: 34px;
-  align-items: stretch;
+    grid-template-columns: minmax(300px, 0.95fr) minmax(420px, 1.45fr);
+    gap: 34px;
+    align-items: stretch;
 }
 
 .mnx-mission-card,
@@ -376,7 +380,6 @@
 .mnx-hint-card,
 .mnx-extra-card,
 .mnx-actions-card,
-.mnx-number-card,
 .mnx-how-card,
 .mnx-status-card,
 .mnx-result-message-card,
@@ -384,16 +387,16 @@
 .mnx-topic-progress-card,
 .mnx-hint-detail-card {
   background: #f8fbff;
-  border: 2px solid #dcecff;
-  border-radius: 24px;
-  box-shadow: 0 10px 24px rgba(0, 88, 255, 0.08);
+    border: 2px solid #dcecff;
+    border-radius: 24px;
+    box-shadow: 0 10px 24px rgba(0, 88, 255, 0.08);
 }
 
 .mnx-mission-card {
   padding: 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
 }
 
 .mnx-mission-card h2,
@@ -408,18 +411,18 @@
 .mnx-hint-detail-card h2,
 .mnx-hint-detail-card h3 {
   margin: 0;
-  color: #000000;
-  font-weight: 900;
+    color: #000000;
+    font-weight: 900;
 }
 
 .mnx-mission-card h2 {
   font-size: clamp(24px, 2vw, 34px);
-  color: #0058ff;
+    color: #0058ff;
 }
 
 .mnx-mission-card h3 {
   font-size: 22px;
-  color: #111827;
+    color: #111827;
 }
 
 .mnx-mission-card p,
@@ -430,22 +433,22 @@
 .mnx-result-message-card p,
 .mnx-hint-detail-card p {
   margin: 0;
-  color: #1f2937;
-  font-size: 18px;
-  line-height: 1.45;
-  font-weight: 650;
+    color: #1f2937;
+    font-size: 18px;
+    line-height: 1.45;
+    font-weight: 650;
 }
 
 .mnx-mission-card > img {
   width: 100%;
-  height: auto;
-  min-height: 220px;
-  max-height: 390px;
-  object-fit: contain;
-  object-position: center;
-  border-radius: 22px;
-  background: #eaf4ff;
-  padding: 12px;
+    height: auto;
+    min-height: 220px;
+    max-height: 390px;
+    object-fit: contain;
+    object-position: center;
+    border-radius: 22px;
+    background: #eaf4ff;
+    padding: 12px;
 }
 
 .mnx-info-card {
@@ -454,163 +457,151 @@
 
 .mnx-question-stack {
   display: flex;
-  flex-direction: column;
-  gap: 22px;
+    flex-direction: column;
+    gap: 22px;
 }
 
 .mnx-guide-card {
   min-height: 116px;
-  padding: 16px 22px;
-  display: flex;
-  align-items: center;
-  gap: 18px;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
 }
 
 .mnx-guide-card img {
   width: 100px;
-  height: 100px;
-  object-fit: contain;
-  flex-shrink: 0;
+    height: 100px;
+    object-fit: contain;
+    flex-shrink: 0;
 }
 
 .mnx-guide-card h2 {
   font-size: clamp(24px, 2vw, 32px);
-  color: #0058ff;
-  margin-bottom: 6px;
+    color: #0058ff;
+    margin-bottom: 6px;
 }
 
 .mnx-guide-card p {
   margin: 0;
-  color: #1f2937;
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.35;
+    color: #1f2937;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.35;
 }
 
 .mnx-question-card {
   position: relative;
-  padding: 26px 26px 26px 82px;
-  min-height: 190px;
+    padding: 26px 26px 26px 82px;
+    min-height: 190px;
 }
 
 .mnx-number-badge {
   position: absolute;
-  top: 26px;
-  left: 26px;
-  width: 42px;
-  height: 42px;
-  border-radius: 13px;
-  background: #0058ff;
-  color: white;
-  display: grid;
-  place-items: center;
-  font-size: 22px;
-  font-weight: 900;
-  box-shadow: 0 10px 18px rgba(0, 88, 255, 0.25);
+    top: 26px;
+    left: 26px;
+    width: 42px;
+    height: 42px;
+    border-radius: 13px;
+    background: #0058ff;
+    color: white;
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+    font-weight: 900;
+    box-shadow: 0 10px 18px rgba(0, 88, 255, 0.25);
 }
 
 .mnx-question-copy p {
   margin: 0 0 8px;
-  font-size: 22px;
-  line-height: 1.35;
-  color: #111827;
-  font-weight: 900;
+    font-size: 22px;
+    line-height: 1.35;
+    color: #111827;
+    font-weight: 900;
 }
 
 .mnx-fraction {
   display: inline-grid;
-  grid-template-rows: auto 2px auto;
-  align-items: center;
-  margin: 0 4px;
-  color: #0058ff;
-  font-weight: 900;
-  vertical-align: middle;
+    grid-template-rows: auto 2px auto;
+    align-items: center;
+    margin: 0 4px;
+    color: #0058ff;
+    font-weight: 900;
+    vertical-align: middle;
 }
 
 .mnx-fraction sup,
 .mnx-fraction sub {
   font-size: 0.78em;
-  line-height: 1;
+    line-height: 1;
 }
 
 .mnx-fraction i {
   width: 24px;
-  height: 2px;
-  background: #0058ff;
+    height: 2px;
+    background: #0058ff;
 }
 
 .mnx-choices {
   display: grid;
-  grid-template-columns: repeat(4, minmax(120px, 1fr));
-  gap: 12px;
-  margin-top: 18px;
+    grid-template-columns: repeat(4, minmax(120px, 1fr));
+    gap: 12px;
+    margin-top: 18px;
 }
 
-.mnx-choices button,
-.mnx-signal-card,
-.mnx-drop-zone,
-.mnx-floor-cards button,
-.mnx-elevator-slots button {
+.mnx-choices button {
   border: 2px solid #dcecff;
-  background: #ffffff;
-  color: #111827;
-  border-radius: 16px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  font-weight: 900;
+    background: #ffffff;
+    color: #111827;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-weight: 900;
 }
 
 .mnx-choices button {
   min-height: 58px;
-  font-size: 17px;
+    font-size: 17px;
 }
 
-.mnx-choices button:hover,
-.mnx-signal-card:hover,
-.mnx-drop-zone:hover,
-.mnx-floor-cards button:hover,
-.mnx-elevator-slots button:hover {
+.mnx-choices button:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 22px rgba(0, 88, 255, 0.16);
-  border-color: #0058ff;
+    box-shadow: 0 12px 22px rgba(0, 88, 255, 0.16);
+    border-color: #0058ff;
 }
 
 .mnx-selected,
 .mnx-choices button.mnx-selected {
   border-color: #0058ff;
-  background: #eaf4ff;
-  color: #0058ff;
+    background: #eaf4ff;
+    color: #0058ff;
 }
 
 .mnx-correct,
 .mnx-choices button.mnx-correct {
   border-color: #00a651;
-  background: #f4fff8;
-  color: #00a651;
+    background: #f4fff8;
+    color: #00a651;
 }
 
 .mnx-wrong,
 .mnx-choices button.mnx-wrong {
   border-color: #ff4d4d;
-  background: #fff7f5;
-  color: #ff2f2f;
+    background: #fff7f5;
+    color: #ff2f2f;
 }
 
 .mnx-bottom-panel {
   display: grid;
-  grid-template-columns: minmax(280px, 1fr) minmax(260px, 0.7fr) minmax(300px, 0.9fr);
-  gap: 24px;
-  margin-top: 28px;
-  align-items: stretch;
+    grid-template-columns: minmax(280px, 1fr) minmax(260px, 0.7fr) minmax(300px, 0.9fr);
+    gap: 24px;
+    margin-top: 28px;
+    align-items: stretch;
 }
 
 .mnx-bottom-panel .mnx-actions-card:last-child:nth-child(2),
 .mnx-bottom-panel .mnx-actions-card:last-child:nth-child(1) {
   grid-column: auto;
-}
-
-.mnx-cofre-grid + .mnx-bottom-panel {
-  grid-template-columns: minmax(300px, 1fr) minmax(380px, 1fr);
 }
 
 .mnx-hint-card,
@@ -622,243 +613,74 @@
 
 .mnx-hint-card {
   display: flex;
-  align-items: center;
-  gap: 18px;
+    align-items: center;
+    gap: 18px;
 }
 
 .mnx-hint-card > svg,
 .mnx-hint-card > span {
   width: 54px;
-  height: 54px;
-  border-radius: 18px;
-  background: #fffaf0;
-  color: #f29a00;
-  display: grid;
-  place-items: center;
-  font-size: 34px;
-  flex-shrink: 0;
+    height: 54px;
+    border-radius: 18px;
+    background: #fffaf0;
+    color: #f29a00;
+    display: grid;
+    place-items: center;
+    font-size: 34px;
+    flex-shrink: 0;
 }
 
 .mnx-hint-card h2,
 .mnx-extra-card h2 {
   color: #0058ff;
-  font-size: 26px;
-  margin-bottom: 8px;
+    font-size: 26px;
+    margin-bottom: 8px;
 }
 
 .mnx-hint-card small {
   display: block;
-  margin-top: 8px;
-  color: #64748b;
-  font-weight: 800;
+    margin-top: 8px;
+    color: #64748b;
+    font-weight: 800;
 }
 
 .mnx-mini-line {
   margin-top: 12px;
-  display: grid;
-  grid-template-columns: auto 1fr auto 1fr auto;
-  gap: 8px;
-  align-items: center;
-  color: #0058ff;
-  font-weight: 900;
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr auto;
+    gap: 8px;
+    align-items: center;
+    color: #0058ff;
+    font-weight: 900;
 }
 
 .mnx-mini-line i {
   height: 8px;
-  border-radius: 999px;
-  background: #dcecff;
+    border-radius: 999px;
+    background: #dcecff;
 }
 
 .mnx-actions-card {
   display: flex;
-  flex-wrap: wrap;
-  align-content: center;
-  align-items: center;
-  gap: 14px;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+    gap: 14px;
 }
 
 .mnx-actions-card p {
   width: 100%;
-  margin: 0;
-  color: #64748b;
-  font-size: 15px;
-  font-weight: 800;
-}
-
-.mnx-signal-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(130px, 1fr));
-  gap: 14px;
-}
-
-.mnx-signal-card {
-  min-height: 96px;
-  padding: 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-align: left;
-}
-
-.mnx-signal-card > span {
-  width: 40px;
-  height: 40px;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  color: white;
-  font-size: 22px;
-  flex-shrink: 0;
-}
-
-.mnx-signal-card b,
-.mnx-signal-card small {
-  display: block;
-}
-
-.mnx-signal-card b {
-  font-size: 16px;
-  color: #111827;
-}
-
-.mnx-signal-card small {
-  color: #64748b;
-  margin-top: 4px;
-  font-size: 13px;
-}
-
-.mnx-signal-green > span {
-  background: #00a651;
-}
-
-.mnx-signal-blue > span {
-  background: #0058ff;
-}
-
-.mnx-signal-red > span {
-  background: #ff4d4d;
-}
-
-.mnx-number-card {
-  padding: 26px;
-}
-
-.mnx-number-card > p {
-  margin: 0 0 18px;
-  color: #111827;
-  font-size: 18px;
-  font-weight: 900;
-}
-
-.mnx-drop-row {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(90px, 1fr));
-  gap: 14px;
-  margin-bottom: 26px;
-}
-
-.mnx-drop-zone {
-  min-height: 76px;
-  font-size: 28px;
-  border-style: dashed;
-  color: #0058ff;
-}
-
-.mnx-drop-zone.mnx-filled,
-.mnx-elevator-slots button.mnx-filled {
-  color: white;
-  background: #0058ff;
-  border-color: #0058ff;
-  border-style: solid;
-}
-
-.mnx-number-line {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(11, 1fr);
-  gap: 0;
-  padding-top: 22px;
-  border-top: 8px solid #dcecff;
-}
-
-.mnx-number-line span {
-  text-align: center;
-  color: #111827;
-  font-weight: 900;
-  font-size: 14px;
-  position: relative;
-}
-
-.mnx-number-line span::before {
-  content: "";
-  position: absolute;
-  top: -31px;
-  left: 50%;
-  width: 4px;
-  height: 18px;
-  border-radius: 999px;
-  background: #0058ff;
-}
-
-.mnx-ascensor-layout {
-  display: grid;
-  grid-template-columns: minmax(280px, 0.85fr) minmax(320px, 1fr) minmax(280px, 0.9fr);
-  gap: 28px;
-  align-items: stretch;
-}
-
-.mnx-floor-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.mnx-floor-cards button {
-  min-height: 72px;
-  font-size: 26px;
-}
-
-.mnx-elevator-zone {
-  position: relative;
-  min-height: 560px;
-  display: grid;
-  place-items: center;
-  background: #eaf4ff;
-  border: 2px solid #dcecff;
-  border-radius: 24px;
-  overflow: hidden;
-  box-shadow: 0 10px 24px rgba(0, 88, 255, 0.08);
-}
-
-.mnx-elevator-zone img {
-  width: 100%;
-  height: 100%;
-  max-height: 560px;
-  object-fit: contain;
-  padding: 18px;
-}
-
-.mnx-elevator-slots {
-  position: absolute;
-  inset: 9% 30% 10% 30%;
-  display: grid;
-  grid-template-rows: repeat(5, 1fr);
-  gap: 10px;
-}
-
-.mnx-elevator-slots button {
-  min-height: 56px;
-  background: rgba(255, 255, 255, 0.88);
-  font-size: 28px;
-  color: #0058ff;
+    margin: 0;
+    color: #64748b;
+    font-size: 15px;
+    font-weight: 800;
 }
 
 .mnx-how-card {
   padding: 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
 }
 
 .mnx-commander-card {
@@ -867,24 +689,24 @@
 
 .mnx-commander-card img {
   width: 90px;
-  height: 90px;
+    height: 90px;
 }
 
 .mnx-status-card {
   display: flex;
-  align-items: center;
-  gap: 16px;
+    align-items: center;
+    gap: 16px;
 }
 
 .mnx-status-card > span {
   width: 54px;
-  height: 54px;
-  border-radius: 18px;
-  background: #0058ff;
-  color: white;
-  display: grid;
-  place-items: center;
-  font-size: 30px;
+    height: 54px;
+    border-radius: 18px;
+    background: #0058ff;
+    color: white;
+    display: grid;
+    place-items: center;
+    font-size: 30px;
 }
 
 .mnx-status-card b,
@@ -894,20 +716,20 @@
 
 .mnx-status-card b {
   color: #64748b;
-  font-weight: 900;
+    font-weight: 900;
 }
 
 .mnx-status-card strong {
   color: #0058ff;
-  font-size: 18px;
-  margin-top: 5px;
+    font-size: 18px;
+    margin-top: 5px;
 }
 
 .mnx-result-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 24px;
-  align-items: start;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 24px;
+    align-items: start;
 }
 
 .mnx-result-message-card,
@@ -915,47 +737,47 @@
 .mnx-summary-card,
 .mnx-topic-progress-card {
   grid-column: 1;
-  padding: 28px;
+    padding: 28px;
 }
 
 .mnx-result-message-card {
   display: flex;
-  align-items: center;
-  gap: 22px;
+    align-items: center;
+    gap: 22px;
 }
 
 .mnx-big-badge {
   width: 74px;
-  height: 74px;
-  border-radius: 24px;
-  background: #0058ff;
-  color: white;
-  display: grid;
-  place-items: center;
-  font-size: 38px;
-  flex-shrink: 0;
-  box-shadow: 0 12px 26px rgba(0, 88, 255, 0.22);
+    height: 74px;
+    border-radius: 24px;
+    background: #0058ff;
+    color: white;
+    display: grid;
+    place-items: center;
+    font-size: 38px;
+    flex-shrink: 0;
+    box-shadow: 0 12px 26px rgba(0, 88, 255, 0.22);
 }
 
 .mnx-result-message-card h2 {
   color: #0058ff;
-  font-size: clamp(28px, 2.4vw, 40px);
-  margin-bottom: 10px;
+    font-size: clamp(28px, 2.4vw, 40px);
+    margin-bottom: 10px;
 }
 
 .mnx-card-title,
 .mnx-hint-detail-card header {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 22px;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
 }
 
 .mnx-card-title svg,
 .mnx-hint-detail-card header svg {
   width: 42px;
-  height: 42px;
-  color: #0058ff;
+    height: 42px;
+    color: #0058ff;
 }
 
 .mnx-card-title h2,
@@ -965,31 +787,31 @@
 
 .mnx-stats-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(130px, 1fr));
-  gap: 16px;
+    grid-template-columns: repeat(5, minmax(130px, 1fr));
+    gap: 16px;
 }
 
 .mnx-result-stat {
   min-height: 160px;
-  background: #ffffff;
-  border: 2px solid #dcecff;
-  border-radius: 20px;
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  transition: all 0.25s ease;
+    background: #ffffff;
+    border: 2px solid #dcecff;
+    border-radius: 20px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: all 0.25s ease;
 }
 
 .mnx-result-stat:hover {
   transform: translateY(-6px);
-  box-shadow: 0 14px 26px rgba(0, 88, 255, 0.14);
+    box-shadow: 0 14px 26px rgba(0, 88, 255, 0.14);
 }
 
 .mnx-result-stat img {
   width: 54px;
-  height: 54px;
-  object-fit: contain;
+    height: 54px;
+    object-fit: contain;
 }
 
 .mnx-result-stat span,
@@ -999,154 +821,154 @@
 
 .mnx-result-stat span {
   color: #64748b;
-  font-size: 13px;
-  font-weight: 900;
+    font-size: 13px;
+    font-weight: 900;
 }
 
 .mnx-result-stat strong {
   display: block;
-  margin-top: 6px;
-  color: #0058ff;
-  font-size: clamp(22px, 1.8vw, 32px);
-  line-height: 1.05;
-  font-weight: 900;
+    margin-top: 6px;
+    color: #0058ff;
+    font-size: clamp(22px, 1.8vw, 32px);
+    line-height: 1.05;
+    font-weight: 900;
 }
 
 .mnx-result-stat small {
   margin-top: 5px;
-  color: #111827;
-  font-size: 13px;
-  font-weight: 800;
+    color: #111827;
+    font-size: 13px;
+    font-weight: 800;
 }
 
 .mnx-topic-progress-card {
   display: grid;
-  grid-template-columns: 74px minmax(170px, 0.8fr) minmax(220px, 1fr) 190px;
-  gap: 20px;
-  align-items: center;
+    grid-template-columns: 74px minmax(170px, 0.8fr) minmax(220px, 1fr) 190px;
+    gap: 20px;
+    align-items: center;
 }
 
 .mnx-topic-progress-card > img,
 .mnx-topic-progress-card aside img {
   width: 70px;
-  height: 70px;
-  object-fit: contain;
+    height: 70px;
+    object-fit: contain;
 }
 
 .mnx-topic-progress-card span,
 .mnx-topic-progress-card small {
   color: #64748b;
-  font-weight: 900;
+    font-weight: 900;
 }
 
 .mnx-topic-progress-card strong {
   display: block;
-  color: #0058ff;
-  font-size: 22px;
-  font-weight: 900;
+    color: #0058ff;
+    font-size: 22px;
+    font-weight: 900;
 }
 
 .mnx-topic-progress-card section p {
   margin: 10px 0 0;
-  color: #1f2937;
-  font-size: 15px;
-  font-weight: 800;
+    color: #1f2937;
+    font-size: 15px;
+    font-weight: 800;
 }
 
 .mnx-topic-bar {
   height: 24px;
-  background: #d7dde8;
-  border-radius: 999px;
-  overflow: hidden;
-  position: relative;
+    background: #d7dde8;
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
 }
 
 .mnx-topic-bar i {
   display: block;
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #0058ff, #00a651);
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #0058ff, #00a651);
 }
 
 .mnx-topic-bar b {
   position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 900;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 900;
 }
 
 .mnx-topic-progress-card aside {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-left: 16px;
-  border-left: 2px solid #dcecff;
+    align-items: center;
+    gap: 12px;
+    padding-left: 16px;
+    border-left: 2px solid #dcecff;
 }
 
 .mnx-result-actions {
   grid-column: 2;
-  grid-row: 1 / span 4;
-  position: sticky;
-  top: 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  background: #ffffff;
-  border: 2px solid #dcecff;
-  border-radius: 24px;
-  padding: 22px;
-  box-shadow: 0 14px 28px rgba(0, 88, 255, 0.1);
+    grid-row: 1 / span 4;
+    position: sticky;
+    top: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: #ffffff;
+    border: 2px solid #dcecff;
+    border-radius: 24px;
+    padding: 22px;
+    box-shadow: 0 14px 28px rgba(0, 88, 255, 0.1);
 }
 
 .mnx-result-actions .mnx-primary-action,
 .mnx-result-actions .mnx-secondary-action {
   width: 100%;
-  justify-content: center;
-  white-space: normal;
-  text-align: center;
+    justify-content: center;
+    white-space: normal;
+    text-align: center;
 }
 
 .mnx-hint-detail-body {
   display: grid;
-  grid-template-columns: 86px 32px minmax(0, 1fr) 160px;
-  gap: 18px;
-  align-items: center;
+    grid-template-columns: 86px 32px minmax(0, 1fr) 160px;
+    gap: 18px;
+    align-items: center;
 }
 
 .mnx-hint-detail-body > img {
   width: 86px;
-  height: 86px;
-  object-fit: contain;
+    height: 86px;
+    object-fit: contain;
 }
 
 .mnx-hint-detail-body > span {
   color: #0058ff;
-  font-size: 34px;
-  font-weight: 900;
+    font-size: 34px;
+    font-weight: 900;
 }
 
 .mnx-hint-detail-body h3 {
   color: #0058ff;
-  font-size: 24px;
-  margin-bottom: 8px;
+    font-size: 24px;
+    margin-bottom: 8px;
 }
 
 .mnx-hint-detail-body aside {
   background: #ffffff;
-  border: 2px solid #dcecff;
-  border-radius: 18px;
-  padding: 14px;
-  text-align: center;
+    border: 2px solid #dcecff;
+    border-radius: 18px;
+    padding: 14px;
+    text-align: center;
 }
 
 .mnx-hint-detail-body aside img {
   width: 54px;
-  height: 54px;
-  object-fit: contain;
-  margin-bottom: 6px;
+    height: 54px;
+    object-fit: contain;
+    margin-bottom: 6px;
 }
 
 .mnx-hint-detail-body aside strong,
@@ -1156,29 +978,29 @@
 
 .mnx-hint-detail-body aside strong {
   color: #0058ff;
-  font-weight: 900;
+    font-weight: 900;
 }
 
 .mnx-hint-detail-body aside span {
   color: #111827;
-  font-size: 14px;
-  font-weight: 800;
-  line-height: 1.25;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.25;
 }
 
 .mnx-toast {
   position: fixed;
-  right: 28px;
-  bottom: 28px;
-  z-index: 200;
-  max-width: min(420px, calc(100vw - 38px));
-  padding: 18px 22px;
-  border-radius: 18px;
-  background: #0058ff;
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 900;
-  box-shadow: 0 16px 34px rgba(0, 88, 255, 0.28);
+    right: 28px;
+    bottom: 28px;
+    z-index: 200;
+    max-width: min(420px, calc(100vw - 38px));
+    padding: 18px 22px;
+    border-radius: 18px;
+    background: #0058ff;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 900;
+    box-shadow: 0 16px 34px rgba(0, 88, 255, 0.28);
 }
 
 .mnx-toast-error {
@@ -1187,37 +1009,37 @@
 
 .mnx-footer {
   height: 72px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 0 54px;
-  padding: 0 28px 0 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 54px;
+    padding: 0 28px 0 48px;
 }
 
 .mnx-footer p {
   font-size: 18px;
-  color: #111827;
-  margin: 0;
+    color: #111827;
+    margin: 0;
 }
 
 .mnx-footer-icons {
   display: flex;
-  align-items: center;
-  gap: 28px;
+    align-items: center;
+    gap: 28px;
 }
 
 .mnx-footer-icons button {
   border: none;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
-  display: flex;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
 }
 
 .mnx-footer-icons svg {
   font-size: 34px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .mnx-logout-icon {
@@ -1226,7 +1048,7 @@
 
 .mnx-logout-icon:hover {
   transform: translateX(8px) scale(1.18);
-  color: #ff1f1f;
+    color: #ff1f1f;
 }
 
 .mnx-help-icon,
@@ -1236,18 +1058,18 @@
 
 .mnx-help-icon:hover {
   transform: translateY(-5px) scale(1.15);
-  color: #003fc0;
+    color: #003fc0;
 }
 
 .mnx-settings-icon:hover {
   transform: rotate(180deg) scale(1.2);
-  color: #003fc0;
+    color: #003fc0;
 }
 
 @media (max-width: 1450px) {
   .mnx-hero-section {
     grid-template-columns: minmax(0, 1fr) minmax(330px, 470px);
-    padding-right: 40px;
+        padding-right: 40px;
   }
 
   .mnx-hero-media-card {
@@ -1273,9 +1095,10 @@
 
   .mnx-topic-progress-card aside {
     border-left: none;
-    border-top: 2px solid #dcecff;
-    padding: 16px 0 0;
+        border-top: 2px solid #dcecff;
+        padding: 16px 0 0;
   }
+
 }
 
 @media (max-width: 1200px) {
@@ -1285,9 +1108,9 @@
 
   .mnx-sidebar {
     width: 260px;
-    min-width: 260px;
-    padding-left: 24px;
-    padding-right: 24px;
+        min-width: 260px;
+        padding-left: 24px;
+        padding-right: 24px;
   }
 
   .mnx-sidebar-fox {
@@ -1296,7 +1119,7 @@
 
   .mnx-hero-section {
     grid-template-columns: 1fr;
-    padding: 46px 42px 96px;
+        padding: 46px 42px 96px;
   }
 
   .mnx-hero-media-card {
@@ -1317,17 +1140,15 @@
 
   .mnx-workspace {
     margin-left: 26px;
-    margin-right: 26px;
-    padding: 28px;
+        margin-right: 26px;
+        padding: 28px;
   }
 
-  .mnx-two-column,
-  .mnx-ascensor-layout {
+  .mnx-two-column {
     grid-template-columns: 1fr;
   }
 
-  .mnx-bottom-panel,
-  .mnx-cofre-grid + .mnx-bottom-panel {
+  .mnx-bottom-panel {
     grid-template-columns: 1fr;
   }
 
@@ -1345,21 +1166,20 @@
 
   .mnx-result-actions {
     grid-row: auto;
-    position: static;
-    flex-direction: row;
-    flex-wrap: wrap;
+        position: static;
+        flex-direction: row;
+        flex-wrap: wrap;
   }
 
   .mnx-result-actions .mnx-primary-action,
   .mnx-result-actions .mnx-secondary-action {
     flex: 1 1 230px;
   }
+
 }
 
 @media (max-width: 950px) {
-  .mnx-signal-grid,
-  .mnx-choices,
-  .mnx-drop-row {
+  .mnx-choices {
     grid-template-columns: repeat(2, minmax(130px, 1fr));
   }
 
@@ -1374,29 +1194,30 @@
   .mnx-hint-detail-body aside {
     grid-column: 1 / -1;
   }
+
 }
 
 @media (max-width: 850px) {
   .mnx-page {
     display: block;
-    min-height: 100vh;
+        min-height: 100vh;
   }
 
   .mnx-hamburger-btn {
     display: flex;
-    position: fixed;
-    top: 24px;
-    left: 22px;
-    width: 78px;
-    height: 78px;
-    border: none;
-    background: #ffffff;
-    border-radius: 22px;
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 8px 22px rgba(0, 88, 255, 0.2);
-    cursor: pointer;
+        position: fixed;
+        top: 24px;
+        left: 22px;
+        width: 78px;
+        height: 78px;
+        border: none;
+        background: #ffffff;
+        border-radius: 22px;
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 22px rgba(0, 88, 255, 0.2);
+        cursor: pointer;
   }
 
   .mnx-hamburger-btn.mnx-hamburger-open {
@@ -1405,25 +1226,25 @@
 
   .mnx-hamburger-btn img {
     width: 52px;
-    height: 52px;
-    object-fit: contain;
+        height: 52px;
+        object-fit: contain;
   }
 
   .mnx-sidebar {
     position: fixed;
-    top: 0;
-    left: -320px;
-    width: 285px;
-    min-width: 285px;
-    height: 100dvh;
-    min-height: 100dvh;
-    border-radius: 0 28px 28px 0;
-    padding: 45px 24px 28px;
-    z-index: 90;
-    transition: left 0.3s ease;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
+        top: 0;
+        left: -320px;
+        width: 285px;
+        min-width: 285px;
+        height: 100dvh;
+        min-height: 100dvh;
+        border-radius: 0 28px 28px 0;
+        padding: 45px 24px 28px;
+        z-index: 90;
+        transition: left 0.3s ease;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
   }
 
   .mnx-sidebar.mnx-sidebar-open {
@@ -1432,15 +1253,15 @@
 
   .mnx-menu-overlay {
     position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.28);
-    z-index: 80;
-    touch-action: none;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.28);
+        z-index: 80;
+        touch-action: none;
   }
 
   .mnx-sidebar-logo {
     width: 155px;
-    margin-bottom: 28px;
+        margin-bottom: 28px;
   }
 
   .mnx-sidebar-menu {
@@ -1453,13 +1274,13 @@
 
   .mnx-content {
     padding-right: 0;
-    overflow: hidden;
+        overflow: hidden;
   }
 
   .mnx-hero-section {
     min-height: auto;
-    padding: 128px 24px 34px;
-    gap: 24px;
+        padding: 128px 24px 34px;
+        gap: 24px;
   }
 
   .mnx-hero-section::before {
@@ -1476,12 +1297,12 @@
 
   .mnx-hero-text > p:not(.mnx-breadcrumb) {
     width: 100%;
-    font-size: 17px;
+        font-size: 17px;
   }
 
   .mnx-hero-actions {
     flex-direction: column;
-    align-items: stretch;
+        align-items: stretch;
   }
 
   .mnx-primary-action,
@@ -1492,7 +1313,7 @@
 
   .mnx-hero-media-card {
     min-height: 230px;
-    padding: 22px;
+        padding: 22px;
   }
 
   .mnx-hero-character {
@@ -1501,15 +1322,15 @@
 
   .mnx-reward-card {
     align-self: flex-start;
-    min-width: 170px;
-    min-height: 76px;
-    padding: 12px 14px;
+        min-width: 170px;
+        min-height: 76px;
+        padding: 12px 14px;
   }
 
   .mnx-workspace {
     border-radius: 24px;
-    margin: 20px 18px 0;
-    padding: 22px;
+        margin: 20px 18px 0;
+        padding: 22px;
   }
 
   .mnx-mission-card,
@@ -1519,7 +1340,6 @@
   .mnx-hint-card,
   .mnx-extra-card,
   .mnx-actions-card,
-  .mnx-number-card,
   .mnx-how-card,
   .mnx-status-card,
   .mnx-result-message-card,
@@ -1534,7 +1354,7 @@
   .mnx-hint-card,
   .mnx-status-card {
     flex-direction: column;
-    text-align: center;
+        text-align: center;
   }
 
   .mnx-question-card {
@@ -1543,7 +1363,7 @@
 
   .mnx-number-badge {
     top: 20px;
-    left: 20px;
+        left: 20px;
   }
 
   .mnx-question-copy p {
@@ -1554,34 +1374,27 @@
     grid-template-columns: repeat(2, minmax(130px, 1fr));
   }
 
-  .mnx-elevator-zone {
-    min-height: 480px;
-  }
-
-  .mnx-elevator-slots {
-    inset: 11% 26% 12%;
-  }
-
   .mnx-footer {
     flex-direction: column;
-    height: auto;
-    margin: 0;
-    padding: 24px;
-    gap: 15px;
-    text-align: center;
+        height: auto;
+        margin: 0;
+        padding: 24px;
+        gap: 15px;
+        text-align: center;
   }
+
 }
 
 @media (max-width: 560px) {
   .mnx-hero-section {
     padding-left: 18px;
-    padding-right: 18px;
+        padding-right: 18px;
   }
 
   .mnx-hero-media-card {
     min-height: 240px;
-    border-radius: 22px;
-    padding: 16px;
+        border-radius: 22px;
+        padding: 16px;
   }
 
   .mnx-hero-character {
@@ -1590,8 +1403,8 @@
 
   .mnx-reward-card {
     position: relative;
-    align-self: stretch;
-    margin-bottom: 0;
+        align-self: stretch;
+        margin-bottom: 0;
   }
 
   .mnx-hero-media-card {
@@ -1604,14 +1417,14 @@
 
   .mnx-breadcrumb {
     font-size: 13px;
-    line-height: 1.3;
-    border-radius: 16px;
+        line-height: 1.3;
+        border-radius: 16px;
   }
 
   .mnx-workspace {
     margin-left: 12px;
-    margin-right: 12px;
-    padding: 16px;
+        margin-right: 12px;
+        padding: 16px;
   }
 
   .mnx-mission-card,
@@ -1621,7 +1434,6 @@
   .mnx-hint-card,
   .mnx-extra-card,
   .mnx-actions-card,
-  .mnx-number-card,
   .mnx-how-card,
   .mnx-status-card,
   .mnx-result-message-card,
@@ -1632,40 +1444,23 @@
   }
 
   .mnx-choices,
-  .mnx-signal-grid,
-  .mnx-drop-row,
-  .mnx-floor-cards,
   .mnx-stats-grid {
     grid-template-columns: 1fr;
   }
 
   .mnx-guide-card img {
     width: 82px;
-    height: 82px;
+        height: 82px;
   }
 
   .mnx-mission-card > img {
     min-height: 170px;
   }
 
-  .mnx-number-line {
-    overflow-x: auto;
-    min-width: 100%;
-    grid-template-columns: repeat(11, 44px);
-  }
-
-  .mnx-elevator-zone {
-    min-height: 420px;
-  }
-
-  .mnx-elevator-slots {
-    inset: 13% 22% 13%;
-  }
-
   .mnx-hint-detail-body,
   .mnx-topic-progress-card {
     grid-template-columns: 1fr;
-    text-align: center;
+        text-align: center;
   }
 
   .mnx-topic-progress-card > img,
@@ -1680,50 +1475,43 @@
 
   .mnx-toast {
     right: 18px;
-    bottom: 18px;
-    font-size: 14px;
+        bottom: 18px;
+        font-size: 14px;
   }
-}
 
-/* ==========================================================
-   ACTUALIZACIÓN FINAL LIMPIA - MathNumbers estilo MathNova
-   Este bloque reemplaza los parches anteriores.
-   Mantiene el diseño tipo dashboard, imágenes sin recuadro,
-   sidebar fija y contenido responsivo.
-   ========================================================== */
+}
 
 .mnx-page {
   gap: 0;
-  align-items: flex-start;
-  background: #dcebff;
-  overflow-x: hidden;
+    align-items: flex-start;
+    background: #dcebff;
+    overflow-x: hidden;
 }
 
 .mnx-content {
   flex: 1;
-  min-width: 0;
-  padding-right: 0;
-  overflow-x: hidden;
+    min-width: 0;
+    padding-right: 0;
+    overflow-x: hidden;
 }
 
-/* Sidebar compacta: ya no se estira con todo el alto del contenido */
 .mnx-sidebar {
   position: sticky;
-  top: 0;
-  align-self: flex-start;
-  width: 300px;
-  min-width: 300px;
-  height: 100vh;
-  min-height: 100vh;
-  max-height: 100vh;
-  overflow: hidden;
-  padding: 30px 24px 18px;
-  border-radius: 0 30px 30px 0;
+    top: 0;
+    align-self: flex-start;
+    width: 300px;
+    min-width: 300px;
+    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+    padding: 30px 24px 18px;
+    border-radius: 0 30px 30px 0;
 }
 
 .mnx-sidebar-logo {
   width: 168px;
-  margin-bottom: 30px;
+    margin-bottom: 30px;
 }
 
 .mnx-sidebar-menu {
@@ -1732,9 +1520,9 @@
 
 .mnx-menu-item {
   min-height: 52px;
-  padding: 0 18px;
-  font-size: 14.5px;
-  border-radius: 14px;
+    padding: 0 18px;
+    font-size: 14.5px;
+    border-radius: 14px;
 }
 
 .mnx-menu-item svg {
@@ -1743,26 +1531,25 @@
 
 .mnx-sidebar-fox-box {
   margin-top: 18px;
-  min-height: 0;
-  height: auto;
-  padding: 0;
-  flex: 0 0 auto;
-  align-items: center;
+    min-height: 0;
+    height: auto;
+    padding: 0;
+    flex: 0 0 auto;
+    align-items: center;
 }
 
 .mnx-sidebar-fox {
   width: clamp(115px, 16vh, 165px);
-  max-width: 100%;
+    max-width: 100%;
 }
 
-/* Hero principal más pequeño y cuadrado */
 .mnx-hero-section {
   min-height: 500px;
-  padding: 44px 42px 72px 50px;
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 470px);
-  gap: 24px;
-  align-items: center;
-  border-radius: 0;
+    padding: 44px 42px 72px 50px;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 470px);
+    gap: 24px;
+    align-items: center;
+    border-radius: 0;
 }
 
 .mnx-hero-text {
@@ -1771,22 +1558,22 @@
 
 .mnx-breadcrumb {
   margin-bottom: 16px;
-  padding: 10px 18px;
-  font-size: 14px;
-  line-height: 1.25;
+    padding: 10px 18px;
+    font-size: 14px;
+    line-height: 1.25;
 }
 
 .mnx-hero-text h1 {
   font-size: clamp(40px, 4.5vw, 68px);
-  line-height: 1.02;
-  letter-spacing: -1.2px;
+    line-height: 1.02;
+    letter-spacing: -1.2px;
 }
 
 .mnx-hero-text > p:not(.mnx-breadcrumb) {
   width: min(560px, 100%);
-  font-size: 18px;
-  line-height: 1.35;
-  margin: 18px 0 24px;
+    font-size: 18px;
+    line-height: 1.35;
+    margin: 18px 0 24px;
 }
 
 .mnx-hero-actions {
@@ -1796,85 +1583,84 @@
 .mnx-primary-action,
 .mnx-secondary-action {
   min-height: 54px;
-  font-size: 17px;
-  padding-left: 24px;
-  padding-right: 24px;
+    font-size: 17px;
+    padding-left: 24px;
+    padding-right: 24px;
 }
 
 .mnx-progress-pill {
   min-width: 0;
-  width: min(320px, 100%);
-  min-height: 52px;
-  padding: 10px 16px;
-  border-radius: 14px;
+    width: min(320px, 100%);
+    min-height: 52px;
+    padding: 10px 16px;
+    border-radius: 14px;
 }
 
 .mnx-progress-pill span {
   font-size: 15px;
-  margin-bottom: 6px;
+    margin-bottom: 6px;
 }
 
 .mnx-progress-pill div {
   height: 10px;
 }
 
-/* Imagen del hero sin tarjeta, sin fondo y sin recorte */
 .mnx-hero-media-card {
   position: relative;
-  z-index: 3;
-  width: 100%;
-  min-height: 310px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  box-shadow: none;
-  backdrop-filter: none;
-  overflow: visible;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
+    z-index: 3;
+    width: 100%;
+    min-height: 310px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
 }
 
 .mnx-hero-media-card::before,
 .mnx-hero-media-card::after {
   content: none;
-  display: none;
+    display: none;
 }
 
 .mnx-hero-character {
   position: relative;
-  z-index: 2;
-  display: block;
-  width: 100%;
-  max-width: 410px;
-  height: auto;
-  max-height: 310px;
-  object-fit: contain;
-  object-position: center bottom;
-  margin-top: 28px;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  box-shadow: none;
-  filter: drop-shadow(0 22px 22px rgba(0, 57, 153, 0.16));
+    z-index: 2;
+    display: block;
+    width: 100%;
+    max-width: 410px;
+    height: auto;
+    max-height: 310px;
+    object-fit: contain;
+    object-position: center bottom;
+    margin-top: 28px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    filter: drop-shadow(0 22px 22px rgba(0, 57, 153, 0.16));
 }
 
 .mnx-reward-card {
   position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 6;
-  min-width: 265px;
-  max-width: 310px;
-  min-height: 74px;
-  padding: 12px 16px;
-  border-radius: 20px;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(0, 88, 255, 0.1);
-  box-shadow: 0 16px 34px rgba(0, 88, 255, 0.12);
+    top: 0;
+    right: 0;
+    z-index: 6;
+    min-width: 265px;
+    max-width: 310px;
+    min-height: 74px;
+    padding: 12px 16px;
+    border-radius: 20px;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(0, 88, 255, 0.1);
+    box-shadow: 0 16px 34px rgba(0, 88, 255, 0.12);
 }
 
 .mnx-reward-card > span {
@@ -1883,28 +1669,22 @@
 
 .mnx-reward-card small {
   font-size: 13px;
-  margin-bottom: 2px;
+    margin-bottom: 2px;
 }
 
 .mnx-reward-card strong {
   font-size: 17px;
 }
 
-/* Contenido inferior más pegado y ordenado */
 .mnx-workspace {
   margin: -36px 32px 0;
-  padding: 26px 28px 24px;
-  border-radius: 22px;
+    padding: 26px 28px 24px;
+    border-radius: 22px;
 }
 
 .mnx-two-column {
   grid-template-columns: minmax(260px, 0.92fr) minmax(0, 1.3fr);
-  gap: 22px;
-}
-
-.mnx-ascensor-layout {
-  grid-template-columns: minmax(240px, 0.8fr) minmax(260px, 1fr) minmax(240px, 0.85fr);
-  gap: 20px;
+    gap: 22px;
 }
 
 .mnx-mission-card,
@@ -1914,7 +1694,6 @@
 .mnx-hint-card,
 .mnx-extra-card,
 .mnx-actions-card,
-.mnx-number-card,
 .mnx-how-card,
 .mnx-status-card,
 .mnx-result-message-card,
@@ -1929,7 +1708,6 @@
 .mnx-hint-card,
 .mnx-extra-card,
 .mnx-actions-card,
-.mnx-number-card,
 .mnx-how-card,
 .mnx-status-card,
 .mnx-result-message-card,
@@ -1964,7 +1742,7 @@
 .mnx-hint-detail-card p,
 .mnx-guide-card p {
   font-size: 16px;
-  line-height: 1.4;
+    line-height: 1.4;
 }
 
 .mnx-mission-card > img,
@@ -1975,66 +1753,62 @@
 .mnx-hint-detail-body aside img,
 .mnx-result-stat img {
   background: transparent;
-  border: none;
-  box-shadow: none;
-  object-fit: contain;
+    border: none;
+    box-shadow: none;
+    object-fit: contain;
 }
 
 .mnx-mission-card > img {
   min-height: 180px;
-  max-height: 280px;
-  padding: 0;
+    max-height: 280px;
+    padding: 0;
 }
 
 .mnx-guide-card {
   min-height: 98px;
-  padding: 16px 18px;
-  gap: 14px;
+    padding: 16px 18px;
+    gap: 14px;
 }
 
 .mnx-guide-card img {
   width: 84px;
-  height: 84px;
+    height: 84px;
 }
 
 .mnx-question-card {
   padding: 22px 22px 22px 72px;
-  min-height: 155px;
+    min-height: 155px;
 }
 
 .mnx-number-badge {
   top: 20px;
-  left: 20px;
-  width: 38px;
-  height: 38px;
-  font-size: 19px;
+    left: 20px;
+    width: 38px;
+    height: 38px;
+    font-size: 19px;
 }
 
 .mnx-question-copy p {
   font-size: 18px;
-  line-height: 1.35;
+    line-height: 1.35;
 }
 
 .mnx-choices {
   grid-template-columns: repeat(4, minmax(100px, 1fr));
-  gap: 10px;
-  margin-top: 14px;
+    gap: 10px;
+    margin-top: 14px;
 }
 
 .mnx-choices button {
   min-height: 52px;
-  font-size: 16px;
-  border-radius: 14px;
+    font-size: 16px;
+    border-radius: 14px;
 }
 
 .mnx-bottom-panel {
   grid-template-columns: minmax(250px, 1fr) minmax(250px, 1fr);
-  gap: 18px;
-  margin-top: 18px;
-}
-
-.mnx-cofre-grid + .mnx-bottom-panel {
-  grid-template-columns: minmax(250px, 1fr) minmax(250px, 1fr);
+    gap: 18px;
+    margin-top: 18px;
 }
 
 .mnx-actions-card {
@@ -2045,30 +1819,29 @@
   font-size: 14px;
 }
 
-/* Slider / barrita más pequeña */
 .mnx-hint-card {
   gap: 14px;
-  align-items: center;
+    align-items: center;
 }
 
 .mnx-hint-card > svg,
 .mnx-hint-card > span {
   width: 48px;
-  height: 48px;
-  font-size: 30px;
+    height: 48px;
+    font-size: 30px;
 }
 
 .mnx-mini-line {
   margin-top: 10px;
-  grid-template-columns: auto minmax(70px, 1fr) auto minmax(70px, 1fr) auto;
-  gap: 6px;
-  align-items: center;
-  max-width: 320px;
+    grid-template-columns: auto minmax(70px, 1fr) auto minmax(70px, 1fr) auto;
+    gap: 6px;
+    align-items: center;
+    max-width: 320px;
 }
 
 .mnx-mini-line i {
   height: 6px;
-  border-radius: 999px;
+    border-radius: 999px;
 }
 
 .mnx-mini-line span,
@@ -2085,101 +1858,37 @@
   font-size: 11px;
 }
 
-.mnx-number-card > p {
-  font-size: 16px;
-  margin-bottom: 14px;
-}
-
-.mnx-drop-row {
-  grid-template-columns: repeat(4, minmax(70px, 1fr));
-  gap: 10px;
-  margin-bottom: 18px;
-}
-
-.mnx-drop-zone {
-  min-height: 62px;
-  font-size: 24px;
-}
-
-.mnx-number-line {
-  padding-top: 16px;
-  border-top-width: 6px;
-}
-
-.mnx-number-line span {
-  font-size: 13px;
-}
-
-.mnx-number-line span::before {
-  top: -25px;
-  height: 14px;
-}
-
-.mnx-signal-grid {
-  grid-template-columns: repeat(4, minmax(110px, 1fr));
-  gap: 10px;
-}
-
-.mnx-signal-card {
-  min-height: 82px;
-  padding: 12px;
-}
-
-.mnx-floor-cards button {
-  min-height: 64px;
-  font-size: 22px;
-}
-
-.mnx-elevator-zone {
-  min-height: 480px;
-}
-
-.mnx-elevator-zone img {
-  max-height: 480px;
-  padding: 12px;
-}
-
-.mnx-elevator-slots {
-  inset: 10% 30% 11% 30%;
-  gap: 8px;
-}
-
-.mnx-elevator-slots button {
-  min-height: 48px;
-  font-size: 22px;
-}
-
 .mnx-result-layout {
   grid-template-columns: minmax(0, 1fr) 290px;
-  gap: 18px;
+    gap: 18px;
 }
 
 .mnx-result-actions {
   padding: 18px;
-  border-radius: 20px;
-  gap: 12px;
+    border-radius: 20px;
+    gap: 12px;
 }
 
 .mnx-result-stat {
   min-height: 138px;
-  padding: 16px;
+    padding: 16px;
 }
 
 .mnx-stats-grid {
   grid-template-columns: repeat(5, minmax(110px, 1fr));
-  gap: 12px;
+    gap: 12px;
 }
 
 .mnx-topic-progress-card {
   grid-template-columns: 64px minmax(120px, 0.8fr) minmax(170px, 1fr) 170px;
-  gap: 16px;
+    gap: 16px;
 }
 
 .mnx-footer {
   margin: 0 32px;
-  padding: 10px 10px 22px;
-  height: auto;
-  min-height: 60px;
+    padding: 10px 10px 22px;
+    height: auto;
+    min-height: 60px;
 }
 
 .mnx-footer p {
@@ -2202,17 +1911,18 @@
   .mnx-sidebar {
     overflow-y: auto;
   }
+
 }
 
 @media (max-width: 1450px) {
   .mnx-hero-section {
     grid-template-columns: minmax(0, 1fr) minmax(290px, 420px);
-    padding-right: 34px;
+        padding-right: 34px;
   }
 
   .mnx-hero-character {
     max-width: 370px;
-    max-height: 290px;
+        max-height: 290px;
   }
 
   .mnx-reward-card {
@@ -2234,15 +1944,16 @@
 
   .mnx-topic-progress-card aside {
     border-left: none;
-    border-top: 2px solid #dcecff;
-    padding: 16px 0 0;
+        border-top: 2px solid #dcecff;
+        padding: 16px 0 0;
   }
+
 }
 
 @media (max-width: 1200px) {
   .mnx-sidebar {
     width: 250px;
-    min-width: 250px;
+        min-width: 250px;
   }
 
   .mnx-sidebar-fox {
@@ -2251,8 +1962,8 @@
 
   .mnx-hero-section {
     grid-template-columns: 1fr;
-    min-height: auto;
-    padding: 42px 34px 62px;
+        min-height: auto;
+        padding: 42px 34px 62px;
   }
 
   .mnx-hero-text {
@@ -2261,51 +1972,48 @@
 
   .mnx-hero-media-card {
     min-height: 280px;
-    justify-content: center;
+        justify-content: center;
   }
 
   .mnx-hero-character {
     max-width: 360px;
-    max-height: 260px;
-    margin-top: 42px;
+        max-height: 260px;
+        margin-top: 42px;
   }
 
   .mnx-reward-card {
     position: relative;
-    top: auto;
-    right: auto;
-    align-self: center;
-    margin-bottom: 12px;
+        top: auto;
+        right: auto;
+        align-self: center;
+        margin-bottom: 12px;
   }
 
   .mnx-workspace {
     margin: -24px 22px 0;
-    padding: 22px;
+        padding: 22px;
   }
 
   .mnx-two-column,
-  .mnx-ascensor-layout,
   .mnx-bottom-panel,
-  .mnx-cofre-grid + .mnx-bottom-panel,
   .mnx-result-layout {
     grid-template-columns: 1fr;
   }
 
   .mnx-result-actions {
     position: static;
-    grid-column: 1;
-    grid-row: auto;
+        grid-column: 1;
+        grid-row: auto;
   }
 
   .mnx-stats-grid {
     grid-template-columns: repeat(3, minmax(110px, 1fr));
   }
+
 }
 
 @media (max-width: 950px) {
-  .mnx-signal-grid,
-  .mnx-choices,
-  .mnx-drop-row {
+  .mnx-choices {
     grid-template-columns: repeat(2, minmax(130px, 1fr));
   }
 
@@ -2320,29 +2028,30 @@
   .mnx-hint-detail-body aside {
     grid-column: 1 / -1;
   }
+
 }
 
 @media (max-width: 850px) {
   .mnx-page {
     display: block;
-    min-height: 100vh;
+        min-height: 100vh;
   }
 
   .mnx-hamburger-btn {
     display: flex;
-    position: fixed;
-    top: 24px;
-    left: 22px;
-    width: 72px;
-    height: 72px;
-    border: none;
-    background: #ffffff;
-    border-radius: 22px;
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 8px 22px rgba(0, 88, 255, 0.2);
-    cursor: pointer;
+        position: fixed;
+        top: 24px;
+        left: 22px;
+        width: 72px;
+        height: 72px;
+        border: none;
+        background: #ffffff;
+        border-radius: 22px;
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 22px rgba(0, 88, 255, 0.2);
+        cursor: pointer;
   }
 
   .mnx-hamburger-btn.mnx-hamburger-open {
@@ -2351,26 +2060,26 @@
 
   .mnx-hamburger-btn img {
     width: 50px;
-    height: 50px;
-    object-fit: contain;
+        height: 50px;
+        object-fit: contain;
   }
 
   .mnx-sidebar {
     position: fixed;
-    top: 0;
-    left: -320px;
-    width: 285px;
-    min-width: 285px;
-    height: 100dvh;
-    min-height: 100dvh;
-    max-height: 100dvh;
-    border-radius: 0 28px 28px 0;
-    padding: 45px 24px 28px;
-    z-index: 90;
-    transition: left 0.3s ease;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
+        top: 0;
+        left: -320px;
+        width: 285px;
+        min-width: 285px;
+        height: 100dvh;
+        min-height: 100dvh;
+        max-height: 100dvh;
+        border-radius: 0 28px 28px 0;
+        padding: 45px 24px 28px;
+        z-index: 90;
+        transition: left 0.3s ease;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
   }
 
   .mnx-sidebar.mnx-sidebar-open {
@@ -2379,13 +2088,13 @@
 
   .mnx-sidebar-logo {
     width: 155px;
-    margin-bottom: 28px;
+        margin-bottom: 28px;
   }
 
   .mnx-sidebar-fox-box {
     margin-top: 16px;
-    min-height: 0;
-    padding: 0;
+        min-height: 0;
+        padding: 0;
   }
 
   .mnx-sidebar-fox {
@@ -2394,12 +2103,12 @@
 
   .mnx-content {
     padding-right: 0;
-    overflow: hidden;
+        overflow: hidden;
   }
 
   .mnx-hero-section {
     padding: 118px 20px 28px;
-    gap: 18px;
+        gap: 18px;
   }
 
   .mnx-hero-section::before {
@@ -2408,23 +2117,23 @@
 
   .mnx-breadcrumb {
     padding: 10px 14px;
-    font-size: 13px;
+        font-size: 13px;
   }
 
   .mnx-hero-text h1 {
     font-size: 36px;
-    line-height: 1.05;
+        line-height: 1.05;
   }
 
   .mnx-hero-text > p:not(.mnx-breadcrumb) {
     width: 100%;
-    font-size: 16px;
-    margin: 16px 0 20px;
+        font-size: 16px;
+        margin: 16px 0 20px;
   }
 
   .mnx-hero-actions {
     flex-direction: column;
-    align-items: stretch;
+        align-items: stretch;
   }
 
   .mnx-primary-action,
@@ -2439,13 +2148,13 @@
 
   .mnx-hero-character {
     max-width: 280px;
-    max-height: 220px;
-    margin-top: 0;
+        max-height: 220px;
+        margin-top: 0;
   }
 
   .mnx-workspace {
     margin: 14px 14px 0;
-    padding: 18px;
+        padding: 18px;
   }
 
   .mnx-question-card {
@@ -2456,10 +2165,7 @@
     font-size: 17px;
   }
 
-  .mnx-signal-grid,
   .mnx-choices,
-  .mnx-drop-row,
-  .mnx-floor-cards,
   .mnx-stats-grid {
     grid-template-columns: repeat(2, minmax(120px, 1fr));
   }
@@ -2470,22 +2176,23 @@
 
   .mnx-footer {
     margin: 0;
-    padding: 18px;
-    flex-direction: column;
-    gap: 12px;
-    text-align: center;
+        padding: 18px;
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
   }
+
 }
 
 @media (max-width: 560px) {
   .mnx-sidebar {
     width: 280px;
-    min-width: 280px;
+        min-width: 280px;
   }
 
   .mnx-hero-section {
     padding-left: 16px;
-    padding-right: 16px;
+        padding-right: 16px;
   }
 
   .mnx-hero-text h1 {
@@ -2494,25 +2201,22 @@
 
   .mnx-hero-character {
     max-width: 240px;
-    max-height: 190px;
+        max-height: 190px;
   }
 
   .mnx-reward-card {
     max-width: 100%;
-    min-width: 0;
-    width: 100%;
+        min-width: 0;
+        width: 100%;
   }
 
   .mnx-workspace {
     margin-left: 10px;
-    margin-right: 10px;
-    padding: 15px;
+        margin-right: 10px;
+        padding: 15px;
   }
 
-  .mnx-signal-grid,
   .mnx-choices,
-  .mnx-drop-row,
-  .mnx-floor-cards,
   .mnx-stats-grid {
     grid-template-columns: 1fr;
   }
@@ -2546,111 +2250,94 @@
 
   .mnx-topic-progress-card aside {
     justify-content: center;
-    border-left: none;
-    border-top: 2px solid #dcecff;
-    padding-left: 0;
-    padding-top: 12px;
+        border-left: none;
+        border-top: 2px solid #dcecff;
+        padding-left: 0;
+        padding-top: 12px;
   }
+
 }
+
 @media (min-width: 851px) {
   .mnx-sidebar-fox-box {
     display: flex !important;
-    margin-top: 28px !important;
-    min-height: 190px !important;
-    height: auto !important;
-    padding: 0 !important;
-    justify-content: center !important;
-    align-items: center !important;
+        margin-top: 28px !important;
+        min-height: 190px !important;
+        height: auto !important;
+        padding: 0 !important;
+        justify-content: center !important;
+        align-items: center !important;
   }
 
   .mnx-sidebar-fox {
     width: clamp(195px, 26vh, 255px) !important;
-    max-width: 82% !important;
-    height: auto !important;
-    object-fit: contain !important;
+        max-width: 82% !important;
+        height: auto !important;
+        object-fit: contain !important;
   }
+
 }
 
 @media (min-width: 851px) and (max-height: 720px) {
   .mnx-sidebar-fox-box {
     display: flex !important;
-    margin-top: 18px !important;
-    min-height: 140px !important;
+        margin-top: 18px !important;
+        min-height: 140px !important;
   }
 
   .mnx-sidebar-fox {
     width: clamp(135px, 18vh, 170px) !important;
   }
+
 }
 
 @media (max-width: 850px) {
   .mnx-sidebar-fox-box {
     display: flex !important;
-    margin-top: 20px !important;
-    min-height: 150px !important;
-    justify-content: center !important;
-    align-items: center !important;
+        margin-top: 20px !important;
+        min-height: 150px !important;
+        justify-content: center !important;
+        align-items: center !important;
   }
 
   .mnx-sidebar-fox {
     width: 165px !important;
-    max-width: 80% !important;
-    height: auto !important;
+        max-width: 80% !important;
+        height: auto !important;
   }
+
 }
 
-/* ==========================================================
-   VIDEO RADAR COMO ANIMACIÓN
-   Limpio y sin pantalla oscura por CSS
-   ========================================================== */
-
-.mnx-mission-video {
-  width: 100%;
-  height: auto;
-  max-height: 280px;
-  aspect-ratio: 16 / 9;
-  object-fit: contain;
-  object-position: center;
-  display: block;
-  border-radius: 18px;
-  background: #f8fbff;
-  border: none;
-  box-shadow: none;
-  outline: none;
-}
-
-/* Quita apariencia de reproductor oscuro en navegadores WebKit */
-.mnx-mission-video::-webkit-media-controls,
-.mnx-mission-video::-webkit-media-controls-panel,
-.mnx-mission-video::-webkit-media-controls-play-button,
-.mnx-mission-video::-webkit-media-controls-start-playback-button {
-  display: none !important;
-  opacity: 0 !important;
-}
-
-/* Si el video tarda en cargar, que no rompa la tarjeta */
-.mnx-mission-card .mnx-mission-video {
-  margin: 8px auto 18px;
-}
-
-/* Para que imágenes y video compartan proporción ordenada */
 .mnx-mission-card > img,
 .mnx-mission-card > video {
   width: 100%;
-  max-width: 100%;
-  object-fit: contain;
-  object-position: center;
+    max-width: 100%;
+    object-fit: contain;
+    object-position: center;
 }
 
-@media (max-width: 850px) {
-  .mnx-mission-video {
-    max-height: 230px;
+/* FIX: evita que el sidebar tape el contenido en escritorio */
+@media (min-width: 851px) {
+  .mnx-page {
+    display: flex;
+    gap: 0;
+    align-items: flex-start;
   }
-}
 
-@media (max-width: 560px) {
-  .mnx-mission-video {
-    max-height: 190px;
-    border-radius: 14px;
+  .mnx-sidebar {
+    flex: 0 0 300px;
+    width: 300px;
+    min-width: 300px;
+    position: sticky;
+    top: 0;
+    left: auto;
+  }
+
+  .mnx-content {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    max-width: calc(100vw - 300px);
+    overflow-x: hidden;
   }
 }

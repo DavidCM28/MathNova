@@ -1,0 +1,1151 @@
+/* CofreBienvenida.css
+   CSS completo reformado para la actividad Cofre de Bienvenida
+*/
+
+/* =========================
+   Reset y variables globales
+   ========================= */
+.mnx-cofre-page,
+.mnx-cofre-page * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.mnx-cofre-page {
+  --primary: #0f9a43;
+  --primary-dark: #08893a;
+  --primary-light: #eaffef;
+  --primary-border: rgba(39, 139, 62, 0.36);
+  --text-dark: #0b0f19;
+  --text-medium: #1f2937;
+  --text-light: #6b7280;
+  --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 12px 36px rgba(15, 23, 42, 0.12);
+  --radius: 18px;
+  --radius-sm: 12px;
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  background: #f8fbf7;
+  color: var(--text-dark);
+  font-family: "Poppins", "Segoe UI", Inter, Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* =========================
+   Sidebar
+   ========================= */
+.mnx-cofre-page .mnx-hamburger-btn {
+  display: none;
+}
+
+.mnx-cofre-page .mnx-sidebar {
+  flex: 0 0 300px;
+  width: 300px;
+  min-width: 300px;
+  min-height: 100vh;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: #ffffff;
+  border-radius: 0 24px 24px 0;
+  padding: 28px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 8px 0 32px rgba(15, 23, 42, 0.06);
+  border-right: 1px solid #f0f2f0;
+}
+
+.mnx-cofre-page .mnx-sidebar-logo {
+  width: 150px;
+  height: auto;
+  display: block;
+  margin: 0 auto 28px;
+}
+
+.mnx-cofre-page .mnx-sidebar-menu {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mnx-cofre-page .mnx-menu-item {
+  width: 100%;
+  min-height: 48px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-medium);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 18px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: left;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.mnx-cofre-page .mnx-menu-item svg {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  stroke-width: 2px;
+}
+
+.mnx-cofre-page .mnx-menu-item:hover {
+  background: #f0f7f4;
+  transform: translateX(4px);
+}
+
+.mnx-cofre-page .mnx-menu-item.mnx-active {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(15, 154, 67, 0.25);
+}
+
+.mnx-cofre-page .mnx-sidebar-fox-box {
+  margin-top: auto;
+  padding: 14px 0 6px;
+  display: flex;
+  justify-content: center;
+}
+
+.mnx-cofre-page .mnx-sidebar-fox {
+  width: 130px;
+  max-width: 70%;
+  height: auto;
+  filter: drop-shadow(0 8px 16px rgba(15, 154, 67, 0.12));
+}
+
+/* =========================
+   Área principal
+   ========================= */
+.mnx-cofre-main {
+  flex: 1;
+  min-width: 0;
+  padding: 20px 32px 28px;
+  background: linear-gradient(180deg, #fafcfa 0%, #f5f8f5 100%);
+}
+
+/* =========================
+   Top actions
+   ========================= */
+.mnx-cofre-top-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.mnx-cofre-ghost-btn {
+  min-width: 100px;
+  height: 38px;
+  border: 1px solid #e2e8e2;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-medium);
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+  backdrop-filter: blur(4px);
+}
+
+.mnx-cofre-ghost-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  background: #ffffff;
+}
+
+.mnx-cofre-ghost-btn span {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* =========================
+   Header
+   ========================= */
+.mnx-cofre-header {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 24px;
+  align-items: start;
+  margin-bottom: 20px;
+}
+
+.mnx-cofre-crumb {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 14px;
+  color: var(--text-medium);
+  font-weight: 500;
+}
+
+.mnx-cofre-crumb strong {
+  color: var(--primary-dark);
+}
+
+.mnx-cofre-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.mnx-cofre-title-row img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.mnx-cofre-title-row h1 {
+  margin: 0;
+  color: var(--text-dark);
+  font-size: clamp(24px, 2.2vw, 32px);
+  line-height: 1.08;
+  letter-spacing: -0.5px;
+  font-weight: 800;
+}
+
+.mnx-cofre-header-copy > p {
+  margin: 8px 0 0;
+  color: var(--text-medium);
+  font-size: clamp(14px, 1.1vw, 16px);
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+/* =========================
+   Welcome / Robot
+   ========================= */
+.mnx-cofre-welcome-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: var(--radius);
+  border: 1px solid var(--primary-border);
+  backdrop-filter: blur(8px);
+}
+
+.mnx-cofre-speech {
+  flex: 1;
+  padding: 4px 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text-medium);
+}
+
+.mnx-cofre-speech strong {
+  display: block;
+  color: var(--text-dark);
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.mnx-cofre-speech span {
+  display: block;
+  font-weight: 400;
+}
+
+.mnx-cofre-hero-robot {
+  width: 90px;
+  height: auto;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 12px rgba(15, 154, 67, 0.12));
+}
+
+/* =========================
+   Activity Grid - MODIFICADA
+   ========================= */
+.mnx-cofre-activity-grid {
+  display: grid;
+  grid-template-columns: 260px 1fr 1fr;
+  grid-template-areas:
+    "chest guide guide"
+    "chest qone qtwo"
+    "reminder check evidence";
+  gap: 14px;
+  align-items: stretch;
+}
+
+/* =========================
+   Chest - MODIFICADO para que no quede tan alto
+   ========================= */
+.mnx-cofre-chest-art {
+  grid-area: chest;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  background: #ffffff;
+  position: relative;
+  /* Cambio de aspect-ratio a una altura máxima controlada */
+  aspect-ratio: 1 / 1;
+  max-height: 350px;
+  width: 100%;
+  /* Para que la imagen se mantenga proporcionada */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mnx-cofre-chest-art img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.mnx-cofre-chest-art::after {
+  content: "🎯";
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  font-size: 40px;
+  opacity: 0.6;
+}
+
+/* =========================
+   Guide Card
+   ========================= */
+.mnx-cofre-guide-card {
+  grid-area: guide;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--primary-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.mnx-cofre-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--primary-dark);
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.mnx-cofre-card-title span {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  background: var(--primary-light);
+}
+
+.mnx-cofre-guide-body {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  gap: 14px;
+  padding: 12px 8px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-sm);
+  border: 1px solid #eef3ee;
+}
+
+.mnx-cofre-guide-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.mnx-cofre-guide-block p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-medium);
+  text-align: center;
+}
+
+.mnx-cofre-divider {
+  width: 1px;
+  background: #dce5de;
+  align-self: stretch;
+}
+
+.mnx-cofre-fraction-demo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.mnx-cofre-fraction-demo em {
+  font-style: normal;
+  color: var(--text-dark);
+}
+
+.mnx-cofre-fraction-demo strong {
+  color: var(--primary);
+  font-size: 26px;
+}
+
+.mnx-cofre-bar {
+  position: relative;
+  width: 130px;
+  height: 28px;
+  border: 2px solid #0d0f14;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #ffffff;
+  display: grid;
+}
+
+.mnx-cofre-bar i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #2ebe63, #138d39);
+}
+
+.mnx-cofre-bar b {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #0c0f14;
+}
+
+.mnx-cofre-half .mnx-cofre-bar i {
+  width: 50%;
+}
+.mnx-cofre-half .mnx-cofre-bar b {
+  left: 50%;
+}
+
+.mnx-cofre-quarter .mnx-cofre-bar i {
+  width: 25%;
+}
+.mnx-cofre-quarter .mnx-cofre-bar b:nth-of-type(1) {
+  left: 25%;
+}
+.mnx-cofre-quarter .mnx-cofre-bar b:nth-of-type(2) {
+  left: 50%;
+}
+.mnx-cofre-quarter .mnx-cofre-bar b:nth-of-type(3) {
+  left: 75%;
+}
+
+/* Fracción tipo "quebrado" (numerador / línea / denominador).
+   width: fit-content evita que se estire con el contenedor padre
+   (por ejemplo cuando el padre es una celda de grid en 1fr),
+   que era lo que alargaba la línea horizontal. */
+.mnx-cofre-frac {
+  display: inline-grid;
+  grid-template-rows: 1fr 1fr;
+  place-items: center;
+  color: var(--primary);
+  font-size: 24px;
+  line-height: 0.9;
+  font-weight: 800;
+  width: fit-content;
+  min-width: 36px;
+}
+
+.mnx-cofre-frac span:first-child {
+  width: 100%;
+  text-align: center;
+  border-bottom: 2px solid currentColor;
+  padding-bottom: 2px;
+}
+
+.mnx-cofre-frac span:last-child {
+  padding-top: 2px;
+}
+
+.mnx-cofre-frac-small {
+  min-width: 18px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.mnx-cofre-frac-small span:first-child {
+  border-bottom-width: 1.5px;
+  padding-bottom: 1px;
+}
+
+.mnx-cofre-frac-small span:last-child {
+  padding-top: 1px;
+}
+
+/* =========================
+   Question Cards
+   ========================= */
+.mnx-cofre-question-card {
+  padding: 16px 20px 18px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--primary-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  min-height: 0;
+}
+
+.mnx-cofre-q-one {
+  grid-area: qone;
+}
+.mnx-cofre-q-two {
+  grid-area: qtwo;
+}
+
+.mnx-cofre-question-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.mnx-cofre-question-head > span {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #1bad50, #058b37);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 800;
+  box-shadow: inset 0 -3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.mnx-cofre-question-head h2 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.35;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.mnx-cofre-options {
+  display: grid;
+  gap: 8px;
+}
+
+.mnx-cofre-options button {
+  min-height: 44px;
+  border: 2px solid #e8eee8;
+  background: #ffffff;
+  border-radius: var(--radius-sm);
+  color: var(--text-dark);
+  display: grid;
+  grid-template-columns: 32px 36px 1fr;
+  align-items: center;
+  padding: 0 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: left;
+}
+
+.mnx-cofre-options button:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.mnx-cofre-options button > span:first-child {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 13px;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.mnx-cofre-options button > b {
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+/* La fracción dentro del botón no debe estirarse al ancho de la
+   columna 1fr: se alinea al inicio con su ancho natural. Esto es
+   lo que corrige la línea horizontal gigante en las opciones. */
+.mnx-cofre-options button > .mnx-cofre-frac {
+  justify-self: start;
+}
+
+.mnx-cofre-options button.mnx-cofre-selected {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(15, 154, 67, 0.12);
+}
+
+.mnx-cofre-options button.mnx-cofre-correct {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.mnx-cofre-options button.mnx-cofre-wrong {
+  border-color: #ef4444;
+  background: #fff1f1;
+}
+
+/* =========================
+   Reminder Card
+   ========================= */
+.mnx-cofre-reminder-card {
+  grid-area: reminder;
+  padding: 16px 20px 16px 128px;
+  border: 1px solid var(--primary-border);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.88);
+  position: relative;
+  overflow: hidden;
+  min-height: 100px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+}
+
+.mnx-cofre-reminder-card img {
+  position: absolute;
+  left: 6px;
+  bottom: -4px;
+  width: 106px;
+  height: auto;
+}
+
+.mnx-cofre-reminder-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text-medium);
+  font-weight: 500;
+}
+
+.mnx-cofre-reminder-card p strong {
+  color: var(--primary-dark);
+}
+
+.mnx-cofre-reminder-card > span {
+  position: absolute;
+  right: 24px;
+  bottom: 12px;
+  font-size: 34px;
+  opacity: 0.15;
+}
+
+/* =========================
+   Check Area
+   ========================= */
+.mnx-cofre-check-area {
+  grid-area: check;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  min-height: 100px;
+}
+
+.mnx-cofre-check-btn {
+  width: 100%;
+  max-width: 300px;
+  height: 52px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: #ffffff;
+  background: linear-gradient(180deg, #17a74d, #08893a);
+  box-shadow: 0 8px 24px rgba(5, 135, 51, 0.25);
+  font-size: 17px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.mnx-cofre-check-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(5, 135, 51, 0.3);
+}
+
+.mnx-cofre-check-btn:active {
+  transform: scale(0.97);
+}
+
+.mnx-cofre-check-btn span {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+}
+
+.mnx-cofre-check-area p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-medium);
+}
+
+.mnx-cofre-check-area small {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary-dark);
+}
+
+/* =========================
+   Evidence Card
+   ========================= */
+.mnx-cofre-evidence-card {
+  grid-area: evidence;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e1e6e1;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  min-height: 100px;
+}
+
+.mnx-cofre-evidence-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--primary-dark);
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.mnx-cofre-evidence-title span {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--primary);
+  border-radius: 6px;
+  font-size: 16px;
+  color: var(--primary);
+}
+
+.mnx-cofre-evidence-card > p {
+  margin: 0 0 10px 38px;
+  font-size: 12px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.mnx-cofre-info-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.mnx-cofre-info-row > span {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.mnx-cofre-info-row p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-medium);
+  line-height: 1.4;
+}
+
+/* =========================
+   Toast
+   ========================= */
+.mnx-cofre-page .mnx-toast {
+  position: fixed;
+  right: 28px;
+  bottom: 100px;
+  z-index: 200;
+  max-width: 400px;
+  padding: 16px 24px;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  animation: mnx-toast-in 0.3s ease;
+}
+
+.mnx-cofre-page .mnx-toast-error {
+  background: #ef4444;
+}
+
+@keyframes mnx-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   Logout Float
+   ========================= */
+.mnx-cofre-logout-float {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 52px;
+  height: 52px;
+  border: 0;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #ef4444;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 50;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition);
+}
+
+.mnx-cofre-logout-float:hover {
+  transform: translateY(-3px) scale(1.05);
+  color: #dc2626;
+  box-shadow: var(--shadow-lg);
+}
+
+/* =========================
+   Responsive
+   ========================= */
+
+/* Tablets grandes */
+@media (max-width: 1400px) {
+  .mnx-cofre-page .mnx-sidebar {
+    flex-basis: 260px;
+    width: 260px;
+    min-width: 260px;
+    padding: 24px 18px 18px;
+  }
+
+  .mnx-cofre-activity-grid {
+    grid-template-columns: 240px 1fr 1fr;
+    gap: 14px;
+  }
+}
+
+/* Tablets medianas */
+@media (max-width: 1200px) {
+  .mnx-cofre-header {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .mnx-cofre-activity-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "guide guide"
+      "chest chest"
+      "qone qtwo"
+      "reminder evidence"
+      "check check";
+  }
+
+  .mnx-cofre-chest-art {
+    aspect-ratio: 21 / 9;
+    max-height: 280px;
+  }
+
+  .mnx-cofre-welcome-wrap {
+    max-width: 500px;
+  }
+}
+
+/* Móviles y tablets pequeñas */
+@media (max-width: 850px) {
+  .mnx-cofre-page {
+    display: block;
+  }
+
+  .mnx-cofre-page .mnx-hamburger-btn {
+    display: flex;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    width: 52px;
+    height: 52px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: #ffffff;
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+  }
+
+  .mnx-cofre-page .mnx-hamburger-btn img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+  }
+
+  .mnx-cofre-page .mnx-sidebar {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 270px;
+    min-width: 270px;
+    height: 100dvh;
+    border-radius: 0 20px 20px 0;
+    padding: 32px 18px 20px;
+    z-index: 90;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+  }
+
+  .mnx-cofre-page .mnx-sidebar.mnx-sidebar-open {
+    left: 0;
+  }
+
+  .mnx-cofre-page .mnx-menu-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 80;
+    backdrop-filter: blur(2px);
+  }
+
+  .mnx-cofre-page .mnx-sidebar-logo {
+    width: 120px;
+    margin-bottom: 20px;
+  }
+
+  .mnx-cofre-page .mnx-menu-item {
+    min-height: 44px;
+    font-size: 14px;
+    padding: 0 14px;
+  }
+
+  .mnx-cofre-main {
+    padding: 72px 14px 20px;
+  }
+
+  .mnx-cofre-top-actions {
+    flex-wrap: wrap;
+    justify-content: stretch;
+    margin-bottom: 12px;
+  }
+
+  .mnx-cofre-ghost-btn {
+    flex: 1;
+    min-width: 80px;
+    height: 38px;
+    font-size: 13px;
+  }
+
+  .mnx-cofre-title-row {
+    gap: 10px;
+  }
+
+  .mnx-cofre-title-row img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .mnx-cofre-title-row h1 {
+    font-size: 22px;
+  }
+
+  .mnx-cofre-header-copy > p {
+    font-size: 14px;
+  }
+
+  .mnx-cofre-welcome-wrap {
+    flex-direction: column;
+    text-align: center;
+    padding: 12px;
+  }
+
+  .mnx-cofre-speech {
+    font-size: 13px;
+  }
+
+  .mnx-cofre-hero-robot {
+    width: 84px;
+  }
+
+  .mnx-cofre-activity-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "guide"
+      "chest"
+      "qone"
+      "qtwo"
+      "reminder"
+      "check"
+      "evidence";
+    gap: 12px;
+  }
+
+  .mnx-cofre-chest-art {
+    aspect-ratio: 16 / 9;
+    max-height: 220px;
+  }
+
+  .mnx-cofre-guide-body {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .mnx-cofre-divider {
+    width: 100%;
+    height: 1px;
+  }
+
+  .mnx-cofre-question-card {
+    padding: 14px;
+  }
+
+  .mnx-cofre-options button {
+    min-height: 42px;
+    font-size: 14px;
+    grid-template-columns: 28px 32px 1fr;
+    padding: 0 12px;
+  }
+
+  .mnx-cofre-options button > span:first-child {
+    width: 26px;
+    height: 26px;
+    font-size: 12px;
+  }
+
+  .mnx-cofre-reminder-card {
+    padding: 96px 14px 14px;
+    text-align: center;
+    min-height: 90px;
+  }
+
+  .mnx-cofre-reminder-card img {
+    left: 50%;
+    bottom: auto;
+    top: 8px;
+    width: auto;
+    height: 70px;
+    object-fit: contain;
+    transform: translateX(-50%);
+  }
+
+  .mnx-cofre-reminder-card > span {
+    display: none;
+  }
+
+  .mnx-cofre-check-btn {
+    height: 48px;
+    font-size: 16px;
+    max-width: 100%;
+  }
+
+  .mnx-cofre-evidence-card {
+    padding: 14px;
+  }
+
+  .mnx-cofre-evidence-card > p {
+    margin-left: 0;
+  }
+
+  .mnx-cofre-info-row {
+    flex-wrap: wrap;
+  }
+
+  .mnx-cofre-logout-float {
+    right: 16px;
+    bottom: 16px;
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+  }
+
+  .mnx-cofre-page .mnx-toast {
+    right: 16px;
+    bottom: 80px;
+    left: 16px;
+    max-width: none;
+    font-size: 14px;
+    padding: 14px 18px;
+  }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 400px) {
+  .mnx-cofre-main {
+    padding: 64px 10px 14px;
+  }
+
+  .mnx-cofre-title-row h1 {
+    font-size: 19px;
+  }
+
+  .mnx-cofre-fraction-demo {
+    font-size: 17px;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .mnx-cofre-bar {
+    width: 96px;
+    height: 26px;
+  }
+
+  .mnx-cofre-frac {
+    font-size: 19px;
+    min-width: 26px;
+  }
+
+  .mnx-cofre-options button {
+    font-size: 12px;
+    grid-template-columns: 26px 26px 1fr;
+    min-height: 38px;
+    padding: 0 10px;
+  }
+
+  .mnx-cofre-options button > span:first-child {
+    width: 22px;
+    height: 22px;
+    font-size: 10px;
+  }
+}

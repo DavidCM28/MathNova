@@ -2,13 +2,15 @@ import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 import zorritoConsejo from "../../assets/zorrito-consejo-nova.png";
 
-import cofreHero from "../../assets/mathnumbers/01-cofre-bienvenida/hero-robot-focused.png";
-import cofreGuide from "../../assets/mathnumbers/01-cofre-bienvenida/guide-robot-clean.png";
-import cofreChest from "../../assets/mathnumbers/01-cofre-bienvenida/chest-clean.png";
+import cofreHero from "../../assets/mathnumbers/01-cofre-bienvenida/hero-robot.png";
+import cofreGuide from "../../assets/mathnumbers/01-cofre-bienvenida/guide-robot.png";
+import cofreChest from "../../assets/mathnumbers/01-cofre-bienvenida/chest-panel.png";
+import cofreSidebarAvatar from "../../assets/mathnumbers/01-cofre-bienvenida/sidebar-avatar.png";
+import cofreTitleChest from "../../assets/mathnumbers/01-cofre-bienvenida/title-chest.png";
 
 import radarHero from "../../assets/mathnumbers/02-radar-supervivencia/hero-complete-focused.png";
 import radarGuide from "../../assets/mathnumbers/02-radar-supervivencia/guide.png";
-import radarImage from "../../assets/mathnumbers/02-radar-supervivencia/radar-highres-1920.png";
+import radarImage from "../../assets/mathnumbers/02-radar-supervivencia/radar.png";
 import radarVideo from "../../assets/mathnumbers/02-radar-supervivencia/radarv3.mp4";
 
 import ascensorCommander from "../../assets/mathnumbers/03-ascensor-bunker/commander-clean.png";
@@ -59,6 +61,8 @@ export {
   cofreHero,
   cofreGuide,
   cofreChest,
+  cofreSidebarAvatar,
+  cofreTitleChest,
   radarHero,
   radarGuide,
   radarImage,

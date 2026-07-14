@@ -1,0 +1,530 @@
+/* AscensorBunker.css
+   Complemento de CofreBienvenida.css.
+   El Ascensor del Búnker reutiliza el mismo sidebar, encabezado,
+   tarjetas, botones, personajes, espaciado y comportamiento
+   responsivo del Cofre / Radar de Supervivencia.
+*/
+
+.mnx-ascensor-page {
+  --ascensor-red: #dc3c3c;
+  --ascensor-red-light: #fff2f2;
+}
+
+.mnx-ascensor-title-icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #1bad50, #058b37);
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(15, 154, 67, 0.22);
+}
+
+.mnx-ascensor-title-icon svg {
+  width: 23px;
+  height: 23px;
+  stroke-width: 2.2;
+}
+
+.mnx-ascensor-activity-grid {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas:
+    "art guide guide"
+    "art placement placement"
+    "reminder question actions";
+  gap: 14px;
+  align-items: start;
+}
+
+/* =========================
+   Arte / escena del ascensor
+   ========================= */
+
+.mnx-ascensor-art {
+  grid-area: art;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-height: 350px;
+  align-self: start;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: #ffffff;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mnx-ascensor-art > img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
+.mnx-ascensor-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(4, 24, 14, 0.12), transparent 40%),
+    linear-gradient(0deg, rgba(3, 23, 13, 0.78), transparent 45%);
+}
+
+.mnx-ascensor-mission {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  min-height: 112px;
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 15px;
+  border: 1px solid rgba(112, 235, 113, 0.85);
+  border-radius: 14px;
+  background: rgba(5, 58, 25, 0.9);
+  color: #ffffff;
+  backdrop-filter: blur(5px);
+}
+
+.mnx-ascensor-mission svg {
+  width: 36px;
+  height: 36px;
+  color: #73ef73;
+}
+
+.mnx-ascensor-mission strong {
+  display: block;
+  color: #73ef73;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.mnx-ascensor-mission p {
+  margin: 5px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* =========================
+   Guía visual rápida
+   ========================= */
+
+.mnx-ascensor-guide-card {
+  grid-area: guide;
+}
+
+.mnx-ascensor-guide-labels {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.mnx-ascensor-guide-labels .negative {
+  color: var(--ascensor-red);
+}
+
+.mnx-ascensor-guide-labels .zero {
+  color: var(--text-dark);
+}
+
+.mnx-ascensor-guide-labels .positive {
+  color: var(--primary-dark);
+}
+
+.mnx-ascensor-guide-chips {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mnx-ascensor-chip-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mnx-ascensor-chip {
+  width: 48px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #e8eee8;
+  border-radius: 10px;
+  background: #ffffff;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.mnx-ascensor-chip.negative {
+  border-color: rgba(220, 60, 60, 0.4);
+  color: var(--ascensor-red);
+  background: var(--ascensor-red-light);
+}
+
+.mnx-ascensor-chip.positive {
+  border-color: rgba(15, 154, 67, 0.4);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.mnx-ascensor-chip.zero {
+  border-color: #e8eee8;
+  color: var(--text-dark);
+  background: #f7faf7;
+}
+
+.mnx-ascensor-chip-arrow {
+  color: var(--primary);
+  font-weight: 800;
+}
+
+/* =========================
+   Tarjetas y ascensor (colocación)
+   ========================= */
+
+.mnx-ascensor-placement-card {
+  grid-area: placement;
+  min-width: 0;
+  padding: 16px 20px 18px;
+  border: 1px solid var(--primary-border);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow-sm);
+}
+
+.mnx-ascensor-floor-cards {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(70px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.mnx-ascensor-floor-card {
+  min-height: 56px;
+  border: 2px solid #e8eee8;
+  border-radius: var(--radius-sm);
+  background: #ffffff;
+  color: var(--text-dark);
+  font-size: 20px;
+  font-weight: 800;
+  cursor: grab;
+  transition: var(--transition);
+}
+
+.mnx-ascensor-floor-card:hover,
+.mnx-ascensor-floor-card.selected {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.mnx-ascensor-floor-card.selected {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.mnx-ascensor-floor-card.negative {
+  border-color: rgba(220, 60, 60, 0.4);
+  color: var(--ascensor-red);
+  background: var(--ascensor-red-light);
+}
+
+.mnx-ascensor-floor-card.positive {
+  border-color: rgba(15, 154, 67, 0.4);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.mnx-ascensor-floor-card.zero {
+  border-color: #e8eee8;
+  color: var(--text-dark);
+  background: #ffffff;
+}
+
+.mnx-ascensor-drop-zone {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid #e5ebe5;
+  border-radius: var(--radius-sm);
+  background: #ffffff;
+}
+
+.mnx-ascensor-order-label {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.mnx-ascensor-order-label.from {
+  color: var(--ascensor-red);
+}
+
+.mnx-ascensor-order-label.to {
+  color: var(--primary-dark);
+}
+
+.mnx-ascensor-slots {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(56px, 1fr));
+  gap: 10px;
+}
+
+.mnx-ascensor-slot-wrap {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+}
+
+.mnx-ascensor-slot {
+  width: 100%;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border: 2px dashed var(--primary);
+  border-radius: 10px;
+  background: #f9fffa;
+  color: var(--primary);
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.mnx-ascensor-slot svg {
+  width: 18px;
+  height: 18px;
+}
+
+.mnx-ascensor-slot.filled {
+  border-style: solid;
+  color: #ffffff;
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.mnx-ascensor-slot.filled.negative {
+  background: var(--ascensor-red);
+  border-color: var(--ascensor-red);
+}
+
+.mnx-ascensor-slot-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-light);
+}
+
+/* =========================
+   Pista general
+   ========================= */
+
+.mnx-ascensor-reminder {
+  grid-area: reminder;
+}
+
+/* =========================
+   Explicación
+   ========================= */
+
+.mnx-ascensor-question {
+  grid-area: question;
+  display: flex;
+  flex-direction: column;
+}
+
+.mnx-ascensor-answer-box {
+  position: relative;
+  display: block;
+  flex: 1;
+  min-height: 105px;
+}
+
+.mnx-ascensor-answer-box textarea {
+  width: 100%;
+  height: 100%;
+  min-height: 105px;
+  resize: none;
+  padding: 13px 15px 28px;
+  border: 2px solid #e8eee8;
+  border-radius: var(--radius-sm);
+  outline: none;
+  background: #ffffff;
+  color: var(--text-dark);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.4;
+  transition: var(--transition);
+}
+
+.mnx-ascensor-answer-box textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(15, 154, 67, 0.1);
+}
+
+.mnx-ascensor-answer-box > span {
+  position: absolute;
+  right: 12px;
+  bottom: 9px;
+  color: var(--text-light);
+  font-size: 11px;
+}
+
+.mnx-ascensor-save-btn {
+  align-self: flex-end;
+  min-width: 190px;
+  height: 42px;
+  margin-top: 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.mnx-ascensor-save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* =========================
+   Acciones
+   ========================= */
+
+.mnx-ascensor-actions {
+  grid-area: actions;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mnx-ascensor-actions .mnx-cofre-check-btn {
+  max-width: none;
+}
+
+.mnx-ascensor-progress {
+  margin: 0;
+  color: var(--primary-dark);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.mnx-ascensor-actions .mnx-cofre-evidence-card {
+  flex: 1;
+}
+
+/* =========================
+   Responsive
+   ========================= */
+
+@media (max-width: 1400px) {
+  .mnx-ascensor-activity-grid {
+    grid-template-columns: 240px minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 1200px) {
+  .mnx-ascensor-activity-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "guide guide"
+      "art art"
+      "placement placement"
+      "reminder actions"
+      "question question";
+  }
+
+  .mnx-ascensor-art {
+    aspect-ratio: 21 / 9;
+    max-height: 280px;
+  }
+}
+
+@media (max-width: 850px) {
+  .mnx-ascensor-activity-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "guide"
+      "art"
+      "placement"
+      "reminder"
+      "question"
+      "actions";
+    gap: 12px;
+  }
+
+  .mnx-ascensor-art {
+    aspect-ratio: 16 / 9;
+    max-height: 220px;
+  }
+
+  .mnx-ascensor-floor-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .mnx-ascensor-slots {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .mnx-ascensor-save-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .mnx-ascensor-title-icon {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+  }
+
+  .mnx-ascensor-title-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .mnx-ascensor-art {
+    min-height: 210px;
+  }
+
+  .mnx-ascensor-mission {
+    grid-template-columns: 30px 1fr;
+    padding: 11px 12px;
+  }
+
+  .mnx-ascensor-mission svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .mnx-ascensor-floor-cards,
+  .mnx-ascensor-slots {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mnx-ascensor-question,
+  .mnx-ascensor-placement-card {
+    padding: 14px;
+  }
+}
