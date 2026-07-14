@@ -1,6 +1,10 @@
 import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getSessionUser, hasAuthSession, isGuestSession } from "../../utils/authSession";
+import {
+  getSessionUser,
+  hasAuthSession,
+  isGuestSession,
+} from "../../utils/authSession";
 
 import "./Actividad1MathGeometry.css";
 
@@ -3050,7 +3054,10 @@ function Actividad1MathGeometry() {
 
         <footer className="act1geo-footer">
           <div className="act1geo-footer-icons">
-            <button type="button" onClick={() => irARuta(obtenerDashboardPrincipal())}>
+            <button
+              type="button"
+              onClick={() => irARuta(obtenerDashboardPrincipal())}
+            >
               <FiLogOut />
             </button>
 

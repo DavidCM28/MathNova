@@ -13900,3 +13900,136 @@ body:has(.act1geo-byte-modal-overlay) {
 .act1geo-figure-card span {
   display: none !important;
 }
+
+/* =========================================================
+   AJUSTE FINAL: BOTÓN COMPROBAR FLOTANTE Y RESPONSIVO
+   - Se elimina visualmente el aviso verde/naranja anterior.
+   - El botón NO usa position: fixed.
+   - Se mantiene flotando con position: sticky en la esquina
+     inferior derecha mientras se recorre la actividad.
+   ========================================================= */
+
+.act1geo-answer-box {
+  display: none !important;
+}
+
+.act1geo-floating-check-wrap {
+  position: sticky;
+  bottom: 18px;
+  z-index: 80;
+  width: 100%;
+  margin-top: 18px;
+  padding: 0 2px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  pointer-events: none;
+}
+
+.act1geo-floating-check-btn {
+  width: auto;
+  min-width: 190px;
+  min-height: 58px;
+  height: auto;
+  padding: 14px 24px;
+  border-radius: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  pointer-events: auto;
+  font-size: 16px;
+  line-height: 1;
+  box-shadow:
+    0 18px 34px rgba(0, 88, 255, 0.3),
+    0 5px 12px rgba(15, 23, 42, 0.12);
+}
+
+.act1geo-floating-check-btn svg {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.act1geo-floating-check-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* Espacio para que el botón no tape las estadísticas inferiores. */
+.act1geo-bottom-stats {
+  scroll-margin-bottom: 110px;
+}
+
+@media (max-width: 991px) {
+  .act1geo-floating-check-wrap {
+    bottom: 14px;
+    margin-top: 16px;
+    padding-right: 2px;
+  }
+
+  .act1geo-floating-check-btn {
+    min-width: 176px;
+    min-height: 54px;
+    padding: 13px 21px;
+    border-radius: 17px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 767px) {
+  .act1geo-floating-check-wrap {
+    bottom: 12px;
+    margin-top: 14px;
+  }
+
+  .act1geo-floating-check-btn {
+    min-width: 164px;
+    min-height: 52px;
+    padding: 12px 18px;
+    border-radius: 16px;
+    font-size: 14.5px;
+    box-shadow:
+      0 14px 28px rgba(0, 88, 255, 0.28),
+      0 4px 10px rgba(15, 23, 42, 0.1);
+  }
+
+  .act1geo-floating-check-btn svg {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 575px) {
+  .act1geo-floating-check-wrap {
+    bottom: 10px;
+    padding-right: 0;
+  }
+
+  .act1geo-floating-check-btn {
+    min-width: 150px;
+    min-height: 50px;
+    padding: 11px 16px;
+    border-radius: 15px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 390px) {
+  .act1geo-floating-check-btn {
+    min-width: 142px;
+    min-height: 48px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+  }
+}
+
+/* En pantallas bajas conserva una separación cómoda del borde. */
+@media (min-width: 992px) and (max-height: 700px) {
+  .act1geo-floating-check-wrap {
+    bottom: 12px;
+  }
+
+  .act1geo-floating-check-btn {
+    min-height: 52px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+}
