@@ -27,6 +27,10 @@ import {
   FiStar,
   FiCheckCircle,
   FiInfo,
+  FiX,
+  FiUser,
+  FiMail,
+  FiLock,
 } from "react-icons/fi";
 
 type Alumno = {
@@ -93,6 +97,16 @@ function AdministrarAlumnosDocente() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
   const [paginaActual, setPaginaActual] = useState(1);
+  const [modalAgregarOpen, setModalAgregarOpen] = useState(false);
+  const [alumnoEditar, setAlumnoEditar] = useState<Alumno | null>(null);
+  const [formEditar, setFormEditar] = useState({
+    nombre: "",
+    grupo: "",
+    modulo: "",
+    asistencia: "",
+    promedio: "",
+    estado: "Activo" as "Activo" | "Rezago",
+  });
 
   const [gruposOpen, setGruposOpen] = useState(() => {
     return localStorage.getItem("docente-grupos-open") !== "false";
@@ -107,12 +121,28 @@ function AdministrarAlumnosDocente() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "auto";
+    document.body.style.overflow =
+      menuOpen || modalAgregarOpen || alumnoEditar ? "hidden" : "auto";
 
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [menuOpen]);
+  }, [menuOpen, modalAgregarOpen, alumnoEditar]);
+
+  useEffect(() => {
+    const cerrarConEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setModalAgregarOpen(false);
+        setAlumnoEditar(null);
+      }
+    };
+
+    window.addEventListener("keydown", cerrarConEscape);
+
+    return () => {
+      window.removeEventListener("keydown", cerrarConEscape);
+    };
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("docente-grupos-open", String(gruposOpen));
@@ -164,7 +194,9 @@ function AdministrarAlumnosDocente() {
         }
 
         if (!response.ok) {
-          throw new Error(data?.mensaje || "No se pudieron cargar los alumnos.");
+          throw new Error(
+            data?.mensaje || "No se pudieron cargar los alumnos.",
+          );
         }
 
         setResumen(data.resumen || resumenInicial);
@@ -213,6 +245,40 @@ function AdministrarAlumnosDocente() {
 
     setMenuOpen(false);
     navigate(ruta);
+  };
+
+  const abrirModalEditar = (alumno: Alumno) => {
+    setFormEditar({
+      nombre: alumno.nombre,
+      grupo: alumno.grupo,
+      modulo: alumno.modulo,
+      asistencia: alumno.asistencia !== null ? String(alumno.asistencia) : "",
+      promedio: alumno.promedio !== null ? String(alumno.promedio) : "",
+      estado: alumno.estado,
+    });
+    setAlumnoEditar(alumno);
+  };
+
+  const cerrarModalEditar = () => {
+    setAlumnoEditar(null);
+    setFormEditar({
+      nombre: "",
+      grupo: "",
+      modulo: "",
+      asistencia: "",
+      promedio: "",
+      estado: "Activo",
+    });
+  };
+
+  const cambiarCampoEditar = (
+    campo: "nombre" | "grupo" | "modulo" | "asistencia" | "promedio" | "estado",
+    valor: string,
+  ) => {
+    setFormEditar((actual) => ({
+      ...actual,
+      [campo]: valor,
+    }));
   };
 
   const cambiarPagina = (pagina: number) => {
@@ -409,7 +475,11 @@ function AdministrarAlumnosDocente() {
 
         <section className="admin-toolbar">
           <div className="admin-toolbar-buttons">
-            <button type="button" className="admin-action-btn primary">
+            <button
+              type="button"
+              className="admin-action-btn primary"
+              onClick={() => setModalAgregarOpen(true)}
+            >
               <FiPlus />
               Agregar alumno
             </button>
@@ -561,7 +631,11 @@ function AdministrarAlumnosDocente() {
                       <FiEye />
                     </button>
 
-                    <button type="button" aria-label="Editar alumno">
+                    <button
+                      type="button"
+                      aria-label={`Editar a ${alumno.nombre}`}
+                      onClick={() => abrirModalEditar(alumno)}
+                    >
                       <FiEdit2 />
                     </button>
 
@@ -716,6 +790,311 @@ function AdministrarAlumnosDocente() {
           </div>
         </footer>
       </section>
+
+      {modalAgregarOpen && (
+        <div
+          className="admin-modal-overlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setModalAgregarOpen(false);
+            }
+          }}
+        >
+          <section
+            className="admin-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-modal-title"
+          >
+            <div className="admin-modal-decoration admin-modal-circle-one"></div>
+            <div className="admin-modal-decoration admin-modal-circle-two"></div>
+
+            <button
+              type="button"
+              className="admin-modal-close"
+              onClick={() => setModalAgregarOpen(false)}
+              aria-label="Cerrar modal"
+            >
+              <FiX />
+            </button>
+
+            <header className="admin-modal-header">
+              <div className="admin-modal-icon">
+                <FiUserPlus />
+              </div>
+
+              <div>
+                <span className="admin-modal-badge">Nuevo estudiante</span>
+                <h2 id="admin-modal-title">Agregar alumno</h2>
+                <p>
+                  Completa los datos del nuevo alumno para registrarlo en
+                  MathNova.
+                </p>
+              </div>
+            </header>
+
+            <form
+              className="admin-modal-form"
+              onSubmit={(event) => event.preventDefault()}
+            >
+              <label className="admin-modal-field">
+                <span>Nombre completo</span>
+                <div className="admin-modal-input">
+                  <FiUser />
+                  <input
+                    type="text"
+                    placeholder="Ej. María Fernanda López"
+                    autoComplete="name"
+                  />
+                </div>
+              </label>
+
+              <label className="admin-modal-field">
+                <span>Correo</span>
+                <div className="admin-modal-input">
+                  <FiMail />
+                  <input
+                    type="email"
+                    placeholder="Ej. maria@correo.com"
+                    autoComplete="email"
+                  />
+                </div>
+              </label>
+
+              <label className="admin-modal-field">
+                <span>Usuario</span>
+                <div className="admin-modal-input">
+                  <FiUser />
+                  <input
+                    type="text"
+                    placeholder="Ej. maria.lopez"
+                    autoComplete="username"
+                  />
+                </div>
+              </label>
+
+              <label className="admin-modal-field">
+                <span>Contraseña</span>
+                <div className="admin-modal-input">
+                  <FiLock />
+                  <input
+                    type="password"
+                    placeholder="Escribe una contraseña"
+                    autoComplete="new-password"
+                  />
+                </div>
+              </label>
+
+              <div className="admin-modal-actions">
+                <button
+                  type="button"
+                  className="admin-modal-btn secondary"
+                  onClick={() => setModalAgregarOpen(false)}
+                >
+                  Cancelar
+                </button>
+
+                <button type="submit" className="admin-modal-btn primary">
+                  <FiUserPlus />
+                  Agregar alumno
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
+
+      {alumnoEditar && (
+        <div
+          className="admin-modal-overlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              cerrarModalEditar();
+            }
+          }}
+        >
+          <section
+            className="admin-modal admin-modal-edit"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-edit-modal-title"
+          >
+            <div className="admin-modal-decoration admin-modal-circle-one"></div>
+            <div className="admin-modal-decoration admin-modal-circle-two"></div>
+
+            <button
+              type="button"
+              className="admin-modal-close"
+              onClick={cerrarModalEditar}
+              aria-label="Cerrar modal de edición"
+            >
+              <FiX />
+            </button>
+
+            <header className="admin-modal-header">
+              <div className="admin-modal-icon admin-modal-edit-icon">
+                <FiEdit2 />
+              </div>
+
+              <div>
+                <span className="admin-modal-badge admin-modal-edit-badge">
+                  Editando estudiante
+                </span>
+                <h2 id="admin-edit-modal-title">Editar alumno</h2>
+                <p>
+                  Actualiza la información de {alumnoEditar.nombre}. Verifica
+                  los cambios antes de guardar.
+                </p>
+              </div>
+            </header>
+
+            <div className="admin-edit-student-card">
+              <span className={`student-avatar ${alumnoEditar.color}`}>
+                {alumnoEditar.iniciales}
+              </span>
+
+              <div>
+                <strong>{formEditar.nombre || alumnoEditar.nombre}</strong>
+                <p>
+                  {formEditar.grupo || "Sin grupo"} ·{" "}
+                  {formEditar.modulo || "Sin módulo"}
+                </p>
+              </div>
+
+              <span
+                className={`status-pill ${
+                  formEditar.estado === "Activo" ? "activo" : "rezago"
+                }`}
+              >
+                {formEditar.estado}
+              </span>
+            </div>
+
+            <form
+              className="admin-modal-form admin-edit-table-form"
+              onSubmit={(event) => event.preventDefault()}
+            >
+              <label className="admin-modal-field admin-edit-full-field">
+                <span>Alumno</span>
+                <div className="admin-modal-input">
+                  <FiUser />
+                  <input
+                    type="text"
+                    value={formEditar.nombre}
+                    onChange={(event) =>
+                      cambiarCampoEditar("nombre", event.target.value)
+                    }
+                    placeholder="Nombre completo del alumno"
+                  />
+                </div>
+              </label>
+
+              <label className="admin-modal-field">
+                <span>Grupo</span>
+                <div className="admin-modal-input">
+                  <FiUsers />
+                  <input
+                    type="text"
+                    value={formEditar.grupo}
+                    onChange={(event) =>
+                      cambiarCampoEditar("grupo", event.target.value)
+                    }
+                    placeholder="Ej. 3° A o Sin grupo"
+                  />
+                </div>
+              </label>
+
+              <label className="admin-modal-field">
+                <span>Módulo</span>
+                <div className="admin-modal-input">
+                  <FiEdit />
+                  <input
+                    type="text"
+                    value={formEditar.modulo}
+                    onChange={(event) =>
+                      cambiarCampoEditar("modulo", event.target.value)
+                    }
+                    placeholder="Ej. Geometría o Sin módulo"
+                  />
+                </div>
+              </label>
+
+              <label className="admin-modal-field">
+                <span>Asistencia</span>
+                <div className="admin-modal-input admin-modal-number-input">
+                  <FiCheckCircle />
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={formEditar.asistencia}
+                    onChange={(event) =>
+                      cambiarCampoEditar("asistencia", event.target.value)
+                    }
+                    placeholder="0 a 100"
+                  />
+                  <b>%</b>
+                </div>
+              </label>
+
+              <label className="admin-modal-field">
+                <span>Promedio</span>
+                <div className="admin-modal-input">
+                  <FiStar />
+                  <input
+                    type="number"
+                    min="0"
+                    max="10"
+                    step="0.1"
+                    value={formEditar.promedio}
+                    onChange={(event) =>
+                      cambiarCampoEditar("promedio", event.target.value)
+                    }
+                    placeholder="0.0 a 10.0"
+                  />
+                </div>
+              </label>
+
+              <label className="admin-modal-field admin-edit-full-field">
+                <span>Estado</span>
+                <div className="admin-modal-input admin-modal-select-input">
+                  <FiCheckCircle />
+                  <select
+                    value={formEditar.estado}
+                    onChange={(event) =>
+                      cambiarCampoEditar("estado", event.target.value)
+                    }
+                  >
+                    <option value="Activo">Activo</option>
+                    <option value="Rezago">Rezago</option>
+                  </select>
+                </div>
+              </label>
+
+              <div className="admin-modal-actions">
+                <button
+                  type="button"
+                  className="admin-modal-btn secondary"
+                  onClick={cerrarModalEditar}
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  className="admin-modal-btn primary admin-modal-save-btn"
+                >
+                  <FiCheckCircle />
+                  Guardar cambios
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
     </main>
   );
 }
