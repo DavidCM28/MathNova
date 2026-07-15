@@ -290,35 +290,41 @@
    ========================= */
 .mnx-cofre-chest-art {
   grid-area: chest;
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
-  background: #ffffff;
-  position: relative;
-  /* Cambio de aspect-ratio a una altura máxima controlada */
-  aspect-ratio: 1 / 1;
-  max-height: 350px;
   width: 100%;
-  /* Para que la imagen se mantenga proporcionada */
+  max-height: 350px;
+  aspect-ratio: 1 / 1;
+
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: transparent;
+  box-shadow: var(--shadow-md);
 }
 
-.mnx-cofre-chest-art img {
+.mnx-cofre-chest-art img,
+.mnx-cofre-chest-video {
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: cover;
+  border-radius: inherit;
+}
+
+.mnx-cofre-chest-video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  background: transparent;
+  border-radius: inherit;
 }
 
 .mnx-cofre-chest-art::after {
-  content: "🎯";
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
-  font-size: 40px;
-  opacity: 0.6;
+  content: none;
+  display: none;
 }
 
 /* =========================
