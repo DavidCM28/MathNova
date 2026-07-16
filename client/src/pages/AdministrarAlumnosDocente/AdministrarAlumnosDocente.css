@@ -1177,6 +1177,1032 @@
 }
 
 /* =========================================================
+   MODAL AGREGAR ALUMNO
+   ========================================================= */
+
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(7, 18, 46, 0.56);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  overflow-y: auto;
+  animation: adminModalOverlayIn 0.25s ease both;
+}
+
+.admin-modal {
+  width: min(100%, 590px);
+  position: relative;
+  padding: 30px;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.98),
+    rgba(244, 249, 255, 0.98)
+  );
+  border: 1px solid rgba(190, 214, 255, 0.95);
+  border-radius: 24px;
+  box-shadow:
+    0 30px 80px rgba(7, 18, 46, 0.3),
+    0 10px 30px rgba(0, 88, 255, 0.12);
+  overflow: hidden;
+  animation: adminModalIn 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.admin-modal::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 7px;
+  background: linear-gradient(90deg, #0058ff 0%, #4a82ff 55%, #7a3ff2 100%);
+}
+
+.admin-modal-decoration {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(1px);
+}
+
+.admin-modal-circle-one {
+  width: 145px;
+  height: 145px;
+  top: -72px;
+  right: -48px;
+  background: rgba(0, 88, 255, 0.09);
+}
+
+.admin-modal-circle-two {
+  width: 95px;
+  height: 95px;
+  left: -46px;
+  bottom: 55px;
+  background: rgba(122, 63, 242, 0.07);
+}
+
+.admin-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 3;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #d5e3fa;
+  border-radius: 11px;
+  background: #ffffff;
+  color: #52627d;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+  transition:
+    transform 0.25s ease,
+    color 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.admin-modal-close svg {
+  font-size: 22px;
+}
+
+.admin-modal-close:hover {
+  transform: rotate(8deg) scale(1.06);
+  color: #ffffff;
+  background: #ff4d5f;
+  border-color: #ff4d5f;
+}
+
+.admin-modal-header {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: start;
+  gap: 18px;
+  padding-right: 42px;
+  margin-bottom: 26px;
+}
+
+.admin-modal-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 19px;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  background: linear-gradient(135deg, #0058ff, #6d54ef);
+  box-shadow: 0 13px 26px rgba(0, 88, 255, 0.24);
+}
+
+.admin-modal-icon svg {
+  font-size: 29px;
+}
+
+.admin-modal-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 25px;
+  padding: 0 11px;
+  margin-bottom: 7px;
+  border-radius: 999px;
+  color: #0058ff;
+  background: #eaf2ff;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.admin-modal-header h2 {
+  margin: 0;
+  color: #07122e;
+  font-size: 29px;
+  line-height: 1.08;
+  font-weight: 900;
+  letter-spacing: -0.4px;
+}
+
+.admin-modal-header p {
+  margin: 9px 0 0;
+  color: #66758d;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.admin-modal-form {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.admin-modal-field {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-modal-field > span {
+  color: #17223b;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.admin-modal-input {
+  min-width: 0;
+  height: 49px;
+  padding: 0 14px;
+  border: 1px solid #d7e3f5;
+  border-radius: 12px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: #7a8ba6;
+  box-shadow: 0 5px 14px rgba(15, 23, 42, 0.035);
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+.admin-modal-input:focus-within {
+  border-color: #70a0ff;
+  box-shadow:
+    0 0 0 4px rgba(0, 88, 255, 0.09),
+    0 8px 18px rgba(0, 88, 255, 0.08);
+  transform: translateY(-1px);
+  color: #0058ff;
+}
+
+.admin-modal-input svg {
+  flex-shrink: 0;
+  font-size: 18px;
+}
+
+.admin-modal-input input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #111827;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-modal-input input::placeholder {
+  color: #9aa8bc;
+  font-weight: 500;
+}
+
+.admin-modal-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.admin-modal-btn {
+  min-height: 45px;
+  padding: 0 21px;
+  border-radius: 11px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  cursor: pointer;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.admin-modal-btn:hover {
+  transform: translateY(-2px);
+}
+
+.admin-modal-btn.secondary {
+  border: 1px solid #cddcf1;
+  background: #ffffff;
+  color: #52627d;
+}
+
+.admin-modal-btn.secondary:hover {
+  border-color: #aebfda;
+  background: #f7faff;
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.07);
+}
+
+.admin-modal-btn.primary {
+  border: 1px solid #0058ff;
+  background: linear-gradient(135deg, #0058ff, #326fff);
+  color: #ffffff;
+  box-shadow: 0 10px 20px rgba(0, 88, 255, 0.2);
+}
+
+.admin-modal-btn.primary:hover {
+  background: linear-gradient(135deg, #004bdb, #245fdc);
+  box-shadow: 0 13px 24px rgba(0, 88, 255, 0.28);
+}
+
+@media (max-width: 650px) {
+  .admin-modal-overlay {
+    padding: 16px;
+    align-items: center;
+  }
+
+  .admin-modal {
+    padding: 26px 20px 22px;
+    border-radius: 20px;
+  }
+
+  .admin-modal-header {
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 13px;
+    padding-right: 32px;
+    margin-bottom: 22px;
+  }
+
+  .admin-modal-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+  }
+
+  .admin-modal-icon svg {
+    font-size: 24px;
+  }
+
+  .admin-modal-header h2 {
+    font-size: 24px;
+  }
+
+  .admin-modal-header p {
+    font-size: 13px;
+  }
+
+  .admin-modal-form {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .admin-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .admin-modal-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 390px) {
+  .admin-modal-overlay {
+    padding: 10px;
+  }
+
+  .admin-modal {
+    padding: 24px 16px 18px;
+  }
+
+  .admin-modal-header {
+    grid-template-columns: 1fr;
+    padding-right: 35px;
+  }
+
+  .admin-modal-icon {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+@keyframes adminModalOverlayIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes adminModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =========================================================
+   MODAL EDITAR ALUMNO
+   ========================================================= */
+
+.admin-modal-edit {
+  width: min(100%, 620px);
+}
+
+.admin-modal-edit::before {
+  background: linear-gradient(90deg, #0058ff 0%, #487fff 52%, #00a651 100%);
+}
+
+.admin-modal-edit-icon {
+  background: linear-gradient(135deg, #0058ff, #00a651);
+  box-shadow: 0 13px 26px rgba(0, 88, 255, 0.22);
+}
+
+.admin-modal-edit-badge {
+  color: #087d44;
+  background: #ddf8eb;
+}
+
+.admin-edit-student-card {
+  position: relative;
+  z-index: 2;
+  min-height: 72px;
+  margin: -3px 0 22px;
+  padding: 13px 15px;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: 13px;
+  border: 1px solid #d9e6f7;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.055);
+}
+
+.admin-edit-student-card .student-avatar {
+  width: 44px;
+  height: 44px;
+  font-size: 13px;
+}
+
+.admin-edit-student-card strong {
+  display: block;
+  color: #17223b;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.admin-edit-student-card p {
+  margin: 4px 0 0;
+  color: #74839b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.admin-edit-note {
+  grid-column: 1 / -1;
+  min-height: 45px;
+  padding: 10px 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #cfe0ff;
+  border-radius: 11px;
+  background: #f3f7ff;
+  color: #0058ff;
+}
+
+.admin-edit-note svg {
+  flex-shrink: 0;
+  font-size: 18px;
+}
+
+.admin-edit-note p {
+  margin: 0;
+  color: #526683;
+  font-size: 12.5px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.admin-modal-save-btn {
+  background: linear-gradient(135deg, #0058ff, #00a651);
+  border-color: #0058ff;
+}
+
+.admin-modal-save-btn:hover {
+  background: linear-gradient(135deg, #0047ce, #078f49);
+}
+
+@media (max-width: 650px) {
+  .admin-edit-student-card {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
+  .admin-edit-student-card .status-pill {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+
+/* =========================================================
+   MODAL EDITAR - SOLO CAMPOS DE LA TABLA
+   ========================================================= */
+
+.admin-modal-edit {
+  width: min(100%, 650px);
+}
+
+.admin-edit-table-form {
+  gap: 18px;
+}
+
+.admin-edit-full-field {
+  grid-column: 1 / -1;
+}
+
+.admin-modal-number-input b {
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.admin-modal-select-input {
+  position: relative;
+}
+
+.admin-modal-select-input select {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding-right: 30px;
+  border: none;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  color: #111827;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-modal-select-input::after {
+  content: "⌄";
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-56%);
+  color: #6f8099;
+  font-size: 18px;
+  font-weight: 900;
+  pointer-events: none;
+}
+
+@media (max-width: 650px) {
+  .admin-edit-full-field {
+    grid-column: 1;
+  }
+}
+
+/* =========================================================
+   MODAL EDITAR ALUMNO - DISEÑO HORIZONTAL PROFESIONAL
+   ========================================================= */
+
+.admin-modal-edit {
+  width: min(96vw, 1180px);
+  max-height: min(92vh, 720px);
+  padding: 34px 36px 30px;
+  display: grid;
+  grid-template-columns: minmax(250px, 290px) minmax(0, 1fr);
+  grid-template-areas:
+    "header form"
+    "student form";
+  gap: 24px 34px;
+  align-items: stretch;
+  overflow: auto;
+  border-radius: 28px;
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(0, 88, 255, 0.11),
+      transparent 220px
+    ),
+    radial-gradient(
+      circle at 0% 100%,
+      rgba(122, 63, 242, 0.07),
+      transparent 190px
+    ),
+    linear-gradient(145deg, #ffffff 0%, #f7faff 100%);
+  border: 1px solid rgba(190, 214, 255, 0.95);
+  box-shadow:
+    0 34px 90px rgba(7, 18, 46, 0.36),
+    0 14px 34px rgba(0, 88, 255, 0.13);
+  scrollbar-width: thin;
+  scrollbar-color: #b9c9df transparent;
+}
+
+.admin-modal-edit::-webkit-scrollbar {
+  width: 8px;
+}
+
+.admin-modal-edit::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-modal-edit::-webkit-scrollbar-thumb {
+  background: #b9c9df;
+  border-radius: 999px;
+}
+
+.admin-modal-edit::before {
+  height: 7px;
+  background: linear-gradient(90deg, #0058ff 0%, #4182ff 55%, #00a651 100%);
+}
+
+.admin-modal-edit .admin-modal-header {
+  grid-area: header;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.admin-modal-edit .admin-modal-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #0064ff 0%, #00a651 100%);
+  box-shadow:
+    0 14px 26px rgba(0, 88, 255, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.38);
+}
+
+.admin-modal-edit .admin-modal-icon svg {
+  font-size: 32px;
+}
+
+.admin-modal-edit .admin-modal-badge {
+  min-height: 28px;
+  padding: 0 13px;
+  margin-bottom: 8px;
+  color: #087d44;
+  background: #ddf8eb;
+  font-size: 11px;
+  letter-spacing: 0.55px;
+}
+
+.admin-modal-edit .admin-modal-header h2 {
+  margin: 0;
+  font-size: clamp(30px, 2.4vw, 40px);
+  line-height: 0.98;
+  letter-spacing: -0.9px;
+}
+
+.admin-modal-edit .admin-modal-header p {
+  max-width: 245px;
+  margin-top: 10px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #65748d;
+}
+
+.admin-modal-edit .admin-edit-student-card {
+  grid-area: student;
+  position: relative;
+  min-height: 176px;
+  margin: 0;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr);
+  grid-template-areas:
+    "avatar data"
+    "status status";
+  align-content: center;
+  align-items: center;
+  gap: 16px;
+  overflow: hidden;
+  border-radius: 22px;
+  border: 1px solid #d6e4f7;
+  background:
+    radial-gradient(
+      circle at 100% 100%,
+      rgba(0, 88, 255, 0.08),
+      transparent 105px
+    ),
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.98),
+      rgba(240, 247, 255, 0.98)
+    );
+  box-shadow:
+    0 14px 28px rgba(15, 23, 42, 0.075),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.admin-modal-edit .admin-edit-student-card::before {
+  content: "";
+  position: absolute;
+  width: 135px;
+  height: 135px;
+  right: -58px;
+  bottom: -62px;
+  border-radius: 50%;
+  background: rgba(0, 88, 255, 0.055);
+  pointer-events: none;
+}
+
+.admin-modal-edit .admin-edit-student-card .student-avatar {
+  grid-area: avatar;
+  width: 60px;
+  height: 60px;
+  font-size: 15px;
+  box-shadow: 0 11px 22px rgba(0, 166, 81, 0.2);
+}
+
+.admin-modal-edit .admin-edit-student-card > div {
+  grid-area: data;
+  min-width: 0;
+}
+
+.admin-modal-edit .admin-edit-student-card strong {
+  display: block;
+  color: #17223b;
+  font-size: 19px;
+  line-height: 1.2;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.admin-modal-edit .admin-edit-student-card p {
+  margin: 6px 0 0;
+  color: #71819a;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.admin-modal-edit .admin-edit-student-card .status-pill {
+  grid-area: status;
+  justify-self: start;
+  margin-top: 2px;
+  padding: 8px 16px;
+  font-size: 12px;
+  box-shadow: 0 7px 15px rgba(0, 166, 81, 0.11);
+}
+
+.admin-modal-edit .admin-edit-table-form {
+  grid-area: form;
+  align-self: center;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 20px;
+  padding: 2px 0 0;
+}
+
+.admin-modal-edit .admin-modal-field {
+  min-width: 0;
+  gap: 8px;
+}
+
+.admin-modal-edit .admin-modal-field:first-child {
+  grid-column: 1 / -1;
+}
+
+.admin-modal-edit .admin-edit-full-field {
+  grid-column: auto;
+}
+
+.admin-modal-edit .admin-modal-field > span {
+  color: #17223b;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.admin-modal-edit .admin-modal-input {
+  height: 54px;
+  padding: 0 16px;
+  border-radius: 14px;
+  border-color: #cddcf0;
+  background: rgba(255, 255, 255, 0.99);
+  box-shadow:
+    0 6px 16px rgba(15, 23, 42, 0.045),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+}
+
+.admin-modal-edit .admin-modal-input:hover {
+  border-color: #a6c1ee;
+  box-shadow: 0 8px 18px rgba(0, 88, 255, 0.07);
+}
+
+.admin-modal-edit .admin-modal-input:focus-within {
+  border-color: #5f94ff;
+  box-shadow:
+    0 0 0 4px rgba(0, 88, 255, 0.085),
+    0 10px 24px rgba(0, 88, 255, 0.1);
+}
+
+.admin-modal-edit .admin-modal-input svg {
+  color: #8294af;
+  font-size: 19px;
+}
+
+.admin-modal-edit .admin-modal-input:focus-within svg {
+  color: #0058ff;
+}
+
+.admin-modal-edit .admin-modal-input input,
+.admin-modal-edit .admin-modal-select-input select {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.admin-modal-edit .admin-modal-number-input b {
+  color: #71819a;
+  font-size: 14px;
+}
+
+.admin-modal-edit .admin-modal-select-input::after {
+  right: 16px;
+  color: #71819a;
+}
+
+.admin-modal-edit .admin-modal-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 14px;
+  padding-top: 10px;
+}
+
+.admin-modal-edit .admin-modal-btn {
+  min-height: 50px;
+  padding: 0 25px;
+  border-radius: 14px;
+  font-size: 15px;
+}
+
+.admin-modal-edit .admin-modal-btn.secondary {
+  min-width: 145px;
+}
+
+.admin-modal-edit .admin-modal-save-btn {
+  min-width: 225px;
+  background: linear-gradient(135deg, #0058ff 0%, #2f6fff 58%, #00a651 135%);
+  border-color: #0058ff;
+  box-shadow: 0 12px 24px rgba(0, 88, 255, 0.23);
+}
+
+.admin-modal-edit .admin-modal-save-btn:hover {
+  background: linear-gradient(135deg, #0048d4 0%, #1f5fe0 58%, #078f49 135%);
+  box-shadow: 0 16px 30px rgba(0, 88, 255, 0.3);
+}
+
+.admin-modal-edit .admin-modal-close {
+  top: 22px;
+  right: 22px;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+}
+
+@media (max-width: 1050px) {
+  .admin-modal-edit {
+    width: min(95vw, 940px);
+    grid-template-columns: 235px minmax(0, 1fr);
+    gap: 22px 26px;
+    padding: 30px 28px 26px;
+  }
+
+  .admin-modal-edit .admin-modal-header {
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .admin-modal-edit .admin-modal-icon {
+    width: 58px;
+    height: 58px;
+  }
+
+  .admin-modal-edit .admin-modal-header h2 {
+    font-size: 30px;
+  }
+
+  .admin-modal-edit .admin-modal-header p {
+    font-size: 12.5px;
+  }
+
+  .admin-modal-edit .admin-edit-student-card {
+    padding: 19px;
+  }
+}
+
+@media (max-width: 820px) {
+  .admin-modal-overlay {
+    padding: 14px;
+    align-items: center;
+  }
+
+  .admin-modal-edit {
+    width: min(100%, 700px);
+    max-height: calc(100vh - 28px);
+    display: block;
+    padding: 28px 22px 22px;
+  }
+
+  .admin-modal-edit .admin-modal-header {
+    margin-bottom: 20px;
+    padding-right: 48px;
+  }
+
+  .admin-modal-edit .admin-modal-header p {
+    max-width: none;
+  }
+
+  .admin-modal-edit .admin-edit-student-card {
+    min-height: 110px;
+    margin-bottom: 22px;
+    grid-template-columns: 52px minmax(0, 1fr) max-content;
+    grid-template-areas: "avatar data status";
+    padding: 18px;
+  }
+
+  .admin-modal-edit .admin-edit-student-card .student-avatar {
+    width: 52px;
+    height: 52px;
+  }
+
+  .admin-modal-edit .admin-edit-student-card .status-pill {
+    justify-self: end;
+    margin-top: 0;
+  }
+
+  .admin-modal-edit .admin-edit-table-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (max-width: 620px) {
+  .admin-modal-overlay {
+    padding: 10px;
+  }
+
+  .admin-modal-edit {
+    width: 100%;
+    max-height: calc(100vh - 20px);
+    padding: 26px 16px 18px;
+    border-radius: 22px;
+  }
+
+  .admin-modal-edit .admin-modal-header {
+    grid-template-columns: 50px minmax(0, 1fr);
+    gap: 12px;
+    padding-right: 42px;
+  }
+
+  .admin-modal-edit .admin-modal-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 16px;
+  }
+
+  .admin-modal-edit .admin-modal-header h2 {
+    font-size: 25px;
+  }
+
+  .admin-modal-edit .admin-modal-header p {
+    font-size: 12.5px;
+  }
+
+  .admin-modal-edit .admin-edit-student-card {
+    grid-template-columns: 48px minmax(0, 1fr);
+    grid-template-areas:
+      "avatar data"
+      "status status";
+  }
+
+  .admin-modal-edit .admin-edit-student-card .student-avatar {
+    width: 48px;
+    height: 48px;
+  }
+
+  .admin-modal-edit .admin-edit-student-card .status-pill {
+    justify-self: start;
+  }
+
+  .admin-modal-edit .admin-edit-table-form {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .admin-modal-edit .admin-modal-field:first-child,
+  .admin-modal-edit .admin-edit-full-field,
+  .admin-modal-edit .admin-modal-actions {
+    grid-column: 1;
+  }
+
+  .admin-modal-edit .admin-modal-input {
+    height: 50px;
+  }
+
+  .admin-modal-edit .admin-modal-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .admin-modal-edit .admin-modal-btn,
+  .admin-modal-edit .admin-modal-btn.secondary,
+  .admin-modal-edit .admin-modal-save-btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .admin-modal-edit .admin-modal-close {
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 390px) {
+  .admin-modal-edit {
+    padding: 24px 14px 16px;
+  }
+
+  .admin-modal-edit .admin-modal-header {
+    grid-template-columns: 1fr;
+    padding-right: 40px;
+  }
+
+  .admin-modal-edit .admin-modal-icon {
+    width: 46px;
+    height: 46px;
+  }
+
+  .admin-modal-edit .admin-modal-header h2 {
+    font-size: 23px;
+  }
+}
+
+/* =========================================================
    ANIMACIONES
    ========================================================= */
 

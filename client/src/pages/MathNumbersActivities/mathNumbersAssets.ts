@@ -7,6 +7,9 @@ import cofreGuide from "../../assets/mathnumbers/01-cofre-bienvenida/guide-robot
 import cofreChest from "../../assets/mathnumbers/01-cofre-bienvenida/chest-panel.png";
 import cofreSidebarAvatar from "../../assets/mathnumbers/01-cofre-bienvenida/sidebar-avatar.png";
 import cofreTitleChest from "../../assets/mathnumbers/01-cofre-bienvenida/title-chest.png";
+import chestFall from "../../assets/mathnumbers/01-cofre-bienvenida/chest_fall.webp";
+import chestVib from "../../assets/mathnumbers/01-cofre-bienvenida/chest_vib.webp";
+import chestSemi from "../../assets/mathnumbers/01-cofre-bienvenida/chest_semi.webp";
 
 import radarHero from "../../assets/mathnumbers/02-radar-supervivencia/hero-complete-focused.png";
 import radarGuide from "../../assets/mathnumbers/02-radar-supervivencia/guide.png";
@@ -63,6 +66,9 @@ export {
   cofreChest,
   cofreSidebarAvatar,
   cofreTitleChest,
+  chestFall,
+  chestVib,
+  chestSemi,
   radarHero,
   radarGuide,
   radarImage,

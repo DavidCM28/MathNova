@@ -12,7 +12,7 @@ const progresoRoutes = require("./routes/progreso.routes");
 const proporcionalidadRoutes = require("./routes/proporcionalidadRoutes").default;
 const rampasRoutes = require("./routes/rampasRoutes").default;
 const tripulacionRoutes = require("./routes/tripulacionRoutes").default;
-// const docenteAlumnosRoutes = require("./routes/docenteAlumnos.routes");
+const docenteAlumnosRoutes = require("./routes/docenteAlumnos.routes");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -41,7 +41,7 @@ app.use("/api/progreso", progresoRoutes);
 app.use("/api/proporcionalidad", proporcionalidadRoutes);
 app.use("/api/rampas", rampasRoutes);
 app.use("/api/tripulacion", tripulacionRoutes);
-// app.use("/api/docente/alumnos", docenteAlumnosRoutes);
+app.use("/api/docente/alumnos", docenteAlumnosRoutes);
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Servidor corriendo en http://0.0.0.0:${PORT}`);

@@ -8,14 +8,18 @@ import {
   FiMessageSquare,
   FiUser,
 } from "react-icons/fi";
-import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
+import {
+  GiRingedPlanet,
+  GiTrophyCup,
+} from "react-icons/gi";
 import { clearAuthSession } from "../../../utils/authSession";
 import { activityListRoute } from "../constants";
 import { Toast } from "../components/Toast";
 import { ResultModal } from "../components/ResultModal";
 import { useToast } from "../hooks/useToast";
 import {
-  cofreChest,
+  chestFall,
+  chestVib,
   cofreGuide,
   cofreHero,
   cofreTitleChest,
@@ -26,8 +30,12 @@ import {
 
 type QuestionKey = "q1" | "q2";
 type AnswerValue = "a" | "b" | "c" | "d";
+type ChestPhase = "fall" | "vib";
 
-const correctAnswers: Record<QuestionKey, AnswerValue> = {
+const correctAnswers: Record<
+  QuestionKey,
+  AnswerValue
+> = {
   q1: "b",
   q2: "b",
 };
@@ -37,6 +45,12 @@ const cofreRoute =
 
 const radarRoute =
   "/actividades/mathnumbers/radar-supervivencia";
+
+/*
+ * Duración aproximada de chest_fall.webp.
+ * El video original duraba 3.066 segundos.
+ */
+const CHEST_FALL_DURATION_MS = 3100;
 
 export function CofreBienvenida() {
   const navigate = useNavigate();
@@ -56,8 +70,20 @@ export function CofreBienvenida() {
   const [resultModalOpen, setResultModalOpen] =
     useState(false);
 
+  const [chestPhase, setChestPhase] =
+    useState<ChestPhase>("fall");
+
+  const currentChestAnimation =
+    chestPhase === "fall"
+      ? chestFall
+      : chestVib;
+
   const progress = Object.keys(answers).length;
 
+  /*
+   * Bloquea el scroll cuando el menú lateral
+   * está abierto en dispositivos pequeños.
+   */
   useEffect(() => {
     document.body.style.overflow = menuOpen
       ? "hidden"
@@ -67,6 +93,33 @@ export function CofreBienvenida() {
       document.body.style.overflow = "auto";
     };
   }, [menuOpen]);
+
+  /*
+   * Precarga chest_vib para evitar un parpadeo
+   * cuando termine la animación inicial.
+   */
+  useEffect(() => {
+    const vibAnimation = new Image();
+    vibAnimation.src = chestVib;
+  }, []);
+
+  /*
+   * WebP animado no proporciona un evento onEnded.
+   * Por eso cambiamos a chest_vib mediante un temporizador.
+   */
+  useEffect(() => {
+    if (chestPhase !== "fall") {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setChestPhase("vib");
+    }, CHEST_FALL_DURATION_MS);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [chestPhase]);
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
@@ -98,7 +151,9 @@ export function CofreBienvenida() {
     question: QuestionKey,
     value: AnswerValue,
   ) => {
-    const selected = answers[question] === value;
+    const selected =
+      answers[question] === value;
+
     const correct =
       correctAnswers[question] === value;
 
@@ -167,7 +222,9 @@ export function CofreBienvenida() {
     }
 
     const total = (
-      Object.keys(correctAnswers) as QuestionKey[]
+      Object.keys(
+        correctAnswers,
+      ) as QuestionKey[]
     ).filter(
       (question) =>
         answers[question] ===
@@ -371,7 +428,10 @@ export function CofreBienvenida() {
         <header className="mnx-cofre-header">
           <div className="mnx-cofre-header-copy">
             <div className="mnx-cofre-crumb">
-              <strong>MathNumbers</strong>
+              <strong>
+                MathNumbers
+              </strong>
+
               <span>/</span>
 
               <span>
@@ -425,8 +485,37 @@ export function CofreBienvenida() {
         <section className="mnx-cofre-activity-grid">
           <article className="mnx-cofre-chest-art">
             <img
-              src={cofreChest}
-              alt="Cofre de bienvenida"
+              key={chestPhase}
+              className="mnx-cofre-chest-animation"
+              src={currentChestAnimation}
+              alt="Animación del Cofre de Bienvenida"
+              draggable={false}
+              loading="eager"
+              decoding="async"
+              onLoad={(event) => {
+                console.log(
+                  "Animación del cofre cargada:",
+                  {
+                    fase: chestPhase,
+                    archivo:
+                      event.currentTarget.currentSrc,
+                    ancho:
+                      event.currentTarget.naturalWidth,
+                    alto:
+                      event.currentTarget.naturalHeight,
+                  },
+                );
+              }}
+              onError={(event) => {
+                console.error(
+                  "No se pudo cargar la animación del cofre:",
+                  {
+                    fase: chestPhase,
+                    archivo:
+                      event.currentTarget.currentSrc,
+                  },
+                );
+              }}
             />
           </article>
 
@@ -453,6 +542,7 @@ export function CofreBienvenida() {
                   </span>
 
                   <em>=</em>
+
                   <strong>0.5</strong>
                 </div>
               </div>
@@ -497,7 +587,10 @@ export function CofreBienvenida() {
 
             <div className="mnx-cofre-options">
               <button
-                className={answerClass("q1", "a")}
+                className={answerClass(
+                  "q1",
+                  "a",
+                )}
                 type="button"
                 onClick={() =>
                   selectAnswer("q1", "a")
@@ -508,7 +601,10 @@ export function CofreBienvenida() {
               </button>
 
               <button
-                className={answerClass("q1", "b")}
+                className={answerClass(
+                  "q1",
+                  "b",
+                )}
                 type="button"
                 onClick={() =>
                   selectAnswer("q1", "b")
@@ -519,7 +615,10 @@ export function CofreBienvenida() {
               </button>
 
               <button
-                className={answerClass("q1", "c")}
+                className={answerClass(
+                  "q1",
+                  "c",
+                )}
                 type="button"
                 onClick={() =>
                   selectAnswer("q1", "c")
@@ -530,7 +629,10 @@ export function CofreBienvenida() {
               </button>
 
               <button
-                className={answerClass("q1", "d")}
+                className={answerClass(
+                  "q1",
+                  "d",
+                )}
                 type="button"
                 onClick={() =>
                   selectAnswer("q1", "d")
@@ -555,7 +657,10 @@ export function CofreBienvenida() {
 
             <div className="mnx-cofre-options">
               <button
-                className={answerClass("q2", "a")}
+                className={answerClass(
+                  "q2",
+                  "a",
+                )}
                 type="button"
                 onClick={() =>
                   selectAnswer("q2", "a")
@@ -570,7 +675,10 @@ export function CofreBienvenida() {
               </button>
 
               <button
-                className={answerClass("q2", "b")}
+                className={answerClass(
+                  "q2",
+                  "b",
+                )}
                 type="button"
                 onClick={() =>
                   selectAnswer("q2", "b")
@@ -585,7 +693,10 @@ export function CofreBienvenida() {
               </button>
 
               <button
-                className={answerClass("q2", "c")}
+                className={answerClass(
+                  "q2",
+                  "c",
+                )}
                 type="button"
                 onClick={() =>
                   selectAnswer("q2", "c")
@@ -600,7 +711,10 @@ export function CofreBienvenida() {
               </button>
 
               <button
-                className={answerClass("q2", "d")}
+                className={answerClass(
+                  "q2",
+                  "d",
+                )}
                 type="button"
                 onClick={() =>
                   selectAnswer("q2", "d")

@@ -28,11 +28,12 @@ import audioPistaByteObtuso from "../../assets/mathGeometry/actividad3/act_3_byt
 import audioCierreNova from "../../assets/mathGeometry/actividad3/act_3_cierre_nova_MathGeometry.mp3";
 import bannerActividadCompletada from "../../assets/mathGeometry/actividad3/actividad_completada_3_banner_MathGeometry.png";
 
-import reto1 from "../../assets/mathGeometry/actividad3/reto_1_actividad_3_MathGeometry.jpeg";
-import reto2 from "../../assets/mathGeometry/actividad3/reto_2_actividad_3_MathGeometry.jpeg";
-import reto3 from "../../assets/mathGeometry/actividad3/reto_3_actividad_3_MathGeometry.jpeg";
-import reto4 from "../../assets/mathGeometry/actividad3/reto_4_actividad_3_MathGeometry.jpeg";
-import reto5 from "../../assets/mathGeometry/actividad3/reto_5_actividad_3_MathGeometry.jpeg";
+import reto1 from "../../assets/mathGeometry/actividad3/actividad_3_puerta_1_MathGeometry.png";
+import reto2 from "../../assets/mathGeometry/actividad3/actividad_3_puerta_2_MathGeometry.png";
+import reto3 from "../../assets/mathGeometry/actividad3/actividad_3_puerta_3_MathGeometry.png";
+import reto4 from "../../assets/mathGeometry/actividad3/actividad_3_puerta_4_MathGeometry.png";
+import reto5 from "../../assets/mathGeometry/actividad3/actividad_3_puerta_5_MathGeometry.png";
+import reto6 from "../../assets/mathGeometry/actividad3/actividad_3_puerta_6_MathGeometry.png";
 
 import {
   FiArrowRight,
@@ -96,43 +97,52 @@ const RETOS: Reto[] = [
     imagen: reto1,
     respuesta: "agudo",
     pistaByte:
-      "Observa si la apertura es menor que un ángulo recto. Si se ve más cerrada, puede ser aguda.",
-    consejo: "Si la apertura es menor que 90°, es un ángulo agudo.",
+      "Observa la abertura entre el marco y la puerta. Es mucho menor que una esquina de 90°.",
+    consejo:
+      "La puerta está poco abierta. Cuando la abertura es menor que 90°, el ángulo es agudo.",
   },
   {
     id: 2,
     imagen: reto2,
-    respuesta: "recto",
+    respuesta: "obtuso",
     pistaByte:
-      "Busca una esquina como de escuadra. Si forma una L perfecta, estás viendo un ángulo recto.",
+      "Compara la abertura con una esquina recta. Aquí la puerta se abre más allá de los 90°.",
     consejo:
-      "Si forma 90°, es recto. Parece la esquina de una puerta o una hoja.",
+      "Si la abertura es mayor que 90° y menor que 180°, se trata de un ángulo obtuso.",
   },
   {
     id: 3,
     imagen: reto3,
-    respuesta: "agudo",
+    respuesta: "recto",
     pistaByte:
-      "Compara la apertura con una esquina de 90°. Si queda más pequeña, el ángulo es agudo.",
-    consejo:
-      "Un ángulo agudo es menor que 90°. No necesitas medir, solo comparar visualmente.",
+      "El marco horizontal y la puerta vertical forman una esquina como una letra L.",
+    consejo: "Una abertura exacta de 90° forma un ángulo recto.",
   },
   {
     id: 4,
     imagen: reto4,
-    respuesta: "obtuso",
+    respuesta: "agudo",
     pistaByte:
-      "Observa si la puerta está muy abierta. Si supera una esquina recta, puede ser obtuso.",
-    consejo: "Si es mayor que 90° y menor que 180°, es un ángulo obtuso.",
+      "La puerta está abierta, pero la abertura todavía es menor que una esquina de 90°.",
+    consejo:
+      "Como la abertura es menor que 90°, corresponde a un ángulo agudo.",
   },
   {
     id: 5,
     imagen: reto5,
     respuesta: "agudo",
     pistaByte:
-      "Mira el espacio marcado por el arco. Si la abertura es pequeña, selecciona agudo.",
+      "Observa que la puerta forma una abertura pequeña respecto al marco horizontal.",
+    consejo: "Una abertura menor que 90° es un ángulo agudo.",
+  },
+  {
+    id: 6,
+    imagen: reto6,
+    respuesta: "obtuso",
+    pistaByte:
+      "La puerta está muy abierta hacia el lado contrario y supera claramente una esquina recta.",
     consejo:
-      "Primero imagina una L de 90°. Después decide si la apertura es menor, igual o mayor.",
+      "La abertura es mayor que 90° y menor que 180°, por eso es un ángulo obtuso.",
   },
 ];
 
