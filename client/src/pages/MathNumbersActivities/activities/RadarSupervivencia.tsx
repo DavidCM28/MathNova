@@ -1,8 +1,10 @@
 import "./CofreBienvenida.css";
 import "./RadarSupervivencia.css";
+
 import { useEffect, useState } from "react";
 import type { DragEvent } from "react";
 import { useNavigate } from "react-router-dom";
+
 import {
   FiArrowDown,
   FiBarChart2,
@@ -18,11 +20,18 @@ import {
   FiTarget,
   FiUser,
 } from "react-icons/fi";
-import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
+
+import {
+  GiRingedPlanet,
+  GiTrophyCup,
+} from "react-icons/gi";
+
 import { clearAuthSession } from "../../../utils/authSession";
 import { activityListRoute } from "../constants";
 import { Toast } from "../components/Toast";
+import { ResultModal } from "../components/ResultModal";
 import { useToast } from "../hooks/useToast";
+
 import {
   cofreGuide,
   cofreHero,
@@ -31,6 +40,7 @@ import {
   radarImage,
   zorritoConsejo,
 } from "../mathNumbersAssets";
+
 import { formatSigned } from "../utils/formatSigned";
 
 const radarRoute =
@@ -107,6 +117,14 @@ export function RadarSupervivencia() {
 
   const [explanation, setExplanation] =
     useState("");
+
+  /*
+   * Controla la ventana de resultado.
+   */
+  const [
+    resultModalOpen,
+    setResultModalOpen,
+  ] = useState(false);
 
   const progress =
     Object.keys(placements).length;
@@ -214,6 +232,25 @@ export function RadarSupervivencia() {
     );
   };
 
+  /*
+   * Cierra el modal y deja Radar desde cero.
+   */
+  const repetirActividad = () => {
+    setResultModalOpen(false);
+    setSelectedSignal(null);
+    setPlacements({});
+    setExplanation("");
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
+    showToast(
+      "Radar reiniciado. ¡Vuelve a colocar las señales!",
+    );
+  };
+
   const comprobar = () => {
     if (progress < 4) {
       showToast(
@@ -234,18 +271,12 @@ export function RadarSupervivencia() {
         "¡Excelente! Radar calibrado.",
       );
 
+      /*
+       * Abre el modal encima de Radar.
+       * Ya no cambia a la ruta actividad-completada.
+       */
       window.setTimeout(() => {
-        navigate(
-          "/actividades/mathnumbers/actividad-completada",
-          {
-            state: {
-              activity:
-                "radar-supervivencia",
-              retryRoute: radarRoute,
-              nextRoute: ascensorRoute,
-            },
-          },
-        );
+        setResultModalOpen(true);
       }, 700);
 
       return;
@@ -266,6 +297,7 @@ export function RadarSupervivencia() {
             activity:
               "radar-supervivencia",
             retryRoute: radarRoute,
+            nextRoute: ascensorRoute,
           },
         },
       );
@@ -335,9 +367,7 @@ export function RadarSupervivencia() {
             className="mnx-menu-item mnx-active"
             type="button"
             onClick={() =>
-              irARuta(
-                "/seleccion-mundos",
-              )
+              irARuta("/seleccion-mundos")
             }
           >
             <GiRingedPlanet />
@@ -351,9 +381,7 @@ export function RadarSupervivencia() {
             className="mnx-menu-item"
             type="button"
             onClick={() =>
-              irARuta(
-                "/retroalimentacion",
-              )
+              irARuta("/retroalimentacion")
             }
           >
             <FiMessageSquare />
@@ -379,9 +407,7 @@ export function RadarSupervivencia() {
             className="mnx-menu-item"
             type="button"
             onClick={() =>
-              irARuta(
-                "/perfil-alumno",
-              )
+              irARuta("/perfil-alumno")
             }
           >
             <FiUser />
@@ -432,9 +458,7 @@ export function RadarSupervivencia() {
             type="button"
             className="mnx-cofre-ghost-btn mnx-cofre-wide"
             onClick={() =>
-              irARuta(
-                activityListRoute,
-              )
+              irARuta(activityListRoute)
             }
           >
             <span>←</span>
@@ -452,8 +476,7 @@ export function RadarSupervivencia() {
               <span>/</span>
 
               <span>
-                Tema 2: Positivos y
-                negativos
+                Tema 2: Positivos y negativos
               </span>
             </div>
 
@@ -466,19 +489,16 @@ export function RadarSupervivencia() {
               </span>
 
               <h1>
-                El Radar de
-                Supervivencia
+                El Radar de Supervivencia
               </h1>
             </div>
 
             <p>
-              Ubica números positivos y
-              negativos en la recta
-              numérica.
+              Ubica números positivos y negativos
+              en la recta numérica.
               <br />
-              Cada señal correcta ayudará
-              a calibrar el radar de la
-              base.
+              Cada señal correcta ayudará a
+              calibrar el radar de la base.
             </p>
           </div>
 
@@ -489,10 +509,9 @@ export function RadarSupervivencia() {
               </strong>
 
               <span>
-                Usa el 0 como punto de
-                referencia: los negativos
-                van a la izquierda y los
-                positivos a la derecha.
+                Usa el 0 como punto de referencia:
+                los negativos van a la izquierda y
+                los positivos a la derecha.
               </span>
             </article>
 
@@ -520,9 +539,8 @@ export function RadarSupervivencia() {
                 </strong>
 
                 <p>
-                  Coloca las cuatro
-                  señales en la posición
-                  correcta de la recta
+                  Coloca las cuatro señales en la
+                  posición correcta de la recta
                   numérica.
                 </p>
               </div>
@@ -540,13 +558,11 @@ export function RadarSupervivencia() {
 
             <div className="mnx-radar-guide-copy">
               <strong className="negative">
-                Negativos a la izquierda
-                del 0
+                Negativos a la izquierda del 0
               </strong>
 
               <strong className="positive">
-                Positivos a la derecha
-                del 0
+                Positivos a la derecha del 0
               </strong>
             </div>
 
@@ -558,9 +574,8 @@ export function RadarSupervivencia() {
               <span>1</span>
 
               <h2>
-                Arrastra o selecciona
-                cada señal y colócala en
-                su número.
+                Arrastra o selecciona cada señal y
+                colócala en su número.
               </h2>
             </div>
 
@@ -612,67 +627,58 @@ export function RadarSupervivencia() {
 
             <div className="mnx-radar-drop-zone">
               <div className="mnx-radar-targets">
-                {targets.map(
-                  (target) => {
-                    const placedValue =
-                      placements[target];
+                {targets.map((target) => {
+                  const placedValue =
+                    placements[target];
 
-                    const signal =
-                      getSignal(
-                        placedValue,
-                      );
+                  const signal =
+                    getSignal(placedValue);
 
-                    return (
-                      <button
-                        key={target}
-                        type="button"
-                        style={{
-                          gridColumn:
-                            numberToColumn(
-                              target,
-                            ),
-                        }}
-                        className={`mnx-radar-target ${
-                          placedValue
-                            ? "filled"
-                            : ""
-                        } ${
-                          signal?.type ||
-                          ""
-                        }`}
-                        onDragOver={(
-                          event,
-                        ) =>
-                          event.preventDefault()
-                        }
-                        onDrop={(
-                          event,
-                        ) =>
-                          dropSignal(
-                            event,
+                  return (
+                    <button
+                      key={target}
+                      type="button"
+                      style={{
+                        gridColumn:
+                          numberToColumn(
                             target,
-                          )
-                        }
-                        onClick={() =>
-                          selectedSignal &&
-                          placeSignal(
-                            target,
-                            selectedSignal,
-                          )
-                        }
-                        aria-label={`Colocar señal en ${target}`}
-                      >
-                        {placedValue ? (
-                          formatSigned(
-                            placedValue,
-                          )
-                        ) : (
-                          <FiArrowDown />
-                        )}
-                      </button>
-                    );
-                  },
-                )}
+                          ),
+                      }}
+                      className={`mnx-radar-target ${
+                        placedValue
+                          ? "filled"
+                          : ""
+                      } ${
+                        signal?.type || ""
+                      }`}
+                      onDragOver={(event) =>
+                        event.preventDefault()
+                      }
+                      onDrop={(event) =>
+                        dropSignal(
+                          event,
+                          target,
+                        )
+                      }
+                      onClick={() =>
+                        selectedSignal &&
+                        placeSignal(
+                          target,
+                          selectedSignal,
+                        )
+                      }
+                      aria-label={`Colocar señal en ${target}`}
+                    >
+                      {placedValue ? (
+                        formatSigned(
+                          placedValue,
+                        )
+                      ) : (
+                        <FiArrowDown />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
 
               <NumberAxis variant="work" />
@@ -689,9 +695,9 @@ export function RadarSupervivencia() {
               <strong>
                 Recuerda:
               </strong>{" "}
-              cuanto más negativo es un
-              número, más lejos queda a
-              la izquierda del cero.
+              cuanto más negativo es un número,
+              más lejos queda a la izquierda del
+              cero.
             </p>
 
             <span>↔</span>
@@ -702,9 +708,8 @@ export function RadarSupervivencia() {
               <span>2</span>
 
               <h2>
-                ¿Por qué -4 queda más
-                lejos a la izquierda que
-                -2?
+                ¿Por qué -4 queda más lejos a la
+                izquierda que -2?
               </h2>
             </div>
 
@@ -721,17 +726,14 @@ export function RadarSupervivencia() {
               />
 
               <span>
-                {explanation.length} /
-                300
+                {explanation.length} / 300
               </span>
             </label>
 
             <button
               type="button"
               className="mnx-radar-save-btn"
-              onClick={
-                guardarExplicacion
-              }
+              onClick={guardarExplicacion}
             >
               <FiSave />
               Guardar explicación
@@ -749,8 +751,8 @@ export function RadarSupervivencia() {
             </button>
 
             <p className="mnx-radar-progress">
-              Progreso: {progress}/4
-              señales colocadas
+              Progreso: {progress}/4 señales
+              colocadas
             </p>
 
             <article className="mnx-cofre-evidence-card">
@@ -763,18 +765,16 @@ export function RadarSupervivencia() {
               </div>
 
               <p>
-                Tus posiciones y
-                explicación se registran
-                automáticamente.
+                Tus posiciones y explicación se
+                registran automáticamente.
               </p>
 
               <div className="mnx-cofre-info-row">
                 <FiInfo />
 
                 <p>
-                  Podrás revisar tus
-                  aciertos y errores en
-                  Retroalimentación.
+                  Podrás revisar tus aciertos y
+                  errores en Retroalimentación.
                 </p>
               </div>
             </article>
@@ -790,6 +790,18 @@ export function RadarSupervivencia() {
       >
         <FiLogOut />
       </button>
+
+      {resultModalOpen && (
+        <ResultModal
+          kind="completed"
+          nextRoute={ascensorRoute}
+          retryRoute={radarRoute}
+          onClose={() =>
+            setResultModalOpen(false)
+          }
+          onRetry={repetirActividad}
+        />
+      )}
 
       <Toast toast={toast} />
     </main>

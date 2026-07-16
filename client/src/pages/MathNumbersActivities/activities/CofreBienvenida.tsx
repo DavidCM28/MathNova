@@ -12,6 +12,7 @@ import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 import { clearAuthSession } from "../../../utils/authSession";
 import { activityListRoute } from "../constants";
 import { Toast } from "../components/Toast";
+import { ResultModal } from "../components/ResultModal";
 import { useToast } from "../hooks/useToast";
 import {
   cofreChest,
@@ -48,6 +49,12 @@ export function CofreBienvenida() {
   const [checked, setChecked] = useState(false);
   const [solved, setSolved] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  /*
+   * Controla la ventana modal de actividad completada.
+   */
+  const [resultModalOpen, setResultModalOpen] =
+    useState(false);
 
   const progress = Object.keys(answers).length;
 
@@ -110,6 +117,45 @@ export function CofreBienvenida() {
     return "";
   };
 
+  /*
+   * Reinicia completamente la actividad sin salir
+   * de la pantalla actual.
+   */
+  const repetirActividad = () => {
+    setResultModalOpen(false);
+    setAnswers({});
+    setChecked(false);
+    setSolved(false);
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
+    showToast(
+      "Actividad reiniciada. ¡Inténtalo nuevamente!",
+    );
+  };
+
+  /*
+   * Abre la pantalla de pista conservando las rutas
+   * de la actividad actual.
+   */
+  const abrirPista = () => {
+    setMenuOpen(false);
+
+    navigate(
+      "/actividades/mathnumbers/aqui-tienes-una-pista",
+      {
+        state: {
+          activity: "cofre-bienvenida",
+          retryRoute: cofreRoute,
+          nextRoute: radarRoute,
+        },
+      },
+    );
+  };
+
   const comprobar = () => {
     if (progress !== 2) {
       showToast(
@@ -131,22 +177,19 @@ export function CofreBienvenida() {
     setChecked(true);
     setSolved(total === 2);
 
+    /*
+     * Si las dos respuestas son correctas, abre el
+     * modal encima de la actividad actual.
+     *
+     * Ya no navega a /actividad-completada.
+     */
     if (total === 2) {
       showToast(
         "¡Perfecto! El cofre se iluminó con tus respuestas.",
       );
 
       window.setTimeout(() => {
-        navigate(
-          "/actividades/mathnumbers/actividad-completada",
-          {
-            state: {
-              activity: "cofre-bienvenida",
-              retryRoute: cofreRoute,
-              nextRoute: radarRoute,
-            },
-          },
-        );
+        setResultModalOpen(true);
       }, 850);
 
       return;
@@ -168,6 +211,7 @@ export function CofreBienvenida() {
           state: {
             activity: "cofre-bienvenida",
             retryRoute: cofreRoute,
+            nextRoute: radarRoute,
           },
         },
       );
@@ -223,6 +267,7 @@ export function CofreBienvenida() {
             }
           >
             <FiGrid />
+
             <span>
               Panel de control principal
             </span>
@@ -236,6 +281,7 @@ export function CofreBienvenida() {
             }
           >
             <GiRingedPlanet />
+
             <span>
               Selección de mundos
             </span>
@@ -249,6 +295,7 @@ export function CofreBienvenida() {
             }
           >
             <FiMessageSquare />
+
             <span>Retroalimentación</span>
           </button>
 
@@ -260,6 +307,7 @@ export function CofreBienvenida() {
             }
           >
             <GiTrophyCup />
+
             <span>Recompensas</span>
           </button>
 
@@ -271,6 +319,7 @@ export function CofreBienvenida() {
             }
           >
             <FiUser />
+
             <span>Perfil del alumno</span>
           </button>
 
@@ -282,6 +331,7 @@ export function CofreBienvenida() {
             }
           >
             <FiBarChart2 />
+
             <span>Estadísticas</span>
           </button>
         </nav>
@@ -300,11 +350,7 @@ export function CofreBienvenida() {
           <button
             type="button"
             className="mnx-cofre-ghost-btn"
-            onClick={() =>
-              irARuta(
-                "/actividades/mathnumbers/aqui-tienes-una-pista",
-              )
-            }
+            onClick={abrirPista}
           >
             <span>?</span>
             Ayuda
@@ -327,6 +373,7 @@ export function CofreBienvenida() {
             <div className="mnx-cofre-crumb">
               <strong>MathNumbers</strong>
               <span>/</span>
+
               <span>
                 Tema 1: Fracciones y decimales
               </span>
@@ -340,8 +387,7 @@ export function CofreBienvenida() {
               />
 
               <h1>
-                El Cofre de Bienvenida a
-                MathNova
+                El Cofre de Bienvenida a MathNova
               </h1>
             </div>
 
@@ -387,6 +433,7 @@ export function CofreBienvenida() {
           <section className="mnx-cofre-guide-card">
             <div className="mnx-cofre-card-title">
               <span>♧</span>
+
               <strong>
                 Guía visual rápida
               </strong>
@@ -609,6 +656,7 @@ export function CofreBienvenida() {
           <section className="mnx-cofre-evidence-card">
             <div className="mnx-cofre-evidence-title">
               <span>▣</span>
+
               <strong>
                 Evidencia guardada
               </strong>
@@ -640,6 +688,18 @@ export function CofreBienvenida() {
       >
         <FiLogOut />
       </button>
+
+      {resultModalOpen && (
+        <ResultModal
+          kind="completed"
+          nextRoute={radarRoute}
+          retryRoute={cofreRoute}
+          onClose={() =>
+            setResultModalOpen(false)
+          }
+          onRetry={repetirActividad}
+        />
+      )}
 
       <Toast toast={toast} />
     </main>

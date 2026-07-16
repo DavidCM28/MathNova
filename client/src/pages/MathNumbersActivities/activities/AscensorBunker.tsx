@@ -1,8 +1,10 @@
 import "./CofreBienvenida.css";
 import "./AscensorBunker.css";
+
 import { useEffect, useState } from "react";
 import type { DragEvent } from "react";
 import { useNavigate } from "react-router-dom";
+
 import {
   FiArrowRight,
   FiBarChart2,
@@ -17,11 +19,18 @@ import {
   FiTarget,
   FiUser,
 } from "react-icons/fi";
-import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
+
+import {
+  GiRingedPlanet,
+  GiTrophyCup,
+} from "react-icons/gi";
+
 import { clearAuthSession } from "../../../utils/authSession";
 import { activityListRoute } from "../constants";
 import { Toast } from "../components/Toast";
+import { ResultModal } from "../components/ResultModal";
 import { useToast } from "../hooks/useToast";
+
 import {
   ascensorCommander,
   ascensorElevator,
@@ -29,61 +38,77 @@ import {
   menuHamburguesa,
   zorritoConsejo,
 } from "../mathNumbersAssets";
+
 import { formatSigned } from "../utils/formatSigned";
 
 /*
-  Ruta de esta actividad.
-
-  Se usa para que el botón "Repetir actividad"
-  siempre regrese al Ascensor del Búnker.
-*/
+ * Ruta de esta actividad.
+ *
+ * Se utiliza para que el botón "Repetir actividad"
+ * vuelva correctamente al Ascensor del Búnker.
+ */
 const ascensorRoute =
   "/actividades/mathnumbers/ascensor-bunker";
 
 /*
-  Orden correcto que valida la actividad.
-
-  No lo cambies si solamente quieres modificar
-  los números de la guía visual.
-*/
+ * Orden correcto que valida la actividad.
+ *
+ * No lo cambies si solamente quieres modificar
+ * los números de la guía visual.
+ */
 const correctOrder = [-5, -2, 0, 3, 6];
 
 /*
-  Tarjetas que el estudiante debe ordenar.
-*/
+ * Tarjetas que el estudiante debe ordenar.
+ */
 const floorCards = [3, -5, 0, 6, -2];
 
 /*
-  Números independientes de la Guía visual rápida.
-
-  Puedes cambiar solamente estos números y no se
-  modificará la respuesta correcta ni el funcionamiento
-  de la actividad.
-
-  Ejemplo:
-
-  const guideNumbers = [-8, -3, 0, 4, 9];
-*/
+ * Números independientes de la Guía visual rápida.
+ *
+ * Puedes cambiar solamente estos números y no se
+ * modificará la respuesta correcta ni el funcionamiento
+ * de la actividad.
+ *
+ * Ejemplo:
+ *
+ * const guideNumbers = [-8, -3, 0, 4, 9];
+ */
 const guideNumbers = [-8, -3, 0, 4, 9];
+
+const emptySlots: (number | null)[] = [
+  null,
+  null,
+  null,
+  null,
+  null,
+];
 
 export function AscensorBunker() {
   const navigate = useNavigate();
   const { toast, showToast } = useToast();
 
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] =
+    useState(false);
 
-  const [selectedFloor, setSelectedFloor] =
-    useState<number | null>(null);
+  const [
+    selectedFloor,
+    setSelectedFloor,
+  ] = useState<number | null>(null);
 
-  const [slots, setSlots] = useState<(number | null)[]>([
-    null,
-    null,
-    null,
-    null,
-    null,
-  ]);
+  const [slots, setSlots] =
+    useState<(number | null)[]>(emptySlots);
 
-  const [explanation, setExplanation] = useState("");
+  const [explanation, setExplanation] =
+    useState("");
+
+  /*
+   * Controla la ventana modal de actividad completada.
+   */
+  const [
+    resultModalOpen,
+    setResultModalOpen,
+  ] = useState(false);
 
   const progress = slots.filter(
     (slot) => slot !== null,
@@ -169,6 +194,26 @@ export function AscensorBunker() {
     );
   };
 
+  /*
+   * Cierra el modal y reinicia completamente
+   * el Ascensor del Búnker.
+   */
+  const repetirActividad = () => {
+    setResultModalOpen(false);
+    setSelectedFloor(null);
+    setSlots([...emptySlots]);
+    setExplanation("");
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
+    showToast(
+      "Ascensor reiniciado. ¡Ordena los pisos nuevamente!",
+    );
+  };
+
   const verificar = () => {
     if (progress < 5) {
       showToast(
@@ -180,7 +225,8 @@ export function AscensorBunker() {
     }
 
     const total = correctOrder.filter(
-      (value, index) => slots[index] === value,
+      (value, index) =>
+        slots[index] === value,
     ).length;
 
     if (total === 5) {
@@ -188,27 +234,14 @@ export function AscensorBunker() {
         "¡Ruta correcta! Ascensor restablecido.",
       );
 
+      /*
+       * Abre el modal encima del Ascensor.
+       *
+       * Ya no cambia a la ruta
+       * /actividad-completada.
+       */
       window.setTimeout(() => {
-        navigate(
-          "/actividades/mathnumbers/actividad-completada",
-          {
-            state: {
-              activity: "ascensor-bunker",
-
-              /*
-                Repetir actividad vuelve al Ascensor
-                del Búnker.
-              */
-              retryRoute: ascensorRoute,
-
-              /*
-                Como esta es la última actividad,
-                Siguiente actividad vuelve a la lista.
-              */
-              nextRoute: activityListRoute,
-            },
-          },
-        );
+        setResultModalOpen(true);
       }, 700);
 
       return;
@@ -228,6 +261,7 @@ export function AscensorBunker() {
           state: {
             activity: "ascensor-bunker",
             retryRoute: ascensorRoute,
+            nextRoute: activityListRoute,
           },
         },
       );
@@ -239,10 +273,14 @@ export function AscensorBunker() {
       <button
         type="button"
         className={`mnx-hamburger-btn ${
-          menuOpen ? "mnx-hamburger-open" : ""
+          menuOpen
+            ? "mnx-hamburger-open"
+            : ""
         }`}
         onClick={() =>
-          setMenuOpen((current) => !current)
+          setMenuOpen(
+            (current) => !current,
+          )
         }
         aria-label="Abrir menú"
       >
@@ -255,13 +293,17 @@ export function AscensorBunker() {
       {menuOpen && (
         <div
           className="mnx-menu-overlay"
-          onClick={() => setMenuOpen(false)}
+          onClick={() =>
+            setMenuOpen(false)
+          }
         />
       )}
 
       <aside
         className={`mnx-sidebar ${
-          menuOpen ? "mnx-sidebar-open" : ""
+          menuOpen
+            ? "mnx-sidebar-open"
+            : ""
         }`}
       >
         <img
@@ -466,9 +508,9 @@ export function AscensorBunker() {
                 </strong>
 
                 <p>
-                  Ordena las tarjetas de números de
-                  menor a mayor para restablecer la
-                  ruta del ascensor.
+                  Ordena las tarjetas de números
+                  de menor a mayor para restablecer
+                  la ruta del ascensor.
                 </p>
               </div>
             </div>
@@ -717,8 +759,8 @@ export function AscensorBunker() {
                 <FiInfo />
 
                 <p>
-                  Podrás revisar tus resultados en
-                  Retroalimentación.
+                  Podrás revisar tus resultados
+                  en Retroalimentación.
                 </p>
               </div>
             </article>
@@ -734,6 +776,18 @@ export function AscensorBunker() {
       >
         <FiLogOut />
       </button>
+
+      {resultModalOpen && (
+        <ResultModal
+          kind="completed"
+          nextRoute={activityListRoute}
+          retryRoute={ascensorRoute}
+          onClose={() =>
+            setResultModalOpen(false)
+          }
+          onRetry={repetirActividad}
+        />
+      )}
 
       <Toast toast={toast} />
     </main>
