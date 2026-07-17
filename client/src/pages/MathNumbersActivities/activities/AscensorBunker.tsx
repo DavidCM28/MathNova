@@ -1,5 +1,4 @@
 import "./AscensorBunker.css";
-import "./CofreBienvenida.css";
 
 import { useEffect, useState } from "react";
 import type { DragEvent } from "react";
@@ -331,12 +330,12 @@ export function AscensorBunker() {
   
 
   return (
-    <main className="mnx-cofre-page mnx-ascensor-page">
+    <main className="mnx-ascensor-page">
       <button
         type="button"
-        className={`mnx-hamburger-btn ${
+        className={`mnx-ascensor-hamburger ${
           menuOpen
-            ? "mnx-hamburger-open"
+            ? "mnx-ascensor-hamburger-open"
             : ""
         }`}
         onClick={() =>
@@ -354,7 +353,7 @@ export function AscensorBunker() {
 
       {menuOpen && (
         <div
-          className="mnx-menu-overlay"
+          className="mnx-ascensor-menu-overlay"
           onClick={() =>
             setMenuOpen(false)
           }
@@ -362,21 +361,21 @@ export function AscensorBunker() {
       )}
 
       <aside
-        className={`mnx-sidebar ${
+        className={`mnx-ascensor-sidebar ${
           menuOpen
-            ? "mnx-sidebar-open"
+            ? "mnx-ascensor-sidebar-open"
             : ""
         }`}
       >
         <img
           src={logo}
           alt="MathNova"
-          className="mnx-sidebar-logo"
+          className="mnx-ascensor-sidebar-logo"
         />
 
-        <nav className="mnx-sidebar-menu">
+        <nav className="mnx-ascensor-sidebar-menu">
           <button
-            className="mnx-menu-item"
+            className="mnx-ascensor-menu-item"
             type="button"
             onClick={() =>
               irARuta("/dashboard")
@@ -390,7 +389,7 @@ export function AscensorBunker() {
           </button>
 
           <button
-            className="mnx-menu-item mnx-active"
+            className="mnx-ascensor-menu-item mnx-ascensor-menu-active"
             type="button"
             onClick={() =>
               irARuta("/seleccion-mundos")
@@ -404,7 +403,7 @@ export function AscensorBunker() {
           </button>
 
           <button
-            className="mnx-menu-item"
+            className="mnx-ascensor-menu-item"
             type="button"
             onClick={() =>
               irARuta("/retroalimentacion")
@@ -418,7 +417,7 @@ export function AscensorBunker() {
           </button>
 
           <button
-            className="mnx-menu-item"
+            className="mnx-ascensor-menu-item"
             type="button"
             onClick={() =>
               irARuta("/recompensas")
@@ -432,7 +431,7 @@ export function AscensorBunker() {
           </button>
 
           <button
-            className="mnx-menu-item"
+            className="mnx-ascensor-menu-item"
             type="button"
             onClick={() =>
               irARuta("/perfil-alumno")
@@ -446,7 +445,7 @@ export function AscensorBunker() {
           </button>
 
           <button
-            className="mnx-menu-item"
+            className="mnx-ascensor-menu-item"
             type="button"
             onClick={() =>
               irARuta("/estadisticas")
@@ -460,20 +459,20 @@ export function AscensorBunker() {
           </button>
         </nav>
 
-        <div className="mnx-sidebar-fox-box">
+        <div className="mnx-ascensor-sidebar-fox-box">
           <img
             src={zorritoConsejo}
             alt="Zorrito consejo MathNova"
-            className="mnx-sidebar-fox"
+            className="mnx-ascensor-sidebar-fox"
           />
         </div>
       </aside>
 
-      <section className="mnx-cofre-main">
-        <div className="mnx-cofre-top-actions">
+      <section className="mnx-ascensor-main">
+        <div className="mnx-ascensor-top-actions">
           <button
             type="button"
-            className="mnx-cofre-ghost-btn"
+            className="mnx-ascensor-ghost-btn"
             onClick={() =>
               showToast(
                 "Ayuda: arrastra o selecciona cada tarjeta y colócala en el piso correcto, de menor a mayor.",
@@ -486,7 +485,7 @@ export function AscensorBunker() {
 
           <button
             type="button"
-            className="mnx-cofre-ghost-btn mnx-cofre-wide"
+            className="mnx-ascensor-ghost-btn mnx-ascensor-wide"
             onClick={() =>
               irARuta(activityListRoute)
             }
@@ -496,9 +495,9 @@ export function AscensorBunker() {
           </button>
         </div>
 
-        <header className="mnx-cofre-header">
-          <div className="mnx-cofre-header-copy">
-            <div className="mnx-cofre-crumb">
+        <header className="mnx-ascensor-header">
+          <div className="mnx-ascensor-header-copy">
+            <div className="mnx-ascensor-crumb">
               <strong>
                 MathNumbers
               </strong>
@@ -510,7 +509,7 @@ export function AscensorBunker() {
               </span>
             </div>
 
-            <div className="mnx-cofre-title-row">
+            <div className="mnx-ascensor-title-row">
               <span
                 className="mnx-ascensor-title-icon"
                 aria-hidden="true"
@@ -533,8 +532,8 @@ export function AscensorBunker() {
             </p>
           </div>
 
-          <div className="mnx-cofre-welcome-wrap">
-            <article className="mnx-cofre-speech">
+          <div className="mnx-ascensor-welcome-wrap">
+            <article className="mnx-ascensor-speech">
               <strong>
                 ¡Sistema en espera!
               </strong>
@@ -547,7 +546,7 @@ export function AscensorBunker() {
             </article>
 
             <img
-              className="mnx-cofre-hero-robot"
+              className="mnx-ascensor-hero-robot"
               src={ascensorCommander}
               alt="Comandante Suma"
             />
@@ -578,8 +577,8 @@ export function AscensorBunker() {
             </div>
           </article>
 
-          <section className="mnx-cofre-guide-card mnx-ascensor-guide-card">
-            <div className="mnx-cofre-card-title">
+          <section className="mnx-ascensor-guide-card">
+            <div className="mnx-ascensor-card-title">
               <span>
                 <FiHelpCircle />
               </span>
@@ -635,7 +634,7 @@ export function AscensorBunker() {
           </section>
 
           <section className="mnx-ascensor-placement-card">
-            <div className="mnx-cofre-question-head">
+            <div className="mnx-ascensor-question-head">
               <span>1</span>
 
               <h2>
@@ -733,7 +732,7 @@ export function AscensorBunker() {
             </div>
           </section>
 
-          <section className="mnx-cofre-reminder-card mnx-ascensor-reminder">
+          <section className="mnx-ascensor-reminder-card mnx-ascensor-reminder">
             <img
               src={ascensorCommander}
               alt="Comandante Suma"
@@ -752,8 +751,8 @@ export function AscensorBunker() {
             <span>↕</span>
           </section>
 
-          <section className="mnx-cofre-question-card mnx-ascensor-question">
-            <div className="mnx-cofre-question-head">
+          <section className="mnx-ascensor-question-card mnx-ascensor-question">
+            <div className="mnx-ascensor-question-head">
               <span>2</span>
 
               <h2>
@@ -791,7 +790,7 @@ export function AscensorBunker() {
           <section className="mnx-ascensor-actions">
             <button
               type="button"
-              className="mnx-cofre-check-btn"
+              className="mnx-ascensor-check-btn"
               onClick={verificar}
             >
               <FiCheckCircle />
@@ -803,8 +802,8 @@ export function AscensorBunker() {
               colocados
             </p>
 
-            <article className="mnx-cofre-evidence-card">
-              <div className="mnx-cofre-evidence-title">
+            <article className="mnx-ascensor-evidence-card">
+              <div className="mnx-ascensor-evidence-title">
                 <FiClipboard />
 
                 <strong>
@@ -817,7 +816,7 @@ export function AscensorBunker() {
                 guardan automáticamente.
               </p>
 
-              <div className="mnx-cofre-info-row">
+              <div className="mnx-ascensor-info-row">
                 <FiInfo />
 
                 <p>
@@ -831,7 +830,7 @@ export function AscensorBunker() {
       </section>
 
       <button
-        className="mnx-cofre-logout-float"
+        className="mnx-ascensor-logout-float"
         type="button"
         onClick={cerrarSesion}
         aria-label="Cerrar sesión"

@@ -1,4 +1,3 @@
-import "./CofreBienvenida.css";
 import "./RadarSupervivencia.css";
 
 import { useEffect, useState } from "react";
@@ -381,12 +380,12 @@ export function RadarSupervivencia() {
 
 
   return (
-    <main className="mnx-cofre-page mnx-radar-page">
+    <main className="mnx-radar-page">
       <button
         type="button"
-        className={`mnx-hamburger-btn ${
+        className={`mnx-radar-hamburger ${
           menuOpen
-            ? "mnx-hamburger-open"
+            ? "mnx-radar-hamburger-open"
             : ""
         }`}
         onClick={() =>
@@ -404,7 +403,7 @@ export function RadarSupervivencia() {
 
       {menuOpen && (
         <div
-          className="mnx-menu-overlay"
+          className="mnx-radar-menu-overlay"
           onClick={() =>
             setMenuOpen(false)
           }
@@ -412,21 +411,21 @@ export function RadarSupervivencia() {
       )}
 
       <aside
-        className={`mnx-sidebar ${
+        className={`mnx-radar-sidebar ${
           menuOpen
-            ? "mnx-sidebar-open"
+            ? "mnx-radar-sidebar-open"
             : ""
         }`}
       >
         <img
           src={logo}
           alt="MathNova"
-          className="mnx-sidebar-logo"
+          className="mnx-radar-sidebar-logo"
         />
 
-        <nav className="mnx-sidebar-menu">
+        <nav className="mnx-radar-sidebar-menu">
           <button
-            className="mnx-menu-item"
+            className="mnx-radar-menu-item"
             type="button"
             onClick={() =>
               irARuta("/dashboard")
@@ -440,7 +439,7 @@ export function RadarSupervivencia() {
           </button>
 
           <button
-            className="mnx-menu-item mnx-active"
+            className="mnx-radar-menu-item mnx-radar-menu-active"
             type="button"
             onClick={() =>
               irARuta("/seleccion-mundos")
@@ -454,7 +453,7 @@ export function RadarSupervivencia() {
           </button>
 
           <button
-            className="mnx-menu-item"
+            className="mnx-radar-menu-item"
             type="button"
             onClick={() =>
               irARuta("/retroalimentacion")
@@ -468,7 +467,7 @@ export function RadarSupervivencia() {
           </button>
 
           <button
-            className="mnx-menu-item"
+            className="mnx-radar-menu-item"
             type="button"
             onClick={() =>
               irARuta("/recompensas")
@@ -480,7 +479,7 @@ export function RadarSupervivencia() {
           </button>
 
           <button
-            className="mnx-menu-item"
+            className="mnx-radar-menu-item"
             type="button"
             onClick={() =>
               irARuta("/perfil-alumno")
@@ -494,7 +493,7 @@ export function RadarSupervivencia() {
           </button>
 
           <button
-            className="mnx-menu-item"
+            className="mnx-radar-menu-item"
             type="button"
             onClick={() =>
               irARuta("/estadisticas")
@@ -506,20 +505,20 @@ export function RadarSupervivencia() {
           </button>
         </nav>
 
-        <div className="mnx-sidebar-fox-box">
+        <div className="mnx-radar-sidebar-fox-box">
           <img
             src={zorritoConsejo}
             alt="Zorrito consejo MathNova"
-            className="mnx-sidebar-fox"
+            className="mnx-radar-sidebar-fox"
           />
         </div>
       </aside>
 
-      <section className="mnx-cofre-main">
-        <div className="mnx-cofre-top-actions">
+      <section className="mnx-radar-main">
+        <div className="mnx-radar-top-actions">
           <button
             type="button"
-            className="mnx-cofre-ghost-btn"
+            className="mnx-radar-ghost-btn"
             onClick={() =>
               showToast(
                 "Ayuda: selecciona o arrastra cada señal hasta su número.",
@@ -532,7 +531,7 @@ export function RadarSupervivencia() {
 
           <button
             type="button"
-            className="mnx-cofre-ghost-btn mnx-cofre-wide"
+            className="mnx-radar-ghost-btn mnx-radar-exit-btn"
             onClick={() =>
               irARuta(activityListRoute)
             }
@@ -542,9 +541,9 @@ export function RadarSupervivencia() {
           </button>
         </div>
 
-        <header className="mnx-cofre-header">
-          <div className="mnx-cofre-header-copy">
-            <div className="mnx-cofre-crumb">
+        <header className="mnx-radar-header">
+          <div className="mnx-radar-header-copy">
+            <div className="mnx-radar-breadcrumb">
               <strong>
                 MathNumbers
               </strong>
@@ -556,7 +555,7 @@ export function RadarSupervivencia() {
               </span>
             </div>
 
-            <div className="mnx-cofre-title-row">
+            <div className="mnx-radar-title-row">
               <span
                 className="mnx-radar-title-icon"
                 aria-hidden="true"
@@ -578,8 +577,8 @@ export function RadarSupervivencia() {
             </p>
           </div>
 
-          <div className="mnx-cofre-welcome-wrap">
-            <article className="mnx-cofre-speech">
+          <div className="mnx-radar-welcome">
+            <article className="mnx-radar-speech">
               <strong>
                 ¡Atención, explorador!
               </strong>
@@ -592,7 +591,7 @@ export function RadarSupervivencia() {
             </article>
 
             <img
-              className="mnx-cofre-hero-robot"
+              className="mnx-radar-hero"
               src={cofreHero}
               alt="Comandante Suma"
             />
@@ -623,8 +622,8 @@ export function RadarSupervivencia() {
             </div>
           </article>
 
-          <section className="mnx-cofre-guide-card mnx-radar-guide-card">
-            <div className="mnx-cofre-card-title">
+          <section className="mnx-radar-guide-card">
+            <div className="mnx-radar-card-title">
               <span>↔</span>
 
               <strong>
@@ -646,7 +645,7 @@ export function RadarSupervivencia() {
           </section>
 
           <section className="mnx-radar-placement-card">
-            <div className="mnx-cofre-question-head">
+            <div className="mnx-radar-question-head">
               <span>1</span>
 
               <h2>
@@ -761,7 +760,7 @@ export function RadarSupervivencia() {
             </div>
           </section>
 
-          <section className="mnx-cofre-reminder-card mnx-radar-reminder">
+          <section className="mnx-radar-reminder-card mnx-radar-reminder">
             <img
               src={cofreGuide}
               alt="Comandante Suma"
@@ -779,8 +778,8 @@ export function RadarSupervivencia() {
             <span>↔</span>
           </section>
 
-          <section className="mnx-cofre-question-card mnx-radar-question">
-            <div className="mnx-cofre-question-head">
+          <section className="mnx-radar-question-card mnx-radar-question">
+            <div className="mnx-radar-question-head">
               <span>2</span>
 
               <h2>
@@ -819,7 +818,7 @@ export function RadarSupervivencia() {
           <section className="mnx-radar-actions">
             <button
               type="button"
-              className="mnx-cofre-check-btn"
+              className="mnx-radar-check-btn"
               onClick={comprobar}
             >
               <FiCheckCircle />
@@ -831,8 +830,8 @@ export function RadarSupervivencia() {
               colocadas
             </p>
 
-            <article className="mnx-cofre-evidence-card">
-              <div className="mnx-cofre-evidence-title">
+            <article className="mnx-radar-evidence-card">
+              <div className="mnx-radar-evidence-title">
                 <FiClipboard />
 
                 <strong>
@@ -845,7 +844,7 @@ export function RadarSupervivencia() {
                 registran automáticamente.
               </p>
 
-              <div className="mnx-cofre-info-row">
+              <div className="mnx-radar-info-row">
                 <FiInfo />
 
                 <p>
@@ -859,7 +858,7 @@ export function RadarSupervivencia() {
       </section>
 
       <button
-        className="mnx-cofre-logout-float"
+        className="mnx-radar-logout-float"
         type="button"
         onClick={cerrarSesion}
         aria-label="Cerrar sesión"
