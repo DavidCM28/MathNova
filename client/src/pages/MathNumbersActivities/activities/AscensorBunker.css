@@ -1,67 +1,551 @@
-/* AscensorBunker.css
-   Complemento de CofreBienvenida.css.
-   El Ascensor del Búnker reutiliza el mismo sidebar, encabezado,
-   tarjetas, botones, personajes, espaciado y comportamiento
-   responsivo del Cofre / Radar de Supervivencia.
-*/
+/* =========================================================
+   AscensorBunker.css
+   Diseño independiente para la Actividad 3 de MathNumbers.
+   No depende de CofreBienvenida.css, RadarSupervivencia.css
+   ni de ninguna otra actividad.
+   ========================================================= */
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  overflow-x: hidden;
+  background: #eef4fb;
+}
+
+.mnx-ascensor-page,
+.mnx-ascensor-page * {
+  box-sizing: border-box;
+}
 
 .mnx-ascensor-page {
-  --ascensor-red: #dc3c3c;
-  --ascensor-red-light: #fff2f2;
+  --ascensor-navy: #102544;
+  --ascensor-navy-deep: #07182f;
+  --ascensor-blue: #2d7ff0;
+  --ascensor-blue-dark: #145bc4;
+  --ascensor-blue-soft: #eaf3ff;
+  --ascensor-cyan: #25bfd2;
+  --ascensor-cyan-soft: #e7fbfd;
+  --ascensor-green: #18a95c;
+  --ascensor-green-soft: #eaf9f0;
+  --ascensor-red: #e34c4c;
+  --ascensor-red-dark: #bd3030;
+  --ascensor-red-soft: #fff0f0;
+  --ascensor-yellow: #ffbd3a;
+  --ascensor-yellow-soft: #fff7dc;
+  --ascensor-ink: #0c1d36;
+  --ascensor-muted: #65748b;
+  --ascensor-line: #dbe5f0;
+  --ascensor-card: rgba(255, 255, 255, 0.97);
+  --ascensor-shadow-sm: 0 10px 24px rgba(27, 62, 103, 0.09);
+  --ascensor-shadow-md: 0 18px 42px rgba(27, 62, 103, 0.13);
+  --ascensor-shadow-lg: 0 28px 68px rgba(27, 62, 103, 0.17);
+  --ascensor-radius-sm: 15px;
+  --ascensor-radius: 24px;
+  --ascensor-radius-lg: 34px;
+  --ascensor-transition: 180ms ease;
+
+  width: 100%;
+  min-height: 100vh;
+  padding-left: 300px;
+  position: relative;
+  overflow-x: hidden;
+  color: var(--ascensor-ink);
+  font-family: "Poppins", Arial, sans-serif;
+  background:
+    linear-gradient(rgba(35, 105, 180, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(35, 105, 180, 0.045) 1px, transparent 1px),
+    radial-gradient(circle at 88% 5%, rgba(37, 191, 210, 0.28), transparent 22rem),
+    radial-gradient(circle at 33% 36%, rgba(45, 127, 240, 0.10), transparent 28rem),
+    linear-gradient(180deg, #e9f2fb 0%, #f7fbff 52%, #eef5fb 100%);
+  background-size:
+    36px 36px,
+    36px 36px,
+    auto,
+    auto,
+    auto;
 }
 
-.mnx-ascensor-title-icon {
-  width: 40px;
-  height: 40px;
-  flex: 0 0 40px;
-  display: grid;
-  place-items: center;
+/* =========================================================
+   DECORACIÓN DEL FONDO
+   ========================================================= */
+
+.mnx-ascensor-page::before,
+.mnx-ascensor-page::after {
+  content: "";
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.mnx-ascensor-page::before {
+  width: 430px;
+  height: 430px;
+  right: -145px;
+  top: -125px;
+  border: 54px solid rgba(45, 127, 240, 0.07);
   border-radius: 50%;
-  background: linear-gradient(145deg, #1bad50, #058b37);
-  color: #ffffff;
-  box-shadow: 0 8px 18px rgba(15, 154, 67, 0.22);
+  box-shadow:
+    0 0 0 48px rgba(37, 191, 210, 0.035),
+    0 0 0 100px rgba(45, 127, 240, 0.02);
 }
 
-.mnx-ascensor-title-icon svg {
-  width: 23px;
-  height: 23px;
+.mnx-ascensor-page::after {
+  width: 280px;
+  height: 150px;
+  left: 340px;
+  bottom: -75px;
+  border-radius: 140px 140px 0 0;
+  background: rgba(255, 189, 58, 0.10);
+  filter: blur(1px);
+}
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+.mnx-ascensor-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 90;
+  width: 300px;
+  min-width: 300px;
+  height: 100vh;
+  height: 100dvh;
+  padding: 34px 26px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #ffffff;
+  border-radius: 0 34px 34px 0;
+  box-shadow: 14px 0 38px rgba(22, 54, 92, 0.11);
+}
+
+.mnx-ascensor-sidebar::-webkit-scrollbar {
+  width: 0;
+}
+
+.mnx-ascensor-sidebar-logo {
+  width: 205px;
+  max-width: 100%;
+  margin: 4px auto 32px;
+  display: block;
+}
+
+.mnx-ascensor-sidebar-menu {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mnx-ascensor-menu-item {
+  width: 100%;
+  min-height: 58px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: #162238;
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  text-align: left;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 850;
+  line-height: 1.15;
+  cursor: pointer;
+  transition:
+    transform var(--ascensor-transition),
+    color var(--ascensor-transition),
+    background var(--ascensor-transition),
+    box-shadow var(--ascensor-transition);
+}
+
+.mnx-ascensor-menu-item svg {
+  width: 25px;
+  height: 25px;
+  flex: 0 0 25px;
   stroke-width: 2.2;
 }
 
+.mnx-ascensor-menu-item:hover {
+  transform: translateX(6px);
+  color: var(--ascensor-blue-dark);
+  background: var(--ascensor-blue-soft);
+}
+
+.mnx-ascensor-menu-item.mnx-ascensor-menu-active {
+  color: #ffffff;
+  background: linear-gradient(135deg, #2e85f6 0%, #165ec7 100%);
+  box-shadow: 0 14px 26px rgba(45, 127, 240, 0.25);
+}
+
+.mnx-ascensor-menu-item.mnx-ascensor-menu-active:hover {
+  color: #ffffff;
+  transform: translateX(4px);
+}
+
+.mnx-ascensor-sidebar-fox-box {
+  width: 100%;
+  min-height: 148px;
+  margin-top: auto;
+  padding: 12px 14px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  border: 1px solid #dce8f5;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(37, 191, 210, 0.25), transparent 33%),
+    linear-gradient(145deg, #f9fcff 0%, #eaf3ff 100%);
+  box-shadow: var(--ascensor-shadow-sm);
+}
+
+.mnx-ascensor-sidebar-fox-box::before {
+  content: "Ruta del búnker";
+  position: absolute;
+  left: 17px;
+  top: 18px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  color: var(--ascensor-blue-dark);
+  background: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+  box-shadow: 0 7px 14px rgba(27, 62, 103, 0.09);
+}
+
+.mnx-ascensor-sidebar-fox-box::after {
+  content: "Actividad 3";
+  position: absolute;
+  left: 18px;
+  top: 58px;
+  color: var(--ascensor-ink);
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.mnx-ascensor-sidebar-fox {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 12px 12px rgba(29, 67, 111, 0.16));
+}
+
+/* =========================================================
+   MENÚ MÓVIL
+   ========================================================= */
+
+.mnx-ascensor-hamburger {
+  display: none;
+  position: fixed;
+  left: 17px;
+  top: 17px;
+  z-index: 120;
+  width: 48px;
+  height: 48px;
+  padding: 10px;
+  border: 0;
+  border-radius: 15px;
+  background: #ffffff;
+  cursor: pointer;
+  box-shadow: var(--ascensor-shadow-md);
+  transition: transform var(--ascensor-transition);
+}
+
+.mnx-ascensor-hamburger img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.mnx-ascensor-hamburger-open {
+  transform: rotate(90deg);
+}
+
+.mnx-ascensor-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(6, 25, 48, 0.52);
+  backdrop-filter: blur(4px);
+}
+
+/* =========================================================
+   CONTENIDO PRINCIPAL
+   ========================================================= */
+
+.mnx-ascensor-main {
+  width: min(100%, 1600px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 26px 34px 38px;
+  position: relative;
+  z-index: 2;
+}
+
+.mnx-ascensor-top-actions {
+  min-height: 44px;
+  margin-bottom: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 11px;
+}
+
+.mnx-ascensor-ghost-btn {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid rgba(45, 127, 240, 0.20);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.90);
+  color: var(--ascensor-ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 850;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(27, 62, 103, 0.08);
+  backdrop-filter: blur(8px);
+  transition:
+    transform var(--ascensor-transition),
+    border-color var(--ascensor-transition),
+    color var(--ascensor-transition),
+    box-shadow var(--ascensor-transition);
+}
+
+.mnx-ascensor-ghost-btn:hover {
+  transform: translateY(-2px);
+  color: var(--ascensor-blue-dark);
+  border-color: rgba(45, 127, 240, 0.50);
+  box-shadow: 0 12px 25px rgba(27, 62, 103, 0.13);
+}
+
+.mnx-ascensor-wide {
+  min-width: 172px;
+}
+
+/* =========================================================
+   ENCABEZADO
+   ========================================================= */
+
+.mnx-ascensor-header {
+  min-height: 194px;
+  margin-bottom: 20px;
+  padding: 25px 28px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(390px, 500px);
+  align-items: center;
+  gap: 28px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(45, 127, 240, 0.12);
+  border-radius: var(--ascensor-radius-lg);
+  background:
+    radial-gradient(circle at 92% 8%, rgba(37, 191, 210, 0.18), transparent 14rem),
+    linear-gradient(135deg, rgba(255,255,255,0.98), rgba(242,248,255,0.96));
+  box-shadow: var(--ascensor-shadow-md);
+}
+
+.mnx-ascensor-header::before {
+  content: "";
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  right: -125px;
+  top: -145px;
+  border: 34px solid rgba(45, 127, 240, 0.055);
+  border-radius: 50%;
+}
+
+.mnx-ascensor-header-copy,
+.mnx-ascensor-welcome-wrap {
+  position: relative;
+  z-index: 2;
+}
+
+.mnx-ascensor-crumb {
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 13px;
+  padding: 7px 12px;
+  border: 1px solid #d9e8f8;
+  border-radius: 999px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ascensor-muted);
+  font-size: 11px;
+  font-weight: 800;
+  box-shadow: 0 6px 14px rgba(27, 62, 103, 0.07);
+}
+
+.mnx-ascensor-crumb strong {
+  color: var(--ascensor-blue-dark);
+}
+
+.mnx-ascensor-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.mnx-ascensor-title-icon {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #31c7d8 0%, #2179e8 100%);
+  box-shadow: 0 13px 24px rgba(45, 127, 240, 0.25);
+}
+
+.mnx-ascensor-title-icon svg {
+  width: 29px;
+  height: 29px;
+  stroke-width: 2.3;
+}
+
+.mnx-ascensor-title-row h1 {
+  margin: 0;
+  color: var(--ascensor-navy-deep);
+  font-size: clamp(34px, 3.1vw, 54px);
+  line-height: 0.98;
+  letter-spacing: -1.2px;
+  font-weight: 950;
+}
+
+.mnx-ascensor-header-copy > p {
+  max-width: 800px;
+  margin: 14px 0 0;
+  color: #31435c;
+  font-size: 15px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.mnx-ascensor-welcome-wrap {
+  min-height: 142px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 132px;
+  align-items: center;
+  gap: 10px;
+}
+
+.mnx-ascensor-speech {
+  min-height: 116px;
+  padding: 21px 22px;
+  position: relative;
+  border: 2px solid rgba(37, 191, 210, 0.24);
+  border-radius: 28px 32px 28px 32px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: var(--ascensor-shadow-sm);
+}
+
+.mnx-ascensor-speech::after {
+  content: "";
+  position: absolute;
+  right: -16px;
+  top: 51px;
+  width: 28px;
+  height: 28px;
+  border-top: 2px solid rgba(37, 191, 210, 0.24);
+  border-right: 2px solid rgba(37, 191, 210, 0.24);
+  background: #ffffff;
+  transform: rotate(45deg);
+}
+
+.mnx-ascensor-speech strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--ascensor-blue-dark);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.mnx-ascensor-speech span {
+  color: #2e4059;
+  font-size: 12.5px;
+  line-height: 1.45;
+  font-weight: 750;
+}
+
+.mnx-ascensor-hero-robot {
+  width: 132px;
+  height: 142px;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 16px 14px rgba(24, 67, 111, 0.18));
+}
+
+/* =========================================================
+   DISTRIBUCIÓN DE LA ACTIVIDAD
+   ========================================================= */
+
 .mnx-ascensor-activity-grid {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: 310px minmax(0, 1fr) minmax(290px, 0.78fr);
   grid-template-areas:
     "art guide guide"
     "art placement placement"
     "reminder question actions";
-  gap: 14px;
-  align-items: start;
+  gap: 16px;
+  align-items: stretch;
 }
 
-/* =========================
-   Arte / escena del ascensor
-   ========================= */
+.mnx-ascensor-art,
+.mnx-ascensor-guide-card,
+.mnx-ascensor-placement-card,
+.mnx-ascensor-reminder-card,
+.mnx-ascensor-question-card,
+.mnx-ascensor-evidence-card {
+  border: 1px solid rgba(45, 127, 240, 0.11);
+  background: var(--ascensor-card);
+  box-shadow: var(--ascensor-shadow-sm);
+}
+
+/* =========================================================
+   ESCENA DEL ASCENSOR
+   ========================================================= */
 
 .mnx-ascensor-art {
   grid-area: art;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  max-height: 350px;
-  align-self: start;
+  min-height: 430px;
   position: relative;
   overflow: hidden;
-  border-radius: var(--radius);
-  background: #ffffff;
-  box-shadow: var(--shadow-md);
+  border-radius: var(--ascensor-radius);
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #071a2f;
+  box-shadow: var(--ascensor-shadow-md);
 }
 
 .mnx-ascensor-art > img {
   width: 100%;
   height: 100%;
+  min-height: 430px;
   display: block;
   object-fit: cover;
   object-position: center;
@@ -73,83 +557,159 @@
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(180deg, rgba(4, 24, 14, 0.12), transparent 40%),
-    linear-gradient(0deg, rgba(3, 23, 13, 0.78), transparent 45%);
+    linear-gradient(180deg, rgba(5, 20, 38, 0.05), transparent 46%),
+    linear-gradient(0deg, rgba(4, 17, 32, 0.88), transparent 48%);
 }
 
 .mnx-ascensor-mission {
   position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
-  min-height: 112px;
+  z-index: 3;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  min-height: 122px;
+  padding: 16px;
   display: grid;
-  grid-template-columns: 38px 1fr;
-  gap: 12px;
+  grid-template-columns: 46px minmax(0, 1fr);
   align-items: center;
-  padding: 14px 15px;
-  border: 1px solid rgba(112, 235, 113, 0.85);
-  border-radius: 14px;
-  background: rgba(5, 58, 25, 0.9);
+  gap: 13px;
+  border: 1px solid rgba(86, 223, 234, 0.72);
+  border-radius: 18px;
   color: #ffffff;
-  backdrop-filter: blur(5px);
+  background: rgba(7, 34, 58, 0.91);
+  backdrop-filter: blur(7px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
 }
 
 .mnx-ascensor-mission svg {
-  width: 36px;
-  height: 36px;
-  color: #73ef73;
+  width: 42px;
+  height: 42px;
+  color: #6fe3ee;
 }
 
 .mnx-ascensor-mission strong {
   display: block;
-  color: #73ef73;
-  font-size: 16px;
-  font-weight: 800;
+  color: #79ecf5;
+  font-size: 15px;
+  font-weight: 950;
 }
 
 .mnx-ascensor-mission p {
   margin: 5px 0 0;
-  font-size: 13px;
-  line-height: 1.4;
-}
-
-/* =========================
-   Guía visual rápida
-   ========================= */
-
-.mnx-ascensor-guide-card {
-  grid-area: guide;
-}
-
-.mnx-ascensor-guide-labels {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 14px;
-  text-align: center;
-  font-size: 13px;
+  color: rgba(255,255,255,0.92);
+  font-size: 12px;
+  line-height: 1.42;
   font-weight: 700;
 }
 
+/* =========================================================
+   TARJETAS GENERALES
+   ========================================================= */
+
+.mnx-ascensor-guide-card,
+.mnx-ascensor-placement-card,
+.mnx-ascensor-reminder-card,
+.mnx-ascensor-question-card,
+.mnx-ascensor-evidence-card {
+  border-radius: var(--ascensor-radius);
+}
+
+.mnx-ascensor-guide-card {
+  grid-area: guide;
+  padding: 18px 21px;
+  min-width: 0;
+}
+
+.mnx-ascensor-card-title,
+.mnx-ascensor-question-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mnx-ascensor-card-title {
+  margin-bottom: 15px;
+}
+
+.mnx-ascensor-card-title > span,
+.mnx-ascensor-question-head > span {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  color: #ffffff;
+  background: linear-gradient(145deg, var(--ascensor-cyan), var(--ascensor-blue));
+  box-shadow: 0 9px 18px rgba(45, 127, 240, 0.19);
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.mnx-ascensor-card-title svg {
+  width: 20px;
+  height: 20px;
+}
+
+.mnx-ascensor-card-title strong {
+  color: var(--ascensor-navy);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+/* =========================================================
+   GUÍA VISUAL
+   ========================================================= */
+
+.mnx-ascensor-guide-labels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.mnx-ascensor-guide-labels span {
+  min-height: 40px;
+  padding: 8px 10px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.25;
+  font-weight: 900;
+}
+
 .mnx-ascensor-guide-labels .negative {
-  color: var(--ascensor-red);
+  color: var(--ascensor-red-dark);
+  background: var(--ascensor-red-soft);
+  border: 1px solid rgba(227, 76, 76, 0.22);
 }
 
 .mnx-ascensor-guide-labels .zero {
-  color: var(--text-dark);
+  color: var(--ascensor-navy);
+  background: var(--ascensor-yellow-soft);
+  border: 1px solid rgba(255, 189, 58, 0.30);
 }
 
 .mnx-ascensor-guide-labels .positive {
-  color: var(--primary-dark);
+  color: #08713e;
+  background: var(--ascensor-green-soft);
+  border: 1px solid rgba(24, 169, 92, 0.22);
 }
 
 .mnx-ascensor-guide-chips {
+  min-height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
   gap: 8px;
+  padding: 10px 12px;
+  border: 1px dashed #c9d9ea;
+  border-radius: 17px;
+  background:
+    linear-gradient(90deg, rgba(45, 127, 240, 0.035), transparent 50%, rgba(37, 191, 210, 0.035));
 }
 
 .mnx-ascensor-chip-wrap {
@@ -159,189 +719,290 @@
 }
 
 .mnx-ascensor-chip {
-  width: 48px;
-  height: 42px;
+  width: 50px;
+  height: 44px;
   display: grid;
   place-items: center;
-  border: 2px solid #e8eee8;
-  border-radius: 10px;
+  border: 2px solid #dce7f2;
+  border-radius: 12px;
   background: #ffffff;
-  font-size: 18px;
-  font-weight: 800;
+  color: var(--ascensor-navy);
+  font-size: 17px;
+  font-weight: 950;
+  box-shadow: 0 7px 14px rgba(27, 62, 103, 0.07);
 }
 
 .mnx-ascensor-chip.negative {
-  border-color: rgba(220, 60, 60, 0.4);
-  color: var(--ascensor-red);
-  background: var(--ascensor-red-light);
-}
-
-.mnx-ascensor-chip.positive {
-  border-color: rgba(15, 154, 67, 0.4);
-  color: var(--primary);
-  background: var(--primary-light);
+  color: var(--ascensor-red-dark);
+  border-color: rgba(227, 76, 76, 0.34);
+  background: var(--ascensor-red-soft);
 }
 
 .mnx-ascensor-chip.zero {
-  border-color: #e8eee8;
-  color: var(--text-dark);
-  background: #f7faf7;
+  color: var(--ascensor-navy);
+  border-color: rgba(255, 189, 58, 0.42);
+  background: var(--ascensor-yellow-soft);
+}
+
+.mnx-ascensor-chip.positive {
+  color: #08713e;
+  border-color: rgba(24, 169, 92, 0.32);
+  background: var(--ascensor-green-soft);
 }
 
 .mnx-ascensor-chip-arrow {
-  color: var(--primary);
-  font-weight: 800;
+  color: var(--ascensor-blue);
+  font-size: 18px;
+  font-weight: 950;
 }
 
-/* =========================
-   Tarjetas y ascensor (colocación)
-   ========================= */
+/* =========================================================
+   ORDENAR LOS PISOS
+   ========================================================= */
 
 .mnx-ascensor-placement-card {
   grid-area: placement;
   min-width: 0;
-  padding: 16px 20px 18px;
-  border: 1px solid var(--primary-border);
-  border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: var(--shadow-sm);
+  padding: 18px 21px 20px;
+}
+
+.mnx-ascensor-question-head {
+  margin-bottom: 16px;
+}
+
+.mnx-ascensor-question-head > span {
+  background: linear-gradient(145deg, #ffca55, #f39d1d);
+  box-shadow: 0 9px 18px rgba(243, 157, 29, 0.20);
+}
+
+.mnx-ascensor-question-head h2 {
+  margin: 0;
+  color: var(--ascensor-navy);
+  font-size: 15px;
+  line-height: 1.3;
+  font-weight: 950;
 }
 
 .mnx-ascensor-floor-cards {
   display: grid;
-  grid-template-columns: repeat(5, minmax(70px, 1fr));
-  gap: 10px;
-  margin-bottom: 14px;
+  grid-template-columns: repeat(5, minmax(82px, 1fr));
+  gap: 11px;
+  margin-bottom: 16px;
 }
 
 .mnx-ascensor-floor-card {
-  min-height: 56px;
-  border: 2px solid #e8eee8;
-  border-radius: var(--radius-sm);
+  min-height: 64px;
+  border: 2px solid #dce6f0;
+  border-radius: 16px;
   background: #ffffff;
-  color: var(--text-dark);
+  color: var(--ascensor-navy);
+  font: inherit;
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 950;
   cursor: grab;
-  transition: var(--transition);
+  box-shadow: 0 8px 17px rgba(27, 62, 103, 0.07);
+  transition:
+    transform var(--ascensor-transition),
+    border-color var(--ascensor-transition),
+    box-shadow var(--ascensor-transition),
+    background var(--ascensor-transition);
 }
 
-.mnx-ascensor-floor-card:hover,
-.mnx-ascensor-floor-card.selected {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+.mnx-ascensor-floor-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 24px rgba(27, 62, 103, 0.12);
 }
 
 .mnx-ascensor-floor-card.selected {
-  outline: 2px solid var(--primary);
+  transform: translateY(-3px) scale(1.02);
+  outline: 3px solid rgba(45, 127, 240, 0.22);
   outline-offset: 2px;
 }
 
 .mnx-ascensor-floor-card.negative {
-  border-color: rgba(220, 60, 60, 0.4);
-  color: var(--ascensor-red);
-  background: var(--ascensor-red-light);
-}
-
-.mnx-ascensor-floor-card.positive {
-  border-color: rgba(15, 154, 67, 0.4);
-  color: var(--primary);
-  background: var(--primary-light);
+  color: var(--ascensor-red-dark);
+  border-color: rgba(227, 76, 76, 0.34);
+  background: var(--ascensor-red-soft);
 }
 
 .mnx-ascensor-floor-card.zero {
-  border-color: #e8eee8;
-  color: var(--text-dark);
-  background: #ffffff;
+  color: var(--ascensor-navy);
+  border-color: rgba(255, 189, 58, 0.42);
+  background: var(--ascensor-yellow-soft);
+}
+
+.mnx-ascensor-floor-card.positive {
+  color: #08713e;
+  border-color: rgba(24, 169, 92, 0.32);
+  background: var(--ascensor-green-soft);
 }
 
 .mnx-ascensor-drop-zone {
+  min-width: 0;
+  padding: 16px;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
-  border: 1px solid #e5ebe5;
-  border-radius: var(--radius-sm);
-  background: #ffffff;
+  gap: 13px;
+  border: 1px solid #d9e5f0;
+  border-radius: 19px;
+  background:
+    linear-gradient(180deg, #fbfdff 0%, #f3f8fd 100%);
 }
 
 .mnx-ascensor-order-label {
-  font-size: 12px;
-  font-weight: 800;
+  padding: 6px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 950;
+  white-space: nowrap;
 }
 
 .mnx-ascensor-order-label.from {
-  color: var(--ascensor-red);
+  color: var(--ascensor-red-dark);
+  background: var(--ascensor-red-soft);
 }
 
 .mnx-ascensor-order-label.to {
-  color: var(--primary-dark);
+  color: #08713e;
+  background: var(--ascensor-green-soft);
 }
 
 .mnx-ascensor-slots {
+  min-width: 0;
   display: grid;
-  grid-template-columns: repeat(5, minmax(56px, 1fr));
+  grid-template-columns: repeat(5, minmax(58px, 1fr));
   gap: 10px;
 }
 
 .mnx-ascensor-slot-wrap {
+  min-width: 0;
   display: grid;
-  gap: 6px;
+  gap: 7px;
   justify-items: center;
 }
 
 .mnx-ascensor-slot {
   width: 100%;
-  height: 52px;
+  min-width: 0;
+  height: 57px;
+  border: 2px dashed var(--ascensor-blue);
+  border-radius: 14px;
+  background: #f7fbff;
+  color: var(--ascensor-blue);
   display: grid;
   place-items: center;
-  border: 2px dashed var(--primary);
-  border-radius: 10px;
-  background: #f9fffa;
-  color: var(--primary);
+  font: inherit;
   font-size: 18px;
-  font-weight: 800;
+  font-weight: 950;
   cursor: pointer;
+  transition:
+    transform var(--ascensor-transition),
+    border-color var(--ascensor-transition),
+    background var(--ascensor-transition),
+    box-shadow var(--ascensor-transition);
+}
+
+.mnx-ascensor-slot:hover {
+  transform: translateY(-2px);
+  background: var(--ascensor-blue-soft);
+  box-shadow: 0 8px 16px rgba(45, 127, 240, 0.10);
 }
 
 .mnx-ascensor-slot svg {
-  width: 18px;
-  height: 18px;
+  width: 19px;
+  height: 19px;
 }
 
 .mnx-ascensor-slot.filled {
-  border-style: solid;
   color: #ffffff;
-  background: var(--primary);
-  border-color: var(--primary);
+  border-style: solid;
+  border-color: var(--ascensor-blue);
+  background: linear-gradient(145deg, #4390f5, #246dcc);
+  box-shadow: 0 9px 17px rgba(45, 127, 240, 0.19);
 }
 
 .mnx-ascensor-slot.filled.negative {
-  background: var(--ascensor-red);
   border-color: var(--ascensor-red);
+  background: linear-gradient(145deg, #ef6262, #c93636);
+  box-shadow: 0 9px 17px rgba(227, 76, 76, 0.20);
 }
 
 .mnx-ascensor-slot-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-light);
+  color: var(--ascensor-muted);
+  font-size: 10px;
+  font-weight: 850;
+  white-space: nowrap;
 }
 
-/* =========================
-   Pista general
-   ========================= */
+/* =========================================================
+   RECORDATORIO
+   ========================================================= */
 
 .mnx-ascensor-reminder {
   grid-area: reminder;
 }
 
-/* =========================
-   Explicación
-   ========================= */
+.mnx-ascensor-reminder-card {
+  min-height: 210px;
+  padding: 15px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  text-align: center;
+  background:
+    radial-gradient(circle at 18% 10%, rgba(255, 189, 58, 0.24), transparent 34%),
+    linear-gradient(145deg, #fffdf7 0%, #fff7dc 100%);
+  border-color: rgba(255, 189, 58, 0.28);
+}
+
+.mnx-ascensor-reminder-card img {
+  width: 82px;
+  height: 82px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 10px rgba(73, 70, 28, 0.13));
+}
+
+.mnx-ascensor-reminder-card p {
+  margin: 0;
+  color: #554719;
+  font-size: 11.5px;
+  line-height: 1.42;
+  font-weight: 750;
+}
+
+.mnx-ascensor-reminder-card p strong {
+  color: #9c6b00;
+}
+
+.mnx-ascensor-reminder-card > span {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #ffc84f, #e99b14);
+  font-size: 21px;
+  font-weight: 950;
+  box-shadow: 0 9px 17px rgba(233, 155, 20, 0.20);
+}
+
+/* =========================================================
+   EXPLICACIÓN
+   ========================================================= */
 
 .mnx-ascensor-question {
   grid-area: question;
+}
+
+.mnx-ascensor-question-card {
+  min-height: 210px;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
 }
@@ -350,118 +1011,277 @@
   position: relative;
   display: block;
   flex: 1;
-  min-height: 105px;
+  min-height: 104px;
 }
 
 .mnx-ascensor-answer-box textarea {
   width: 100%;
   height: 100%;
-  min-height: 105px;
+  min-height: 104px;
   resize: none;
-  padding: 13px 15px 28px;
-  border: 2px solid #e8eee8;
-  border-radius: var(--radius-sm);
+  padding: 13px 15px 29px;
+  border: 2px solid #dce6f0;
+  border-radius: 15px;
   outline: none;
   background: #ffffff;
-  color: var(--text-dark);
+  color: var(--ascensor-ink);
   font: inherit;
-  font-size: 13px;
-  line-height: 1.4;
-  transition: var(--transition);
+  font-size: 12.5px;
+  line-height: 1.45;
+  transition:
+    border-color var(--ascensor-transition),
+    box-shadow var(--ascensor-transition);
 }
 
 .mnx-ascensor-answer-box textarea:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(15, 154, 67, 0.1);
+  border-color: var(--ascensor-blue);
+  box-shadow: 0 0 0 4px rgba(45, 127, 240, 0.10);
 }
 
 .mnx-ascensor-answer-box > span {
   position: absolute;
   right: 12px;
   bottom: 9px;
-  color: var(--text-light);
-  font-size: 11px;
+  color: var(--ascensor-muted);
+  font-size: 10px;
+  font-weight: 700;
 }
 
 .mnx-ascensor-save-btn {
   align-self: flex-end;
   min-width: 190px;
-  height: 42px;
+  min-height: 42px;
   margin-top: 10px;
+  padding: 0 15px;
   border: 0;
-  border-radius: var(--radius-sm);
-  background: var(--primary-light);
-  color: var(--primary-dark);
+  border-radius: 13px;
+  background: var(--ascensor-blue-soft);
+  color: var(--ascensor-blue-dark);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
-  font-size: 13px;
-  font-weight: 700;
+  gap: 8px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
   cursor: pointer;
-  transition: var(--transition);
+  transition:
+    transform var(--ascensor-transition),
+    box-shadow var(--ascensor-transition),
+    background var(--ascensor-transition);
 }
 
 .mnx-ascensor-save-btn:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+  background: #dcecff;
+  box-shadow: 0 10px 18px rgba(45, 127, 240, 0.12);
 }
 
-/* =========================
-   Acciones
-   ========================= */
+/* =========================================================
+   ACCIONES Y EVIDENCIA
+   ========================================================= */
 
 .mnx-ascensor-actions {
   grid-area: actions;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 9px;
 }
 
-.mnx-ascensor-actions .mnx-cofre-check-btn {
-  max-width: none;
+.mnx-ascensor-check-btn {
+  width: 100%;
+  min-height: 56px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 17px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #2e85f6 0%, #165ec7 100%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 950;
+  cursor: pointer;
+  box-shadow: 0 15px 27px rgba(45, 127, 240, 0.25);
+  transition:
+    transform var(--ascensor-transition),
+    box-shadow var(--ascensor-transition);
+}
+
+.mnx-ascensor-check-btn:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 19px 31px rgba(45, 127, 240, 0.31);
+}
+
+.mnx-ascensor-check-btn svg {
+  width: 22px;
+  height: 22px;
 }
 
 .mnx-ascensor-progress {
   margin: 0;
-  color: var(--primary-dark);
-  font-size: 12px;
-  font-weight: 700;
+  color: var(--ascensor-blue-dark);
+  font-size: 11px;
+  font-weight: 850;
   text-align: center;
 }
 
-.mnx-ascensor-actions .mnx-cofre-evidence-card {
+.mnx-ascensor-evidence-card {
   flex: 1;
+  min-height: 139px;
+  padding: 15px;
+  background:
+    radial-gradient(circle at 92% 10%, rgba(37, 191, 210, 0.14), transparent 34%),
+    #ffffff;
 }
 
-/* =========================
-   Responsive
-   ========================= */
+.mnx-ascensor-evidence-title {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
 
-@media (max-width: 1400px) {
+.mnx-ascensor-evidence-title svg,
+.mnx-ascensor-info-row > svg {
+  width: 31px;
+  height: 31px;
+  flex: 0 0 31px;
+  padding: 7px;
+  border-radius: 10px;
+  color: #ffffff;
+  background: linear-gradient(145deg, var(--ascensor-cyan), var(--ascensor-blue));
+}
+
+.mnx-ascensor-evidence-title strong {
+  color: var(--ascensor-navy);
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.mnx-ascensor-evidence-card > p,
+.mnx-ascensor-info-row p {
+  margin: 0;
+  color: var(--ascensor-muted);
+  font-size: 10.5px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.mnx-ascensor-info-row {
+  margin-top: 10px;
+  padding-top: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  border-top: 1px solid #e5edf5;
+}
+
+/* =========================================================
+   CERRAR SESIÓN
+   ========================================================= */
+
+.mnx-ascensor-logout-float {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 70;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 16px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #ef5f5f, #bd3030);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 15px 28px rgba(189, 48, 48, 0.27);
+  transition:
+    transform var(--ascensor-transition),
+    box-shadow var(--ascensor-transition);
+}
+
+.mnx-ascensor-logout-float:hover {
+  transform: translateY(-3px) rotate(-4deg);
+  box-shadow: 0 19px 32px rgba(189, 48, 48, 0.34);
+}
+
+.mnx-ascensor-logout-float svg {
+  width: 21px;
+  height: 21px;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1450px) {
   .mnx-ascensor-activity-grid {
-    grid-template-columns: 240px minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: 285px minmax(0, 1fr) minmax(270px, 0.78fr);
+  }
+
+  .mnx-ascensor-main {
+    padding-inline: 26px;
   }
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1260px) {
+  .mnx-ascensor-header {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-ascensor-welcome-wrap {
+    max-width: 720px;
+  }
+
   .mnx-ascensor-activity-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-areas:
       "guide guide"
-      "art art"
-      "placement placement"
+      "art placement"
       "reminder actions"
       "question question";
   }
 
-  .mnx-ascensor-art {
-    aspect-ratio: 21 / 9;
-    max-height: 280px;
+  .mnx-ascensor-art,
+  .mnx-ascensor-art > img {
+    min-height: 390px;
   }
 }
 
-@media (max-width: 850px) {
+@media (max-width: 980px) {
+  .mnx-ascensor-page {
+    padding-left: 0;
+  }
+
+  .mnx-ascensor-hamburger {
+    display: block;
+  }
+
+  .mnx-ascensor-sidebar {
+    width: min(300px, calc(100vw - 54px));
+    min-width: 0;
+    transform: translateX(-108%);
+    transition: transform 220ms ease;
+  }
+
+  .mnx-ascensor-sidebar-open {
+    transform: translateX(0);
+  }
+
+  .mnx-ascensor-main {
+    padding: 82px 20px 34px;
+  }
+
+  .mnx-ascensor-top-actions {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+  }
+
   .mnx-ascensor-activity-grid {
     grid-template-columns: 1fr;
     grid-template-areas:
@@ -471,60 +1291,213 @@
       "reminder"
       "question"
       "actions";
-    gap: 12px;
   }
 
-  .mnx-ascensor-art {
-    aspect-ratio: 16 / 9;
-    max-height: 220px;
+  .mnx-ascensor-art,
+  .mnx-ascensor-art > img {
+    min-height: 330px;
+  }
+
+  .mnx-ascensor-reminder-card {
+    min-height: 170px;
+  }
+
+  .mnx-ascensor-actions {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .mnx-ascensor-progress {
+    grid-column: 1;
+  }
+
+  .mnx-ascensor-evidence-card {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+}
+
+@media (max-width: 720px) {
+  .mnx-ascensor-main {
+    padding-inline: 14px;
+  }
+
+  .mnx-ascensor-top-actions {
+    right: 14px;
+    gap: 7px;
+  }
+
+  .mnx-ascensor-ghost-btn {
+    min-width: 0;
+    padding-inline: 12px;
+  }
+
+  .mnx-ascensor-wide {
+    min-width: 0;
+  }
+
+  .mnx-ascensor-header {
+    padding: 20px;
+    border-radius: 25px;
+  }
+
+  .mnx-ascensor-title-row h1 {
+    font-size: clamp(30px, 9vw, 42px);
+  }
+
+  .mnx-ascensor-welcome-wrap {
+    grid-template-columns: 1fr 104px;
+  }
+
+  .mnx-ascensor-hero-robot {
+    width: 104px;
+    height: 124px;
+  }
+
+  .mnx-ascensor-speech {
+    padding: 17px;
   }
 
   .mnx-ascensor-floor-cards {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(78px, 1fr));
+  }
+
+  .mnx-ascensor-drop-zone {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-ascensor-order-label {
+    justify-self: center;
   }
 
   .mnx-ascensor-slots {
-    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+    grid-template-columns: repeat(5, minmax(50px, 1fr));
+  }
+
+  .mnx-ascensor-actions {
+    display: flex;
+  }
+
+  .mnx-ascensor-progress,
+  .mnx-ascensor-evidence-card {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 540px) {
+  .mnx-ascensor-top-actions {
+    left: 76px;
+    right: 12px;
+    justify-content: flex-end;
+  }
+
+  .mnx-ascensor-ghost-btn {
+    font-size: 0;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+  }
+
+  .mnx-ascensor-ghost-btn svg,
+  .mnx-ascensor-ghost-btn > span {
+    width: 19px;
+    height: 19px;
+    font-size: 19px;
+  }
+
+  .mnx-ascensor-wide {
+    width: 46px;
+  }
+
+  .mnx-ascensor-header {
+    padding: 18px 15px;
+  }
+
+  .mnx-ascensor-title-icon {
+    width: 45px;
+    height: 45px;
+    flex-basis: 45px;
+  }
+
+  .mnx-ascensor-title-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .mnx-ascensor-welcome-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-ascensor-speech::after {
+    display: none;
+  }
+
+  .mnx-ascensor-hero-robot {
+    width: 108px;
+    height: 112px;
+    justify-self: center;
+  }
+
+  .mnx-ascensor-guide-labels {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-ascensor-guide-chips {
+    justify-content: flex-start;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .mnx-ascensor-chip-wrap {
+    flex: 0 0 auto;
+  }
+
+  .mnx-ascensor-floor-cards {
+    grid-template-columns: repeat(2, minmax(80px, 1fr));
+  }
+
+  .mnx-ascensor-slots {
+    grid-template-columns: repeat(2, minmax(78px, 1fr));
+  }
+
+  .mnx-ascensor-art,
+  .mnx-ascensor-art > img {
+    min-height: 280px;
+  }
+
+  .mnx-ascensor-mission {
+    grid-template-columns: 37px minmax(0, 1fr);
+    padding: 13px;
+  }
+
+  .mnx-ascensor-mission svg {
+    width: 34px;
+    height: 34px;
   }
 
   .mnx-ascensor-save-btn {
     width: 100%;
+    min-width: 0;
+  }
+
+  .mnx-ascensor-logout-float {
+    width: 44px;
+    height: 44px;
+    right: 14px;
+    bottom: 14px;
   }
 }
 
-@media (max-width: 520px) {
-  .mnx-ascensor-title-icon {
-    width: 34px;
-    height: 34px;
-    flex-basis: 34px;
-  }
-
-  .mnx-ascensor-title-icon svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  .mnx-ascensor-art {
-    min-height: 210px;
-  }
-
-  .mnx-ascensor-mission {
-    grid-template-columns: 30px 1fr;
-    padding: 11px 12px;
-  }
-
-  .mnx-ascensor-mission svg {
-    width: 28px;
-    height: 28px;
-  }
-
-  .mnx-ascensor-floor-cards,
-  .mnx-ascensor-slots {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .mnx-ascensor-question,
-  .mnx-ascensor-placement-card {
-    padding: 14px;
+@media (prefers-reduced-motion: reduce) {
+  .mnx-ascensor-page *,
+  .mnx-ascensor-page *::before,
+  .mnx-ascensor-page *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

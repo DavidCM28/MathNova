@@ -1,5 +1,9 @@
 import "./CofreBienvenida.css";
 import audioIntroSuma from "../../../assets/mathnumbers/01-cofre-bienvenida/intro_suma.mp3";
+import audioPistaByte from "../../../assets/mathnumbers/01-cofre-bienvenida/pista_byte.mp3";
+import audioConsejoSuma from "../../../assets/mathnumbers/01-cofre-bienvenida/consejo_suma.mp3";
+import bytePista from "../../../assets/mathGeometry/actividad1/byte-pista.png";
+import videoBytePistas from "../../../assets/mathGeometry/actividad1/byte_aciertos_y_pistas_MathGeometry.mp4";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -31,6 +35,8 @@ import {
   chestVib,
   cofreGuide,
   cofreHero,
+  cofreHeroTalking,
+  cofreHeroTalkingIdle,
   cofreTitleChest,
   logo,
   menuHamburguesa,
@@ -91,8 +97,8 @@ const CHEST_FALL_DURATION_MS = 3100;
    pero el archivo compila y el diseño puede probarse normalmente.
 */
 const INTRO_AUDIO_SRC: string | null = audioIntroSuma;
-const GUIDE_AUDIO_SRC: string | null = null;
-const HINT_AUDIO_SRC: string | null = null;
+const GUIDE_AUDIO_SRC: string | null = audioConsejoSuma;
+const HINT_AUDIO_SRC: string | null = audioPistaByte;
 
 /* =========================================================
    2.1 TEXTO SINCRONIZADO CON EL AUDIO DE INTRODUCCIÓN
@@ -184,6 +190,198 @@ function getIntroTypedState(
   };
 }
 
+
+
+/* =========================================================
+   2.2 TEXTO SINCRONIZADO CON EL CONSEJO DE SUMA
+   =========================================================
+   El audio debe estar en:
+   client/src/assets/mathnumbers/01-cofre-bienvenida/consejo_suma.mp3
+*/
+const SUMA_GUIDE_INITIAL_TEXT =
+  "Presiona reproducir para escuchar el consejo de Suma.";
+
+const SUMA_GUIDE_SCRIPT = [
+  "¡Atención, explorador!",
+  "No te fijes solo en cómo están escritos los números.",
+  "Piensa en la cantidad que representa cada uno.",
+  "Una fracción divide un entero en partes iguales y un decimal puede mostrar esa misma cantidad de otra forma.",
+  "Compara las partes y busca dos opciones que representen la misma porción.",
+  "¡Observa con calma y confía en tu respuesta!",
+];
+
+const SUMA_GUIDE_FINAL_TEXT =
+  SUMA_GUIDE_SCRIPT[SUMA_GUIDE_SCRIPT.length - 1];
+
+const SUMA_GUIDE_TEXT_SPEED = 1.45;
+
+function getSumaGuideTypedState(
+  currentTime: number,
+  duration: number,
+) {
+  const safeDuration =
+    Number.isFinite(duration) && duration > 0
+      ? duration
+      : 19;
+
+  const weights = SUMA_GUIDE_SCRIPT.map((line) =>
+    Math.max(1, line.length),
+  );
+
+  const totalWeight = weights.reduce(
+    (total, weight) => total + weight,
+    0,
+  );
+
+  let accumulatedStart = 0;
+
+  for (
+    let index = 0;
+    index < SUMA_GUIDE_SCRIPT.length;
+    index += 1
+  ) {
+    const line = SUMA_GUIDE_SCRIPT[index];
+
+    const lineDuration =
+      (weights[index] / totalWeight) * safeDuration;
+
+    const accumulatedEnd =
+      accumulatedStart + lineDuration;
+
+    if (
+      currentTime >= accumulatedStart &&
+      currentTime < accumulatedEnd
+    ) {
+      const naturalProgress = Math.min(
+        1,
+        Math.max(
+          0,
+          (currentTime - accumulatedStart) /
+            lineDuration,
+        ),
+      );
+
+      const textProgress = Math.min(
+        1,
+        naturalProgress * SUMA_GUIDE_TEXT_SPEED,
+      );
+
+      const visibleCharacters = Math.max(
+        1,
+        Math.ceil(line.length * textProgress),
+      );
+
+      return {
+        text: line.slice(0, visibleCharacters),
+        index,
+      };
+    }
+
+    accumulatedStart = accumulatedEnd;
+  }
+
+  return {
+    text: SUMA_GUIDE_FINAL_TEXT,
+    index: SUMA_GUIDE_SCRIPT.length - 1,
+  };
+}
+
+/* =========================================================
+   2.2 TEXTO SINCRONIZADO CON LA PISTA DE BYTE
+   =========================================================
+   El audio debe estar en:
+   client/src/assets/mathnumbers/01-cofre-bienvenida/pista_byte.mp3
+
+   La voz puede pronunciar "cero punto veinticinco", mientras
+   que el texto visual muestra "0.25".
+*/
+const BYTE_HINT_INITIAL_TEXT =
+  "Presiona reproducir para escuchar la pista de Byte.";
+
+const BYTE_HINT_SCRIPT = [
+  "¡Hola, explorador!",
+  "Si ves 0.25, imagina una barra completa dividida en cuatro partes iguales.",
+  "Ahora piensa cuántas de esas partes representa el decimal.",
+  "Observa las fracciones y busca la que muestre la misma cantidad.",
+  "¡Tú puedes encontrarla!",
+];
+
+const BYTE_HINT_FINAL_TEXT =
+  BYTE_HINT_SCRIPT[BYTE_HINT_SCRIPT.length - 1];
+
+const BYTE_HINT_TEXT_SPEED = 1.45;
+
+function getByteHintTypedState(
+  currentTime: number,
+  duration: number,
+) {
+  const safeDuration =
+    Number.isFinite(duration) && duration > 0
+      ? duration
+      : 17;
+
+  const weights = BYTE_HINT_SCRIPT.map((line) =>
+    Math.max(1, line.length),
+  );
+
+  const totalWeight = weights.reduce(
+    (total, weight) => total + weight,
+    0,
+  );
+
+  let accumulatedStart = 0;
+
+  for (
+    let index = 0;
+    index < BYTE_HINT_SCRIPT.length;
+    index += 1
+  ) {
+    const line = BYTE_HINT_SCRIPT[index];
+
+    const lineDuration =
+      (weights[index] / totalWeight) * safeDuration;
+
+    const accumulatedEnd =
+      accumulatedStart + lineDuration;
+
+    if (
+      currentTime >= accumulatedStart &&
+      currentTime < accumulatedEnd
+    ) {
+      const naturalProgress = Math.min(
+        1,
+        Math.max(
+          0,
+          (currentTime - accumulatedStart) /
+            lineDuration,
+        ),
+      );
+
+      const textProgress = Math.min(
+        1,
+        naturalProgress * BYTE_HINT_TEXT_SPEED,
+      );
+
+      const visibleCharacters = Math.max(
+        1,
+        Math.ceil(line.length * textProgress),
+      );
+
+      return {
+        text: line.slice(0, visibleCharacters),
+        index,
+      };
+    }
+
+    accumulatedStart = accumulatedEnd;
+  }
+
+  return {
+    text: BYTE_HINT_FINAL_TEXT,
+    index: BYTE_HINT_SCRIPT.length - 1,
+  };
+}
+
 /* =========================================================
    3. PERSONAJES Y ANIMACIONES QUE HABLAN
    =========================================================
@@ -193,8 +391,17 @@ function getIntroTypedState(
    - Usa kind: "video" para MP4 o WebM.
    - El tamaño visual se cambia en las clases CSS indicadas.
 */
-const INTRO_CHARACTER: CharacterMediaConfig = {
-  src: cofreHero,
+/* Personaje cuando todavía no reproduce el audio */
+const INTRO_CHARACTER_IDLE: CharacterMediaConfig = {
+  src: cofreHeroTalkingIdle,
+  kind: "image",
+  alt: "Comandante Suma listo para explicar",
+  className: "mnx-cofre-intro-character",
+};
+
+/* Animación que aparece mientras Suma está hablando */
+const INTRO_CHARACTER_TALKING: CharacterMediaConfig = {
+  src: cofreHeroTalking,
   kind: "image",
   alt: "Comandante Suma explicando la misión",
   className: "mnx-cofre-intro-character",
@@ -212,7 +419,7 @@ const GUIDE_CHARACTER: CharacterMediaConfig = {
   importa su recurso y reemplaza src: cofreGuide por src: bytePista.
 */
 const HINT_CHARACTER: CharacterMediaConfig = {
-  src: cofreGuide,
+  src: bytePista,
   kind: "image",
   alt: "Byte ofreciendo una pista",
   className: "mnx-cofre-help-character",
@@ -224,6 +431,260 @@ const SIDEBAR_CHARACTER: CharacterMediaConfig = {
   alt: "Nova acompañando el progreso semanal",
   className: "mnx-cofre-sidebar-character",
 };
+
+
+/*
+  BYTE ANIMADO DEL CONTENEDOR "PISTA DE BYTE"
+
+  Se usa el mismo video de MathGeometry. El video permanece oculto
+  y sus fotogramas se dibujan sobre un canvas para:
+  - conservar correctamente sus proporciones;
+  - eliminar el fondo blanco conectado a los bordes;
+  - mantener intacto el tamaño y diseño del contenedor de MathNumbers.
+*/
+function limpiarFondoBlancoByte(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+) {
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const data = imageData.data;
+  const total = width * height;
+  const visitado = new Uint8Array(total);
+  const pila: number[] = [];
+
+  const esFondoClaro = (index: number) => {
+    const pixel = index * 4;
+    const r = data[pixel];
+    const g = data[pixel + 1];
+    const b = data[pixel + 2];
+
+    const esClaro = r > 224 && g > 224 && b > 224;
+    const casiSinColor =
+      Math.abs(r - g) < 34 &&
+      Math.abs(r - b) < 34 &&
+      Math.abs(g - b) < 34;
+
+    return esClaro && casiSinColor;
+  };
+
+  const agregar = (index: number) => {
+    if (index < 0 || index >= total) return;
+    if (visitado[index]) return;
+    if (!esFondoClaro(index)) return;
+
+    visitado[index] = 1;
+    pila.push(index);
+  };
+
+  for (let x = 0; x < width; x += 1) {
+    agregar(x);
+    agregar((height - 1) * width + x);
+  }
+
+  for (let y = 0; y < height; y += 1) {
+    agregar(y * width);
+    agregar(y * width + width - 1);
+  }
+
+  while (pila.length > 0) {
+    const index = pila.pop();
+
+    if (index === undefined) continue;
+
+    const pixel = index * 4;
+    data[pixel + 3] = 0;
+
+    const x = index % width;
+    const y = Math.floor(index / width);
+
+    if (x > 0) agregar(index - 1);
+    if (x < width - 1) agregar(index + 1);
+    if (y > 0) agregar(index - width);
+    if (y < height - 1) agregar(index + width);
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+}
+
+function dibujarVideoByteSinEstirar(
+  ctx: CanvasRenderingContext2D,
+  video: HTMLVideoElement,
+  width: number,
+  height: number,
+) {
+  const videoWidth = video.videoWidth || width;
+  const videoHeight = video.videoHeight || height;
+
+  const escala = Math.min(
+    width / videoWidth,
+    height / videoHeight,
+  );
+
+  const drawWidth = videoWidth * escala;
+  const drawHeight = videoHeight * escala;
+  const offsetX = (width - drawWidth) / 2;
+  const offsetY = (height - drawHeight) / 2;
+
+  ctx.drawImage(
+    video,
+    offsetX,
+    offsetY,
+    drawWidth,
+    drawHeight,
+  );
+}
+
+function ByteBlinkMedia() {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [videoReady, setVideoReady] = useState(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+
+    if (!video || !canvas) {
+      return;
+    }
+
+    const ctx = canvas.getContext("2d", {
+      willReadFrequently: true,
+    });
+
+    if (!ctx) {
+      return;
+    }
+
+    /*
+     * La proporción del canvas coincide con el espacio actual
+     * de .mnx-cofre-help-character: 76 x 98.
+     */
+    const canvasWidth = 304;
+    const canvasHeight = 392;
+
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    let animationFrame = 0;
+    let ultimoDibujo = 0;
+
+    const dibujarFrame = () => {
+      if (video.readyState < 2) {
+        return;
+      }
+
+      ctx.clearRect(
+        0,
+        0,
+        canvasWidth,
+        canvasHeight,
+      );
+
+      dibujarVideoByteSinEstirar(
+        ctx,
+        video,
+        canvasWidth,
+        canvasHeight,
+      );
+
+      limpiarFondoBlancoByte(
+        ctx,
+        canvasWidth,
+        canvasHeight,
+      );
+    };
+
+    const dibujarAnimacion = (tiempo: number) => {
+      if (
+        tiempo - ultimoDibujo >= 50 &&
+        video.readyState >= 2
+      ) {
+        dibujarFrame();
+        ultimoDibujo = tiempo;
+      }
+
+      animationFrame =
+        window.requestAnimationFrame(dibujarAnimacion);
+    };
+
+    const prepararByte = () => {
+      dibujarFrame();
+      setVideoReady(true);
+
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+
+      video.play().catch((error) => {
+        console.error(
+          "No se pudo reproducir la animación de Byte:",
+          error,
+        );
+      });
+    };
+
+    video.addEventListener("loadeddata", prepararByte);
+
+    if (video.readyState >= 2) {
+      prepararByte();
+    }
+
+    animationFrame =
+      window.requestAnimationFrame(dibujarAnimacion);
+
+    return () => {
+      video.removeEventListener(
+        "loadeddata",
+        prepararByte,
+      );
+
+      window.cancelAnimationFrame(animationFrame);
+      video.pause();
+    };
+  }, []);
+
+  return (
+    <>
+      <video
+        ref={videoRef}
+        src={videoBytePistas}
+        muted
+        loop
+        playsInline
+        preload="auto"
+        autoPlay
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          width: "1px",
+          height: "1px",
+          opacity: 0,
+          pointerEvents: "none",
+        }}
+      />
+
+      {!videoReady && (
+        <img
+          className={HINT_CHARACTER.className}
+          src={HINT_CHARACTER.src}
+          alt={HINT_CHARACTER.alt}
+          draggable={false}
+        />
+      )}
+
+      <canvas
+        ref={canvasRef}
+        className="mnx-cofre-help-character"
+        role="img"
+        aria-label="Byte parpadeando y ofreciendo una pista"
+        style={{
+          display: videoReady ? "block" : "none",
+        }}
+      />
+    </>
+  );
+}
 
 function CharacterMedia({ media }: { media: CharacterMediaConfig }) {
   if (media.kind === "video") {
@@ -374,6 +835,350 @@ function AudioControls({
   );
 }
 
+
+
+function SumaGuideAudio() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const [status, setStatus] =
+    useState<AudioStatus>("idle");
+
+  const [text, setText] = useState(
+    SUMA_GUIDE_INITIAL_TEXT,
+  );
+
+  const playAudio = async () => {
+    const audio = audioRef.current;
+
+    if (!audio || !GUIDE_AUDIO_SRC) {
+      return;
+    }
+
+    if (audio.ended) {
+      audio.currentTime = 0;
+      setText("");
+    }
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+
+      console.error(
+        "No se pudo reproducir el consejo de Suma:",
+        error,
+      );
+    }
+  };
+
+  const pauseAudio = () => {
+    const audio = audioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    audio.pause();
+    setStatus("paused");
+  };
+
+  const restartAudio = async () => {
+    const audio = audioRef.current;
+
+    if (!audio || !GUIDE_AUDIO_SRC) {
+      return;
+    }
+
+    audio.pause();
+    audio.currentTime = 0;
+    setText("");
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+
+      console.error(
+        "No se pudo reiniciar el consejo de Suma:",
+        error,
+      );
+    }
+  };
+
+  const updateTypedText = () => {
+    const audio = audioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    const typedState = getSumaGuideTypedState(
+      audio.currentTime,
+      audio.duration,
+    );
+
+    setText(typedState.text);
+  };
+
+  const finishAudio = () => {
+    setStatus("ended");
+    setText(SUMA_GUIDE_FINAL_TEXT);
+  };
+
+  const statusText =
+    status === "playing"
+      ? "Suma está hablando"
+      : status === "paused"
+        ? "Audio en pausa"
+        : status === "ended"
+          ? "Consejo completado"
+          : "Listo para escuchar";
+
+  return (
+    <>
+      <p aria-live="polite">
+        {text}
+
+        {status === "playing" && (
+          <span
+            className="mnx-cofre-typing-cursor"
+            aria-hidden="true"
+          />
+        )}
+      </p>
+
+      <div className="mnx-cofre-audio-controls mnx-cofre-audio-compact">
+        <audio
+          ref={audioRef}
+          src={GUIDE_AUDIO_SRC ?? undefined}
+          preload="metadata"
+          onPlay={() => setStatus("playing")}
+          onPause={() => {
+            if (!audioRef.current?.ended) {
+              setStatus("paused");
+            }
+          }}
+          onTimeUpdate={updateTypedText}
+          onEnded={finishAudio}
+        />
+
+        <button
+          type="button"
+          onClick={playAudio}
+          disabled={
+            !GUIDE_AUDIO_SRC || status === "playing"
+          }
+          aria-label="Reproducir consejo de Suma"
+        >
+          <FiPlay />
+        </button>
+
+        <button
+          type="button"
+          onClick={pauseAudio}
+          disabled={status !== "playing"}
+          aria-label="Pausar consejo de Suma"
+        >
+          <FiPause />
+        </button>
+
+        <button
+          type="button"
+          onClick={restartAudio}
+          disabled={!GUIDE_AUDIO_SRC}
+          aria-label="Repetir consejo de Suma"
+        >
+          <FiRotateCcw />
+        </button>
+
+        <span
+          className={`mnx-cofre-audio-status ${
+            status === "playing"
+              ? "mnx-cofre-audio-playing"
+              : ""
+          }`}
+        >
+          <FiVolume2 />
+          {statusText}
+        </span>
+      </div>
+    </>
+  );
+}
+
+function ByteHintAudio() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const [status, setStatus] =
+    useState<AudioStatus>("idle");
+
+  const [text, setText] = useState(
+    BYTE_HINT_INITIAL_TEXT,
+  );
+
+  const playAudio = async () => {
+    const audio = audioRef.current;
+
+    if (!audio || !HINT_AUDIO_SRC) {
+      return;
+    }
+
+    if (audio.ended) {
+      audio.currentTime = 0;
+      setText("");
+    }
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+
+      console.error(
+        "No se pudo reproducir la pista de Byte:",
+        error,
+      );
+    }
+  };
+
+  const pauseAudio = () => {
+    const audio = audioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    audio.pause();
+    setStatus("paused");
+  };
+
+  const restartAudio = async () => {
+    const audio = audioRef.current;
+
+    if (!audio || !HINT_AUDIO_SRC) {
+      return;
+    }
+
+    audio.pause();
+    audio.currentTime = 0;
+    setText("");
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+
+      console.error(
+        "No se pudo reiniciar la pista de Byte:",
+        error,
+      );
+    }
+  };
+
+  const updateTypedText = () => {
+    const audio = audioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    const typedState = getByteHintTypedState(
+      audio.currentTime,
+      audio.duration,
+    );
+
+    setText(typedState.text);
+  };
+
+  const finishAudio = () => {
+    setStatus("ended");
+    setText(BYTE_HINT_FINAL_TEXT);
+  };
+
+  const statusText =
+    status === "playing"
+      ? "Byte está hablando"
+      : status === "paused"
+        ? "Audio en pausa"
+        : status === "ended"
+          ? "Pista completada"
+          : "Listo para escuchar";
+
+  return (
+    <>
+      <p aria-live="polite">
+        {text}
+
+        {status === "playing" && (
+          <span
+            className="mnx-cofre-typing-cursor"
+            aria-hidden="true"
+          />
+        )}
+      </p>
+
+      <div className="mnx-cofre-audio-controls mnx-cofre-audio-compact">
+        <audio
+          ref={audioRef}
+          src={HINT_AUDIO_SRC ?? undefined}
+          preload="metadata"
+          onPlay={() => setStatus("playing")}
+          onPause={() => {
+            if (!audioRef.current?.ended) {
+              setStatus("paused");
+            }
+          }}
+          onTimeUpdate={updateTypedText}
+          onEnded={finishAudio}
+        />
+
+        <button
+          type="button"
+          onClick={playAudio}
+          disabled={
+            !HINT_AUDIO_SRC || status === "playing"
+          }
+          aria-label="Reproducir pista de Byte"
+        >
+          <FiPlay />
+        </button>
+
+        <button
+          type="button"
+          onClick={pauseAudio}
+          disabled={status !== "playing"}
+          aria-label="Pausar pista de Byte"
+        >
+          <FiPause />
+        </button>
+
+        <button
+          type="button"
+          onClick={restartAudio}
+          disabled={!HINT_AUDIO_SRC}
+          aria-label="Repetir pista de Byte"
+        >
+          <FiRotateCcw />
+        </button>
+
+        <span
+          className={`mnx-cofre-audio-status ${
+            status === "playing"
+              ? "mnx-cofre-audio-playing"
+              : ""
+          }`}
+        >
+          <FiVolume2 />
+          {statusText}
+        </span>
+      </div>
+    </>
+  );
+}
+
 function Fraction({ top, bottom }: { top: string; bottom: string }) {
   return (
     <span
@@ -406,6 +1211,10 @@ export function CofreBienvenida() {
   const introAudioRef = useRef<HTMLAudioElement | null>(null);
   const [introAudioStatus, setIntroAudioStatus] =
     useState<AudioStatus>("idle");
+  const currentIntroCharacter =
+  introAudioStatus === "playing"
+    ? INTRO_CHARACTER_TALKING
+    : INTRO_CHARACTER_IDLE;
   const [introText, setIntroText] = useState(
     INTRO_INITIAL_TEXT,
   );
@@ -905,7 +1714,14 @@ export function CofreBienvenida() {
                 Edita INTRO_CHARACTER al inicio del archivo.
                 Cambia su tamaño en .mnx-cofre-intro-character.
               */}
-              <CharacterMedia media={INTRO_CHARACTER} />
+              <CharacterMedia
+                key={
+                  introAudioStatus === "playing"
+                    ? "suma-talking"
+                    : "suma-idle"
+                }
+                media={currentIntroCharacter}
+              />
               <div className="mnx-cofre-character-shadow" />
             </div>
 
@@ -1234,37 +2050,21 @@ export function CofreBienvenida() {
                     Consejo de Suma
                   </span>
                   <h3>Busca la misma cantidad</h3>
-                  <p>
-                    Una fracción y un decimal pueden verse
-                    diferentes y aun así representar lo mismo.
-                  </p>
 
-                  <AudioControls
-                    src={GUIDE_AUDIO_SRC}
-                    characterName="Comandante Suma"
-                    compact
-                  />
+                  <SumaGuideAudio />
                 </div>
               </article>
 
               <article className="mnx-cofre-help-card mnx-cofre-byte-help">
-                <CharacterMedia media={HINT_CHARACTER} />
+                <ByteBlinkMedia />
 
                 <div>
                   <span className="mnx-cofre-help-label">
                     Pista de Byte
                   </span>
                   <h3>Piensa en partes iguales</h3>
-                  <p>
-                    Si ves 0.25, imagina una barra dividida en
-                    cuatro partes iguales.
-                  </p>
 
-                  <AudioControls
-                    src={HINT_AUDIO_SRC}
-                    characterName="Byte"
-                    compact
-                  />
+                  <ByteHintAudio />
 
                   <button
                     type="button"
