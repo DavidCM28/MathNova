@@ -32,6 +32,7 @@ import {
   FiUserPlus,
   FiEye,
   FiPieChart,
+  FiTrendingUp,
   FiX,
   FiSave,
   FiCheckCircle,
@@ -101,7 +102,7 @@ function MisGruposDocente() {
   const navigate = useNavigate();
 
   const alumnosDelGrupoEditando = grupoEditando
-    ? alumnosPorGrupo[grupoEditando.id_grupo] ?? []
+    ? (alumnosPorGrupo[grupoEditando.id_grupo] ?? [])
     : [];
 
   const obtenerCantidadAlumnos = (grupo: Grupo) => {
@@ -913,6 +914,19 @@ function MisGruposDocente() {
             >
               <FiEdit />
               <span>Actividades</span>
+            </button>
+
+            <button
+              className={`docente-menu-item ${
+                selectedMenu === "avance-actividad" ? "active-soft" : ""
+              }`}
+              onClick={() =>
+                irARuta("/avance-actividad-docente", "avance-actividad")
+              }
+              type="button"
+            >
+              <FiTrendingUp />
+              <span>Avance de actividad</span>
             </button>
 
             <button

@@ -14,6 +14,7 @@ import {
   FiUsers,
   FiEdit,
   FiBarChart2,
+  FiTrendingUp,
   FiChevronDown,
   FiLogOut,
   FiHelpCircle,
@@ -248,6 +249,17 @@ function CrearGrupoDocente() {
             >
               <FiEdit />
               <span>Actividades</span>
+            </button>
+
+            <button
+              type="button"
+              className={`docente-menu-item ${
+                selectedMenu === "avance-actividad" ? "active-soft" : ""
+              }`}
+              onClick={() => irARuta("/avance-actividad-docente")}
+            >
+              <FiTrendingUp />
+              <span>Avance de actividad</span>
             </button>
 
             <button

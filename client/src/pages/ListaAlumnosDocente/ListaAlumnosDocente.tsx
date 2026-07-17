@@ -11,6 +11,7 @@ import {
   FiUsers,
   FiEdit,
   FiBarChart2,
+  FiTrendingUp,
   FiChevronDown,
   FiLogOut,
   FiHelpCircle,
@@ -20,6 +21,9 @@ import {
   FiMoreVertical,
   FiUser,
   FiCalendar,
+  FiCheckCircle,
+  FiChevronLeft,
+  FiChevronRight,
 } from "react-icons/fi";
 
 type Alumno = {
@@ -56,7 +60,13 @@ type GruposResponse = {
   mensaje?: string;
 };
 
-type EstadoLista = "Todos" | "Excelente" | "Bueno" | "Regular" | "En riesgo" | "Sin datos";
+type EstadoLista =
+  | "Todos"
+  | "Excelente"
+  | "Bueno"
+  | "Regular"
+  | "En riesgo"
+  | "Sin datos";
 
 const API_DOCENTE_ALUMNOS = "http://localhost:3001/api/docente/alumnos";
 const API_GRUPOS = "http://localhost:3001/api/grupos";
@@ -76,7 +86,9 @@ async function leerRespuesta(response: Response) {
   try {
     return texto ? JSON.parse(texto) : {};
   } catch {
-    throw new Error("El backend no devolvió JSON. Revisa que la ruta exista y que el servidor esté encendido.");
+    throw new Error(
+      "El backend no devolvió JSON. Revisa que la ruta exista y que el servidor esté encendido.",
+    );
   }
 }
 
@@ -107,13 +119,21 @@ function obtenerColorAvatar(color: string, idAlumno: number) {
     return colores[color];
   }
 
-  const respaldo = ["#0058ff", "#7c3aed", "#334155", "#00a86b", "#f59e0b", "#14b8a6"];
+  const respaldo = [
+    "#0058ff",
+    "#7c3aed",
+    "#334155",
+    "#00a86b",
+    "#f59e0b",
+    "#14b8a6",
+  ];
   return respaldo[Math.abs(Number(idAlumno) || 0) % respaldo.length];
 }
 
 function obtenerEstadoLista(alumno: Alumno): Exclude<EstadoLista, "Todos"> {
   const sinPromedio = alumno.promedio === null || alumno.promedio === undefined;
-  const sinAsistencia = alumno.asistencia === null || alumno.asistencia === undefined;
+  const sinAsistencia =
+    alumno.asistencia === null || alumno.asistencia === undefined;
 
   if (sinPromedio && sinAsistencia) {
     return "Sin datos";
@@ -173,9 +193,7 @@ function descargarCsv(alumnos: Alumno[]) {
 
   const csv = [encabezados, ...filas]
     .map((fila) =>
-      fila
-        .map((valor) => `"${String(valor).replace(/"/g, '""')}"`)
-        .join(",")
+      fila.map((valor) => `"${String(valor).replace(/"/g, '""')}"`).join(","),
     )
     .join("\n");
 
@@ -202,6 +220,9 @@ function ListaAlumnosDocente() {
   const [filtroEstado, setFiltroEstado] = useState<EstadoLista>("Todos");
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [notificacion, setNotificacion] = useState("");
+  const ALUMNOS_POR_PAGINA = 10;
 
   const [gruposOpen, setGruposOpen] = useState(() => {
     return localStorage.getItem("docente-grupos-open") !== "false";
@@ -256,15 +277,23 @@ function ListaAlumnosDocente() {
           }),
         ]);
 
-        const alumnosData = (await leerRespuesta(alumnosResponse)) as DocenteAlumnosResponse;
-        const gruposData = (await leerRespuesta(gruposResponse)) as GruposResponse;
+        const alumnosData = (await leerRespuesta(
+          alumnosResponse,
+        )) as DocenteAlumnosResponse;
+        const gruposData = (await leerRespuesta(
+          gruposResponse,
+        )) as GruposResponse;
 
         if (!alumnosResponse.ok) {
-          throw new Error(alumnosData?.mensaje || "No se pudieron cargar los alumnos.");
+          throw new Error(
+            alumnosData?.mensaje || "No se pudieron cargar los alumnos.",
+          );
         }
 
         if (!gruposResponse.ok) {
-          throw new Error(gruposData?.mensaje || "No se pudieron cargar los grupos.");
+          throw new Error(
+            gruposData?.mensaje || "No se pudieron cargar los grupos.",
+          );
         }
 
         setAlumnos(alumnosData.alumnos || []);
@@ -276,7 +305,7 @@ function ListaAlumnosDocente() {
         setError(
           error instanceof Error
             ? error.message
-            : "No se pudieron cargar los datos."
+            : "No se pudieron cargar los datos.",
         );
       } finally {
         setCargando(false);
@@ -296,7 +325,8 @@ function ListaAlumnosDocente() {
         .filter(Boolean);
 
       const coincideGrupo =
-        grupoSeleccionado === "todos" || gruposAlumno.includes(grupoSeleccionado);
+        grupoSeleccionado === "todos" ||
+        gruposAlumno.includes(grupoSeleccionado);
 
       const estadoAlumno = obtenerEstadoLista(alumno);
 
@@ -304,7 +334,7 @@ function ListaAlumnosDocente() {
         filtroEstado === "Todos" || estadoAlumno === filtroEstado;
 
       const textoAlumno = normalizarTexto(
-        `${alumno.nombre} ${alumno.correo || ""} ${alumno.usuario || ""} ${alumno.grupo}`
+        `${alumno.nombre} ${alumno.correo || ""} ${alumno.usuario || ""} ${alumno.grupo}`,
       );
 
       const coincideBusqueda =
@@ -314,15 +344,48 @@ function ListaAlumnosDocente() {
     });
   }, [alumnos, grupoSeleccionado, filtroEstado, busqueda]);
 
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [grupoSeleccionado, filtroEstado, busqueda]);
+
+  const totalPaginas = Math.max(
+    1,
+    Math.ceil(alumnosFiltrados.length / ALUMNOS_POR_PAGINA),
+  );
+
+  useEffect(() => {
+    if (paginaActual > totalPaginas) {
+      setPaginaActual(totalPaginas);
+    }
+  }, [paginaActual, totalPaginas]);
+
+  const alumnosPaginados = useMemo(() => {
+    const inicio = (paginaActual - 1) * ALUMNOS_POR_PAGINA;
+    return alumnosFiltrados.slice(inicio, inicio + ALUMNOS_POR_PAGINA);
+  }, [alumnosFiltrados, paginaActual]);
+
+  const paginasVisibles = useMemo(() => {
+    const paginas: number[] = [];
+    const inicio = Math.max(1, paginaActual - 2);
+    const fin = Math.min(totalPaginas, inicio + 4);
+    const inicioAjustado = Math.max(1, fin - 4);
+
+    for (let pagina = inicioAjustado; pagina <= fin; pagina += 1) {
+      paginas.push(pagina);
+    }
+
+    return paginas;
+  }, [paginaActual, totalPaginas]);
+
   const resumen = useMemo(() => {
     const total = alumnosFiltrados.length;
 
     const conPromedio = alumnosFiltrados.filter(
-      (alumno) => alumno.promedio !== null && alumno.promedio !== undefined
+      (alumno) => alumno.promedio !== null && alumno.promedio !== undefined,
     );
 
     const conAsistencia = alumnosFiltrados.filter(
-      (alumno) => alumno.asistencia !== null && alumno.asistencia !== undefined
+      (alumno) => alumno.asistencia !== null && alumno.asistencia !== undefined,
     );
 
     const promedioGeneral =
@@ -331,9 +394,9 @@ function ListaAlumnosDocente() {
             (
               conPromedio.reduce(
                 (suma, alumno) => suma + Number(alumno.promedio),
-                0
+                0,
               ) / conPromedio.length
-            ).toFixed(1)
+            ).toFixed(1),
           )
         : null;
 
@@ -342,13 +405,13 @@ function ListaAlumnosDocente() {
         ? Math.round(
             conAsistencia.reduce(
               (suma, alumno) => suma + Number(alumno.asistencia),
-              0
-            ) / conAsistencia.length
+              0,
+            ) / conAsistencia.length,
           )
         : null;
 
     const alumnosEnRiesgo = alumnosFiltrados.filter(
-      (alumno) => obtenerEstadoLista(alumno) === "En riesgo"
+      (alumno) => obtenerEstadoLista(alumno) === "En riesgo",
     ).length;
 
     return {
@@ -363,6 +426,32 @@ function ListaAlumnosDocente() {
     .filter((alumno) => alumno.asistencia !== null)
     .slice(0, 5);
 
+  const manejarExportacion = () => {
+    if (alumnosFiltrados.length === 0) {
+      setNotificacion("No hay alumnos para exportar.");
+      window.setTimeout(() => setNotificacion(""), 3200);
+      return;
+    }
+
+    descargarCsv(alumnosFiltrados);
+    setNotificacion("Archivo descargado correctamente.");
+
+    window.setTimeout(() => {
+      setNotificacion("");
+    }, 3200);
+  };
+
+  const cambiarPagina = (pagina: number) => {
+    const nuevaPagina = Math.min(Math.max(pagina, 1), totalPaginas);
+    setPaginaActual(nuevaPagina);
+
+    window.requestAnimationFrame(() => {
+      document
+        .querySelector(".lista-table-card")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
+
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
     navigate(ruta);
@@ -370,6 +459,28 @@ function ListaAlumnosDocente() {
 
   return (
     <main className="docente-page lista-page">
+      {notificacion && (
+        <div
+          className={`lista-toast ${
+            notificacion.includes("correctamente") ? "success" : "warning"
+          }`}
+          role="status"
+          aria-live="polite"
+        >
+          <span className="lista-toast-icon">
+            <FiCheckCircle />
+          </span>
+          <div>
+            <strong>
+              {notificacion.includes("correctamente")
+                ? "Descarga completada"
+                : "Aviso"}
+            </strong>
+            <p>{notificacion}</p>
+          </div>
+        </div>
+      )}
+
       <button
         type="button"
         className={`docente-hamburger-btn ${menuOpen ? "hamburger-open" : ""}`}
@@ -507,6 +618,17 @@ function ListaAlumnosDocente() {
             <button
               type="button"
               className={`docente-menu-item ${
+                selectedMenu === "avance-actividad" ? "active-soft" : ""
+              }`}
+              onClick={() => irARuta("/avance-actividad-docente")}
+            >
+              <FiTrendingUp />
+              <span>Avance de actividad</span>
+            </button>
+
+            <button
+              type="button"
+              className={`docente-menu-item ${
                 selectedMenu === "estadisticas" ? "active-soft" : ""
               }`}
               onClick={() => irARuta("/estadisticas-docente")}
@@ -581,7 +703,7 @@ function ListaAlumnosDocente() {
           <button
             type="button"
             className="lista-outline-btn"
-            onClick={() => descargarCsv(alumnosFiltrados)}
+            onClick={manejarExportacion}
           >
             <FiDownload />
             Exportar
@@ -592,116 +714,175 @@ function ListaAlumnosDocente() {
 
         <section className="lista-layout">
           <article className="lista-table-card">
-            <div className="lista-table">
-              <div className="lista-table-row lista-table-head">
-                <span>No.</span>
-                <span>Nombre</span>
-                <span>Grupo</span>
-                <span>Edad</span>
-                <span>Módulo actual</span>
-                <span>Asistencia</span>
-                <span>Promedio</span>
-                <span>Estado</span>
-                <span></span>
+            <div className="lista-table-scroll">
+              <div className="lista-table">
+                <div className="lista-table-row lista-table-head">
+                  <span>No.</span>
+                  <span>Nombre</span>
+                  <span>Grupo</span>
+                  <span>Edad</span>
+                  <span>Módulo actual</span>
+                  <span>Asistencia</span>
+                  <span>Promedio</span>
+                  <span>Estado</span>
+                  <span></span>
+                </div>
+
+                {cargando ? (
+                  <div className="lista-table-row">
+                    <span>—</span>
+                    <span>Cargando alumnos...</span>
+                    <span>—</span>
+                    <span>—</span>
+                    <span>—</span>
+                    <span>—</span>
+                    <span>—</span>
+                    <span>—</span>
+                    <span></span>
+                  </div>
+                ) : alumnosFiltrados.length > 0 ? (
+                  alumnosPaginados.map((alumno, index) => {
+                    const estadoLista = obtenerEstadoLista(alumno);
+
+                    return (
+                      <div className="lista-table-row" key={alumno.id_alumno}>
+                        <span>
+                          {(paginaActual - 1) * ALUMNOS_POR_PAGINA + index + 1}
+                        </span>
+
+                        <span className="lista-student">
+                          <span
+                            className="lista-avatar"
+                            style={{
+                              background: obtenerColorAvatar(
+                                alumno.color,
+                                alumno.id_alumno,
+                              ),
+                            }}
+                          >
+                            {alumno.iniciales}
+                          </span>
+                          {alumno.nombre}
+                        </span>
+
+                        <span>{alumno.grupo || "Sin grupo"}</span>
+                        <span>—</span>
+                        <span>{alumno.modulo || "Sin módulo"}</span>
+
+                        <span className="lista-assistance">
+                          <span
+                            className={`lista-dot ${obtenerClasePunto(
+                              alumno.asistencia,
+                            )}`}
+                          ></span>
+                          {alumno.asistencia !== null
+                            ? `${alumno.asistencia}%`
+                            : "—"}
+                        </span>
+
+                        <span>
+                          {alumno.promedio !== null ? alumno.promedio : "—"}
+                        </span>
+
+                        <span>
+                          <span
+                            className={`lista-status ${obtenerClaseEstado(
+                              estadoLista,
+                            )}`}
+                          >
+                            {estadoLista}
+                          </span>
+                        </span>
+
+                        <button
+                          type="button"
+                          className="lista-more-btn"
+                          aria-label="Más opciones"
+                          onClick={() =>
+                            window.alert(
+                              `Alumno: ${alumno.nombre}\nCorreo: ${
+                                alumno.correo || "Sin correo"
+                              }\nUsuario: ${
+                                alumno.usuario || "Sin usuario"
+                              }\nGrupo: ${alumno.grupo || "Sin grupo"}`,
+                            )
+                          }
+                        >
+                          <FiMoreVertical />
+                        </button>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="lista-table-row">
+                    <span>—</span>
+                    <span>No se encontraron alumnos.</span>
+                    <span>—</span>
+                    <span>—</span>
+                    <span>—</span>
+                    <span>—</span>
+                    <span>—</span>
+                    <span>—</span>
+                    <span></span>
+                  </div>
+                )}
               </div>
-
-              {cargando ? (
-                <div className="lista-table-row">
-                  <span>—</span>
-                  <span>Cargando alumnos...</span>
-                  <span>—</span>
-                  <span>—</span>
-                  <span>—</span>
-                  <span>—</span>
-                  <span>—</span>
-                  <span>—</span>
-                  <span></span>
-                </div>
-              ) : alumnosFiltrados.length > 0 ? (
-                alumnosFiltrados.map((alumno, index) => {
-                  const estadoLista = obtenerEstadoLista(alumno);
-
-                  return (
-                    <div className="lista-table-row" key={alumno.id_alumno}>
-                      <span>{index + 1}</span>
-
-                      <span className="lista-student">
-                        <span
-                          className="lista-avatar"
-                          style={{
-                            background: obtenerColorAvatar(
-                              alumno.color,
-                              alumno.id_alumno
-                            ),
-                          }}
-                        >
-                          {alumno.iniciales}
-                        </span>
-                        {alumno.nombre}
-                      </span>
-
-                      <span>{alumno.grupo || "Sin grupo"}</span>
-                      <span>—</span>
-                      <span>{alumno.modulo || "Sin módulo"}</span>
-
-                      <span className="lista-assistance">
-                        <span
-                          className={`lista-dot ${obtenerClasePunto(
-                            alumno.asistencia
-                          )}`}
-                        ></span>
-                        {alumno.asistencia !== null
-                          ? `${alumno.asistencia}%`
-                          : "—"}
-                      </span>
-
-                      <span>
-                        {alumno.promedio !== null ? alumno.promedio : "—"}
-                      </span>
-
-                      <span>
-                        <span
-                          className={`lista-status ${obtenerClaseEstado(
-                            estadoLista
-                          )}`}
-                        >
-                          {estadoLista}
-                        </span>
-                      </span>
-
-                      <button
-                        type="button"
-                        className="lista-more-btn"
-                        aria-label="Más opciones"
-                        onClick={() =>
-                          window.alert(
-                            `Alumno: ${alumno.nombre}\nCorreo: ${
-                              alumno.correo || "Sin correo"
-                            }\nUsuario: ${
-                              alumno.usuario || "Sin usuario"
-                            }\nGrupo: ${alumno.grupo || "Sin grupo"}`
-                          )
-                        }
-                      >
-                        <FiMoreVertical />
-                      </button>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="lista-table-row">
-                  <span>—</span>
-                  <span>No se encontraron alumnos.</span>
-                  <span>—</span>
-                  <span>—</span>
-                  <span>—</span>
-                  <span>—</span>
-                  <span>—</span>
-                  <span>—</span>
-                  <span></span>
-                </div>
-              )}
             </div>
+
+            {!cargando && alumnosFiltrados.length > 0 && (
+              <div className="lista-pagination">
+                <p>
+                  Mostrando{" "}
+                  <strong>{(paginaActual - 1) * ALUMNOS_POR_PAGINA + 1}</strong>{" "}
+                  a{" "}
+                  <strong>
+                    {Math.min(
+                      paginaActual * ALUMNOS_POR_PAGINA,
+                      alumnosFiltrados.length,
+                    )}
+                  </strong>{" "}
+                  de <strong>{alumnosFiltrados.length}</strong> alumnos
+                </p>
+
+                <div className="lista-pagination-controls">
+                  <button
+                    type="button"
+                    className="lista-pagination-arrow"
+                    onClick={() => cambiarPagina(paginaActual - 1)}
+                    disabled={paginaActual === 1}
+                    aria-label="Página anterior"
+                  >
+                    <FiChevronLeft />
+                  </button>
+
+                  {paginasVisibles.map((pagina) => (
+                    <button
+                      type="button"
+                      key={pagina}
+                      className={`lista-page-number ${
+                        paginaActual === pagina ? "active" : ""
+                      }`}
+                      onClick={() => cambiarPagina(pagina)}
+                      aria-current={
+                        paginaActual === pagina ? "page" : undefined
+                      }
+                    >
+                      {pagina}
+                    </button>
+                  ))}
+
+                  <button
+                    type="button"
+                    className="lista-pagination-arrow"
+                    onClick={() => cambiarPagina(paginaActual + 1)}
+                    disabled={paginaActual === totalPaginas}
+                    aria-label="Página siguiente"
+                  >
+                    <FiChevronRight />
+                  </button>
+                </div>
+              </div>
+            )}
           </article>
 
           <aside className="lista-side">
@@ -779,7 +960,7 @@ function ListaAlumnosDocente() {
                             style={{
                               height: `${Math.max(
                                 10,
-                                Number(alumno.asistencia)
+                                Number(alumno.asistencia),
                               )}%`,
                             }}
                           ></span>

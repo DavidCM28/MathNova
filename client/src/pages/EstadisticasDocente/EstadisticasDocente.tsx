@@ -33,6 +33,7 @@ type MenuKey =
   | "lista"
   | "calificaciones"
   | "actividades"
+  | "avance-actividad"
   | "estadisticas";
 
 type EstadoAlumno = "Sobresaliente" | "Bien" | "Rezago";
@@ -376,7 +377,7 @@ function EstadisticasDocente() {
             <button
               type="button"
               className={`docente-menu-item ${
-                selectedMenu === "actividades" ? "active-soft" : ""
+                selectedMenu === "actividades" ? "active" : ""
               }`}
               onClick={() => irARuta("/actividades-docente", "actividades")}
             >
@@ -387,7 +388,20 @@ function EstadisticasDocente() {
             <button
               type="button"
               className={`docente-menu-item ${
-                selectedMenu === "estadisticas" ? "active-soft" : ""
+                selectedMenu === "avance-actividad" ? "active" : ""
+              }`}
+              onClick={() =>
+                irARuta("/avance-actividad-docente", "avance-actividad")
+              }
+            >
+              <FiTrendingUp />
+              <span>Avance de actividad</span>
+            </button>
+
+            <button
+              type="button"
+              className={`docente-menu-item ${
+                selectedMenu === "estadisticas" ? "active" : ""
               }`}
               onClick={() => irARuta("/estadisticas-docente", "estadisticas")}
             >

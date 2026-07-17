@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type FormEvent,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdministrarAlumnosDocente.css";
 
@@ -12,6 +18,7 @@ import {
   FiUsers,
   FiEdit,
   FiBarChart2,
+  FiTrendingUp,
   FiChevronDown,
   FiLogOut,
   FiHelpCircle,
@@ -34,7 +41,8 @@ import {
 } from "react-icons/fi";
 
 type Alumno = {
-  id_alumno: number;
+  id?: number;
+  id_alumno?: number;
   iniciales: string;
   nombre: string;
   correo: string;
@@ -70,6 +78,13 @@ type ApiResponse = {
   ok?: boolean;
   mensaje?: string;
   [key: string]: unknown;
+};
+
+type AlertaVisual = {
+  tipo: "success" | "error";
+  titulo: string;
+  mensaje: string;
+  nombre?: string;
 };
 
 const API_DOCENTE_ALUMNOS = "http://localhost:3001/api/docente/alumnos";
@@ -128,6 +143,95 @@ function formatearFecha(fecha?: string) {
   });
 }
 
+function obtenerIdAlumno(alumno: Alumno): number {
+  return Number(alumno.id_alumno ?? alumno.id);
+}
+
+function obtenerIniciales(alumno: Alumno) {
+  const inicialesBackend = alumno.iniciales?.trim();
+
+  if (inicialesBackend) {
+    return inicialesBackend.slice(0, 2).toUpperCase();
+  }
+
+  return (
+    alumno.nombre
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((parte) => parte.charAt(0))
+      .join("")
+      .toUpperCase() || "AL"
+  );
+}
+
+const PALETA_AVATARES = [
+  "#ff4d57",
+  "#ff9800",
+  "#7c3aed",
+  "#0f62fe",
+  "#14b8a6",
+  "#ec4899",
+  "#2563eb",
+  "#8b5cf6",
+  "#10b981",
+  "#f97316",
+];
+
+function obtenerColorPersonalizado(color?: string) {
+  if (!color) return null;
+
+  const colores: Record<string, string> = {
+    blue: "#0f62fe",
+    purple: "#7c3aed",
+    dark: "#32405f",
+    green: "#14b8a6",
+    orange: "#ff9800",
+    pink: "#ec4899",
+    red: "#ff4d57",
+    teal: "#14b8a6",
+  };
+
+  const colorNormalizado = color.trim().toLowerCase();
+
+  if (colores[colorNormalizado]) {
+    return colores[colorNormalizado];
+  }
+
+  if (/^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(colorNormalizado)) {
+    return colorNormalizado;
+  }
+
+  if (/^(rgb|rgba|hsl|hsla)\(/i.test(colorNormalizado)) {
+    return colorNormalizado;
+  }
+
+  return null;
+}
+
+function obtenerColorAvatar(alumno: Alumno) {
+  const colorPersonalizado = obtenerColorPersonalizado(alumno.color);
+
+  if (colorPersonalizado && alumno.color?.trim().toLowerCase() !== "blue") {
+    return colorPersonalizado;
+  }
+
+  const semilla = `${obtenerIdAlumno(alumno)}-${alumno.nombre}`;
+  const valorSemilla = Array.from(semilla).reduce(
+    (acumulado, caracter) => acumulado + caracter.charCodeAt(0),
+    0,
+  );
+
+  return PALETA_AVATARES[valorSemilla % PALETA_AVATARES.length];
+}
+
+function estiloAvatar(alumno: Alumno): CSSProperties {
+  return {
+    backgroundColor: obtenerColorAvatar(alumno),
+  };
+}
+
 function AdministrarAlumnosDocente() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [alumnos, setAlumnos] = useState<Alumno[]>([]);
@@ -143,7 +247,10 @@ function AdministrarAlumnosDocente() {
   const [modalAgregarOpen, setModalAgregarOpen] = useState(false);
   const [formAgregar, setFormAgregar] = useState(formAgregarInicial);
 
+  const [alumnoDetalle, setAlumnoDetalle] = useState<Alumno | null>(null);
   const [alumnoEditar, setAlumnoEditar] = useState<Alumno | null>(null);
+  const [alumnoEliminar, setAlumnoEliminar] = useState<Alumno | null>(null);
+  const [alertaVisual, setAlertaVisual] = useState<AlertaVisual | null>(null);
   const [formEditar, setFormEditar] = useState(formEditarInicial);
 
   const [gruposOpen, setGruposOpen] = useState(() => {
@@ -160,18 +267,35 @@ function AdministrarAlumnosDocente() {
 
   useEffect(() => {
     document.body.style.overflow =
-      menuOpen || modalAgregarOpen || Boolean(alumnoEditar) ? "hidden" : "auto";
+      menuOpen ||
+      modalAgregarOpen ||
+      Boolean(alumnoDetalle) ||
+      Boolean(alumnoEditar) ||
+      Boolean(alumnoEliminar) ||
+      Boolean(alertaVisual)
+        ? "hidden"
+        : "auto";
 
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [menuOpen, modalAgregarOpen, alumnoEditar]);
+  }, [
+    menuOpen,
+    modalAgregarOpen,
+    alumnoDetalle,
+    alumnoEditar,
+    alumnoEliminar,
+    alertaVisual,
+  ]);
 
   useEffect(() => {
     const cerrarConEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         cerrarModalAgregar();
+        cerrarModalDetalle();
         cerrarModalEditar();
+        setAlumnoEliminar(null);
+        setAlertaVisual(null);
       }
     };
 
@@ -222,7 +346,9 @@ function AdministrarAlumnosDocente() {
         const data = (await leerRespuesta(response)) as DocenteAlumnosResponse;
 
         if (!response.ok) {
-          throw new Error(data?.mensaje || "No se pudieron cargar los alumnos.");
+          throw new Error(
+            data?.mensaje || "No se pudieron cargar los alumnos.",
+          );
         }
 
         setResumen(data.resumen || resumenInicial);
@@ -283,6 +409,15 @@ function AdministrarAlumnosDocente() {
     setFormAgregar(formAgregarInicial);
   };
 
+  const abrirModalDetalle = (alumno: Alumno) => {
+    limpiarMensajes();
+    setAlumnoDetalle(alumno);
+  };
+
+  const cerrarModalDetalle = () => {
+    setAlumnoDetalle(null);
+  };
+
   const abrirModalEditar = (alumno: Alumno) => {
     setFormEditar({
       nombre_completo: alumno.nombre,
@@ -332,13 +467,29 @@ function AdministrarAlumnosDocente() {
         throw new Error(data?.mensaje || "No se pudo agregar el alumno.");
       }
 
+      const nombreAlumnoNuevo = formAgregar.nombre_completo.trim();
+
       cerrarModalAgregar();
-      setMensajeExito("Alumno agregado correctamente.");
+      setMensajeExito("");
+      setAlertaVisual({
+        tipo: "success",
+        titulo: "¡Alumno agregado!",
+        mensaje: "El estudiante fue registrado correctamente en MathNova.",
+        nombre: nombreAlumnoNuevo,
+      });
       setReloadKey((valor) => valor + 1);
     } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "No se pudo agregar el alumno.",
-      );
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "No se pudo agregar el alumno.";
+
+      setError("");
+      setAlertaVisual({
+        tipo: "error",
+        titulo: "No se pudo agregar",
+        mensaje,
+      });
     } finally {
       setGuardando(false);
     }
@@ -359,17 +510,20 @@ function AdministrarAlumnosDocente() {
         throw new Error("Debes iniciar sesión para editar alumnos.");
       }
 
-      const response = await fetch(
-        `${API_DOCENTE_ALUMNOS}/${alumnoEditar.id_alumno}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(formEditar),
+      const idAlumno = obtenerIdAlumno(alumnoEditar);
+
+      if (!Number.isInteger(idAlumno) || idAlumno <= 0) {
+        throw new Error("No se encontró el identificador del alumno.");
+      }
+
+      const response = await fetch(`${API_DOCENTE_ALUMNOS}/${idAlumno}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+        body: JSON.stringify(formEditar),
+      });
 
       const data = await leerRespuesta(response);
 
@@ -377,24 +531,48 @@ function AdministrarAlumnosDocente() {
         throw new Error(data?.mensaje || "No se pudo editar el alumno.");
       }
 
+      const nombreAlumnoActualizado =
+        formEditar.nombre_completo.trim() || alumnoEditar.nombre;
+
       cerrarModalEditar();
-      setMensajeExito("Alumno actualizado correctamente.");
+      setMensajeExito("");
+      setAlertaVisual({
+        tipo: "success",
+        titulo: "¡Alumno actualizado!",
+        mensaje:
+          "Los datos del estudiante se actualizaron correctamente en MathNova.",
+        nombre: nombreAlumnoActualizado,
+      });
       setReloadKey((valor) => valor + 1);
     } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "No se pudo editar el alumno.",
-      );
+      const mensaje =
+        error instanceof Error ? error.message : "No se pudo editar el alumno.";
+
+      setError("");
+      setAlertaVisual({
+        tipo: "error",
+        titulo: "No se pudo actualizar",
+        mensaje,
+        nombre: formEditar.nombre_completo.trim() || alumnoEditar.nombre,
+      });
     } finally {
       setGuardando(false);
     }
   };
 
-  const eliminarAlumno = async (alumno: Alumno) => {
-    const confirmado = window.confirm(
-      `¿Seguro que quieres eliminar a ${alumno.nombre}? Esta acción desactivará su cuenta.`,
-    );
+  const solicitarEliminarAlumno = (alumno: Alumno) => {
+    limpiarMensajes();
+    setAlumnoEliminar(alumno);
+  };
 
-    if (!confirmado) return;
+  const cancelarEliminarAlumno = () => {
+    if (!guardando) setAlumnoEliminar(null);
+  };
+
+  const eliminarAlumno = async () => {
+    if (!alumnoEliminar) return;
+
+    const alumnoSeleccionado = alumnoEliminar;
 
     try {
       setGuardando(true);
@@ -406,15 +584,16 @@ function AdministrarAlumnosDocente() {
         throw new Error("Debes iniciar sesión para eliminar alumnos.");
       }
 
-      const response = await fetch(
-        `${API_DOCENTE_ALUMNOS}/${alumno.id_alumno}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+      const idAlumno = obtenerIdAlumno(alumnoSeleccionado);
+
+      if (!Number.isInteger(idAlumno) || idAlumno <= 0) {
+        throw new Error("No se encontró el identificador del alumno.");
+      }
+
+      const response = await fetch(`${API_DOCENTE_ALUMNOS}/${idAlumno}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       const data = await leerRespuesta(response);
 
@@ -422,12 +601,29 @@ function AdministrarAlumnosDocente() {
         throw new Error(data?.mensaje || "No se pudo eliminar el alumno.");
       }
 
-      setMensajeExito("Alumno eliminado correctamente.");
+      setAlumnoEliminar(null);
+      setMensajeExito("");
+      setAlertaVisual({
+        tipo: "success",
+        titulo: "Alumno eliminado",
+        mensaje: "La cuenta del estudiante fue desactivada correctamente.",
+        nombre: alumnoSeleccionado.nombre,
+      });
       setReloadKey((valor) => valor + 1);
     } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "No se pudo eliminar el alumno.",
-      );
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "No se pudo eliminar el alumno.";
+
+      setAlumnoEliminar(null);
+      setError("");
+      setAlertaVisual({
+        tipo: "error",
+        titulo: "No se pudo eliminar",
+        mensaje,
+        nombre: alumnoSeleccionado.nombre,
+      });
     } finally {
       setGuardando(false);
     }
@@ -458,9 +654,7 @@ function AdministrarAlumnosDocente() {
 
     const csv = [encabezados, ...filas]
       .map((fila) =>
-        fila
-          .map((valor) => `"${String(valor).replace(/"/g, '""')}"`)
-          .join(","),
+        fila.map((valor) => `"${String(valor).replace(/"/g, '""')}"`).join(","),
       )
       .join("\n");
 
@@ -632,6 +826,19 @@ function AdministrarAlumnosDocente() {
             <button
               type="button"
               className={`docente-menu-item ${
+                selectedMenu === "avance-actividad" ? "active-soft" : ""
+              }`}
+              onClick={() =>
+                irARuta("/avance-actividad-docente", "avance-actividad")
+              }
+            >
+              <FiTrendingUp />
+              <span>Avance de actividad</span>
+            </button>
+
+            <button
+              type="button"
+              className={`docente-menu-item ${
                 selectedMenu === "estadisticas" ? "active-soft" : ""
               }`}
               onClick={() => irARuta("/estadisticas-docente", "estadisticas")}
@@ -790,10 +997,14 @@ function AdministrarAlumnosDocente() {
               </div>
             ) : alumnosPagina.length > 0 ? (
               alumnosPagina.map((alumno) => (
-                <div className="admin-table-row" key={alumno.id_alumno}>
+                <div className="admin-table-row" key={obtenerIdAlumno(alumno)}>
                   <span className="student-cell">
-                    <b className={`student-avatar ${alumno.color}`}>
-                      {alumno.iniciales}
+                    <b
+                      className="student-avatar"
+                      style={estiloAvatar(alumno)}
+                      aria-hidden="true"
+                    >
+                      {obtenerIniciales(alumno)}
                     </b>
                     {alumno.nombre}
                   </span>
@@ -830,13 +1041,7 @@ function AdministrarAlumnosDocente() {
                     <button
                       type="button"
                       aria-label={`Ver a ${alumno.nombre}`}
-                      onClick={() =>
-                        window.alert(
-                          `Alumno: ${alumno.nombre}\nCorreo: ${alumno.correo}\nUsuario: ${
-                            alumno.usuario || "Sin usuario"
-                          }`,
-                        )
-                      }
+                      onClick={() => abrirModalDetalle(alumno)}
                     >
                       <FiEye />
                     </button>
@@ -856,7 +1061,7 @@ function AdministrarAlumnosDocente() {
                       type="button"
                       className="delete"
                       aria-label={`Eliminar a ${alumno.nombre}`}
-                      onClick={() => eliminarAlumno(alumno)}
+                      onClick={() => solicitarEliminarAlumno(alumno)}
                       disabled={guardando}
                     >
                       <FiTrash2 />
@@ -925,9 +1130,13 @@ function AdministrarAlumnosDocente() {
 
             {alumnosRecientes.length > 0 ? (
               alumnosRecientes.map((alumno) => (
-                <div className="recent-row" key={alumno.id_alumno}>
-                  <span className={`mini-avatar ${alumno.color}`}>
-                    {alumno.iniciales}
+                <div className="recent-row" key={obtenerIdAlumno(alumno)}>
+                  <span
+                    className="mini-avatar"
+                    style={estiloAvatar(alumno)}
+                    aria-hidden="true"
+                  >
+                    {obtenerIniciales(alumno)}
                   </span>
                   <p>{alumno.nombre}</p>
                   <b>{formatearFecha(alumno.fecha_registro)}</b>
@@ -1020,6 +1229,175 @@ function AdministrarAlumnosDocente() {
           </div>
         </footer>
       </section>
+
+      {alumnoDetalle && (
+        <div
+          className="admin-modal-overlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              cerrarModalDetalle();
+            }
+          }}
+        >
+          <section
+            className="admin-modal admin-detail-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-detail-modal-title"
+          >
+            <div className="admin-modal-decoration admin-modal-circle-one"></div>
+            <div className="admin-modal-decoration admin-modal-circle-two"></div>
+
+            <button
+              type="button"
+              className="admin-modal-close"
+              onClick={cerrarModalDetalle}
+              aria-label="Cerrar detalle del alumno"
+            >
+              <FiX />
+            </button>
+
+            <header className="admin-detail-header">
+              <span
+                className="admin-detail-avatar"
+                style={estiloAvatar(alumnoDetalle)}
+                aria-hidden="true"
+              >
+                {obtenerIniciales(alumnoDetalle)}
+              </span>
+
+              <div className="admin-detail-title">
+                <span className="admin-modal-badge">Ficha del estudiante</span>
+                <h2 id="admin-detail-modal-title">{alumnoDetalle.nombre}</h2>
+                <p>
+                  ¿Quieres editar a este estudiante? Revisa su información y
+                  selecciona “Editar alumno”.
+                </p>
+              </div>
+
+              <span
+                className={`status-pill ${
+                  alumnoDetalle.estado === "Activo" ? "activo" : "rezago"
+                }`}
+              >
+                {alumnoDetalle.estado}
+              </span>
+            </header>
+
+            <div className="admin-detail-grid">
+              <article className="admin-detail-item">
+                <span className="admin-detail-item-icon">
+                  <FiMail />
+                </span>
+                <div>
+                  <small>Correo electrónico</small>
+                  <strong>{alumnoDetalle.correo || "Sin correo"}</strong>
+                </div>
+              </article>
+
+              <article className="admin-detail-item">
+                <span className="admin-detail-item-icon">
+                  <FiUser />
+                </span>
+                <div>
+                  <small>Nombre de usuario</small>
+                  <strong>{alumnoDetalle.usuario || "Sin usuario"}</strong>
+                </div>
+              </article>
+
+              <article className="admin-detail-item">
+                <span className="admin-detail-item-icon">
+                  <FiUsers />
+                </span>
+                <div>
+                  <small>Grupo asignado</small>
+                  <strong>{alumnoDetalle.grupo || "Sin grupo"}</strong>
+                </div>
+              </article>
+
+              <article className="admin-detail-item">
+                <span className="admin-detail-item-icon">
+                  <FiGrid />
+                </span>
+                <div>
+                  <small>Módulo actual</small>
+                  <strong>{alumnoDetalle.modulo || "Sin módulo"}</strong>
+                </div>
+              </article>
+            </div>
+
+            <div className="admin-detail-performance">
+              <div className="admin-detail-metric">
+                <span>Asistencia</span>
+                <strong>
+                  {alumnoDetalle.asistencia !== null
+                    ? `${alumnoDetalle.asistencia}%`
+                    : "—"}
+                </strong>
+                <div className="admin-detail-progress">
+                  <i
+                    style={{
+                      width: `${Math.min(
+                        Math.max(alumnoDetalle.asistencia || 0, 0),
+                        100,
+                      )}%`,
+                    }}
+                  ></i>
+                </div>
+              </div>
+
+              <div className="admin-detail-metric">
+                <span>Promedio</span>
+                <strong
+                  className={
+                    alumnoDetalle.promedio !== null &&
+                    alumnoDetalle.promedio < 7
+                      ? "metric-low"
+                      : "metric-good"
+                  }
+                >
+                  {alumnoDetalle.promedio !== null
+                    ? alumnoDetalle.promedio
+                    : "—"}
+                </strong>
+                <small>Calificación actual</small>
+              </div>
+
+              <div className="admin-detail-metric">
+                <span>Fecha de registro</span>
+                <strong className="metric-date">
+                  {formatearFecha(alumnoDetalle.fecha_registro)}
+                </strong>
+                <small>Alta en MathNova</small>
+              </div>
+            </div>
+
+            <div className="admin-detail-actions">
+              <button
+                type="button"
+                className="admin-modal-btn secondary"
+                onClick={cerrarModalDetalle}
+              >
+                Cerrar
+              </button>
+
+              <button
+                type="button"
+                className="admin-modal-btn primary admin-detail-edit-btn"
+                onClick={() => {
+                  const alumnoSeleccionado = alumnoDetalle;
+                  cerrarModalDetalle();
+                  abrirModalEditar(alumnoSeleccionado);
+                }}
+              >
+                <FiEdit2 />
+                Editar alumno
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
 
       {modalAgregarOpen && (
         <div
@@ -1181,7 +1559,7 @@ function AdministrarAlumnosDocente() {
           }}
         >
           <section
-            className="admin-modal admin-modal-edit"
+            className="admin-modal admin-modal-edit admin-edit-detail-style"
             role="dialog"
             aria-modal="true"
             aria-labelledby="admin-edit-modal-title"
@@ -1198,34 +1576,33 @@ function AdministrarAlumnosDocente() {
               <FiX />
             </button>
 
-            <header className="admin-modal-header">
-              <div className="admin-modal-icon admin-modal-edit-icon">
-                <FiEdit2 />
-              </div>
+            <header className="admin-edit-detail-header">
+              <span
+                className="admin-edit-detail-avatar"
+                style={estiloAvatar(alumnoEditar)}
+                aria-hidden="true"
+              >
+                {obtenerIniciales(alumnoEditar)}
+              </span>
 
-              <div>
+              <div className="admin-edit-detail-title">
                 <span className="admin-modal-badge admin-modal-edit-badge">
                   Editando estudiante
                 </span>
                 <h2 id="admin-edit-modal-title">Editar alumno</h2>
-                <p>
-                  Actualiza los datos de acceso de {alumnoEditar.nombre}.
-                </p>
-              </div>
-            </header>
-
-            <div className="admin-edit-student-card">
-              <span className={`student-avatar ${alumnoEditar.color}`}>
-                {alumnoEditar.iniciales}
-              </span>
-
-              <div>
-                <strong>
-                  {formEditar.nombre_completo || alumnoEditar.nombre}
-                </strong>
-                <p>
-                  {formEditar.correo || alumnoEditar.correo} ·{" "}
-                  {formEditar.usuario || "Sin usuario"}
+                <p className="admin-edit-description">
+                  Actualiza la información de{" "}
+                  <strong
+                    className="admin-edit-highlight-name"
+                    style={
+                      {
+                        "--student-color": obtenerColorAvatar(alumnoEditar),
+                      } as CSSProperties
+                    }
+                  >
+                    {alumnoEditar.nombre}
+                  </strong>{" "}
+                  y guarda los cambios cuando termines.
                 </p>
               </div>
 
@@ -1236,6 +1613,28 @@ function AdministrarAlumnosDocente() {
               >
                 {alumnoEditar.estado}
               </span>
+            </header>
+
+            <div className="admin-edit-summary">
+              <div className="admin-edit-summary-item">
+                <span className="admin-edit-summary-icon">
+                  <FiMail />
+                </span>
+                <div>
+                  <small>Correo actual</small>
+                  <strong>{alumnoEditar.correo || "Sin correo"}</strong>
+                </div>
+              </div>
+
+              <div className="admin-edit-summary-item">
+                <span className="admin-edit-summary-icon">
+                  <FiUser />
+                </span>
+                <div>
+                  <small>Usuario actual</small>
+                  <strong>{alumnoEditar.usuario || "Sin usuario"}</strong>
+                </div>
+              </div>
             </div>
 
             <form
@@ -1339,6 +1738,149 @@ function AdministrarAlumnosDocente() {
                 </button>
               </div>
             </form>
+          </section>
+        </div>
+      )}
+
+      {alumnoEliminar && (
+        <div
+          className="admin-feedback-overlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !guardando)
+              cancelarEliminarAlumno();
+          }}
+        >
+          <section
+            className="admin-feedback-modal admin-delete-confirm-modal"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="admin-delete-title"
+            aria-describedby="admin-delete-description"
+          >
+            <div className="admin-feedback-decoration feedback-decoration-one"></div>
+            <div className="admin-feedback-decoration feedback-decoration-two"></div>
+            <button
+              type="button"
+              className="admin-feedback-close"
+              onClick={cancelarEliminarAlumno}
+              aria-label="Cancelar eliminación"
+              disabled={guardando}
+            >
+              <FiX />
+            </button>
+            <div className="admin-feedback-icon danger">
+              <FiTrash2 />
+            </div>
+            <span className="admin-feedback-badge danger">
+              Confirmar acción
+            </span>
+            <h2 id="admin-delete-title">¿Eliminar estudiante?</h2>
+            <p id="admin-delete-description">
+              Estás a punto de desactivar la cuenta de:
+            </p>
+            <div className="admin-feedback-student">
+              <span
+                className="admin-feedback-avatar"
+                style={estiloAvatar(alumnoEliminar)}
+                aria-hidden="true"
+              >
+                {obtenerIniciales(alumnoEliminar)}
+              </span>
+              <div>
+                <strong>{alumnoEliminar.nombre}</strong>
+                <small>
+                  {alumnoEliminar.correo || "Sin correo registrado"}
+                </small>
+              </div>
+            </div>
+            <div className="admin-feedback-warning">
+              <FiAlertTriangle />
+              <p>
+                Esta acción desactivará su cuenta. Confirma solamente si estás
+                seguro de continuar.
+              </p>
+            </div>
+            <div className="admin-feedback-actions">
+              <button
+                type="button"
+                className="admin-feedback-btn secondary"
+                onClick={cancelarEliminarAlumno}
+                disabled={guardando}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="admin-feedback-btn danger"
+                onClick={() => void eliminarAlumno()}
+                disabled={guardando}
+              >
+                <FiTrash2 />
+                {guardando ? "Eliminando..." : "Sí, eliminar"}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {alertaVisual && (
+        <div
+          className="admin-feedback-overlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setAlertaVisual(null);
+          }}
+        >
+          <section
+            className={`admin-feedback-modal admin-result-modal ${alertaVisual.tipo}`}
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="admin-result-title"
+            aria-describedby="admin-result-description"
+          >
+            <div className="admin-feedback-decoration feedback-decoration-one"></div>
+            <div className="admin-feedback-decoration feedback-decoration-two"></div>
+            <button
+              type="button"
+              className="admin-feedback-close"
+              onClick={() => setAlertaVisual(null)}
+              aria-label="Cerrar mensaje"
+            >
+              <FiX />
+            </button>
+            <div
+              className={`admin-feedback-icon ${alertaVisual.tipo === "success" ? "success" : "error"}`}
+            >
+              {alertaVisual.tipo === "success" ? (
+                <FiCheckCircle />
+              ) : (
+                <FiAlertTriangle />
+              )}
+            </div>
+            <span
+              className={`admin-feedback-badge ${alertaVisual.tipo === "success" ? "success" : "danger"}`}
+            >
+              {alertaVisual.tipo === "success"
+                ? "Operación completada"
+                : "Ocurrió un problema"}
+            </span>
+            <h2 id="admin-result-title">{alertaVisual.titulo}</h2>
+            {alertaVisual.nombre && (
+              <div className="admin-result-name">
+                <FiUser />
+                <strong>{alertaVisual.nombre}</strong>
+              </div>
+            )}
+            <p id="admin-result-description">{alertaVisual.mensaje}</p>
+            <button
+              type="button"
+              className={`admin-feedback-btn ${alertaVisual.tipo === "success" ? "success" : "primary"} full`}
+              onClick={() => setAlertaVisual(null)}
+            >
+              <FiCheckCircle />
+              Entendido
+            </button>
           </section>
         </div>
       )}

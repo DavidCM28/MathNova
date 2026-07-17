@@ -122,8 +122,9 @@ type EstadisticasAlumno = {
 function Estadisticas() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [alumno, setAlumno] = useState<Alumno | null>(null);
-  const [estadisticas, setEstadisticas] =
-    useState<EstadisticasAlumno | null>(null);
+  const [estadisticas, setEstadisticas] = useState<EstadisticasAlumno | null>(
+    null,
+  );
   const [actividades, setActividades] = useState<Actividad[]>([]);
   const [cargando, setCargando] = useState(true);
   const [errorEstadisticas, setErrorEstadisticas] = useState("");
@@ -236,7 +237,7 @@ function Estadisticas() {
           } catch (errorProgreso) {
             console.warn(
               "No se pudo cargar el progreso real del alumno:",
-              errorProgreso
+              errorProgreso,
             );
           }
         }
@@ -260,7 +261,7 @@ function Estadisticas() {
         const tiempoTotalSegundos = Number(
           resumenNuevo.tiempo_total_segundos ??
             estadisticasAnteriores.tiempo_total_segundos ??
-            0
+            0,
         );
 
         const minutosTotales = Math.floor(tiempoTotalSegundos / 60);
@@ -274,14 +275,14 @@ function Estadisticas() {
               resumenNuevo.leccionesCompletadas ??
               estadisticasAnteriores.leccionesCompletadas ??
               estadisticasAnteriores.completadas ??
-              0
+              0,
           ),
 
           completadas: Number(
             resumenNuevo.actividades_completadas ??
               estadisticasAnteriores.completadas ??
               estadisticasAnteriores.leccionesCompletadas ??
-              0
+              0,
           ),
 
           estrellasGanadas: Number(
@@ -289,7 +290,7 @@ function Estadisticas() {
               resumenNuevo.estrellasGanadas ??
               estadisticasAnteriores.estrellasGanadas ??
               perfil?.estrellas_totales ??
-              0
+              0,
           ),
 
           promedioGeneral: Math.round(
@@ -298,8 +299,8 @@ function Estadisticas() {
                 resumenNuevo.promedioGeneral ??
                 estadisticasAnteriores.promedioGeneral ??
                 estadisticasAnteriores.promedio ??
-                0
-            )
+                0,
+            ),
           ),
 
           promedio: Math.round(
@@ -307,8 +308,8 @@ function Estadisticas() {
               resumenNuevo.precision_promedio ??
                 estadisticasAnteriores.promedio ??
                 estadisticasAnteriores.promedioGeneral ??
-                0
-            )
+                0,
+            ),
           ),
 
           progreso_general: Math.round(
@@ -316,8 +317,8 @@ function Estadisticas() {
               resumenNuevo.precision_promedio ??
                 estadisticasAnteriores.progreso_general ??
                 estadisticasAnteriores.promedioGeneral ??
-                0
-            )
+                0,
+            ),
           ),
 
           tiempo_formateado:
@@ -326,12 +327,12 @@ function Estadisticas() {
 
           tiempoEstudio: {
             minutos: Number(
-              estadisticasAnteriores.tiempoEstudio?.minutos ?? minutosTotales
+              estadisticasAnteriores.tiempoEstudio?.minutos ?? minutosTotales,
             ),
             actividadesCompletas: Number(
               resumenNuevo.actividades_completadas ??
                 estadisticasAnteriores.tiempoEstudio?.actividadesCompletas ??
-                0
+                0,
             ),
             semanal: estadisticasAnteriores.tiempoEstudio?.semanal ?? [],
           },
@@ -340,7 +341,9 @@ function Estadisticas() {
         setAlumno(perfil);
         setEstadisticas(estadisticasNormalizadas);
         setActividades(
-          actividadesNuevas.length > 0 ? actividadesNuevas : actividadesAnteriores
+          actividadesNuevas.length > 0
+            ? actividadesNuevas
+            : actividadesAnteriores,
         );
       } catch (error) {
         const mensaje =
@@ -379,42 +382,39 @@ function Estadisticas() {
   const leccionesCompletadas = numero(
     estadisticas?.actividades_completadas ??
       estadisticas?.leccionesCompletadas ??
-      estadisticas?.completadas
+      estadisticas?.completadas,
   );
 
   const estrellasGanadas = numero(
     estadisticas?.estrellas_totales ??
       estadisticas?.estrellasGanadas ??
-      alumno?.estrellas_totales
+      alumno?.estrellas_totales,
   );
 
-  const rachaActual = numero(
-    estadisticas?.rachaActual ?? alumno?.racha_actual
-  );
+  const rachaActual = numero(estadisticas?.rachaActual ?? alumno?.racha_actual);
 
   const promedioGeneral = Math.round(
     numero(
       estadisticas?.precision_promedio ??
         estadisticas?.promedioGeneral ??
-        estadisticas?.promedio
-    )
+        estadisticas?.promedio,
+    ),
   );
 
   const progresoGeneral = Math.round(
     numero(
       estadisticas?.precision_promedio ??
         estadisticas?.progreso_general ??
-        estadisticas?.promedioGeneral
-    )
+        estadisticas?.promedioGeneral,
+    ),
   );
 
   const minutosEstudio = numero(
     estadisticas?.tiempoEstudio?.minutos ??
-      Math.floor(numero(estadisticas?.tiempo_total_segundos) / 60)
+      Math.floor(numero(estadisticas?.tiempo_total_segundos) / 60),
   );
 
-  const tiempoEstudio =
-    estadisticas?.tiempo_formateado || `${minutosEstudio}m`;
+  const tiempoEstudio = estadisticas?.tiempo_formateado || `${minutosEstudio}m`;
 
   const progresoSemanal = useMemo(() => {
     const dias = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
@@ -444,10 +444,7 @@ function Estadisticas() {
         return {
           dia,
           valor,
-          altura: `${Math.max(
-            (valor / maximo) * 88,
-            valor > 0 ? 18 : 4
-          )}%`,
+          altura: `${Math.max((valor / maximo) * 88, valor > 0 ? 18 : 4)}%`,
           index,
         };
       });
@@ -459,7 +456,7 @@ function Estadisticas() {
       ...item,
       altura: `${Math.max(
         (item.valor / maximo) * 88,
-        item.valor > 0 ? 18 : 4
+        item.valor > 0 ? 18 : 4,
       )}%`,
       index,
     }));
@@ -495,7 +492,7 @@ function Estadisticas() {
 
       acumulador[tema].total += 1;
       acumulador[tema].suma += numero(
-        actividad.porcentaje ?? actividad.precision ?? actividad.puntaje
+        actividad.porcentaje ?? actividad.precision ?? actividad.puntaje,
       );
 
       return acumulador;
@@ -550,7 +547,7 @@ function Estadisticas() {
 
       acumulador[modulo].total += 1;
       acumulador[modulo].suma += numero(
-        actividad.porcentaje ?? actividad.precision ?? actividad.puntaje
+        actividad.porcentaje ?? actividad.precision ?? actividad.puntaje,
       );
 
       return acumulador;
@@ -610,8 +607,8 @@ function Estadisticas() {
     promedioGeneral >= 80
       ? "Buen trabajo"
       : promedioGeneral >= 60
-      ? "Vas mejorando"
-      : "Sigue practicando";
+        ? "Vas mejorando"
+        : "Sigue practicando";
 
   return (
     <main className="estadisticas-page">

@@ -13,6 +13,7 @@ import {
   FiUsers,
   FiEdit,
   FiBarChart2,
+  FiTrendingUp,
   FiClipboard,
   FiChevronDown,
   FiLogOut,
@@ -310,6 +311,19 @@ function CalificacionesDocente() {
             >
               <FiEdit />
               <span>Actividades</span>
+            </button>
+
+            <button
+              type="button"
+              className={`docente-menu-item ${
+                selectedMenu === "avance-actividad" ? "active-soft" : ""
+              }`}
+              onClick={() =>
+                irARuta("/avance-actividad-docente", "avance-actividad")
+              }
+            >
+              <FiTrendingUp />
+              <span>Avance de actividad</span>
             </button>
 
             <button
