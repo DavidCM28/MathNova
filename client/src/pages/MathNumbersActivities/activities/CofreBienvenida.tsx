@@ -25,6 +25,7 @@ import { clearAuthSession } from "../../../utils/authSession";
 import { activityListRoute } from "../constants";
 import { Toast } from "../components/Toast";
 import { useToast } from "../hooks/useToast";
+import { guardarProgresoActividad } from "../../../services/progresoService";
 import {
   chestFall,
   chestVib,
@@ -398,7 +399,7 @@ export function CofreBienvenida() {
   const [chestPhase, setChestPhase] =
     useState<ChestPhase>("fall");
   const [attempts, setAttempts] = useState(0);
-
+ const [resultModalOpen, setResultModalOpen] = useState(false); 
   /* =======================================================
      AUDIO DE INTRODUCCIÓN + TEXTO ESCRITO POCO A POCO
      ======================================================= */
@@ -571,34 +572,127 @@ export function CofreBienvenida() {
     return "";
   };
 
-  const comprobar = () => {
+  const comprobar = async () => {
     if (progress !== 2) {
       showToast(
-        "Selecciona una respuesta en cada pregunta para activar el cofre.",
+        "Selecciona una respuesta en cada pregunta para abrir el cofre.",
         true,
       );
+
       return;
     }
 
     const total = (
-      Object.keys(correctAnswers) as QuestionKey[]
+      Object.keys(
+        correctAnswers,
+      ) as QuestionKey[]
     ).filter(
       (question) =>
-        answers[question] === correctAnswers[question],
+        answers[question] ===
+        correctAnswers[question],
     ).length;
 
-    setAttempts((current) => Math.min(3, current + 1));
     setChecked(true);
     setSolved(total === 2);
 
-    if (total === 2) {
+    // 1. Obtener el ID de usuario desde la sesión
+    let idUsuario = 17; // ID por defecto
+    try {
+      const sessionString = localStorage.getItem("auth_session");
+      if (sessionString) {
+        const session = JSON.parse(sessionString);
+        if (session && session.id_usuario) idUsuario = Number(session.id_usuario);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    // 2. Determinar las estrellas de la partida actual
+    const nuevasEstrellas = total === 2 ? 3 : total === 1 ? 1 : 0;
+    const esCorrecto = total === 2;
+
+    // 3. Estructurar el Payload para enviar al backend
+    const payload = {
+      id_usuario: idUsuario,
+      mundo: "MathNumbers",
+      tema: "Fracciones y decimales",
+      actividad_codigo: "mathnumbers-cofre-bienvenida",
+      actividad_titulo: "El Cofre de Bienvenida",
+      respuestas: answers as Record<string, unknown>,
+      aciertos: total,
+      total_preguntas: 2,
+      estrellas_obtenidas: nuevasEstrellas,
+      xp_obtenido: total * 25,
+      completada: esCorrecto,
+      tiempo_segundos: 0,
+      xp_base: 50
+    };
+
+    try {
+      // 4. Verificar si ya tenía estrellas ganadas localmente
+      const progresoKey = `progreso_${idUsuario}_cofre-bienvenida`;
+      const progresoPrevioRaw = localStorage.getItem(progresoKey);
+      let yaTeniaEstrellas = false;
+      let estrellasAnteriores = 0;
+
+      if (progresoPrevioRaw) {
+        const progresoPrevio = JSON.parse(progresoPrevioRaw);
+        estrellasAnteriores = progresoPrevio.estrellas_obtenidas || 0;
+        yaTeniaEstrellas = estrellasAnteriores > 0;
+      }
+
+      // Guardamos en PostgreSQL
+      await guardarProgresoActividad(payload);
+
+      // Guardamos localmente el máximo de estrellas obtenidas
+      localStorage.setItem(
+        progresoKey,
+        JSON.stringify({ estrellas_obtenidas: Math.max(estrellasAnteriores, nuevasEstrellas) })
+      );
+
+      /*
+       * Si las dos respuestas son correctas, redirige directamente
+       * a la pantalla de actividad completada.
+       */
+      if (total === 2) {
+        if (yaTeniaEstrellas) {
+          showToast(
+            `¡Increíble! Has vuelto a abrir el cofre. Ya cuentas con las ${estrellasAnteriores} ⭐ de esta bienvenida en tu perfil.`,
+            false
+          );
+        } else {
+          showToast(`¡Perfecto! El cofre se iluminó. ¡Has ganado ${nuevasEstrellas} estrellas! ⭐`);
+        }
+
+        window.setTimeout(() => {
+          navigate(
+            "/actividades/mathnumbers/actividad-completada",
+            {
+              state: {
+                activity: "cofre-bienvenida",
+                retryRoute: cofreRoute,
+                nextRoute: radarRoute,
+              },
+            },
+          );
+        }, 1300); // 1.3 segundos para que lea la tostada perfectamente
+
+        return;
+      }
+
+      // Flujo original si no están todas correctas
       showToast(
-        "¡Excelente! La energía matemática abrió el cofre.",
+        total === 1
+          ? "Vas cerca: una respuesta está correcta."
+          : "Revisa las respuestas e inténtalo otra vez.",
+        true,
       );
 
       window.setTimeout(() => {
         navigate(
-          "/actividades/mathnumbers/actividad-completada",
+          total === 1
+            ? "/actividades/mathnumbers/casi-lo-logras"
+            : "/actividades/mathnumbers/vuelve-a-intentarlo",
           {
             state: {
               activity: "cofre-bienvenida",
@@ -609,29 +703,10 @@ export function CofreBienvenida() {
         );
       }, 1100);
 
-      return;
+    } catch (error) {
+      console.error(error);
+      showToast("Error de conexión: No se pudo verificar tu progreso.", true);
     }
-
-    showToast(
-      total === 1
-        ? "¡Vas muy bien! Una respuesta ya está correcta."
-        : "La señal se confundió. Observa la guía y prueba otra vez.",
-      true,
-    );
-
-    window.setTimeout(() => {
-      navigate(
-        total === 1
-          ? "/actividades/mathnumbers/casi-lo-logras"
-          : "/actividades/mathnumbers/vuelve-a-intentarlo",
-        {
-          state: {
-            activity: "cofre-bienvenida",
-            retryRoute: cofreRoute,
-          },
-        },
-      );
-    }, 1300);
   };
 
   return (

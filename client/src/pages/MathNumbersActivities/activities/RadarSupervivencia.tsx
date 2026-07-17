@@ -31,7 +31,7 @@ import { activityListRoute } from "../constants";
 import { Toast } from "../components/Toast";
 import { ResultModal } from "../components/ResultModal";
 import { useToast } from "../hooks/useToast";
-
+import { guardarProgresoActividad } from "../../../services/progresoService";
 import {
   cofreGuide,
   cofreHero,
@@ -251,7 +251,7 @@ export function RadarSupervivencia() {
     );
   };
 
-  const comprobar = () => {
+  const comprobar = async () => {
     if (progress < 4) {
       showToast(
         "Ubica las cuatro señales para activar el radar.",
@@ -266,43 +266,119 @@ export function RadarSupervivencia() {
         placements[target] === target,
     ).length;
 
-    if (total === 4) {
-      showToast(
-        "¡Excelente! Radar calibrado.",
-      );
-
-      /*
-       * Abre el modal encima de Radar.
-       * Ya no cambia a la ruta actividad-completada.
-       */
-      window.setTimeout(() => {
-        setResultModalOpen(true);
-      }, 700);
-
-      return;
+    // 1. Obtener el ID de usuario de la sesión
+    let idUsuario = 17; // ID por defecto
+    try {
+      const sessionString = localStorage.getItem("auth_session");
+      if (sessionString) {
+        const session = JSON.parse(sessionString);
+        if (session && session.id_usuario) idUsuario = Number(session.id_usuario);
+      }
+    } catch (e) {
+      console.error(e);
     }
 
-    showToast(
-      "Hay señales en posiciones incorrectas. Inténtalo de nuevo.",
-      true,
-    );
+    // 2. Determinar las estrellas de la partida actual
+    const nuevasEstrellas = total === 4 ? 3 : total >= 2 ? 1 : 0;
+    const esCorrecto = total === 4;
 
-    window.setTimeout(() => {
-      navigate(
-        total >= 2
-          ? "/actividades/mathnumbers/casi-lo-logras"
-          : "/actividades/mathnumbers/vuelve-a-intentarlo",
-        {
-          state: {
-            activity:
-              "radar-supervivencia",
-            retryRoute: radarRoute,
-            nextRoute: ascensorRoute,
-          },
-        },
+    // 3. Estructurar el Payload para enviar
+    const payload = {
+      id_usuario: idUsuario,
+      mundo: "mathnumbers",
+      tema: "Tema 2: Positivos y negativos",
+      actividad_codigo: "radar-supervivencia",
+      actividad_titulo: "El Radar de Supervivencia",
+      aciertos: total,
+      total_preguntas: 4,
+      precision: (total / 4) * 100,
+      estrellas_obtenidas: nuevasEstrellas,
+      xp_obtenido: total * 10,
+      completada: esCorrecto,
+      tiempo_segundos: 0,
+      respuestas: {
+        posiciones_usuario: placements,
+        explicacion_texto: explanation,
+      },
+    };
+
+    try {
+      // --- MEJORA: Comprobar si ya había jugado y ganado estrellas antes ---
+      const progresoKey = `progreso_${idUsuario}_radar-supervivencia`;
+      const progresoPrevioRaw = localStorage.getItem(progresoKey);
+      let yaTeniaEstrellas = false;
+      let estrellasAnteriores = 0;
+
+      if (progresoPrevioRaw) {
+        const progresoPrevio = JSON.parse(progresoPrevioRaw);
+        estrellasAnteriores = progresoPrevio.estrellas_obtenidas || 0;
+        yaTeniaEstrellas = estrellasAnteriores > 0;
+      }
+
+      // Guardamos el progreso en el backend
+      await guardarProgresoActividad(payload);
+
+      // Guardamos localmente el progreso actual para futuras consultas rápidas
+      localStorage.setItem(
+        progresoKey, 
+        JSON.stringify({ estrellas_obtenidas: Math.max(estrellasAnteriores, nuevasEstrellas) })
       );
-    }, 900);
+
+      if (esCorrecto) {
+        if (yaTeniaEstrellas) {
+          // Mensaje elegante para cuando ya tenía estrellas en este nivel
+          showToast(
+            `¡Increíble! Has vuelto a calibrar el radar. Ya cuentas con las ${estrellasAnteriores} ⭐ de este nivel en tu perfil.`,
+            false
+          );
+        } else {
+          // Mensaje para la primera vez que lo completa exitosamente
+          showToast(`¡Excelente! Radar calibrado. ¡Has ganado ${nuevasEstrellas} estrellas! ⭐`);
+        }
+
+        window.setTimeout(() => {
+          navigate(
+            "/actividades/mathnumbers/actividad-completada",
+            {
+              state: {
+                activity: "radar-supervivencia",
+                retryRoute: radarRoute,
+                nextRoute: ascensorRoute,
+              },
+            },
+          );
+        }, 1200); // Damos un poco más de tiempo para leer el mensaje elegante
+
+        return;
+      }
+
+      // Si falla en ordenar
+      showToast(
+        "Hay señales en posiciones incorrectas. Inténtalo de nuevo.",
+        true,
+      );
+
+      window.setTimeout(() => {
+        navigate(
+          total >= 2
+            ? "/actividades/mathnumbers/casi-lo-logras"
+            : "/actividades/mathnumbers/vuelve-a-intentarlo",
+          {
+            state: {
+              activity: "radar-supervivencia",
+              retryRoute: radarRoute,
+            },
+          },
+        );
+      }, 900);
+
+    } catch (error) {
+      console.error(error);
+      showToast("Error de conexión: No se pudo guardar el progreso.", true);
+    }
   };
+  
+
 
   return (
     <main className="mnx-cofre-page mnx-radar-page">

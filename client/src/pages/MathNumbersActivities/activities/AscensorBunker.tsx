@@ -30,7 +30,7 @@ import { activityListRoute } from "../constants";
 import { Toast } from "../components/Toast";
 import { ResultModal } from "../components/ResultModal";
 import { useToast } from "../hooks/useToast";
-
+import { guardarProgresoActividad } from "../../../services/progresoService";
 import {
   ascensorCommander,
   ascensorElevator,
@@ -214,59 +214,121 @@ export function AscensorBunker() {
     );
   };
 
-  const verificar = () => {
+  const verificar = async () => {
     if (progress < 5) {
       showToast(
         "Coloca las cinco tarjetas en el ascensor.",
         true,
       );
-
       return;
     }
 
     const total = correctOrder.filter(
-      (value, index) =>
-        slots[index] === value,
+      (value, index) => slots[index] === value,
     ).length;
 
-    if (total === 5) {
-      showToast(
-        "¡Ruta correcta! Ascensor restablecido.",
-      );
-
-      /*
-       * Abre el modal encima del Ascensor.
-       *
-       * Ya no cambia a la ruta
-       * /actividad-completada.
-       */
-      window.setTimeout(() => {
-        setResultModalOpen(true);
-      }, 700);
-
-      return;
+    // 1. Obtener el ID de usuario de la sesión
+    let idUsuario = 17; // ID por defecto
+    try {
+      const sessionString = localStorage.getItem("auth_session");
+      if (sessionString) {
+        const session = JSON.parse(sessionString);
+        if (session && session.id_usuario) idUsuario = Number(session.id_usuario);
+      }
+    } catch (e) {
+      console.error(e);
     }
 
-    showToast(
-      "El orden no es correcto. Inténtalo de nuevo.",
-      true,
-    );
+    // 2. Determinar las estrellas de la partida actual
+    const nuevasEstrellas = total === 5 ? 3 : total >= 3 ? 1 : 0;
+    const esCorrecto = total === 5;
 
-    window.setTimeout(() => {
-      navigate(
-        total >= 3
-          ? "/actividades/mathnumbers/casi-lo-logras"
-          : "/actividades/mathnumbers/vuelve-a-intentarlo",
-        {
-          state: {
-            activity: "ascensor-bunker",
-            retryRoute: ascensorRoute,
-            nextRoute: activityListRoute,
-          },
-        },
+    // 3. Estructurar el Payload para enviar
+    const payload = {
+      id_usuario: idUsuario,
+      mundo: "mathnumbers",
+      tema: "Tema 2: Positivos y negativos",
+      actividad_codigo: "ascensor-bunker",
+      actividad_titulo: "El Ascensor del Búnker",
+      aciertos: total,
+      total_preguntas: 5,
+      precision: (total / 5) * 100,
+      estrellas_obtenidas: nuevasEstrellas,
+      xp_obtenido: total * 10,
+      completada: esCorrecto,
+      tiempo_segundos: 0,
+      respuestas: {
+        slots_usuario: slots,
+        explicacion_texto: explanation,
+      },
+    };
+
+    try {
+      // --- MEJORA: Comprobar si ya había jugado y ganado estrellas antes ---
+      // Consultamos el progreso guardado en el localStorage como caché rápida del estado del usuario
+      const progresoKey = `progreso_${idUsuario}_ascensor-bunker`;
+      const progresoPrevioRaw = localStorage.getItem(progresoKey);
+      let yaTeniaEstrellas = false;
+      let estrellasAnteriores = 0;
+
+      if (progresoPrevioRaw) {
+        const progresoPrevio = JSON.parse(progresoPrevioRaw);
+        estrellasAnteriores = progresoPrevio.estrellas_obtenidas || 0;
+        yaTeniaEstrellas = estrellasAnteriores > 0;
+      }
+
+      // Guardamos el progreso en el backend
+      await guardarProgresoActividad(payload);
+
+      // Guardamos localmente el progreso actual para futuras consultas rápidas
+      localStorage.setItem(progresoKey, JSON.stringify({ estrellas_obtenidas: Math.max(estrellasAnteriores, nuevasEstrellas) }));
+
+      if (esCorrecto) {
+        if (yaTeniaEstrellas) {
+          // Mensaje elegante para cuando ya tenía estrellas en este nivel
+          showToast(
+            `¡Increíble! Has vuelto a superar el nivel. Ya cuentas con las ${estrellasAnteriores} ⭐ de este búnker en tu perfil.`,
+            false
+          );
+        } else {
+          // Mensaje para la primera vez que lo completa exitosamente
+          showToast(`¡Ruta correcta! Ascensor restablecido. ¡Has ganado ${nuevasEstrellas} estrellas! ⭐`);
+        }
+
+        window.setTimeout(() => {
+          setResultModalOpen(true);
+        }, 1200); // Damos un poco más de tiempo para leer el mensaje elegante
+
+        return;
+      }
+
+      // Si falla en ordenar
+      showToast(
+        "El orden no es correcto. Inténtalo de nuevo.",
+        true,
       );
-    }, 900);
+
+      window.setTimeout(() => {
+        navigate(
+          total >= 3
+            ? "/actividades/mathnumbers/casi-lo-logras"
+            : "/actividades/mathnumbers/vuelve-a-intentarlo",
+          {
+            state: {
+              activity: "ascensor-bunker",
+              retryRoute: ascensorRoute,
+              nextRoute: activityListRoute,
+            },
+          },
+        );
+      }, 900);
+
+    } catch (error) {
+      console.error(error);
+      showToast("Error de conexión: No se pudo verificar tu progreso.", true);
+    }
   };
+  
 
   return (
     <main className="mnx-cofre-page mnx-ascensor-page">
