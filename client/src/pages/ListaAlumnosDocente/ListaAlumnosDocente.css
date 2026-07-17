@@ -118,7 +118,6 @@
     minmax(210px, 1.05fr)
     minmax(250px, 1.35fr)
     minmax(180px, 0.9fr)
-    140px
     140px;
   align-items: end;
   gap: 14px;
@@ -1222,4 +1221,30 @@
     bottom: 10px;
     font-size: 18px;
   }
+}
+.lista-message {
+  width: 100%;
+  background: #fff1f2;
+  color: #dc2626;
+  border: 1px solid #fecdd3;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  font-weight: 800;
+}
+
+.lista-dot.gray {
+  background: #94a3b8;
+}
+
+.lista-status.sin-datos {
+  background: #e5e7eb;
+  color: #475569;
+}
+
+.lista-empty-chart {
+  margin-top: 28px;
+  color: #64748b;
+  font-weight: 800;
+  line-height: 1.5;
 }

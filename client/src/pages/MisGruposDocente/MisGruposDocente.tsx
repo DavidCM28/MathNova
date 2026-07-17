@@ -5,7 +5,12 @@ import "./MisGruposDocente.css";
 import {
   obtenerGrupos,
   actualizarGrupo,
+  obtenerAlumnosGrupo,
+  obtenerAlumnosDisponibles,
+  agregarAlumnoAGrupo,
+  eliminarAlumnoDeGrupo,
   type Grupo,
+  type AlumnoGrupo,
 } from "../../services/groupService";
 
 import logo from "../../assets/logo_MathNova.png";
@@ -37,128 +42,10 @@ import {
 
 const coloresGrupo = ["blue", "purple", "green", "orange"];
 
-const alumnosExistentesDemo = [
-  {
-    id_alumno: 1,
-    id_grupo: 0,
-    nombre: "Mariana Fernanda Ruiz",
-    correo: "mariana.ruiz@mathnova.com",
-  },
-  {
-    id_alumno: 2,
-    id_grupo: 0,
-    nombre: "Santiago Jiménez",
-    correo: "santiago.jimenez@mathnova.com",
-  },
-  {
-    id_alumno: 3,
-    id_grupo: 0,
-    nombre: "Ana Sofía García",
-    correo: "ana.garcia@mathnova.com",
-  },
-  {
-    id_alumno: 4,
-    id_grupo: 0,
-    nombre: "Diego Hernández",
-    correo: "diego.hernandez@mathnova.com",
-  },
-  {
-    id_alumno: 5,
-    id_grupo: 0,
-    nombre: "Lucía Medina",
-    correo: "lucia.medina@mathnova.com",
-  },
-  {
-    id_alumno: 6,
-    id_grupo: 0,
-    nombre: "Emiliano Morales",
-    correo: "emiliano.morales@mathnova.com",
-  },
-  {
-    id_alumno: 7,
-    id_grupo: 0,
-    nombre: "Valeria Sánchez",
-    correo: "valeria.sanchez@mathnova.com",
-  },
-  {
-    id_alumno: 8,
-    id_grupo: 0,
-    nombre: "José Ramírez",
-    correo: "jose.ramirez@mathnova.com",
-  },
-  {
-    id_alumno: 9,
-    id_grupo: 0,
-    nombre: "Camila Torres",
-    correo: "camila.torres@mathnova.com",
-  },
-  {
-    id_alumno: 10,
-    id_grupo: 0,
-    nombre: "Oscar López",
-    correo: "oscar.lopez@mathnova.com",
-  },
-  {
-    id_alumno: 11,
-    id_grupo: 0,
-    nombre: "Renata Castillo",
-    correo: "renata.castillo@mathnova.com",
-  },
-  {
-    id_alumno: 12,
-    id_grupo: 0,
-    nombre: "Mateo González",
-    correo: "mateo.gonzalez@mathnova.com",
-  },
-  {
-    id_alumno: 13,
-    id_grupo: 0,
-    nombre: "Daniela Vargas",
-    correo: "daniela.vargas@mathnova.com",
-  },
-  {
-    id_alumno: 14,
-    id_grupo: 0,
-    nombre: "Iván Martínez",
-    correo: "ivan.martinez@mathnova.com",
-  },
-  {
-    id_alumno: 15,
-    id_grupo: 0,
-    nombre: "Paulina Reyes",
-    correo: "paulina.reyes@mathnova.com",
-  },
-  {
-    id_alumno: 16,
-    id_grupo: 0,
-    nombre: "Luis Fernando Cruz",
-    correo: "luis.cruz@mathnova.com",
-  },
-  {
-    id_alumno: 17,
-    id_grupo: 0,
-    nombre: "Regina Flores",
-    correo: "regina.flores@mathnova.com",
-  },
-  {
-    id_alumno: 18,
-    id_grupo: 0,
-    nombre: "Andrés Navarro",
-    correo: "andres.navarro@mathnova.com",
-  },
-];
-
 type Alerta = {
   tipo: "success" | "error";
   titulo: string;
   mensaje: string;
-};
-
-type AlumnoGrupo = {
-  id_alumno: number;
-  id_grupo: number;
-  nombre: string;
-  correo: string;
 };
 
 type AlumnosPorGrupo = Record<number, AlumnoGrupo[]>;
@@ -174,32 +61,6 @@ const obtenerIniciales = (nombre: string) => {
     .join("");
 };
 
-const crearAlumnosInicialesGrupo = (grupo: Grupo): AlumnoGrupo[] => {
-  const total = grupo.total_alumnos ?? 0;
-
-  if (total <= 0) return [];
-
-  return Array.from({ length: total }, (_, index) => {
-    const alumnoExistente = alumnosExistentesDemo[index];
-
-    if (alumnoExistente) {
-      return {
-        ...alumnoExistente,
-        id_grupo: grupo.id_grupo,
-      };
-    }
-
-    const numeroExtra = index + 1;
-
-    return {
-      id_alumno: grupo.id_grupo * 10000 + numeroExtra,
-      id_grupo: grupo.id_grupo,
-      nombre: `Alumno demo ${numeroExtra}`,
-      correo: `alumno${numeroExtra}.grupo${grupo.id_grupo}@mathnova.com`,
-    };
-  });
-};
-
 function MisGruposDocente() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [busqueda, setBusqueda] = useState("");
@@ -207,9 +68,17 @@ function MisGruposDocente() {
 
   const [grupos, setGrupos] = useState<Grupo[]>([]);
   const [alumnosPorGrupo, setAlumnosPorGrupo] = useState<AlumnosPorGrupo>({});
+  const [alumnosDisponibles, setAlumnosDisponibles] = useState<AlumnoGrupo[]>(
+    [],
+  );
+
   const [cargandoGrupos, setCargandoGrupos] = useState(true);
+  const [cargandoAlumnosModal, setCargandoAlumnosModal] = useState(false);
   const [errorGrupos, setErrorGrupos] = useState("");
   const [editandoId, setEditandoId] = useState<number | null>(null);
+  const [guardandoAlumnoId, setGuardandoAlumnoId] = useState<number | null>(
+    null,
+  );
 
   const [grupoEditando, setGrupoEditando] = useState<Grupo | null>(null);
   const [nombreEditado, setNombreEditado] = useState("");
@@ -232,24 +101,7 @@ function MisGruposDocente() {
   const navigate = useNavigate();
 
   const alumnosDelGrupoEditando = grupoEditando
-    ? (alumnosPorGrupo[grupoEditando.id_grupo] ?? [])
-    : [];
-
-  const idsAlumnosEnGrupo = new Set(
-    alumnosDelGrupoEditando.map((alumno) => alumno.id_alumno),
-  );
-
-  const textoBusquedaAlumno = busquedaAlumnoDisponible.toLowerCase().trim();
-
-  const alumnosDisponiblesParaGrupo = grupoEditando
-    ? alumnosExistentesDemo.filter((alumno) => {
-        const yaEstaEnGrupo = idsAlumnosEnGrupo.has(alumno.id_alumno);
-        const coincideBusqueda =
-          alumno.nombre.toLowerCase().includes(textoBusquedaAlumno) ||
-          alumno.correo.toLowerCase().includes(textoBusquedaAlumno);
-
-        return !yaEstaEnGrupo && coincideBusqueda;
-      })
+    ? alumnosPorGrupo[grupoEditando.id_grupo] ?? []
     : [];
 
   const obtenerCantidadAlumnos = (grupo: Grupo) => {
@@ -260,6 +112,74 @@ function MisGruposDocente() {
     }
 
     return grupo.total_alumnos ?? 0;
+  };
+
+  const actualizarTotalLocalGrupo = (idGrupo: number, total: number) => {
+    setGrupos((gruposActuales) =>
+      gruposActuales.map((grupoActual) =>
+        grupoActual.id_grupo === idGrupo
+          ? {
+              ...grupoActual,
+              total_alumnos: total,
+            }
+          : grupoActual,
+      ),
+    );
+
+    setGrupoEditando((grupoActual) =>
+      grupoActual && grupoActual.id_grupo === idGrupo
+        ? {
+            ...grupoActual,
+            total_alumnos: total,
+          }
+        : grupoActual,
+    );
+  };
+
+  const cargarAlumnosDeGrupo = async (idGrupo: number) => {
+    try {
+      const alumnosBD = await obtenerAlumnosGrupo(idGrupo);
+
+      setAlumnosPorGrupo((actual) => ({
+        ...actual,
+        [idGrupo]: alumnosBD,
+      }));
+
+      actualizarTotalLocalGrupo(idGrupo, alumnosBD.length);
+    } catch (error) {
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "No se pudieron cargar los alumnos del grupo.";
+
+      setErrorModal(mensaje);
+
+      setAlerta({
+        tipo: "error",
+        titulo: "No se pudieron cargar alumnos",
+        mensaje,
+      });
+    }
+  };
+
+  const cargarAlumnosDisponibles = async (idGrupo: number, buscar = "") => {
+    try {
+      setCargandoAlumnosModal(true);
+
+      const alumnosBD = await obtenerAlumnosDisponibles(idGrupo, buscar);
+
+      setAlumnosDisponibles(alumnosBD);
+    } catch (error) {
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "No se pudieron cargar los alumnos disponibles.";
+
+      setErrorModal(mensaje);
+      setAlumnosDisponibles([]);
+    } finally {
+      setCargandoAlumnosModal(false);
+    }
   };
 
   useEffect(() => {
@@ -325,17 +245,9 @@ function MisGruposDocente() {
         setErrorGrupos("");
 
         const gruposBD = await obtenerGrupos();
+
         setGrupos(gruposBD);
-
-        const alumnosIniciales = gruposBD.reduce<AlumnosPorGrupo>(
-          (acumulador, grupo) => {
-            acumulador[grupo.id_grupo] = crearAlumnosInicialesGrupo(grupo);
-            return acumulador;
-          },
-          {},
-        );
-
-        setAlumnosPorGrupo(alumnosIniciales);
+        setAlumnosPorGrupo({});
       } catch (error) {
         setErrorGrupos(
           error instanceof Error
@@ -350,6 +262,21 @@ function MisGruposDocente() {
     void cargarGrupos();
   }, []);
 
+  useEffect(() => {
+    if (!grupoEditando || !mostrarBancoAlumnos) return;
+
+    const timer = window.setTimeout(() => {
+      void cargarAlumnosDisponibles(
+        grupoEditando.id_grupo,
+        busquedaAlumnoDisponible,
+      );
+    }, 250);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [grupoEditando, mostrarBancoAlumnos, busquedaAlumnoDisponible]);
+
   const seleccionarMenu = (menu: string) => {
     setSelectedMenu(menu);
   };
@@ -363,19 +290,6 @@ function MisGruposDocente() {
     navigate(ruta);
   };
 
-  const actualizarTotalLocalGrupo = (idGrupo: number, total: number) => {
-    setGrupos((gruposActuales) =>
-      gruposActuales.map((grupoActual) =>
-        grupoActual.id_grupo === idGrupo
-          ? {
-              ...grupoActual,
-              total_alumnos: total,
-            }
-          : grupoActual,
-      ),
-    );
-  };
-
   const abrirModalEditar = (grupo: Grupo) => {
     setGrupoEditando(grupo);
     setNombreEditado(grupo.nombre_grupo);
@@ -384,16 +298,20 @@ function MisGruposDocente() {
     setAlerta(null);
     setMostrarBancoAlumnos(false);
     setBusquedaAlumnoDisponible("");
+    setAlumnosDisponibles([]);
+
+    void cargarAlumnosDeGrupo(grupo.id_grupo);
   };
 
   const cerrarModalEditar = () => {
-    if (editandoId !== null) return;
+    if (editandoId !== null || guardandoAlumnoId !== null) return;
 
     setGrupoEditando(null);
     setNombreEditado("");
     setErrorModal("");
     setMostrarBancoAlumnos(false);
     setBusquedaAlumnoDisponible("");
+    setAlumnosDisponibles([]);
   };
 
   const guardarEdicionGrupo = async (event: FormEvent<HTMLFormElement>) => {
@@ -472,85 +390,109 @@ function MisGruposDocente() {
   };
 
   const abrirBancoAlumnos = () => {
+    if (!grupoEditando) return;
+
     setMostrarBancoAlumnos(true);
     setBusquedaAlumnoDisponible("");
     setErrorModal("");
+
+    void cargarAlumnosDisponibles(grupoEditando.id_grupo);
   };
 
   const cerrarBancoAlumnos = () => {
     setMostrarBancoAlumnos(false);
     setBusquedaAlumnoDisponible("");
+    setAlumnosDisponibles([]);
     setErrorModal("");
   };
 
-  const agregarAlumnoExistenteAlGrupo = (alumno: AlumnoGrupo) => {
+  const agregarAlumnoExistenteAlGrupo = async (alumno: AlumnoGrupo) => {
     if (!grupoEditando) return;
 
-    const alumnosActuales = alumnosPorGrupo[grupoEditando.id_grupo] ?? [];
+    try {
+      setGuardandoAlumnoId(alumno.id_alumno);
+      setErrorModal("");
 
-    const alumnoYaExiste = alumnosActuales.some(
-      (alumnoActual) => alumnoActual.id_alumno === alumno.id_alumno,
-    );
+      await agregarAlumnoAGrupo(grupoEditando.id_grupo, alumno.id_alumno);
+      await cargarAlumnosDeGrupo(grupoEditando.id_grupo);
+      await cargarAlumnosDisponibles(
+        grupoEditando.id_grupo,
+        busquedaAlumnoDisponible,
+      );
 
-    if (alumnoYaExiste) {
-      setErrorModal("Este alumno ya pertenece al grupo seleccionado.");
-      return;
+      setAlerta({
+        tipo: "success",
+        titulo: "¡Alumno asignado!",
+        mensaje: `${alumno.nombre} fue agregado al grupo ${grupoEditando.nombre_grupo}.`,
+      });
+    } catch (error) {
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "No se pudo agregar el alumno al grupo.";
+
+      setErrorModal(mensaje);
+
+      setAlerta({
+        tipo: "error",
+        titulo: "No se pudo asignar",
+        mensaje,
+      });
+    } finally {
+      setGuardandoAlumnoId(null);
     }
-
-    const alumnoAsignado: AlumnoGrupo = {
-      ...alumno,
-      id_grupo: grupoEditando.id_grupo,
-    };
-
-    const alumnosActualizados = [alumnoAsignado, ...alumnosActuales];
-
-    setAlumnosPorGrupo((alumnosActualesPorGrupo) => ({
-      ...alumnosActualesPorGrupo,
-      [grupoEditando.id_grupo]: alumnosActualizados,
-    }));
-
-    actualizarTotalLocalGrupo(
-      grupoEditando.id_grupo,
-      alumnosActualizados.length,
-    );
-
-    setBusquedaAlumnoDisponible("");
-    setErrorModal("");
-
-    setAlerta({
-      tipo: "success",
-      titulo: "¡Alumno asignado!",
-      mensaje: `${alumno.nombre} fue agregado al grupo ${grupoEditando.nombre_grupo}.`,
-    });
   };
 
-  const eliminarAlumnoDelGrupo = (alumnoId: number) => {
+  const eliminarAlumnoDelGrupo = async (alumnoId: number) => {
     if (!grupoEditando) return;
 
-    const alumnosActuales = alumnosPorGrupo[grupoEditando.id_grupo] ?? [];
-    const alumnoEliminado = alumnosActuales.find(
+    const alumnoEliminado = alumnosDelGrupoEditando.find(
       (alumno) => alumno.id_alumno === alumnoId,
     );
 
-    const alumnosActualizados = alumnosActuales.filter(
-      (alumno) => alumno.id_alumno !== alumnoId,
+    const confirmado = window.confirm(
+      `¿Seguro que quieres quitar a ${
+        alumnoEliminado?.nombre ?? "este alumno"
+      } del grupo?`,
     );
 
-    setAlumnosPorGrupo((alumnosActualesPorGrupo) => ({
-      ...alumnosActualesPorGrupo,
-      [grupoEditando.id_grupo]: alumnosActualizados,
-    }));
+    if (!confirmado) return;
 
-    actualizarTotalLocalGrupo(
-      grupoEditando.id_grupo,
-      alumnosActualizados.length,
-    );
+    try {
+      setGuardandoAlumnoId(alumnoId);
+      setErrorModal("");
 
-    setAlerta({
-      tipo: "success",
-      titulo: "Alumno eliminado",
-      mensaje: `${alumnoEliminado?.nombre ?? "El alumno"} fue eliminado del grupo.`,
-    });
+      await eliminarAlumnoDeGrupo(grupoEditando.id_grupo, alumnoId);
+      await cargarAlumnosDeGrupo(grupoEditando.id_grupo);
+
+      if (mostrarBancoAlumnos) {
+        await cargarAlumnosDisponibles(
+          grupoEditando.id_grupo,
+          busquedaAlumnoDisponible,
+        );
+      }
+
+      setAlerta({
+        tipo: "success",
+        titulo: "Alumno eliminado",
+        mensaje: `${alumnoEliminado?.nombre ?? "El alumno"} fue eliminado del grupo.`,
+      });
+    } catch (error) {
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "No se pudo eliminar el alumno del grupo.";
+
+      setErrorModal(mensaje);
+
+      setAlerta({
+        tipo: "error",
+        titulo: "No se pudo eliminar",
+        mensaje,
+      });
+    } finally {
+      setGuardandoAlumnoId(null);
+    }
   };
 
   const gruposFiltrados = grupos.filter((grupo) => {
@@ -571,7 +513,7 @@ function MisGruposDocente() {
     return total + obtenerCantidadAlumnos(grupo);
   }, 0);
 
-  const promedioGeneral = 0;
+  const promedioGeneral = "—";
 
   return (
     <main className={`docente-page ${grupoEditando ? "mgd-page-locked" : ""}`}>
@@ -611,7 +553,7 @@ function MisGruposDocente() {
               className="mgd-modal-close"
               onClick={cerrarModalEditar}
               aria-label="Cerrar modal"
-              disabled={editandoId !== null}
+              disabled={editandoId !== null || guardandoAlumnoId !== null}
             >
               <FiX />
             </button>
@@ -675,7 +617,7 @@ function MisGruposDocente() {
                   type="button"
                   className="mgd-modal-cancel"
                   onClick={cerrarModalEditar}
-                  disabled={editandoId !== null}
+                  disabled={editandoId !== null || guardandoAlumnoId !== null}
                 >
                   Cancelar
                 </button>
@@ -711,6 +653,7 @@ function MisGruposDocente() {
                   onClick={
                     mostrarBancoAlumnos ? cerrarBancoAlumnos : abrirBancoAlumnos
                   }
+                  disabled={guardandoAlumnoId !== null}
                 >
                   {mostrarBancoAlumnos ? <FiX /> : <FiUserPlus />}
                   {mostrarBancoAlumnos ? "Cerrar lista" : "Agregar alumno"}
@@ -723,7 +666,7 @@ function MisGruposDocente() {
                     <div>
                       <h4>Alumnos existentes</h4>
                       <p>
-                        Elige un alumno de muestra para asignarlo a este grupo.
+                        Elige un alumno registrado para asignarlo a este grupo.
                       </p>
                     </div>
 
@@ -741,8 +684,13 @@ function MisGruposDocente() {
                   </div>
 
                   <div className="mgd-existing-students-grid">
-                    {alumnosDisponiblesParaGrupo.length > 0 ? (
-                      alumnosDisponiblesParaGrupo.map((alumno) => (
+                    {cargandoAlumnosModal ? (
+                      <div className="mgd-existing-empty">
+                        <h4>Cargando alumnos...</h4>
+                        <p>Estamos buscando los alumnos registrados.</p>
+                      </div>
+                    ) : alumnosDisponibles.length > 0 ? (
+                      alumnosDisponibles.map((alumno) => (
                         <article
                           className="mgd-existing-student-card"
                           key={alumno.id_alumno}
@@ -761,9 +709,12 @@ function MisGruposDocente() {
                             onClick={() =>
                               agregarAlumnoExistenteAlGrupo(alumno)
                             }
+                            disabled={guardandoAlumnoId === alumno.id_alumno}
                           >
                             <FiUserCheck />
-                            Agregar
+                            {guardandoAlumnoId === alumno.id_alumno
+                              ? "Agregando..."
+                              : "Agregar"}
                           </button>
                         </article>
                       ))
@@ -771,8 +722,8 @@ function MisGruposDocente() {
                       <div className="mgd-existing-empty">
                         <h4>No hay alumnos disponibles</h4>
                         <p>
-                          Todos los alumnos de muestra ya están en este grupo o
-                          no coinciden con la búsqueda.
+                          Todos los alumnos ya están en este grupo o no
+                          coinciden con la búsqueda.
                         </p>
                       </div>
                     )}
@@ -797,9 +748,12 @@ function MisGruposDocente() {
                         type="button"
                         className="mgd-delete-student-btn"
                         onClick={() => eliminarAlumnoDelGrupo(alumno.id_alumno)}
+                        disabled={guardandoAlumnoId === alumno.id_alumno}
                       >
                         <FiTrash2 />
-                        Eliminar
+                        {guardandoAlumnoId === alumno.id_alumno
+                          ? "Quitando..."
+                          : "Eliminar"}
                       </button>
                     </article>
                   ))
@@ -1068,8 +1022,8 @@ function MisGruposDocente() {
           <article className="mgd-stat-card orange-card">
             <div>
               <h3>Promedio general</h3>
-              <strong>{promedioGeneral}%</strong>
-              <p>Rendimiento promedio</p>
+              <strong>{promedioGeneral}</strong>
+              <p>Sin datos académicos todavía</p>
             </div>
 
             <div className="mgd-stat-icon">
@@ -1091,7 +1045,7 @@ function MisGruposDocente() {
               gruposFiltrados.map((grupo, index) => {
                 const color = coloresGrupo[index % coloresGrupo.length];
                 const alumnosTexto = `${obtenerCantidadAlumnos(grupo)} alumnos`;
-                const promedioTexto = "0%";
+                const promedioTexto = "—";
 
                 return (
                   <article className="mgd-group-card" key={grupo.id_grupo}>

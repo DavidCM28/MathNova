@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ListaAlumnosDocente.css";
 
@@ -17,150 +17,191 @@ import {
   FiSettings,
   FiSearch,
   FiDownload,
-  FiPrinter,
   FiMoreVertical,
   FiUser,
   FiCalendar,
 } from "react-icons/fi";
 
 type Alumno = {
-  id: number;
-  nombre: string;
+  id_alumno: number;
   iniciales: string;
+  nombre: string;
+  correo?: string;
+  usuario?: string | null;
   grupo: string;
-  edad: number;
   modulo: string;
-  asistencia: number;
-  promedio: number;
-  estado: "Excelente" | "Bueno" | "Regular" | "En riesgo";
+  asistencia: number | null;
+  promedio: number | null;
+  estado: "Activo" | "Rezago";
   color: string;
+  barra?: string;
+  fecha_registro?: string;
 };
 
-const alumnos: Alumno[] = [
-  {
-    id: 1,
-    nombre: "Mariana Fuentes Ruiz",
-    iniciales: "MF",
-    grupo: "2°A",
-    edad: 9,
-    modulo: "Fracciones",
-    asistencia: 96,
-    promedio: 9.4,
-    estado: "Excelente",
-    color: "#00a86b",
-  },
-  {
-    id: 2,
-    nombre: "Santiago Jiménez López",
-    iniciales: "SJ",
-    grupo: "2°A",
-    edad: 9,
-    modulo: "Ecuaciones lineales",
-    asistencia: 90,
-    promedio: 8.7,
-    estado: "Bueno",
-    color: "#f59e0b",
-  },
-  {
-    id: 3,
-    nombre: "Ana Sofía García Pérez",
-    iniciales: "AG",
-    grupo: "2°A",
-    edad: 10,
-    modulo: "Áreas y perímetros",
-    asistencia: 78,
-    promedio: 7.6,
-    estado: "Regular",
-    color: "#f59e0b",
-  },
-  {
-    id: 4,
-    nombre: "Diego Hernández Torres",
-    iniciales: "DC",
-    grupo: "2°A",
-    edad: 9,
-    modulo: "Fracciones",
-    asistencia: 62,
-    promedio: 6.1,
-    estado: "En riesgo",
-    color: "#6d5dfc",
-  },
-  {
-    id: 5,
-    nombre: "Lucía Medina Chávez",
-    iniciales: "LM",
-    grupo: "2°A",
-    edad: 9,
-    modulo: "Ecuaciones lineales",
-    asistencia: 95,
-    promedio: 9.1,
-    estado: "Excelente",
-    color: "#14b8a6",
-  },
-  {
-    id: 6,
-    nombre: "José Valdez Ríos",
-    iniciales: "JV",
-    grupo: "2°A",
-    edad: 10,
-    modulo: "Geometría",
-    asistencia: 88,
-    promedio: 8.3,
-    estado: "Bueno",
-    color: "#06b6d4",
-  },
-  {
-    id: 7,
-    nombre: "Valeria Sánchez Morales",
-    iniciales: "VS",
-    grupo: "2°A",
-    edad: 9,
-    modulo: "Fracciones",
-    asistencia: 75,
-    promedio: 7.2,
-    estado: "Regular",
-    color: "#fb923c",
-  },
-  {
-    id: 8,
-    nombre: "Juan Ramírez Díaz",
-    iniciales: "JR",
-    grupo: "2°A",
-    edad: 10,
-    modulo: "Ecuaciones lineales",
-    asistencia: 58,
-    promedio: 5.8,
-    estado: "En riesgo",
-    color: "#3b82f6",
-  },
-  {
-    id: 9,
-    nombre: "Carla Torres Aguilar",
-    iniciales: "CT",
-    grupo: "2°A",
-    edad: 9,
-    modulo: "Áreas y perímetros",
-    asistencia: 92,
-    promedio: 8.9,
-    estado: "Bueno",
-    color: "#7c3aed",
-  },
-  {
-    id: 10,
-    nombre: "Óscar López Navarro",
-    iniciales: "OL",
-    grupo: "2°A",
-    edad: 9,
-    modulo: "Geometría",
-    asistencia: 70,
-    promedio: 6.9,
-    estado: "Regular",
-    color: "#f59e0b",
-  },
-];
+type Grupo = {
+  id_grupo: number;
+  nombre_grupo: string;
+  total_alumnos?: number;
+};
+
+type DocenteAlumnosResponse = {
+  ok: boolean;
+  alumnos: Alumno[];
+  mensaje?: string;
+};
+
+type GruposResponse = {
+  ok: boolean;
+  grupos: Grupo[];
+  mensaje?: string;
+};
+
+type EstadoLista = "Todos" | "Excelente" | "Bueno" | "Regular" | "En riesgo" | "Sin datos";
+
+const API_DOCENTE_ALUMNOS = "http://localhost:3001/api/docente/alumnos";
+const API_GRUPOS = "http://localhost:3001/api/grupos";
+
+function obtenerToken() {
+  return (
+    localStorage.getItem("token") ||
+    localStorage.getItem("mathnova_token") ||
+    sessionStorage.getItem("token") ||
+    sessionStorage.getItem("mathnova_token")
+  );
+}
+
+async function leerRespuesta(response: Response) {
+  const texto = await response.text();
+
+  try {
+    return texto ? JSON.parse(texto) : {};
+  } catch {
+    throw new Error("El backend no devolvió JSON. Revisa que la ruta exista y que el servidor esté encendido.");
+  }
+}
+
+function normalizarTexto(texto: string) {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function obtenerColorAvatar(color: string, idAlumno: number) {
+  const colores: Record<string, string> = {
+    blue: "#0058ff",
+    azul: "#0058ff",
+    purple: "#7c3aed",
+    morado: "#7c3aed",
+    dark: "#334155",
+    green: "#00a86b",
+    verde: "#00a86b",
+    orange: "#f59e0b",
+    naranja: "#f59e0b",
+    red: "#ef4444",
+    rojo: "#ef4444",
+    turquesa: "#14b8a6",
+  };
+
+  if (color && colores[color]) {
+    return colores[color];
+  }
+
+  const respaldo = ["#0058ff", "#7c3aed", "#334155", "#00a86b", "#f59e0b", "#14b8a6"];
+  return respaldo[Math.abs(Number(idAlumno) || 0) % respaldo.length];
+}
+
+function obtenerEstadoLista(alumno: Alumno): Exclude<EstadoLista, "Todos"> {
+  const sinPromedio = alumno.promedio === null || alumno.promedio === undefined;
+  const sinAsistencia = alumno.asistencia === null || alumno.asistencia === undefined;
+
+  if (sinPromedio && sinAsistencia) {
+    return "Sin datos";
+  }
+
+  const promedio = alumno.promedio ?? 10;
+  const asistencia = alumno.asistencia ?? 100;
+
+  if (promedio < 6.5 || asistencia < 65) {
+    return "En riesgo";
+  }
+
+  if (promedio < 7.5 || asistencia < 80) {
+    return "Regular";
+  }
+
+  if (promedio >= 9 && asistencia >= 90) {
+    return "Excelente";
+  }
+
+  return "Bueno";
+}
+
+function obtenerClaseEstado(estado: EstadoLista) {
+  return estado.toLowerCase().replace(" ", "-");
+}
+
+function obtenerClasePunto(asistencia: number | null) {
+  if (asistencia === null) return "gray";
+  if (asistencia < 65) return "red";
+  if (asistencia < 80) return "orange";
+  return "green";
+}
+
+function descargarCsv(alumnos: Alumno[]) {
+  const encabezados = [
+    "Nombre",
+    "Correo",
+    "Usuario",
+    "Grupo",
+    "Modulo actual",
+    "Asistencia",
+    "Promedio",
+    "Estado",
+  ];
+
+  const filas = alumnos.map((alumno) => [
+    alumno.nombre,
+    alumno.correo || "",
+    alumno.usuario || "",
+    alumno.grupo,
+    alumno.modulo,
+    alumno.asistencia !== null ? `${alumno.asistencia}%` : "",
+    alumno.promedio !== null ? String(alumno.promedio) : "",
+    obtenerEstadoLista(alumno),
+  ]);
+
+  const csv = [encabezados, ...filas]
+    .map((fila) =>
+      fila
+        .map((valor) => `"${String(valor).replace(/"/g, '""')}"`)
+        .join(",")
+    )
+    .join("\n");
+
+  const archivo = new Blob([`\uFEFF${csv}`], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  const url = URL.createObjectURL(archivo);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "lista-alumnos-mathnova.csv";
+  link.click();
+
+  URL.revokeObjectURL(url);
+}
 
 function ListaAlumnosDocente() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [alumnos, setAlumnos] = useState<Alumno[]>([]);
+  const [grupos, setGrupos] = useState<Grupo[]>([]);
+  const [grupoSeleccionado, setGrupoSeleccionado] = useState("todos");
+  const [busqueda, setBusqueda] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState<EstadoLista>("Todos");
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState("");
 
   const [gruposOpen, setGruposOpen] = useState(() => {
     return localStorage.getItem("docente-grupos-open") !== "false";
@@ -189,6 +230,138 @@ function ListaAlumnosDocente() {
   useEffect(() => {
     localStorage.setItem("docente-alumnos-open", String(alumnosOpen));
   }, [alumnosOpen]);
+
+  useEffect(() => {
+    const cargarDatos = async () => {
+      try {
+        setCargando(true);
+        setError("");
+
+        const token = obtenerToken();
+
+        if (!token) {
+          throw new Error("Debes iniciar sesión para ver la lista de alumnos.");
+        }
+
+        const [alumnosResponse, gruposResponse] = await Promise.all([
+          fetch(API_DOCENTE_ALUMNOS, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+          fetch(API_GRUPOS, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+        ]);
+
+        const alumnosData = (await leerRespuesta(alumnosResponse)) as DocenteAlumnosResponse;
+        const gruposData = (await leerRespuesta(gruposResponse)) as GruposResponse;
+
+        if (!alumnosResponse.ok) {
+          throw new Error(alumnosData?.mensaje || "No se pudieron cargar los alumnos.");
+        }
+
+        if (!gruposResponse.ok) {
+          throw new Error(gruposData?.mensaje || "No se pudieron cargar los grupos.");
+        }
+
+        setAlumnos(alumnosData.alumnos || []);
+        setGrupos(gruposData.grupos || []);
+      } catch (error) {
+        setAlumnos([]);
+        setGrupos([]);
+
+        setError(
+          error instanceof Error
+            ? error.message
+            : "No se pudieron cargar los datos."
+        );
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    void cargarDatos();
+  }, []);
+
+  const alumnosFiltrados = useMemo(() => {
+    const textoBusqueda = normalizarTexto(busqueda.trim());
+
+    return alumnos.filter((alumno) => {
+      const gruposAlumno = alumno.grupo
+        .split(",")
+        .map((grupo) => grupo.trim())
+        .filter(Boolean);
+
+      const coincideGrupo =
+        grupoSeleccionado === "todos" || gruposAlumno.includes(grupoSeleccionado);
+
+      const estadoAlumno = obtenerEstadoLista(alumno);
+
+      const coincideEstado =
+        filtroEstado === "Todos" || estadoAlumno === filtroEstado;
+
+      const textoAlumno = normalizarTexto(
+        `${alumno.nombre} ${alumno.correo || ""} ${alumno.usuario || ""} ${alumno.grupo}`
+      );
+
+      const coincideBusqueda =
+        textoBusqueda === "" || textoAlumno.includes(textoBusqueda);
+
+      return coincideGrupo && coincideEstado && coincideBusqueda;
+    });
+  }, [alumnos, grupoSeleccionado, filtroEstado, busqueda]);
+
+  const resumen = useMemo(() => {
+    const total = alumnosFiltrados.length;
+
+    const conPromedio = alumnosFiltrados.filter(
+      (alumno) => alumno.promedio !== null && alumno.promedio !== undefined
+    );
+
+    const conAsistencia = alumnosFiltrados.filter(
+      (alumno) => alumno.asistencia !== null && alumno.asistencia !== undefined
+    );
+
+    const promedioGeneral =
+      conPromedio.length > 0
+        ? Number(
+            (
+              conPromedio.reduce(
+                (suma, alumno) => suma + Number(alumno.promedio),
+                0
+              ) / conPromedio.length
+            ).toFixed(1)
+          )
+        : null;
+
+    const asistenciaPromedio =
+      conAsistencia.length > 0
+        ? Math.round(
+            conAsistencia.reduce(
+              (suma, alumno) => suma + Number(alumno.asistencia),
+              0
+            ) / conAsistencia.length
+          )
+        : null;
+
+    const alumnosEnRiesgo = alumnosFiltrados.filter(
+      (alumno) => obtenerEstadoLista(alumno) === "En riesgo"
+    ).length;
+
+    return {
+      total,
+      promedioGeneral,
+      asistenciaPromedio,
+      alumnosEnRiesgo,
+    };
+  }, [alumnosFiltrados]);
+
+  const alumnosGrafica = alumnosFiltrados
+    .filter((alumno) => alumno.asistencia !== null)
+    .slice(0, 5);
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
@@ -364,39 +537,58 @@ function ListaAlumnosDocente() {
         <section className="lista-toolbar">
           <div className="lista-field grupo-field">
             <label>Grupo</label>
-            <select>
-              <option>2°A - Matemáticas</option>
-              <option>1°B - Matemáticas</option>
-              <option>3°A - Matemáticas</option>
+            <select
+              value={grupoSeleccionado}
+              onChange={(event) => setGrupoSeleccionado(event.target.value)}
+            >
+              <option value="todos">Todos los grupos</option>
+
+              {grupos.map((grupo) => (
+                <option key={grupo.id_grupo} value={grupo.nombre_grupo}>
+                  {grupo.nombre_grupo}
+                </option>
+              ))}
             </select>
           </div>
 
           <div className="lista-search">
             <FiSearch />
-            <input type="text" placeholder="Buscar alumno por nombre..." />
+            <input
+              type="text"
+              placeholder="Buscar alumno por nombre..."
+              value={busqueda}
+              onChange={(event) => setBusqueda(event.target.value)}
+            />
           </div>
 
           <div className="lista-field filtro-field">
             <label>Filtrar por</label>
-            <select>
-              <option>Todos</option>
-              <option>Excelente</option>
-              <option>Bueno</option>
-              <option>Regular</option>
-              <option>En riesgo</option>
+            <select
+              value={filtroEstado}
+              onChange={(event) =>
+                setFiltroEstado(event.target.value as EstadoLista)
+              }
+            >
+              <option value="Todos">Todos</option>
+              <option value="Excelente">Excelente</option>
+              <option value="Bueno">Bueno</option>
+              <option value="Regular">Regular</option>
+              <option value="En riesgo">En riesgo</option>
+              <option value="Sin datos">Sin datos</option>
             </select>
           </div>
 
-          <button type="button" className="lista-outline-btn">
+          <button
+            type="button"
+            className="lista-outline-btn"
+            onClick={() => descargarCsv(alumnosFiltrados)}
+          >
             <FiDownload />
             Exportar
           </button>
-
-          <button type="button" className="lista-blue-btn">
-            <FiPrinter />
-            Imprimir
-          </button>
         </section>
+
+        {error && <section className="lista-message">{error}</section>}
 
         <section className="lista-layout">
           <article className="lista-table-card">
@@ -413,58 +605,102 @@ function ListaAlumnosDocente() {
                 <span></span>
               </div>
 
-              {alumnos.map((alumno) => (
-                <div className="lista-table-row" key={alumno.id}>
-                  <span>{alumno.id}</span>
-
-                  <span className="lista-student">
-                    <span
-                      className="lista-avatar"
-                      style={{ background: alumno.color }}
-                    >
-                      {alumno.iniciales}
-                    </span>
-                    {alumno.nombre}
-                  </span>
-
-                  <span>{alumno.grupo}</span>
-                  <span>{alumno.edad}</span>
-                  <span>{alumno.modulo}</span>
-
-                  <span className="lista-assistance">
-                    <span
-                      className={`lista-dot ${
-                        alumno.asistencia < 65
-                          ? "red"
-                          : alumno.asistencia < 80
-                            ? "orange"
-                            : "green"
-                      }`}
-                    ></span>
-                    {alumno.asistencia}%
-                  </span>
-
-                  <span>{alumno.promedio}</span>
-
-                  <span>
-                    <span
-                      className={`lista-status ${alumno.estado
-                        .toLowerCase()
-                        .replace(" ", "-")}`}
-                    >
-                      {alumno.estado}
-                    </span>
-                  </span>
-
-                  <button
-                    type="button"
-                    className="lista-more-btn"
-                    aria-label="Más opciones"
-                  >
-                    <FiMoreVertical />
-                  </button>
+              {cargando ? (
+                <div className="lista-table-row">
+                  <span>—</span>
+                  <span>Cargando alumnos...</span>
+                  <span>—</span>
+                  <span>—</span>
+                  <span>—</span>
+                  <span>—</span>
+                  <span>—</span>
+                  <span>—</span>
+                  <span></span>
                 </div>
-              ))}
+              ) : alumnosFiltrados.length > 0 ? (
+                alumnosFiltrados.map((alumno, index) => {
+                  const estadoLista = obtenerEstadoLista(alumno);
+
+                  return (
+                    <div className="lista-table-row" key={alumno.id_alumno}>
+                      <span>{index + 1}</span>
+
+                      <span className="lista-student">
+                        <span
+                          className="lista-avatar"
+                          style={{
+                            background: obtenerColorAvatar(
+                              alumno.color,
+                              alumno.id_alumno
+                            ),
+                          }}
+                        >
+                          {alumno.iniciales}
+                        </span>
+                        {alumno.nombre}
+                      </span>
+
+                      <span>{alumno.grupo || "Sin grupo"}</span>
+                      <span>—</span>
+                      <span>{alumno.modulo || "Sin módulo"}</span>
+
+                      <span className="lista-assistance">
+                        <span
+                          className={`lista-dot ${obtenerClasePunto(
+                            alumno.asistencia
+                          )}`}
+                        ></span>
+                        {alumno.asistencia !== null
+                          ? `${alumno.asistencia}%`
+                          : "—"}
+                      </span>
+
+                      <span>
+                        {alumno.promedio !== null ? alumno.promedio : "—"}
+                      </span>
+
+                      <span>
+                        <span
+                          className={`lista-status ${obtenerClaseEstado(
+                            estadoLista
+                          )}`}
+                        >
+                          {estadoLista}
+                        </span>
+                      </span>
+
+                      <button
+                        type="button"
+                        className="lista-more-btn"
+                        aria-label="Más opciones"
+                        onClick={() =>
+                          window.alert(
+                            `Alumno: ${alumno.nombre}\nCorreo: ${
+                              alumno.correo || "Sin correo"
+                            }\nUsuario: ${
+                              alumno.usuario || "Sin usuario"
+                            }\nGrupo: ${alumno.grupo || "Sin grupo"}`
+                          )
+                        }
+                      >
+                        <FiMoreVertical />
+                      </button>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="lista-table-row">
+                  <span>—</span>
+                  <span>No se encontraron alumnos.</span>
+                  <span>—</span>
+                  <span>—</span>
+                  <span>—</span>
+                  <span>—</span>
+                  <span>—</span>
+                  <span>—</span>
+                  <span></span>
+                </div>
+              )}
             </div>
           </article>
 
@@ -478,71 +714,86 @@ function ListaAlumnosDocente() {
               <div className="resumen-grid">
                 <div>
                   <p>Total de alumnos</p>
-                  <strong className="blue-number">28</strong>
+                  <strong className="blue-number">{resumen.total}</strong>
                 </div>
 
                 <div>
                   <p>Promedio general</p>
-                  <strong className="green-number">7.9</strong>
+                  <strong className="green-number">
+                    {resumen.promedioGeneral !== null
+                      ? resumen.promedioGeneral
+                      : "—"}
+                  </strong>
                 </div>
 
                 <div>
                   <p>Alumnos en riesgo</p>
-                  <strong className="red-number">4</strong>
+                  <strong className="red-number">
+                    {resumen.alumnosEnRiesgo}
+                  </strong>
                 </div>
 
                 <div>
                   <p>Asistencia promedio</p>
-                  <strong className="blue-number">81%</strong>
+                  <strong className="blue-number">
+                    {resumen.asistenciaPromedio !== null
+                      ? `${resumen.asistenciaPromedio}%`
+                      : "—"}
+                  </strong>
                 </div>
               </div>
             </article>
 
             <article className="lista-side-card asistencia-card">
               <div className="side-title-row">
-                <h2>Asistencia semanal</h2>
+                <h2>Asistencia del grupo</h2>
                 <FiCalendar />
               </div>
 
-              <div className="lista-chart">
-                <div className="lista-chart-labels">
-                  <span>100</span>
-                  <span>50</span>
-                  <span>0</span>
+              {alumnosGrafica.length > 0 ? (
+                <div className="lista-chart">
+                  <div className="lista-chart-labels">
+                    <span>100</span>
+                    <span>50</span>
+                    <span>0</span>
+                  </div>
+
+                  <div className="lista-chart-bars">
+                    {alumnosGrafica.map((alumno, index) => {
+                      const coloresBarra = [
+                        "lista-blue-bar",
+                        "lista-green-bar",
+                        "lista-yellow-bar",
+                        "lista-purple-bar",
+                        "lista-red-bar",
+                      ];
+
+                      return (
+                        <div
+                          className="lista-chart-item"
+                          key={alumno.id_alumno}
+                        >
+                          <strong>{alumno.asistencia}%</strong>
+                          <span
+                            className={`lista-bar ${coloresBarra[index]}`}
+                            style={{
+                              height: `${Math.max(
+                                10,
+                                Number(alumno.asistencia)
+                              )}%`,
+                            }}
+                          ></span>
+                          <small>{alumno.iniciales}</small>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-
-                <div className="lista-chart-bars">
-                  <div className="lista-chart-item">
-                    <strong>85</strong>
-                    <span className="lista-bar lista-blue-bar"></span>
-                    <small>Lun</small>
-                  </div>
-
-                  <div className="lista-chart-item">
-                    <strong>82</strong>
-                    <span className="lista-bar lista-green-bar"></span>
-                    <small>Mar</small>
-                  </div>
-
-                  <div className="lista-chart-item">
-                    <strong>79</strong>
-                    <span className="lista-bar lista-yellow-bar"></span>
-                    <small>Mié</small>
-                  </div>
-
-                  <div className="lista-chart-item">
-                    <strong>83</strong>
-                    <span className="lista-bar lista-purple-bar"></span>
-                    <small>Jue</small>
-                  </div>
-
-                  <div className="lista-chart-item">
-                    <strong>86</strong>
-                    <span className="lista-bar lista-red-bar"></span>
-                    <small>Vie</small>
-                  </div>
-                </div>
-              </div>
+              ) : (
+                <p className="lista-empty-chart">
+                  Aún no hay datos reales de asistencia para mostrar.
+                </p>
+              )}
             </article>
           </aside>
         </section>
