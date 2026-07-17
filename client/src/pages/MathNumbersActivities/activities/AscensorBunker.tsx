@@ -1,5 +1,5 @@
-import "./CofreBienvenida.css";
 import "./AscensorBunker.css";
+import "./CofreBienvenida.css";
 
 import { useEffect, useState } from "react";
 import type { DragEvent } from "react";
