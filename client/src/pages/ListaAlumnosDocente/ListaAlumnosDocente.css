@@ -803,7 +803,6 @@
       minmax(200px, 1fr)
       minmax(230px, 1.2fr)
       minmax(165px, 0.85fr)
-      130px
       130px;
     gap: 12px;
   }
@@ -1247,4 +1246,400 @@
   color: #64748b;
   font-weight: 800;
   line-height: 1.5;
+}
+
+/* =========================================================
+   PAGINACIÓN, NOTIFICACIÓN Y AJUSTES FINALES
+   ========================================================= */
+
+/* Notificación flotante al exportar */
+.lista-toast {
+  position: fixed;
+  top: 24px;
+  right: 26px;
+  z-index: 9999;
+  width: min(390px, calc(100vw - 32px));
+  min-height: 78px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: #ffffff;
+  border: 1px solid #bbf7d0;
+  border-left: 6px solid #16a34a;
+  border-radius: 16px;
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.2);
+  animation: listaToastEntrada 0.38s ease both;
+}
+
+.lista-toast.success {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+}
+
+.lista-toast.warning {
+  border-color: #fde68a;
+  border-left-color: #f59e0b;
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+}
+
+.lista-toast-icon {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #16a34a;
+  font-size: 23px;
+}
+
+.lista-toast.warning .lista-toast-icon {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.lista-toast strong {
+  display: block;
+  margin: 0 0 3px;
+  color: #14532d;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.lista-toast.warning strong {
+  color: #92400e;
+}
+
+.lista-toast p {
+  margin: 0;
+  color: #3f5f4a;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+@keyframes listaToastEntrada {
+  from {
+    opacity: 0;
+    transform: translateX(32px) translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+}
+
+/* La tarjeta ya no crece hasta mostrar todos los alumnos */
+.lista-table-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.lista-table-card > .lista-table {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+}
+
+.lista-table-card > .lista-table::-webkit-scrollbar {
+  height: 8px;
+}
+
+.lista-table-card > .lista-table::-webkit-scrollbar-track {
+  background: #eef3fb;
+  border-radius: 999px;
+}
+
+.lista-table-card > .lista-table::-webkit-scrollbar-thumb {
+  background: #b8c7dc;
+  border-radius: 999px;
+}
+
+.lista-table-card > .lista-table::-webkit-scrollbar-thumb:hover {
+  background: #8ea1bd;
+}
+
+/* Paginación */
+.lista-pagination {
+  width: 100%;
+  min-height: 72px;
+  margin-top: 14px;
+  padding: 15px 4px 0;
+  border-top: 1px solid #e6edf7;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.lista-pagination p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.lista-pagination p strong {
+  color: #172033;
+  font-weight: 900;
+}
+
+.lista-pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.lista-pagination-arrow,
+.lista-page-number {
+  width: 38px;
+  height: 38px;
+  border: 1px solid #d7e3f3;
+  background: #ffffff;
+  color: #334155;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 900;
+  transition:
+    transform 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.lista-pagination-arrow svg {
+  font-size: 19px;
+}
+
+.lista-pagination-arrow:hover:not(:disabled),
+.lista-page-number:hover {
+  transform: translateY(-2px);
+  border-color: #8bb2ff;
+  color: #0058ff;
+  background: #f5f9ff;
+  box-shadow: 0 8px 16px rgba(0, 88, 255, 0.12);
+}
+
+.lista-page-number.active {
+  color: #ffffff;
+  background: #0058ff;
+  border-color: #0058ff;
+  box-shadow: 0 8px 18px rgba(0, 88, 255, 0.24);
+}
+
+.lista-pagination-arrow:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  background: #f8fafc;
+}
+
+/* Gráfica alineada dentro de su tarjeta */
+.asistencia-card {
+  min-height: 335px;
+  display: flex;
+  flex-direction: column;
+}
+
+.lista-chart {
+  width: 100%;
+  max-width: 100%;
+  margin: 28px 0 0;
+  min-height: 220px;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  overflow: hidden;
+}
+
+.lista-chart-labels {
+  width: 34px;
+  padding-right: 2px;
+}
+
+.lista-chart-bars {
+  width: 100%;
+  min-width: 0;
+  padding: 0 8px;
+  gap: 8px;
+}
+
+.lista-chart-item {
+  width: 100%;
+  min-width: 0;
+}
+
+.lista-chart-item strong,
+.lista-chart-item small {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Mejor distribución general en pantallas grandes */
+@media (min-width: 1400px) {
+  .lista-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 390px);
+    align-items: start;
+  }
+}
+
+@media (max-width: 1199px) {
+  .lista-table-card {
+    overflow: hidden;
+  }
+
+  .lista-pagination {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .lista-toast {
+    top: 16px;
+    right: 16px;
+  }
+
+  .lista-pagination {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .lista-pagination-controls {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .lista-chart {
+    margin-top: 24px;
+  }
+}
+
+@media (max-width: 575px) {
+  .lista-toast {
+    width: calc(100vw - 24px);
+    top: 12px;
+    right: 12px;
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .lista-toast-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 21px;
+  }
+
+  .lista-pagination-arrow,
+  .lista-page-number {
+    width: 35px;
+    height: 35px;
+    border-radius: 9px;
+  }
+
+  .lista-pagination p {
+    font-size: 12px;
+  }
+}
+
+/* =========================================================
+   CORRECCIÓN DEFINITIVA: DESPLAZAMIENTO HORIZONTAL DE TABLA
+   ========================================================= */
+
+/* La tarjeta conserva su tamaño dentro del layout. */
+.lista-table-card {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Este contenedor es el que permite mover la tabla a los lados. */
+.lista-table-scroll {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 10px;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-gutter: stable;
+  touch-action: pan-x pan-y;
+}
+
+/* La tabla debe ser más ancha que el contenedor para producir el scroll. */
+.lista-table-scroll .lista-table {
+  width: 1120px;
+  min-width: 1120px;
+  max-width: none;
+  overflow: visible;
+}
+
+/* Barra horizontal visible y fácil de usar. */
+.lista-table-scroll::-webkit-scrollbar {
+  height: 12px;
+}
+
+.lista-table-scroll::-webkit-scrollbar-track {
+  background: #e8eef8;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px #d7e2f1;
+}
+
+.lista-table-scroll::-webkit-scrollbar-thumb {
+  min-width: 80px;
+  background: #9eb1ca;
+  border: 2px solid #e8eef8;
+  border-radius: 999px;
+}
+
+.lista-table-scroll::-webkit-scrollbar-thumb:hover {
+  background: #7188a8;
+}
+
+/* Compatibilidad con Firefox. */
+.lista-table-scroll {
+  scrollbar-width: auto;
+  scrollbar-color: #9eb1ca #e8eef8;
+}
+
+/* Evita que el efecto hover empuje la fila y dificulte el desplazamiento. */
+.lista-table-row:not(.lista-table-head):hover {
+  transform: none;
+}
+
+@media (max-width: 1399px) {
+  .lista-table-scroll .lista-table {
+    width: 1080px;
+    min-width: 1080px;
+  }
+}
+
+@media (max-width: 991px) {
+  .lista-table-scroll {
+    padding-bottom: 12px;
+  }
+
+  .lista-table-scroll .lista-table {
+    width: 1040px;
+    min-width: 1040px;
+  }
+}
+
+@media (max-width: 575px) {
+  .lista-table-scroll .lista-table {
+    width: 1000px;
+    min-width: 1000px;
+  }
 }

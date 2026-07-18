@@ -16,6 +16,7 @@ import {
   FiUsers,
   FiEdit,
   FiBarChart2,
+  FiTrendingUp,
   FiChevronDown,
   FiLogOut,
   FiHelpCircle,
@@ -47,6 +48,7 @@ type MenuKey =
   | "lista"
   | "calificaciones"
   | "actividades"
+  | "avance-actividad"
   | "estadisticas";
 
 type Mundo = "MathData" | "MathGeometry" | "MathNumbers";
@@ -564,7 +566,20 @@ function ActividadesDocente() {
             <button
               type="button"
               className={`docente-menu-item ${
-                selectedMenu === "estadisticas" ? "active-soft" : ""
+                selectedMenu === "avance-actividad" ? "active" : ""
+              }`}
+              onClick={() =>
+                irARuta("/avance-actividad-docente", "avance-actividad")
+              }
+            >
+              <FiTrendingUp />
+              <span>Avance de actividad</span>
+            </button>
+
+            <button
+              type="button"
+              className={`docente-menu-item ${
+                selectedMenu === "estadisticas" ? "active" : ""
               }`}
               onClick={() => irARuta("/estadisticas-docente", "estadisticas")}
             >

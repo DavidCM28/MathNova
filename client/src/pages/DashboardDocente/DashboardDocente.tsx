@@ -21,6 +21,7 @@ import {
   FiEdit,
   FiMessageSquare,
   FiBarChart2,
+  FiTrendingUp,
   FiClipboard,
   FiBell,
   FiChevronDown,
@@ -244,6 +245,19 @@ function DashboardDocente() {
             >
               <FiEdit />
               <span>Actividades</span>
+            </button>
+
+            <button
+              className={`docente-menu-item ${
+                selectedMenu === "avance-actividad" ? "active-soft" : ""
+              }`}
+              onClick={() =>
+                irARuta("/avance-actividad-docente", "avance-actividad")
+              }
+              type="button"
+            >
+              <FiTrendingUp />
+              <span>Avance de actividad</span>
             </button>
 
             <button
