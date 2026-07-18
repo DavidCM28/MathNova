@@ -1585,3 +1585,635 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+/* =====================================================================
+   REDISEÑO TOTAL · RADAR DE SUPERVIVENCIA
+   Concepto: sala de control con consola primaria y terminal lateral.
+   La sidebar y el botón flotante de salida conservan su diseño.
+   ===================================================================== */
+
+.mnx-radar-control-room {
+  width: min(100%, 1680px);
+  padding: 28px 38px 42px;
+}
+
+.mnx-radar-control-room .mnx-radar-top-actions {
+  margin-bottom: 10px;
+}
+
+.mnx-radar-control-room .mnx-radar-header {
+  min-height: 0;
+  margin-bottom: 22px;
+  padding: 20px 24px;
+  grid-template-columns: minmax(0,1fr) minmax(330px,430px);
+  border: 0;
+  border-radius: 12px;
+  background:
+    linear-gradient(90deg, #0a7442 0 8px, #ffffff 8px 100%);
+  box-shadow: 0 12px 30px rgba(20,72,44,.10);
+  overflow: visible;
+}
+
+.mnx-radar-control-room .mnx-radar-header::before {
+  display: none;
+}
+
+.mnx-radar-control-room .mnx-radar-breadcrumb {
+  margin-bottom: 9px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.mnx-radar-control-room .mnx-radar-title-icon {
+  width: 44px;
+  height: 44px;
+  flex-basis: 44px;
+  border-radius: 50%;
+}
+
+.mnx-radar-control-room .mnx-radar-title-row h1 {
+  font-size: clamp(31px, 2.7vw, 47px);
+}
+
+.mnx-radar-control-room .mnx-radar-header-copy > p {
+  margin-top: 9px;
+}
+
+.mnx-radar-control-room .mnx-radar-welcome {
+  min-height: 0;
+  grid-template-columns: minmax(0,1fr) 92px;
+}
+
+.mnx-radar-control-room .mnx-radar-speech {
+  min-height: 90px;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: #edf9f1;
+  box-shadow: inset 5px 0 0 #0cab55;
+}
+
+.mnx-radar-control-room .mnx-radar-speech::after {
+  display: none;
+}
+
+.mnx-radar-control-room .mnx-radar-hero {
+  width: 88px;
+  height: 108px;
+}
+
+.mnx-radar-control-deck {
+  display: grid;
+  grid-template-columns: minmax(0,1.55fr) minmax(340px,.65fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.mnx-radar-primary-console,
+.mnx-radar-side-console {
+  min-width: 0;
+}
+
+.mnx-radar-primary-console {
+  padding: 20px;
+  border-radius: 28px;
+  background: #0b1d2b;
+  box-shadow: 0 28px 60px rgba(4,24,14,.24);
+  position: relative;
+  overflow: hidden;
+}
+
+.mnx-radar-primary-console::before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border: 1px solid rgba(112,239,173,.16);
+  border-radius: 20px;
+  pointer-events: none;
+}
+
+.mnx-radar-console-label {
+  margin-bottom: 14px;
+  position: relative;
+  z-index: 2;
+}
+
+.mnx-radar-console-label span {
+  display: block;
+  margin-bottom: 5px;
+  color: #65e7a3;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1.7px;
+}
+
+.mnx-radar-console-label strong {
+  color: #ffffff;
+  font-size: 22px;
+}
+
+.mnx-radar-primary-console .mnx-radar-art {
+  min-height: 430px;
+  aspect-ratio: 16 / 8.5;
+  margin-bottom: 18px;
+  border: 0;
+  border-radius: 18px;
+  background: #06130d;
+  box-shadow: inset 0 0 0 1px rgba(112,239,173,.18);
+}
+
+.mnx-radar-primary-console .mnx-radar-art > img {
+  object-fit: cover;
+}
+
+.mnx-radar-primary-console .mnx-radar-mission {
+  left: 18px;
+  right: auto;
+  bottom: 18px;
+  width: min(430px, calc(100% - 36px));
+  min-height: 94px;
+  border: 1px solid rgba(112,239,173,.45);
+  border-radius: 12px;
+  background: rgba(4,24,14,.88);
+}
+
+.mnx-radar-primary-console .mnx-radar-placement-card {
+  padding: 18px;
+  border: 0;
+  border-radius: 18px;
+  background: #f7fbf8;
+  box-shadow: none;
+  position: relative;
+  z-index: 2;
+}
+
+.mnx-radar-primary-console .mnx-radar-signals {
+  grid-template-columns: repeat(4, minmax(110px,1fr));
+  gap: 12px;
+}
+
+.mnx-radar-primary-console .mnx-radar-signal {
+  min-height: 74px;
+  border-radius: 12px;
+}
+
+.mnx-radar-primary-console .mnx-radar-drop-zone {
+  height: 155px;
+  border: 2px solid #102f22;
+  border-radius: 12px;
+  background:
+    linear-gradient(rgba(12,171,85,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(12,171,85,.06) 1px, transparent 1px),
+    #ffffff;
+  background-size: 26px 26px;
+}
+
+.mnx-radar-side-console {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid rgba(12,171,85,.14);
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 20px 44px rgba(20,72,44,.11);
+}
+
+.mnx-radar-side-console .mnx-radar-console-label span {
+  color: #078846;
+}
+
+.mnx-radar-side-console .mnx-radar-console-label strong {
+  color: #0a1d35;
+  font-size: 19px;
+}
+
+.mnx-radar-side-console .mnx-radar-guide-card,
+.mnx-radar-side-console .mnx-radar-question-card,
+.mnx-radar-side-console .mnx-radar-evidence-card {
+  border: 0;
+  border-radius: 14px;
+  box-shadow: none;
+}
+
+.mnx-radar-side-console .mnx-radar-guide-card {
+  padding: 16px;
+  background: #edf9f1;
+}
+
+.mnx-radar-side-console .mnx-radar-guide-copy {
+  min-width: 0;
+  grid-template-columns: 1fr;
+  gap: 4px;
+  margin: 0 0 8px;
+  text-align: left;
+}
+
+.mnx-radar-side-console .mnx-radar-axis {
+  min-width: 520px;
+}
+
+.mnx-radar-side-console .mnx-radar-guide-card {
+  overflow-x: auto;
+}
+
+.mnx-radar-side-console .mnx-radar-question-card {
+  padding: 16px;
+  background: #f7f9fc;
+}
+
+.mnx-radar-side-console .mnx-radar-answer-box {
+  min-height: 130px;
+}
+
+.mnx-radar-side-console .mnx-radar-save-btn {
+  width: 100%;
+  min-width: 0;
+}
+
+.mnx-radar-side-console .mnx-radar-actions {
+  gap: 10px;
+}
+
+.mnx-radar-side-console .mnx-radar-check-btn {
+  min-height: 58px;
+  border-radius: 12px;
+}
+
+.mnx-radar-side-console .mnx-radar-evidence-card {
+  padding: 15px;
+  background: #eef5ff;
+}
+
+.mnx-radar-control-tip {
+  margin-top: 18px;
+}
+
+.mnx-radar-control-tip .mnx-radar-reminder-card {
+  min-height: 0;
+  padding: 16px 22px;
+  display: grid;
+  grid-template-columns: 74px minmax(0,1fr) auto;
+  gap: 18px;
+  align-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #fff6d8, #ffffff);
+  box-shadow: 0 12px 28px rgba(129,91,0,.09);
+}
+
+.mnx-radar-control-tip .mnx-radar-reminder-card img {
+  width: 68px;
+  height: 68px;
+}
+
+@media (max-width: 1320px) {
+  .mnx-radar-control-deck {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-radar-side-console {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+
+  .mnx-radar-side-console > .mnx-radar-console-label,
+  .mnx-radar-side-console .mnx-radar-actions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 860px) {
+  .mnx-radar-control-room {
+    padding: 78px 14px 28px;
+  }
+
+  .mnx-radar-control-room .mnx-radar-header,
+  .mnx-radar-side-console {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-radar-primary-console {
+    padding: 14px;
+  }
+
+  .mnx-radar-primary-console .mnx-radar-art {
+    min-height: 280px;
+  }
+
+  .mnx-radar-primary-console .mnx-radar-signals {
+    grid-template-columns: repeat(2, minmax(120px,1fr));
+  }
+
+  .mnx-radar-control-tip .mnx-radar-reminder-card {
+    border-radius: 18px;
+  }
+}
+
+
+
+/* =========================================================
+   SUMA CON AUDIO + BYTE FLOTANTE
+   ========================================================= */
+
+.mnx-radar-speech {
+  min-width: 0;
+}
+
+.mnx-radar-suma-audio,
+.mnx-radar-byte-audio {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.mnx-radar-suma-audio button,
+.mnx-radar-byte-audio button {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #17b95e, #078c43);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(12, 171, 85, 0.18);
+  transition: transform var(--radar-transition), opacity var(--radar-transition);
+}
+
+.mnx-radar-suma-audio button:hover:not(:disabled),
+.mnx-radar-byte-audio button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.mnx-radar-suma-audio button:disabled,
+.mnx-radar-byte-audio button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mnx-radar-suma-audio > span,
+.mnx-radar-byte-audio > span {
+  min-height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  color: #5d6d7f;
+  background: #eef4f0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.mnx-radar-suma-audio > span.is-playing,
+.mnx-radar-byte-audio > span.is-playing {
+  color: var(--radar-green-dark);
+  background: var(--radar-green-soft);
+  animation: mnxRadarAudioPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes mnxRadarAudioPulse {
+  50% {
+    box-shadow: 0 0 0 7px rgba(12,171,85,0);
+  }
+
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(12,171,85,.14);
+  }
+}
+
+.mnx-radar-byte-float {
+  position: fixed;
+  right: 24px;
+  bottom: 88px;
+  z-index: 76;
+  pointer-events: none;
+}
+
+.mnx-radar-byte-launcher,
+.mnx-radar-byte-panel,
+.mnx-radar-byte-panel * {
+  box-sizing: border-box;
+}
+
+.mnx-radar-byte-launcher {
+  width: 112px;
+  height: 132px;
+  padding: 25px 6px 5px;
+  border: 0;
+  background: transparent;
+  position: relative;
+  display: grid;
+  place-items: end center;
+  cursor: pointer;
+  pointer-events: auto;
+  filter: drop-shadow(0 14px 16px rgba(20,72,44,.22));
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+
+.mnx-radar-byte-launcher:hover {
+  transform: translateY(-6px) scale(1.04);
+}
+
+.mnx-radar-byte-launcher > span {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  min-width: 74px;
+  height: 30px;
+  padding: 0 12px;
+  border: 3px solid #ffffff;
+  border-radius: 999px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #2d7ff0, #145bc4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: .7px;
+  transform: translateX(-50%);
+  box-shadow: 0 9px 18px rgba(45,127,240,.24);
+}
+
+.mnx-radar-byte-launcher video {
+  width: 100px;
+  height: 102px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+.mnx-radar-byte-launcher > i {
+  position: absolute;
+  right: 0;
+  bottom: 9px;
+  width: 31px;
+  height: 31px;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  color: #ffffff;
+  background: #ffad1f;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.mnx-radar-byte-float-open .mnx-radar-byte-launcher {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px) scale(.9);
+}
+
+.mnx-radar-byte-panel {
+  position: relative;
+  width: min(440px, calc(100vw - 32px));
+  min-height: 235px;
+  padding: 18px;
+  border: 1px solid rgba(45,127,240,.26);
+  border-radius: 24px;
+  background: rgba(255,255,255,.98);
+  display: grid;
+  grid-template-columns: 138px minmax(0,1fr);
+  gap: 16px;
+  align-items: center;
+  pointer-events: auto;
+  box-shadow: 0 24px 58px rgba(16,43,75,.22);
+  animation: mnxRadarByteOpen 220ms ease both;
+}
+
+@keyframes mnxRadarByteOpen {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.mnx-radar-byte-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  color: #ffffff;
+  background: #e64a4a;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.mnx-radar-byte-media {
+  min-height: 190px;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 50% 76%, rgba(45,127,240,.18), transparent 38%),
+    linear-gradient(180deg, #f2f8ff, #eaf4ff);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.mnx-radar-byte-media video {
+  width: 132px;
+  height: 184px;
+  object-fit: contain;
+  display: block;
+}
+
+.mnx-radar-byte-copy {
+  min-width: 0;
+  padding-right: 20px;
+}
+
+.mnx-radar-byte-label {
+  width: fit-content;
+  min-height: 25px;
+  padding: 0 10px;
+  border-radius: 999px;
+  color: #145bc4;
+  background: #e8f2ff;
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.mnx-radar-byte-copy h3 {
+  margin: 8px 0 6px;
+  color: var(--radar-ink);
+  font-size: 17px;
+  line-height: 1.18;
+  font-weight: 950;
+}
+
+.mnx-radar-byte-copy p {
+  margin: 0;
+  color: #42536a;
+  font-size: 11.5px;
+  line-height: 1.46;
+  font-weight: 700;
+}
+
+@media (min-width: 1700px) {
+  .mnx-radar-main {
+    width: min(calc(100% - 40px), 1600px);
+  }
+}
+
+@media (max-width: 980px) {
+  .mnx-radar-byte-float {
+    right: 15px;
+    bottom: 78px;
+  }
+}
+
+@media (max-width: 620px) {
+  .mnx-radar-byte-panel {
+    grid-template-columns: 1fr;
+    max-height: min(78vh, 610px);
+    overflow-y: auto;
+  }
+
+  .mnx-radar-byte-media {
+    min-height: 145px;
+  }
+
+  .mnx-radar-byte-media video {
+    width: 118px;
+    height: 140px;
+  }
+
+  .mnx-radar-byte-copy {
+    padding-right: 0;
+  }
+
+  .mnx-radar-byte-launcher {
+    width: 90px;
+    height: 108px;
+  }
+
+  .mnx-radar-byte-launcher video {
+    width: 82px;
+    height: 84px;
+  }
+
+  .mnx-radar-suma-audio > span,
+  .mnx-radar-byte-audio > span {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -2143,3 +2143,1045 @@ button:focus-visible {
     height: 20px;
   }
 }
+/* =====================================================================
+   REDISEÑO ESTRUCTURAL · ACTIVIDAD 1
+   Basado en la organización de Radar/Ascensor.
+   La sidebar y el footer de estadísticas conservan sus estilos originales.
+   ===================================================================== */
+
+.mnx-cofre-page.mnx-cofre-radar-layout {
+  --cofre-control: #0cab55;
+  --cofre-control-dark: #05733a;
+  --cofre-control-soft: #e8f9ef;
+  --cofre-control-blue: #2d7ff0;
+  --cofre-control-yellow: #ffbd32;
+  --cofre-control-ink: #0a1d35;
+  --cofre-control-muted: #66758b;
+  --cofre-control-card: rgba(255, 255, 255, 0.97);
+  --cofre-control-shadow-sm: 0 10px 24px rgba(20, 72, 44, 0.09);
+  --cofre-control-shadow-md: 0 18px 40px rgba(20, 72, 44, 0.13);
+  --cofre-control-shadow-lg: 0 26px 60px rgba(20, 72, 44, 0.16);
+  background: #edf9f1;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-content {
+  background:
+    radial-gradient(circle at 84% 4%, rgba(139, 228, 93, 0.34), transparent 22rem),
+    radial-gradient(circle at 28% 34%, rgba(58, 174, 103, 0.10), transparent 26rem),
+    linear-gradient(180deg, #eaf8ee 0%, #f5fbf7 52%, #edf8f1 100%);
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-decoration-one {
+  top: -110px;
+  right: -125px;
+  width: 390px;
+  height: 390px;
+  border: 52px solid rgba(39, 176, 95, 0.08);
+  background: transparent;
+  box-shadow:
+    0 0 0 46px rgba(39, 176, 95, 0.04),
+    0 0 0 94px rgba(39, 176, 95, 0.025);
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-decoration-two {
+  top: auto;
+  left: 250px;
+  bottom: -125px;
+  width: 250px;
+  height: 250px;
+  background: rgba(255, 189, 50, 0.08);
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-main {
+  width: min(100%, 1600px);
+  max-width: 1600px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 26px 34px 38px;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-top-actions {
+  min-height: 44px;
+  margin-bottom: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 11px;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-top-actions button {
+  min-height: 40px;
+  height: auto;
+  padding: 0 16px;
+  border: 1px solid rgba(12, 171, 85, 0.20);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.90);
+  color: var(--cofre-control-ink);
+  box-shadow: 0 8px 20px rgba(20, 72, 44, 0.08);
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-top-actions button:hover {
+  color: var(--cofre-control-dark);
+  border-color: rgba(12, 171, 85, 0.55);
+  background: #ffffff;
+}
+
+.mnx-cofre-header {
+  margin-bottom: 22px;
+  padding: 25px 28px 23px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(390px, 520px);
+  gap: 30px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(12, 171, 85, 0.17);
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at 91% 19%, rgba(255, 189, 50, 0.18), transparent 21%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(246, 255, 249, 0.94));
+  box-shadow: var(--cofre-control-shadow-md);
+}
+
+.mnx-cofre-header::before {
+  content: "";
+  position: absolute;
+  right: -90px;
+  top: -135px;
+  width: 310px;
+  height: 310px;
+  border-radius: 50%;
+  border: 40px solid rgba(12, 171, 85, 0.06);
+}
+
+.mnx-cofre-header-copy,
+.mnx-cofre-welcome {
+  position: relative;
+  z-index: 2;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-breadcrumb {
+  width: fit-content;
+  min-height: 0;
+  margin-bottom: 13px;
+  padding: 6px 11px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--cofre-control-soft);
+  color: var(--cofre-control-dark);
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-breadcrumb strong {
+  font-weight: 900;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-breadcrumb span {
+  color: var(--cofre-control-dark);
+  font-size: 12px;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-title-row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.mnx-cofre-title-icon {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 19px;
+  background: linear-gradient(145deg, #15bb5c, #078c43);
+  box-shadow: 0 13px 22px rgba(12, 171, 85, 0.25);
+}
+
+.mnx-cofre-title-icon img {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  filter: none;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-title-row h1 {
+  color: var(--cofre-control-ink);
+  font-size: clamp(31px, 3vw, 48px);
+  line-height: 1;
+  letter-spacing: -1.1px;
+  font-weight: 950;
+}
+
+.mnx-cofre-header-copy > p {
+  max-width: 760px;
+  margin: 15px 0 14px;
+  color: #42536a;
+  font-size: 15px;
+  line-height: 1.52;
+  font-weight: 650;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-pills span {
+  min-height: 32px;
+  padding: 0 13px;
+  border: 1px solid rgba(12, 171, 85, 0.13);
+  border-radius: 999px;
+  box-shadow: none;
+}
+
+.mnx-cofre-welcome {
+  min-height: 165px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 132px;
+  align-items: center;
+  gap: 10px;
+}
+
+.mnx-cofre-speech {
+  min-height: 136px;
+  padding: 19px 20px 17px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: 2px solid rgba(12, 171, 85, 0.20);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 14px 28px rgba(20, 72, 44, 0.10);
+}
+
+.mnx-cofre-speech::after {
+  content: "";
+  position: absolute;
+  right: -15px;
+  top: 54px;
+  width: 27px;
+  height: 27px;
+  border-top: 2px solid rgba(12, 171, 85, 0.20);
+  border-right: 2px solid rgba(12, 171, 85, 0.20);
+  background: #ffffff;
+  transform: rotate(45deg);
+}
+
+.mnx-cofre-speech > p {
+  min-height: 50px;
+  margin: 9px 0 0;
+  color: #33475f;
+  font-size: 12.5px;
+  line-height: 1.45;
+  font-weight: 750;
+}
+
+.mnx-cofre-hero-stage {
+  width: 132px;
+  height: 160px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-intro-character {
+  width: 128px;
+  height: 158px;
+  filter: drop-shadow(0 18px 16px rgba(20, 72, 44, 0.18));
+}
+
+.mnx-cofre-activity-grid {
+  display: grid;
+  grid-template-columns: minmax(285px, 340px) minmax(0, 1fr) minmax(280px, 330px);
+  grid-template-areas:
+    "art guide guide"
+    "art questions questions"
+    "reminder questions actions";
+  gap: 18px;
+  align-items: stretch;
+}
+
+.mnx-cofre-art,
+.mnx-cofre-radar-layout .mnx-cofre-guide-card,
+.mnx-cofre-radar-layout .mnx-cofre-question-card,
+.mnx-cofre-reminder-card,
+.mnx-cofre-radar-layout .mnx-cofre-evidence-card {
+  border: 1px solid rgba(12, 171, 85, 0.15);
+  background: var(--cofre-control-card);
+  box-shadow: var(--cofre-control-shadow-sm);
+}
+
+.mnx-cofre-art {
+  grid-area: art;
+  min-height: 530px;
+  padding: 18px 18px 154px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(255, 220, 83, 0.32), transparent 32%),
+    linear-gradient(180deg, #0b3927 0%, #061d16 100%);
+  box-shadow: var(--cofre-control-shadow-lg);
+}
+
+.mnx-cofre-art::before {
+  content: "";
+  position: absolute;
+  inset: 15% 8% 26%;
+  border: 1px solid rgba(255, 222, 91, 0.24);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 28px rgba(255, 222, 91, 0.055),
+    0 0 0 58px rgba(86, 244, 151, 0.035);
+  animation: mnxCofreRadarPulse 3s ease-in-out infinite;
+}
+
+.mnx-cofre-chest-visual {
+  width: 100%;
+  min-height: 330px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-chest-animation {
+  width: 100%;
+  height: 100%;
+  max-width: 330px;
+  max-height: 330px;
+  object-fit: contain;
+  filter: drop-shadow(0 24px 22px rgba(0, 0, 0, 0.28));
+}
+
+.mnx-cofre-mission {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  min-height: 126px;
+  padding: 16px 17px;
+  display: grid;
+  grid-template-columns: 45px 1fr;
+  gap: 13px;
+  align-items: center;
+  border: 1px solid rgba(255, 222, 91, 0.68);
+  border-radius: 20px;
+  color: #ffffff;
+  background: rgba(5, 54, 27, 0.92);
+  box-shadow: 0 18px 30px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(10px);
+  z-index: 4;
+}
+
+.mnx-cofre-mission > svg {
+  width: 43px;
+  height: 43px;
+  padding: 9px;
+  border-radius: 15px;
+  color: #ffdd58;
+  background: rgba(255, 222, 91, 0.14);
+}
+
+.mnx-cofre-mission strong {
+  display: block;
+  margin-bottom: 7px;
+  color: #fff08a;
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.mnx-cofre-mission p {
+  margin: 7px 0 0;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.mnx-cofre-mission .mnx-cofre-energy-track {
+  height: 13px;
+  margin: 0;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.mnx-cofre-mission .mnx-cofre-energy-track b {
+  background: linear-gradient(90deg, #ffbd32, #8fe45d, #22c96a);
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-guide-card {
+  grid-area: guide;
+  min-width: 0;
+  padding: 19px 22px;
+  border-radius: 24px;
+  background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(244,254,247,.96));
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-guide-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-guide-grid article {
+  padding: 15px;
+  border: 1px solid #dfeae3;
+  border-radius: 17px;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-questions {
+  grid-area: questions;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-question-card {
+  padding: 18px 20px 20px;
+  border-radius: 24px;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-question-title > span {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #18ba5e, #079145);
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-question-title h2 {
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-options {
+  grid-template-columns: repeat(4, minmax(95px, 1fr));
+  gap: 11px;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-options button {
+  min-height: 66px;
+  border-radius: 17px;
+}
+
+.mnx-cofre-reminder-card {
+  grid-area: reminder;
+  min-height: 245px;
+  padding: 17px;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 85% 12%, rgba(143, 228, 93, 0.32), transparent 28%),
+    linear-gradient(145deg, #f5fff7 0%, #eaf9ef 100%);
+}
+
+.mnx-cofre-reminder-character {
+  width: 94px;
+  height: 130px;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 12px rgba(20, 72, 44, 0.14));
+}
+
+.mnx-cofre-reminder-card h3 {
+  margin: 8px 0 5px;
+  color: var(--cofre-control-ink);
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 950;
+}
+
+.mnx-cofre-reminder-card p {
+  margin: 0;
+  color: #33475f;
+  font-size: 10.5px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.mnx-cofre-actions {
+  grid-area: actions;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-evidence-card {
+  flex: 1;
+  min-height: 150px;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #ffffff, #fff9e6);
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-check-button {
+  min-height: 70px;
+  border-radius: 18px;
+  font-size: 15px;
+}
+
+/* Byte flotante */
+.mnx-cofre-byte-float {
+  position: fixed;
+  right: 24px;
+  bottom: 88px;
+  z-index: 160;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.mnx-cofre-byte-launcher,
+.mnx-cofre-byte-panel,
+.mnx-cofre-byte-panel * {
+  pointer-events: auto;
+}
+
+.mnx-cofre-byte-launcher {
+  width: 112px;
+  min-height: 138px;
+  padding: 8px 8px 4px;
+  border: 0;
+  border-radius: 30px 30px 24px 24px;
+  background: transparent;
+  position: relative;
+  cursor: pointer;
+  filter: drop-shadow(0 16px 18px rgba(24, 72, 110, 0.24));
+  transition: transform 180ms ease;
+}
+
+.mnx-cofre-byte-launcher:hover {
+  transform: translateY(-6px) scale(1.04);
+}
+
+.mnx-cofre-byte-launcher > span {
+  position: absolute;
+  left: 50%;
+  top: -8px;
+  transform: translateX(-50%);
+  min-width: 74px;
+  min-height: 28px;
+  padding: 0 12px;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2d7ff0, #1d63ca);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 950;
+  box-shadow: 0 8px 18px rgba(45, 127, 240, 0.28);
+}
+
+.mnx-cofre-byte-launcher img {
+  width: 102px;
+  height: 126px;
+  object-fit: contain;
+  animation: mnxCofreByteFloat 2.8s ease-in-out infinite;
+}
+
+.mnx-cofre-byte-launcher > i {
+  position: absolute;
+  right: 3px;
+  top: 31px;
+  width: 29px;
+  height: 29px;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  background: #ffbd32;
+  color: #604100;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  font-size: 17px;
+  font-weight: 950;
+}
+
+.mnx-cofre-byte-panel {
+  width: min(430px, calc(100vw - 32px));
+  min-height: 250px;
+  padding: 18px;
+  display: grid;
+  grid-template-columns: 135px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba(45, 127, 240, 0.24);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 16% 12%, rgba(91, 181, 255, 0.28), transparent 31%),
+    linear-gradient(145deg, #ffffff, #edf6ff);
+  box-shadow: 0 24px 56px rgba(25, 70, 120, 0.25);
+  animation: mnxCofreBytePanelIn 220ms ease;
+}
+
+.mnx-cofre-byte-close {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  z-index: 5;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  background: #ffffff;
+  color: #33475f;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(25, 70, 120, 0.12);
+}
+
+.mnx-cofre-byte-panel-media {
+  width: 135px;
+  height: 190px;
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+.mnx-cofre-byte-panel-character {
+  width: 135px;
+  height: 190px;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 15px rgba(25, 70, 120, 0.18));
+}
+
+.mnx-cofre-byte-panel-copy {
+  min-width: 0;
+  padding-right: 18px;
+}
+
+.mnx-cofre-byte-panel-label {
+  min-height: 27px;
+  padding: 0 11px;
+  border-radius: 999px;
+  background: #e5f1ff;
+  color: #2363bb;
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.mnx-cofre-byte-panel h3 {
+  margin: 9px 0 7px;
+  color: var(--cofre-control-ink);
+  font-size: 18px;
+  line-height: 1.15;
+  font-weight: 950;
+}
+
+.mnx-cofre-byte-panel p {
+  margin: 0;
+  color: #3b4f68;
+  font-size: 11px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+@keyframes mnxCofreRadarPulse {
+  0%, 100% { transform: scale(.96); opacity: .62; }
+  50% { transform: scale(1.03); opacity: 1; }
+}
+
+@keyframes mnxCofreByteFloat {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-8px) rotate(1deg); }
+}
+
+@keyframes mnxCofreBytePanelIn {
+  from { opacity: 0; transform: translateY(12px) scale(.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 1450px) {
+  .mnx-cofre-activity-grid {
+    grid-template-columns: 300px minmax(0, 1fr);
+    grid-template-areas:
+      "art guide"
+      "art questions"
+      "reminder questions"
+      "actions actions";
+  }
+
+  .mnx-cofre-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, .7fr);
+  }
+
+  .mnx-cofre-radar-layout .mnx-cofre-evidence-card {
+    min-height: 92px;
+  }
+}
+
+@media (max-width: 1180px) {
+  .mnx-cofre-header {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-cofre-welcome {
+    width: min(100%, 680px);
+  }
+}
+
+@media (max-width: 980px) {
+  .mnx-cofre-activity-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "art"
+      "guide"
+      "questions"
+      "reminder"
+      "actions";
+  }
+
+  .mnx-cofre-art {
+    width: min(100%, 560px);
+    margin: 0 auto;
+  }
+
+  .mnx-cofre-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-cofre-byte-float {
+    right: 14px;
+    bottom: 72px;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-cofre-radar-layout .mnx-cofre-main {
+    padding: 92px 14px 22px;
+  }
+
+  .mnx-cofre-header {
+    padding: 20px 16px;
+    border-radius: 24px;
+  }
+
+  .mnx-cofre-welcome {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-cofre-speech::after {
+    display: none;
+  }
+
+  .mnx-cofre-hero-stage {
+    margin: 0 auto;
+  }
+
+  .mnx-cofre-radar-layout .mnx-cofre-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mnx-cofre-reminder-card {
+    grid-template-columns: 88px minmax(0, 1fr);
+  }
+
+  .mnx-cofre-byte-panel {
+    grid-template-columns: 92px minmax(0, 1fr);
+    min-height: 220px;
+    padding: 14px;
+  }
+
+  .mnx-cofre-byte-panel-media,
+  .mnx-cofre-byte-panel-character {
+    width: 92px;
+    height: 145px;
+  }
+
+  .mnx-cofre-byte-launcher {
+    width: 88px;
+    min-height: 114px;
+  }
+
+  .mnx-cofre-byte-launcher img {
+    width: 82px;
+    height: 104px;
+  }
+}
+
+@media (max-width: 460px) {
+  .mnx-cofre-radar-layout .mnx-cofre-options {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-cofre-byte-panel {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .mnx-cofre-byte-panel-media {
+    margin: 0 auto -16px;
+  }
+
+  .mnx-cofre-byte-panel-copy {
+    padding-right: 0;
+  }
+
+  .mnx-cofre-byte-panel-label,
+  .mnx-cofre-byte-panel .mnx-cofre-audio-controls {
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+  }
+}
+
+/* =====================================================================
+   CORRECCIÓN RESPONSIVA · ESCRITORIO GRANDE Y ULTRAWIDE
+   Evita columnas desplazadas, espacios vacíos y tarjetas superpuestas.
+   No modifica la sidebar ni el footer de estadísticas.
+   ===================================================================== */
+
+.mnx-cofre-page.mnx-cofre-radar-layout {
+  --mnx-cofre-sidebar-width: 286px;
+  --mnx-cofre-content-max: 1480px;
+  min-width: 0;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-content {
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-main {
+  width: 100%;
+  max-width: var(--mnx-cofre-content-max);
+  margin-inline: auto;
+  padding-inline: clamp(22px, 2.1vw, 40px);
+}
+
+.mnx-cofre-header,
+.mnx-cofre-header-copy,
+.mnx-cofre-welcome,
+.mnx-cofre-activity-grid,
+.mnx-cofre-art,
+.mnx-cofre-radar-layout .mnx-cofre-guide-card,
+.mnx-cofre-radar-layout .mnx-cofre-questions,
+.mnx-cofre-reminder-card,
+.mnx-cofre-actions,
+.mnx-cofre-radar-layout .mnx-cofre-evidence-card {
+  min-width: 0;
+  max-width: none;
+}
+
+.mnx-cofre-header {
+  width: 100%;
+  grid-template-columns: minmax(0, 1.25fr) minmax(360px, 0.75fr);
+}
+
+/*
+ * En escritorio se utilizan solo dos columnas principales.
+ * Esto impide que el cofre termine aislado en una esquina y deja
+ * suficiente espacio real para las preguntas y la guía visual.
+ */
+.mnx-cofre-activity-grid {
+  width: 100%;
+  grid-template-columns: minmax(320px, 390px) minmax(0, 1fr);
+  grid-template-areas:
+    "art guide"
+    "art questions"
+    "reminder actions";
+  grid-auto-flow: row;
+  grid-auto-columns: minmax(0, 1fr);
+  direction: ltr;
+  align-items: stretch;
+}
+
+.mnx-cofre-art {
+  width: 100%;
+  min-height: 620px;
+  margin: 0;
+  inset: auto;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-guide-card,
+.mnx-cofre-radar-layout .mnx-cofre-questions,
+.mnx-cofre-reminder-card,
+.mnx-cofre-actions {
+  width: 100%;
+  margin: 0;
+  inset: auto;
+  position: relative;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-guide-card {
+  align-self: start;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-questions {
+  align-self: stretch;
+}
+
+.mnx-cofre-actions {
+  align-self: stretch;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-evidence-card {
+  width: 100%;
+}
+
+.mnx-cofre-radar-layout .mnx-cofre-stats {
+  position: relative;
+  z-index: 8;
+  width: 100%;
+  margin-inline: 0;
+}
+
+/* Byte se mantiene alineado con el borde derecho del contenido en ultrawide. */
+.mnx-cofre-byte-float {
+  right: max(
+    24px,
+    calc(
+      (100vw - var(--mnx-cofre-sidebar-width) - var(--mnx-cofre-content-max)) / 2 + 24px
+    )
+  );
+  bottom: 106px;
+}
+
+/* Escritorio amplio: preguntas lado a lado para aprovechar el espacio. */
+@media (min-width: 1560px) {
+  .mnx-cofre-radar-layout .mnx-cofre-questions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mnx-cofre-radar-layout .mnx-cofre-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mnx-cofre-radar-layout .mnx-cofre-question-card {
+    height: 100%;
+  }
+}
+
+/* Laptop y escritorio mediano con sidebar visible. */
+@media (max-width: 1450px) and (min-width: 981px) {
+  .mnx-cofre-radar-layout .mnx-cofre-main {
+    max-width: 1240px;
+    padding-inline: 26px;
+  }
+
+  .mnx-cofre-header {
+    grid-template-columns: minmax(0, 1fr) minmax(330px, 440px);
+    gap: 22px;
+  }
+
+  .mnx-cofre-activity-grid {
+    grid-template-columns: minmax(290px, 340px) minmax(0, 1fr);
+    grid-template-areas:
+      "art guide"
+      "art questions"
+      "reminder actions";
+  }
+
+  .mnx-cofre-art {
+    min-height: 590px;
+  }
+
+  .mnx-cofre-radar-layout .mnx-cofre-questions {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-cofre-radar-layout .mnx-cofre-options {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Tableta: la sidebar pasa al menú y el contenido usa todo el ancho. */
+@media (max-width: 980px) {
+  .mnx-cofre-page.mnx-cofre-radar-layout {
+    --mnx-cofre-sidebar-width: 0px;
+  }
+
+  .mnx-cofre-radar-layout .mnx-cofre-main {
+    max-width: 900px;
+    margin-inline: auto;
+  }
+
+  .mnx-cofre-header {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-cofre-activity-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "art"
+      "guide"
+      "questions"
+      "reminder"
+      "actions";
+  }
+
+  .mnx-cofre-art {
+    width: min(100%, 620px);
+    min-height: 560px;
+    margin-inline: auto;
+  }
+
+  .mnx-cofre-radar-layout .mnx-cofre-questions {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-cofre-byte-float {
+    right: 14px;
+    bottom: 82px;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-cofre-radar-layout .mnx-cofre-main {
+    width: 100%;
+    padding-inline: 14px;
+  }
+
+  .mnx-cofre-art {
+    min-height: 470px;
+    padding: 14px 14px 145px;
+  }
+
+  .mnx-cofre-chest-visual {
+    min-height: 270px;
+  }
+
+  .mnx-cofre-radar-layout .mnx-cofre-chest-animation {
+    max-width: 280px;
+    max-height: 280px;
+  }
+
+  .mnx-cofre-reminder-card {
+    grid-template-columns: 82px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 460px) {
+  .mnx-cofre-art {
+    min-height: 430px;
+  }
+
+  .mnx-cofre-reminder-card {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .mnx-cofre-reminder-character {
+    margin-inline: auto;
+  }
+}
