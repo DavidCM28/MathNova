@@ -12,6 +12,7 @@ import byteRobot from "../../assets/mathGeometry/actividades/byte-sigue-exploran
 import actividad1 from "../../assets/mathGeometry/actividades/actividad-1-mathgeometry.png";
 import actividad2 from "../../assets/mathGeometry/actividades/actividad-2-mathgeometry.png";
 import actividad3 from "../../assets/mathGeometry/actividades/actividad-3-mathgeometry.png";
+import actividad4 from "../../assets/mathGeometry/actividades/actividad-4-mathgeometry.png";
 
 import {
   FiGrid,
@@ -82,6 +83,16 @@ function ActividadesMathGeometry() {
       tiempo: "10 min",
       estado: "Pendiente",
       ruta: "/actividades/geometria/actividad-3",
+    },
+    {
+      img: actividad4,
+      numero: "04",
+      titulo: "Cruce de Láser",
+      texto: "Señala los láser según las instrucciones dadas.",
+      nivel: "Medio",
+      tiempo: "12 min",
+      estado: "Pendiente",
+      ruta: "/actividades/geometria/actividad-4",
     },
   ];
 
@@ -222,7 +233,7 @@ function ActividadesMathGeometry() {
             <article>
               <FiBookOpen />
               <div>
-                <strong>3</strong>
+                <strong>4</strong>
                 <span>Actividades</span>
               </div>
             </article>

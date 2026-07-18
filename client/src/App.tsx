@@ -20,6 +20,7 @@ import ActividadesMathGeometry from "./pages/ActividadesMathGeometry/Actividades
 import Actividad1MathGeometry from "./pages/ActividadesMathGeometry/Actividad1MathGeometry";
 import Actividad2MathGeometry from "./pages/ActividadesMathGeometry/Actividad2MathGeometry";
 import Actividad3MathGeometry from "./pages/ActividadesMathGeometry/Actividad3MathGeometry";
+import Actividad4MathGeometry from "./pages/ActividadesMathGeometry/Actividad4MathGeometry";
 
 import ActividadesMathData from "./pages/ActividadesMathData/ActividadesMathData";
 import GeneradorEnergiaInversa from "./pages/ActividadesMathData/GeneradorEnergiaInversa";
@@ -247,6 +248,11 @@ function App() {
               <Actividad3MathGeometry />
             </RequireAuth>
           }
+        />
+
+        <Route
+          path="/actividades/geometria/actividad-4"
+          element={<Actividad4MathGeometry />}
         />
 
         <Route
