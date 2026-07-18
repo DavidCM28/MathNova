@@ -1501,3 +1501,311 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* =========================================================
+   SUMA CON AUDIO + BYTE FLOTANTE
+   ========================================================= */
+
+.mnx-ascensor-speech {
+  min-width: 0;
+}
+
+.mnx-ascensor-suma-audio,
+.mnx-ascensor-byte-audio {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.mnx-ascensor-suma-audio button,
+.mnx-ascensor-byte-audio button {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #31c7d8, #2179e8);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(45,127,240,.18);
+  transition: transform var(--ascensor-transition), opacity var(--ascensor-transition);
+}
+
+.mnx-ascensor-suma-audio button:hover:not(:disabled),
+.mnx-ascensor-byte-audio button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.mnx-ascensor-suma-audio button:disabled,
+.mnx-ascensor-byte-audio button:disabled {
+  opacity: .38;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mnx-ascensor-suma-audio > span,
+.mnx-ascensor-byte-audio > span {
+  min-height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  color: #5e6f82;
+  background: #edf3f8;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.mnx-ascensor-suma-audio > span.is-playing,
+.mnx-ascensor-byte-audio > span.is-playing {
+  color: var(--ascensor-blue-dark);
+  background: var(--ascensor-blue-soft);
+  animation: mnxAscensorAudioPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes mnxAscensorAudioPulse {
+  50% {
+    box-shadow: 0 0 0 7px rgba(45,127,240,0);
+  }
+
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(45,127,240,.14);
+  }
+}
+
+.mnx-ascensor-byte-float {
+  position: fixed;
+  right: 24px;
+  bottom: 88px;
+  z-index: 76;
+  pointer-events: none;
+}
+
+.mnx-ascensor-byte-launcher,
+.mnx-ascensor-byte-panel,
+.mnx-ascensor-byte-panel * {
+  box-sizing: border-box;
+}
+
+.mnx-ascensor-byte-launcher {
+  width: 112px;
+  height: 132px;
+  padding: 25px 6px 5px;
+  border: 0;
+  background: transparent;
+  position: relative;
+  display: grid;
+  place-items: end center;
+  cursor: pointer;
+  pointer-events: auto;
+  filter: drop-shadow(0 14px 16px rgba(29,67,111,.22));
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+
+.mnx-ascensor-byte-launcher:hover {
+  transform: translateY(-6px) scale(1.04);
+}
+
+.mnx-ascensor-byte-launcher > span {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  min-width: 74px;
+  height: 30px;
+  padding: 0 12px;
+  border: 3px solid #ffffff;
+  border-radius: 999px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #2d7ff0, #145bc4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: .7px;
+  transform: translateX(-50%);
+  box-shadow: 0 9px 18px rgba(45,127,240,.24);
+}
+
+.mnx-ascensor-byte-launcher video {
+  width: 100px;
+  height: 102px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+.mnx-ascensor-byte-launcher > i {
+  position: absolute;
+  right: 0;
+  bottom: 9px;
+  width: 31px;
+  height: 31px;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  color: #ffffff;
+  background: #ffad1f;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.mnx-ascensor-byte-float-open .mnx-ascensor-byte-launcher {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px) scale(.9);
+}
+
+.mnx-ascensor-byte-panel {
+  position: relative;
+  width: min(440px, calc(100vw - 32px));
+  min-height: 235px;
+  padding: 18px;
+  border: 1px solid rgba(45,127,240,.26);
+  border-radius: 24px;
+  background: rgba(255,255,255,.98);
+  display: grid;
+  grid-template-columns: 138px minmax(0,1fr);
+  gap: 16px;
+  align-items: center;
+  pointer-events: auto;
+  box-shadow: 0 24px 58px rgba(16,43,75,.22);
+  animation: mnxAscensorByteOpen 220ms ease both;
+}
+
+@keyframes mnxAscensorByteOpen {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.mnx-ascensor-byte-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  color: #ffffff;
+  background: #e34c4c;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.mnx-ascensor-byte-media {
+  min-height: 190px;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 50% 76%, rgba(45,127,240,.18), transparent 38%),
+    linear-gradient(180deg, #f2f8ff, #eaf4ff);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.mnx-ascensor-byte-media video {
+  width: 132px;
+  height: 184px;
+  object-fit: contain;
+  display: block;
+}
+
+.mnx-ascensor-byte-copy {
+  min-width: 0;
+  padding-right: 20px;
+}
+
+.mnx-ascensor-byte-label {
+  width: fit-content;
+  min-height: 25px;
+  padding: 0 10px;
+  border-radius: 999px;
+  color: #145bc4;
+  background: #e8f2ff;
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.mnx-ascensor-byte-copy h3 {
+  margin: 8px 0 6px;
+  color: var(--ascensor-ink);
+  font-size: 17px;
+  line-height: 1.18;
+  font-weight: 950;
+}
+
+.mnx-ascensor-byte-copy p {
+  margin: 0;
+  color: #42536a;
+  font-size: 11.5px;
+  line-height: 1.46;
+  font-weight: 700;
+}
+
+@media (min-width: 1700px) {
+  .mnx-ascensor-main {
+    width: min(calc(100% - 40px), 1600px);
+  }
+}
+
+@media (max-width: 980px) {
+  .mnx-ascensor-byte-float {
+    right: 15px;
+    bottom: 78px;
+  }
+}
+
+@media (max-width: 620px) {
+  .mnx-ascensor-byte-panel {
+    grid-template-columns: 1fr;
+    max-height: min(78vh, 610px);
+    overflow-y: auto;
+  }
+
+  .mnx-ascensor-byte-media {
+    min-height: 145px;
+  }
+
+  .mnx-ascensor-byte-media video {
+    width: 118px;
+    height: 140px;
+  }
+
+  .mnx-ascensor-byte-copy {
+    padding-right: 0;
+  }
+
+  .mnx-ascensor-byte-launcher {
+    width: 90px;
+    height: 108px;
+  }
+
+  .mnx-ascensor-byte-launcher video {
+    width: 82px;
+    height: 84px;
+  }
+
+  .mnx-ascensor-suma-audio > span,
+  .mnx-ascensor-byte-audio > span {
+    width: 100%;
+    justify-content: center;
+  }
+}

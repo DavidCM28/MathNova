@@ -1,6 +1,11 @@
 import "./AscensorBunker.css";
+import audioIntroSumaAscensor from "../../../assets/mathnumbers/03-ascensor-bunker/intro_suma_ascensor.mp3";
+import audioConsejoSumaAscensor from "../../../assets/mathnumbers/03-ascensor-bunker/consejo_suma_ascensor.mp3";
+import audioPistaByteAscensor from "../../../assets/mathnumbers/03-ascensor-bunker/pista_byte_ascensor.mp3";
+import bytePista from "../../../assets/mathnumbers/byte_pista.png";
+import videoByteAscensor from "../../../assets/mathnumbers/03-ascensor-bunker/byte_hablando_ascensor.mp4";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { DragEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -14,9 +19,14 @@ import {
   FiInfo,
   FiLogOut,
   FiMessageSquare,
+  FiPause,
+  FiPlay,
+  FiRotateCcw,
   FiSave,
   FiTarget,
   FiUser,
+  FiVolume2,
+  FiX,
 } from "react-icons/fi";
 
 import {
@@ -33,6 +43,9 @@ import { guardarProgresoActividad } from "../../../services/progresoService";
 import {
   ascensorCommander,
   ascensorElevator,
+  cofreGuide,
+  cofreHeroTalking,
+  cofreHeroTalkingIdle,
   logo,
   menuHamburguesa,
   zorritoConsejo,
@@ -82,6 +95,606 @@ const emptySlots: (number | null)[] = [
   null,
   null,
 ];
+
+type AudioStatus = "idle" | "playing" | "paused" | "ended";
+
+const SUMA_ASCENSOR_VISIBLE_TEXT =
+  "Ordena las cinco tarjetas desde el número más pequeño hasta el más grande y colócalas en los espacios del ascensor.";
+
+const BYTE_ASCENSOR_TEXT =
+  "Comienza buscando el número más pequeño. Los negativos van antes que el cero y, entre dos negativos, el que está más lejos del cero es el menor. Después coloca el cero y continúa con los positivos de menor a mayor.";
+
+function AscensorSumaIntro() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [status, setStatus] = useState<AudioStatus>("idle");
+
+  const playAudio = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (audio.ended) {
+      audio.currentTime = 0;
+    }
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error("No se pudo reproducir la voz de Suma en Ascensor:", error);
+    }
+  };
+
+  const pauseAudio = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    setStatus("paused");
+  };
+
+  const restartAudio = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error("No se pudo reiniciar la voz de Suma en Ascensor:", error);
+    }
+  };
+
+  const statusText =
+    status === "playing"
+      ? "Suma está hablando"
+      : status === "paused"
+        ? "Audio en pausa"
+        : status === "ended"
+          ? "Instrucción completada"
+          : "Listo para escuchar";
+
+  return (
+    <div className="mnx-ascensor-welcome-wrap">
+      <article className="mnx-ascensor-speech">
+        <strong>¡Sistema en espera!</strong>
+        <span>{SUMA_ASCENSOR_VISIBLE_TEXT}</span>
+
+        <audio
+          ref={audioRef}
+          src={audioIntroSumaAscensor}
+          preload="metadata"
+          onPlay={() => setStatus("playing")}
+          onPause={() => {
+            if (!audioRef.current?.ended) {
+              setStatus("paused");
+            }
+          }}
+          onEnded={() => setStatus("ended")}
+        />
+
+        <div className="mnx-ascensor-suma-audio">
+          <button
+            type="button"
+            onClick={playAudio}
+            disabled={status === "playing"}
+            aria-label="Reproducir instrucción del Comandante Suma"
+          >
+            <FiPlay />
+          </button>
+
+          <button
+            type="button"
+            onClick={pauseAudio}
+            disabled={status !== "playing"}
+            aria-label="Pausar instrucción del Comandante Suma"
+          >
+            <FiPause />
+          </button>
+
+          <button
+            type="button"
+            onClick={restartAudio}
+            aria-label="Repetir instrucción del Comandante Suma"
+          >
+            <FiRotateCcw />
+          </button>
+
+          <span className={status === "playing" ? "is-playing" : ""}>
+            <FiVolume2 />
+            {statusText}
+          </span>
+        </div>
+      </article>
+
+      <img
+        key={status === "playing" ? "suma-ascensor-talking" : "suma-ascensor-idle"}
+        className="mnx-ascensor-hero-robot"
+        src={
+          status === "playing"
+            ? cofreHeroTalking
+            : cofreHeroTalkingIdle
+        }
+        alt="Comandante Suma"
+      />
+    </div>
+  );
+}
+
+
+const SUMA_ASCENSOR_ADVICE_TEXT =
+  "¡Vamos paso a paso, explorador! Para ordenar los pisos, comienza con el número más pequeño. Los números negativos van antes del cero y, entre ellos, el que está más lejos del cero es menor. Después coloca el cero y continúa con los números positivos de menor a mayor. Revisa toda la secuencia antes de comprobar. ¡El ascensor está en tus manos!";
+
+function AscensorSumaAdvice() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [status, setStatus] = useState<AudioStatus>("idle");
+
+  const playAudio = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (audio.ended) audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error("No se pudo reproducir el consejo de Suma en Ascensor:", error);
+    }
+  };
+
+  const pauseAudio = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    setStatus("paused");
+  };
+
+  const restartAudio = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error("No se pudo repetir el consejo de Suma en Ascensor:", error);
+    }
+  };
+
+  const statusText =
+    status === "playing"
+      ? "Suma está hablando"
+      : status === "paused"
+        ? "Audio en pausa"
+        : status === "ended"
+          ? "Consejo completado"
+          : "Listo para escuchar";
+
+  return (
+    <section className="mnx-ascensor-reminder-card mnx-ascensor-reminder mnx-ascensor-suma-advice">
+      <img
+        key={status === "playing" ? "suma-ascensor-advice-talking" : "suma-ascensor-advice-idle"}
+        src={status === "playing" ? cofreHeroTalking : cofreGuide}
+        alt="Comandante Suma dando un consejo"
+        draggable={false}
+      />
+
+      <div className="mnx-ascensor-suma-advice-copy">
+        <span className="mnx-ascensor-suma-advice-label">Consejo de Suma</span>
+        <h3>Ordena desde el menor</h3>
+        <p>{status === "idle" ? "Presiona reproducir para escuchar el consejo de Suma." : SUMA_ASCENSOR_ADVICE_TEXT}</p>
+
+        <audio
+          ref={audioRef}
+          src={audioConsejoSumaAscensor}
+          preload="metadata"
+          onPlay={() => setStatus("playing")}
+          onPause={() => {
+            if (!audioRef.current?.ended) {
+              setStatus("paused");
+            }
+          }}
+          onEnded={() => setStatus("ended")}
+        />
+
+        <div className="mnx-ascensor-suma-audio mnx-ascensor-suma-advice-audio">
+          <button
+            type="button"
+            onClick={playAudio}
+            disabled={status === "playing"}
+            aria-label="Reproducir consejo de Suma"
+          >
+            <FiPlay />
+          </button>
+
+          <button
+            type="button"
+            onClick={pauseAudio}
+            disabled={status !== "playing"}
+            aria-label="Pausar consejo de Suma"
+          >
+            <FiPause />
+          </button>
+
+          <button
+            type="button"
+            onClick={restartAudio}
+            aria-label="Repetir consejo de Suma"
+          >
+            <FiRotateCcw />
+          </button>
+
+          <span className={status === "playing" ? "is-playing" : ""}>
+            <FiVolume2 />
+            {statusText}
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function limpiarFondoByteAscensor(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+) {
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const data = imageData.data;
+  const total = width * height;
+  const visitado = new Uint8Array(total);
+  const pila: number[] = [];
+
+  const esFondo = (index: number) => {
+    const pixel = index * 4;
+    const r = data[pixel];
+    const g = data[pixel + 1];
+    const b = data[pixel + 2];
+
+    const esClaro = r > 224 && g > 224 && b > 224;
+    const casiSinColor =
+      Math.abs(r - g) < 34 &&
+      Math.abs(r - b) < 34 &&
+      Math.abs(g - b) < 34;
+
+    const esMagenta =
+      r > 175 &&
+      b > 175 &&
+      g < 135 &&
+      Math.abs(r - b) < 90;
+
+    return (esClaro && casiSinColor) || esMagenta;
+  };
+
+  const agregar = (index: number) => {
+    if (index < 0 || index >= total) return;
+    if (visitado[index]) return;
+    if (!esFondo(index)) return;
+
+    visitado[index] = 1;
+    pila.push(index);
+  };
+
+  for (let x = 0; x < width; x += 1) {
+    agregar(x);
+    agregar((height - 1) * width + x);
+  }
+
+  for (let y = 0; y < height; y += 1) {
+    agregar(y * width);
+    agregar(y * width + width - 1);
+  }
+
+  while (pila.length > 0) {
+    const index = pila.pop();
+    if (index === undefined) continue;
+
+    data[index * 4 + 3] = 0;
+
+    const x = index % width;
+    const y = Math.floor(index / width);
+
+    if (x > 0) agregar(index - 1);
+    if (x < width - 1) agregar(index + 1);
+    if (y > 0) agregar(index - width);
+    if (y < height - 1) agregar(index + width);
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+}
+
+function dibujarByteAscensor(
+  ctx: CanvasRenderingContext2D,
+  video: HTMLVideoElement,
+  width: number,
+  height: number,
+) {
+  const videoWidth = video.videoWidth || width;
+  const videoHeight = video.videoHeight || height;
+  const escala = Math.min(width / videoWidth, height / videoHeight);
+  const drawWidth = videoWidth * escala;
+  const drawHeight = videoHeight * escala;
+  const offsetX = (width - drawWidth) / 2;
+  const offsetY = (height - drawHeight) / 2;
+
+  ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight);
+}
+
+function ByteAscensorMedia({ active }: { active: boolean }) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [videoReady, setVideoReady] = useState(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) return;
+
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return;
+
+    const canvasWidth = 480;
+    const canvasHeight = 520;
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    let animationFrame = 0;
+    let lastDraw = 0;
+
+    const drawFrame = () => {
+      if (video.readyState < 2) return;
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      dibujarByteAscensor(ctx, video, canvasWidth, canvasHeight);
+      limpiarFondoByteAscensor(ctx, canvasWidth, canvasHeight);
+    };
+
+    const drawAnimation = (time: number) => {
+      if (time - lastDraw >= 45 && video.readyState >= 2) {
+        drawFrame();
+        lastDraw = time;
+      }
+      animationFrame = window.requestAnimationFrame(drawAnimation);
+    };
+
+    const prepare = () => {
+      drawFrame();
+      setVideoReady(true);
+    };
+
+    video.addEventListener("loadeddata", prepare);
+    if (video.readyState >= 2) prepare();
+    animationFrame = window.requestAnimationFrame(drawAnimation);
+
+    return () => {
+      video.removeEventListener("loadeddata", prepare);
+      window.cancelAnimationFrame(animationFrame);
+      video.pause();
+    };
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+
+    if (active) {
+      video.play().catch((error) => {
+        console.error("No se pudo reproducir la animación de Byte en Ascensor:", error);
+      });
+    } else {
+      video.pause();
+      video.currentTime = 0;
+    }
+  }, [active]);
+
+  return (
+    <>
+      <video
+        ref={videoRef}
+        src={videoByteAscensor}
+        muted
+        loop
+        playsInline
+        preload="auto"
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          width: "1px",
+          height: "1px",
+          opacity: 0,
+          pointerEvents: "none",
+        }}
+      />
+
+      {!videoReady && (
+        <img
+          className="mnx-ascensor-byte-character"
+          src={bytePista}
+          alt="Byte"
+          draggable={false}
+        />
+      )}
+
+      <canvas
+        ref={canvasRef}
+        className="mnx-ascensor-byte-character"
+        role="img"
+        aria-label="Byte hablando y ofreciendo una pista"
+        style={{ display: videoReady ? "block" : "none" }}
+      />
+    </>
+  );
+}
+
+function FloatingByteAscensor() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [open, setOpen] = useState(false);
+  const [status, setStatus] = useState<AudioStatus>("idle");
+
+  const openHint = async () => {
+    setOpen(true);
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error("No se pudo reproducir automáticamente la pista de Byte en Ascensor:", error);
+    }
+  };
+
+  const closeHint = () => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+    setStatus("idle");
+    setOpen(false);
+  };
+
+  const pauseAudio = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    setStatus("paused");
+  };
+
+  const playAudio = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (audio.ended) audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error("No se pudo reproducir la pista de Byte en Ascensor:", error);
+    }
+  };
+
+  const restartAudio = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error("No se pudo repetir la pista de Byte en Ascensor:", error);
+    }
+  };
+
+  const statusText =
+    status === "playing"
+      ? "Byte está hablando"
+      : status === "paused"
+        ? "Audio en pausa"
+        : status === "ended"
+          ? "Pista completada"
+          : "Pista preparada";
+
+  return (
+    <div className={`mnx-ascensor-byte-float ${open ? "mnx-ascensor-byte-float-open" : ""}`}>
+      <audio
+        ref={audioRef}
+        src={audioPistaByteAscensor}
+        preload="metadata"
+        onPlay={() => setStatus("playing")}
+        onPause={() => {
+          if (!audioRef.current?.ended && open) {
+            setStatus("paused");
+          }
+        }}
+        onEnded={() => setStatus("ended")}
+      />
+
+      {open && (
+        <article className="mnx-ascensor-byte-panel">
+          <button
+            type="button"
+            className="mnx-ascensor-byte-close"
+            onClick={closeHint}
+            aria-label="Cerrar pista de Byte"
+          >
+            <FiX />
+          </button>
+
+          <div className="mnx-ascensor-byte-media">
+            <ByteAscensorMedia active={status === "playing"} />
+          </div>
+
+          <div className="mnx-ascensor-byte-copy">
+            <span className="mnx-ascensor-byte-label">Pista de Byte</span>
+            <h3>Comienza por el menor</h3>
+            <p>{BYTE_ASCENSOR_TEXT}</p>
+
+            <div className="mnx-ascensor-byte-audio">
+              <button
+                type="button"
+                onClick={playAudio}
+                disabled={status === "playing"}
+                aria-label="Reproducir pista de Byte"
+              >
+                <FiPlay />
+              </button>
+
+              <button
+                type="button"
+                onClick={pauseAudio}
+                disabled={status !== "playing"}
+                aria-label="Pausar pista de Byte"
+              >
+                <FiPause />
+              </button>
+
+              <button
+                type="button"
+                onClick={restartAudio}
+                aria-label="Repetir pista de Byte"
+              >
+                <FiRotateCcw />
+              </button>
+
+              <span className={status === "playing" ? "is-playing" : ""}>
+                <FiVolume2 />
+                {statusText}
+              </span>
+            </div>
+          </div>
+        </article>
+      )}
+
+      <button
+        type="button"
+        className="mnx-ascensor-byte-launcher"
+        onClick={openHint}
+        aria-label="Abrir pista de Byte"
+        aria-expanded={open}
+      >
+        <span>PISTA</span>
+        <img src={bytePista} alt="Byte" draggable={false} />
+        <i aria-hidden="true">?</i>
+      </button>
+    </div>
+  );
+}
 
 export function AscensorBunker() {
   const navigate = useNavigate();
@@ -532,25 +1145,7 @@ export function AscensorBunker() {
             </p>
           </div>
 
-          <div className="mnx-ascensor-welcome-wrap">
-            <article className="mnx-ascensor-speech">
-              <strong>
-                ¡Sistema en espera!
-              </strong>
-
-              <span>
-                Los sótanos son negativos, la
-                superficie es el 0 y las torres son
-                positivas: ordénalos de menor a mayor.
-              </span>
-            </article>
-
-            <img
-              className="mnx-ascensor-hero-robot"
-              src={ascensorCommander}
-              alt="Comandante Suma"
-            />
-          </div>
+          <AscensorSumaIntro />
         </header>
 
         <section className="mnx-ascensor-activity-grid">
@@ -732,24 +1327,7 @@ export function AscensorBunker() {
             </div>
           </section>
 
-          <section className="mnx-ascensor-reminder-card mnx-ascensor-reminder">
-            <img
-              src={ascensorCommander}
-              alt="Comandante Suma"
-            />
-
-            <p>
-              <strong>
-                Recuerda:
-              </strong>{" "}
-              los negativos más grandes en valor
-              van más abajo. Observa qué número
-              está más a la izquierda en la recta
-              numérica.
-            </p>
-
-            <span>↕</span>
-          </section>
+          <AscensorSumaAdvice />
 
           <section className="mnx-ascensor-question-card mnx-ascensor-question">
             <div className="mnx-ascensor-question-head">
@@ -828,6 +1406,8 @@ export function AscensorBunker() {
           </section>
         </section>
       </section>
+
+      <FloatingByteAscensor />
 
       <button
         className="mnx-ascensor-logout-float"

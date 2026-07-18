@@ -2,8 +2,8 @@ import "./CofreBienvenida.css";
 import audioIntroSuma from "../../../assets/mathnumbers/01-cofre-bienvenida/intro_suma.mp3";
 import audioPistaByte from "../../../assets/mathnumbers/01-cofre-bienvenida/pista_byte.mp3";
 import audioConsejoSuma from "../../../assets/mathnumbers/01-cofre-bienvenida/consejo_suma.mp3";
-import bytePista from "../../../assets/mathGeometry/actividad1/byte-pista.png";
-import videoBytePistas from "../../../assets/mathGeometry/actividad1/byte_aciertos_y_pistas_MathGeometry.mp4";
+import bytePista from "../../../assets/mathnumbers/byte_pista.png";
+import videoByteHablando from "../../../assets/mathnumbers/01-cofre-bienvenida/byte_hablando.mp4";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -22,6 +22,7 @@ import {
   FiTarget,
   FiUser,
   FiVolume2,
+  FiX,
   FiZap,
 } from "react-icons/fi";
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
@@ -34,7 +35,6 @@ import {
   chestFall,
   chestVib,
   cofreGuide,
-  cofreHero,
   cofreHeroTalking,
   cofreHeroTalkingIdle,
   cofreTitleChest,
@@ -57,11 +57,6 @@ type CharacterMediaConfig = {
   loop?: boolean;
 };
 
-type AudioControlsProps = {
-  src: string | null;
-  characterName: string;
-  compact?: boolean;
-};
 
 const correctAnswers: Record<QuestionKey, AnswerValue> = {
   q1: "b",
@@ -101,13 +96,11 @@ const GUIDE_AUDIO_SRC: string | null = audioConsejoSuma;
 const HINT_AUDIO_SRC: string | null = audioPistaByte;
 
 /* =========================================================
-   2.1 TEXTO SINCRONIZADO CON EL AUDIO DE INTRODUCCIÓN
+   2.1 TEXTOS COMPLETOS DE LOS AUDIOS
    =========================================================
-   IMPORTANTE:
-   - Cambia las frases de INTRO_SCRIPT para que coincidan con
-     lo que dice exactamente el audio intro_suma.mp3.
-   - No necesitas escribir tiempos manuales: cada frase recibe
-     una parte de la duración total del audio según su longitud.
+   Los textos ya no aparecen letra por letra. Se muestran como
+   bloques completos mientras el personaje cambia a su animación
+   de hablar durante la reproducción.
 */
 const INTRO_INITIAL_TEXT =
   "Presiona reproducir para escuchar la instrucción del Comandante Suma.";
@@ -119,85 +112,8 @@ const INTRO_SCRIPT = [
   "¡Vamos a comenzar la misión!",
 ];
 
-const INTRO_FINAL_TEXT =
-  INTRO_SCRIPT[INTRO_SCRIPT.length - 1];
+const INTRO_FULL_TEXT = INTRO_SCRIPT.join(" ");
 
-/*
-  Controla la rapidez con la que aparecen las letras dentro de
-  cada frase. Sube el valor para escribir más rápido.
-*/
-const INTRO_TEXT_SPEED = 1.45;
-
-function getIntroTypedState(
-  currentTime: number,
-  duration: number,
-) {
-  const safeDuration =
-    Number.isFinite(duration) && duration > 0
-      ? duration
-      : 14;
-
-  const weights = INTRO_SCRIPT.map((text) =>
-    Math.max(1, text.length),
-  );
-  const totalWeight = weights.reduce(
-    (total, weight) => total + weight,
-    0,
-  );
-
-  let accumulatedStart = 0;
-
-  for (let index = 0; index < INTRO_SCRIPT.length; index += 1) {
-    const text = INTRO_SCRIPT[index];
-    const lineDuration =
-      (weights[index] / totalWeight) * safeDuration;
-    const accumulatedEnd = accumulatedStart + lineDuration;
-
-    if (
-      currentTime >= accumulatedStart &&
-      currentTime < accumulatedEnd
-    ) {
-      const naturalProgress = Math.min(
-        1,
-        Math.max(
-          0,
-          (currentTime - accumulatedStart) / lineDuration,
-        ),
-      );
-
-      const textProgress = Math.min(
-        1,
-        naturalProgress * INTRO_TEXT_SPEED,
-      );
-
-      const visibleCharacters = Math.max(
-        1,
-        Math.ceil(text.length * textProgress),
-      );
-
-      return {
-        text: text.slice(0, visibleCharacters),
-        index,
-      };
-    }
-
-    accumulatedStart = accumulatedEnd;
-  }
-
-  return {
-    text: INTRO_FINAL_TEXT,
-    index: INTRO_SCRIPT.length - 1,
-  };
-}
-
-
-
-/* =========================================================
-   2.2 TEXTO SINCRONIZADO CON EL CONSEJO DE SUMA
-   =========================================================
-   El audio debe estar en:
-   client/src/assets/mathnumbers/01-cofre-bienvenida/consejo_suma.mp3
-*/
 const SUMA_GUIDE_INITIAL_TEXT =
   "Presiona reproducir para escuchar el consejo de Suma.";
 
@@ -210,93 +126,7 @@ const SUMA_GUIDE_SCRIPT = [
   "¡Observa con calma y confía en tu respuesta!",
 ];
 
-const SUMA_GUIDE_FINAL_TEXT =
-  SUMA_GUIDE_SCRIPT[SUMA_GUIDE_SCRIPT.length - 1];
-
-const SUMA_GUIDE_TEXT_SPEED = 1.45;
-
-function getSumaGuideTypedState(
-  currentTime: number,
-  duration: number,
-) {
-  const safeDuration =
-    Number.isFinite(duration) && duration > 0
-      ? duration
-      : 19;
-
-  const weights = SUMA_GUIDE_SCRIPT.map((line) =>
-    Math.max(1, line.length),
-  );
-
-  const totalWeight = weights.reduce(
-    (total, weight) => total + weight,
-    0,
-  );
-
-  let accumulatedStart = 0;
-
-  for (
-    let index = 0;
-    index < SUMA_GUIDE_SCRIPT.length;
-    index += 1
-  ) {
-    const line = SUMA_GUIDE_SCRIPT[index];
-
-    const lineDuration =
-      (weights[index] / totalWeight) * safeDuration;
-
-    const accumulatedEnd =
-      accumulatedStart + lineDuration;
-
-    if (
-      currentTime >= accumulatedStart &&
-      currentTime < accumulatedEnd
-    ) {
-      const naturalProgress = Math.min(
-        1,
-        Math.max(
-          0,
-          (currentTime - accumulatedStart) /
-            lineDuration,
-        ),
-      );
-
-      const textProgress = Math.min(
-        1,
-        naturalProgress * SUMA_GUIDE_TEXT_SPEED,
-      );
-
-      const visibleCharacters = Math.max(
-        1,
-        Math.ceil(line.length * textProgress),
-      );
-
-      return {
-        text: line.slice(0, visibleCharacters),
-        index,
-      };
-    }
-
-    accumulatedStart = accumulatedEnd;
-  }
-
-  return {
-    text: SUMA_GUIDE_FINAL_TEXT,
-    index: SUMA_GUIDE_SCRIPT.length - 1,
-  };
-}
-
-/* =========================================================
-   2.2 TEXTO SINCRONIZADO CON LA PISTA DE BYTE
-   =========================================================
-   El audio debe estar en:
-   client/src/assets/mathnumbers/01-cofre-bienvenida/pista_byte.mp3
-
-   La voz puede pronunciar "cero punto veinticinco", mientras
-   que el texto visual muestra "0.25".
-*/
-const BYTE_HINT_INITIAL_TEXT =
-  "Presiona reproducir para escuchar la pista de Byte.";
+const SUMA_GUIDE_FULL_TEXT = SUMA_GUIDE_SCRIPT.join(" ");
 
 const BYTE_HINT_SCRIPT = [
   "¡Hola, explorador!",
@@ -306,81 +136,7 @@ const BYTE_HINT_SCRIPT = [
   "¡Tú puedes encontrarla!",
 ];
 
-const BYTE_HINT_FINAL_TEXT =
-  BYTE_HINT_SCRIPT[BYTE_HINT_SCRIPT.length - 1];
-
-const BYTE_HINT_TEXT_SPEED = 1.45;
-
-function getByteHintTypedState(
-  currentTime: number,
-  duration: number,
-) {
-  const safeDuration =
-    Number.isFinite(duration) && duration > 0
-      ? duration
-      : 17;
-
-  const weights = BYTE_HINT_SCRIPT.map((line) =>
-    Math.max(1, line.length),
-  );
-
-  const totalWeight = weights.reduce(
-    (total, weight) => total + weight,
-    0,
-  );
-
-  let accumulatedStart = 0;
-
-  for (
-    let index = 0;
-    index < BYTE_HINT_SCRIPT.length;
-    index += 1
-  ) {
-    const line = BYTE_HINT_SCRIPT[index];
-
-    const lineDuration =
-      (weights[index] / totalWeight) * safeDuration;
-
-    const accumulatedEnd =
-      accumulatedStart + lineDuration;
-
-    if (
-      currentTime >= accumulatedStart &&
-      currentTime < accumulatedEnd
-    ) {
-      const naturalProgress = Math.min(
-        1,
-        Math.max(
-          0,
-          (currentTime - accumulatedStart) /
-            lineDuration,
-        ),
-      );
-
-      const textProgress = Math.min(
-        1,
-        naturalProgress * BYTE_HINT_TEXT_SPEED,
-      );
-
-      const visibleCharacters = Math.max(
-        1,
-        Math.ceil(line.length * textProgress),
-      );
-
-      return {
-        text: line.slice(0, visibleCharacters),
-        index,
-      };
-    }
-
-    accumulatedStart = accumulatedEnd;
-  }
-
-  return {
-    text: BYTE_HINT_FINAL_TEXT,
-    index: BYTE_HINT_SCRIPT.length - 1,
-  };
-}
+const BYTE_HINT_FULL_TEXT = BYTE_HINT_SCRIPT.join(" ");
 
 /* =========================================================
    3. PERSONAJES Y ANIMACIONES QUE HABLAN
@@ -465,7 +221,13 @@ function limpiarFondoBlancoByte(
       Math.abs(r - b) < 34 &&
       Math.abs(g - b) < 34;
 
-    return esClaro && casiSinColor;
+    const esMagenta =
+      r > 175 &&
+      b > 175 &&
+      g < 135 &&
+      Math.abs(r - b) < 90;
+
+    return (esClaro && casiSinColor) || esMagenta;
   };
 
   const agregar = (index: number) => {
@@ -535,7 +297,13 @@ function dibujarVideoByteSinEstirar(
   );
 }
 
-function ByteBlinkMedia() {
+function ByteBlinkMedia({
+  active,
+  className = "mnx-cofre-byte-panel-character",
+}: {
+  active: boolean;
+  className?: string;
+}) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [videoReady, setVideoReady] = useState(false);
@@ -556,38 +324,27 @@ function ByteBlinkMedia() {
       return;
     }
 
-    /*
-     * La proporción del canvas coincide con el espacio actual
-     * de .mnx-cofre-help-character: 76 x 98.
-     */
-    const canvasWidth = 304;
-    const canvasHeight = 392;
+    const canvasWidth = 480;
+    const canvasHeight = 520;
 
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
 
     let animationFrame = 0;
-    let ultimoDibujo = 0;
+    let lastDraw = 0;
 
-    const dibujarFrame = () => {
+    const drawFrame = () => {
       if (video.readyState < 2) {
         return;
       }
 
-      ctx.clearRect(
-        0,
-        0,
-        canvasWidth,
-        canvasHeight,
-      );
-
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
       dibujarVideoByteSinEstirar(
         ctx,
         video,
         canvasWidth,
         canvasHeight,
       );
-
       limpiarFondoBlancoByte(
         ctx,
         canvasWidth,
@@ -595,65 +352,68 @@ function ByteBlinkMedia() {
       );
     };
 
-    const dibujarAnimacion = (tiempo: number) => {
-      if (
-        tiempo - ultimoDibujo >= 50 &&
-        video.readyState >= 2
-      ) {
-        dibujarFrame();
-        ultimoDibujo = tiempo;
+    const drawAnimation = (time: number) => {
+      if (time - lastDraw >= 45 && video.readyState >= 2) {
+        drawFrame();
+        lastDraw = time;
       }
 
-      animationFrame =
-        window.requestAnimationFrame(dibujarAnimacion);
+      animationFrame = window.requestAnimationFrame(drawAnimation);
     };
 
-    const prepararByte = () => {
-      dibujarFrame();
+    const prepare = () => {
+      drawFrame();
       setVideoReady(true);
+    };
 
-      video.muted = true;
-      video.loop = true;
-      video.playsInline = true;
+    video.addEventListener("loadeddata", prepare);
 
+    if (video.readyState >= 2) {
+      prepare();
+    }
+
+    animationFrame = window.requestAnimationFrame(drawAnimation);
+
+    return () => {
+      video.removeEventListener("loadeddata", prepare);
+      window.cancelAnimationFrame(animationFrame);
+      video.pause();
+    };
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+
+    if (!video) {
+      return;
+    }
+
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+
+    if (active) {
       video.play().catch((error) => {
         console.error(
           "No se pudo reproducir la animación de Byte:",
           error,
         );
       });
-    };
-
-    video.addEventListener("loadeddata", prepararByte);
-
-    if (video.readyState >= 2) {
-      prepararByte();
-    }
-
-    animationFrame =
-      window.requestAnimationFrame(dibujarAnimacion);
-
-    return () => {
-      video.removeEventListener(
-        "loadeddata",
-        prepararByte,
-      );
-
-      window.cancelAnimationFrame(animationFrame);
+    } else {
       video.pause();
-    };
-  }, []);
+      video.currentTime = 0;
+    }
+  }, [active]);
 
   return (
     <>
       <video
         ref={videoRef}
-        src={videoBytePistas}
+        src={videoByteHablando}
         muted
         loop
         playsInline
         preload="auto"
-        autoPlay
         aria-hidden="true"
         style={{
           position: "absolute",
@@ -666,7 +426,7 @@ function ByteBlinkMedia() {
 
       {!videoReady && (
         <img
-          className={HINT_CHARACTER.className}
+          className={className}
           src={HINT_CHARACTER.src}
           alt={HINT_CHARACTER.alt}
           draggable={false}
@@ -675,12 +435,10 @@ function ByteBlinkMedia() {
 
       <canvas
         ref={canvasRef}
-        className="mnx-cofre-help-character"
+        className={className}
         role="img"
-        aria-label="Byte parpadeando y ofreciendo una pista"
-        style={{
-          display: videoReady ? "block" : "none",
-        }}
+        aria-label="Byte hablando y ofreciendo una pista"
+        style={{ display: videoReady ? "block" : "none" }}
       />
     </>
   );
@@ -712,140 +470,18 @@ function CharacterMedia({ media }: { media: CharacterMediaConfig }) {
   );
 }
 
-function AudioControls({
-  src,
-  characterName,
-  compact = false,
-}: AudioControlsProps) {
+function SumaGuideAudio({
+  onStatusChange,
+}: {
+  onStatusChange?: (status: AudioStatus) => void;
+}) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [status, setStatus] = useState<AudioStatus>("idle");
 
-  const hasAudio = Boolean(src);
-
-  const playAudio = async () => {
-    const audio = audioRef.current;
-
-    if (!audio || !hasAudio) {
-      return;
-    }
-
-    try {
-      await audio.play();
-      setStatus("playing");
-    } catch (error) {
-      console.error(`No se pudo reproducir el audio de ${characterName}:`, error);
-    }
+  const changeStatus = (nextStatus: AudioStatus) => {
+    setStatus(nextStatus);
+    onStatusChange?.(nextStatus);
   };
-
-  const pauseAudio = () => {
-    const audio = audioRef.current;
-
-    if (!audio) {
-      return;
-    }
-
-    audio.pause();
-    setStatus("paused");
-  };
-
-  const restartAudio = async () => {
-    const audio = audioRef.current;
-
-    if (!audio || !hasAudio) {
-      return;
-    }
-
-    audio.currentTime = 0;
-
-    try {
-      await audio.play();
-      setStatus("playing");
-    } catch (error) {
-      console.error(`No se pudo reiniciar el audio de ${characterName}:`, error);
-    }
-  };
-
-  const statusText = !hasAudio
-    ? "Audio pendiente"
-    : status === "playing"
-      ? "Reproduciendo"
-      : status === "paused"
-        ? "Pausado"
-        : status === "ended"
-          ? "Finalizado"
-          : "Listo para escuchar";
-
-  return (
-    <div
-      className={`mnx-cofre-audio-controls ${
-        compact ? "mnx-cofre-audio-compact" : ""
-      }`}
-    >
-      <audio
-        ref={audioRef}
-        src={src ?? undefined}
-        preload="metadata"
-        onPlay={() => setStatus("playing")}
-        onPause={() => {
-          if (audioRef.current?.ended) {
-            return;
-          }
-
-          setStatus("paused");
-        }}
-        onEnded={() => setStatus("ended")}
-      />
-
-      <button
-        type="button"
-        onClick={playAudio}
-        disabled={!hasAudio || status === "playing"}
-        aria-label={`Reproducir audio de ${characterName}`}
-      >
-        <FiPlay />
-      </button>
-
-      <button
-        type="button"
-        onClick={pauseAudio}
-        disabled={!hasAudio || status !== "playing"}
-        aria-label={`Pausar audio de ${characterName}`}
-      >
-        <FiPause />
-      </button>
-
-      <button
-        type="button"
-        onClick={restartAudio}
-        disabled={!hasAudio}
-        aria-label={`Repetir audio de ${characterName}`}
-      >
-        <FiRotateCcw />
-      </button>
-
-      <span
-        className={`mnx-cofre-audio-status ${
-          status === "playing" ? "mnx-cofre-audio-playing" : ""
-        }`}
-      >
-        <FiVolume2 />
-        {statusText}
-      </span>
-    </div>
-  );
-}
-
-
-
-function SumaGuideAudio() {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  const [status, setStatus] =
-    useState<AudioStatus>("idle");
-
-  const [text, setText] = useState(
-    SUMA_GUIDE_INITIAL_TEXT,
-  );
 
   const playAudio = async () => {
     const audio = audioRef.current;
@@ -856,15 +492,13 @@ function SumaGuideAudio() {
 
     if (audio.ended) {
       audio.currentTime = 0;
-      setText("");
     }
 
     try {
       await audio.play();
-      setStatus("playing");
+      changeStatus("playing");
     } catch (error) {
-      setStatus("paused");
-
+      changeStatus("paused");
       console.error(
         "No se pudo reproducir el consejo de Suma:",
         error,
@@ -880,7 +514,7 @@ function SumaGuideAudio() {
     }
 
     audio.pause();
-    setStatus("paused");
+    changeStatus("paused");
   };
 
   const restartAudio = async () => {
@@ -890,41 +524,18 @@ function SumaGuideAudio() {
       return;
     }
 
-    audio.pause();
     audio.currentTime = 0;
-    setText("");
 
     try {
       await audio.play();
-      setStatus("playing");
+      changeStatus("playing");
     } catch (error) {
-      setStatus("paused");
-
+      changeStatus("paused");
       console.error(
         "No se pudo reiniciar el consejo de Suma:",
         error,
       );
     }
-  };
-
-  const updateTypedText = () => {
-    const audio = audioRef.current;
-
-    if (!audio) {
-      return;
-    }
-
-    const typedState = getSumaGuideTypedState(
-      audio.currentTime,
-      audio.duration,
-    );
-
-    setText(typedState.text);
-  };
-
-  const finishAudio = () => {
-    setStatus("ended");
-    setText(SUMA_GUIDE_FINAL_TEXT);
   };
 
   const statusText =
@@ -939,14 +550,9 @@ function SumaGuideAudio() {
   return (
     <>
       <p aria-live="polite">
-        {text}
-
-        {status === "playing" && (
-          <span
-            className="mnx-cofre-typing-cursor"
-            aria-hidden="true"
-          />
-        )}
+        {status === "idle"
+          ? SUMA_GUIDE_INITIAL_TEXT
+          : SUMA_GUIDE_FULL_TEXT}
       </p>
 
       <div className="mnx-cofre-audio-controls mnx-cofre-audio-compact">
@@ -954,22 +560,19 @@ function SumaGuideAudio() {
           ref={audioRef}
           src={GUIDE_AUDIO_SRC ?? undefined}
           preload="metadata"
-          onPlay={() => setStatus("playing")}
+          onPlay={() => changeStatus("playing")}
           onPause={() => {
             if (!audioRef.current?.ended) {
-              setStatus("paused");
+              changeStatus("paused");
             }
           }}
-          onTimeUpdate={updateTypedText}
-          onEnded={finishAudio}
+          onEnded={() => changeStatus("ended")}
         />
 
         <button
           type="button"
           onClick={playAudio}
-          disabled={
-            !GUIDE_AUDIO_SRC || status === "playing"
-          }
+          disabled={!GUIDE_AUDIO_SRC || status === "playing"}
           aria-label="Reproducir consejo de Suma"
         >
           <FiPlay />
@@ -1008,39 +611,44 @@ function SumaGuideAudio() {
   );
 }
 
-function ByteHintAudio() {
+function FloatingByteHint() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [open, setOpen] = useState(false);
+  const [status, setStatus] = useState<AudioStatus>("idle");
 
-  const [status, setStatus] =
-    useState<AudioStatus>("idle");
+  const openHint = async () => {
+    setOpen(true);
 
-  const [text, setText] = useState(
-    BYTE_HINT_INITIAL_TEXT,
-  );
-
-  const playAudio = async () => {
     const audio = audioRef.current;
 
     if (!audio || !HINT_AUDIO_SRC) {
       return;
     }
 
-    if (audio.ended) {
-      audio.currentTime = 0;
-      setText("");
-    }
+    audio.currentTime = 0;
 
     try {
       await audio.play();
       setStatus("playing");
     } catch (error) {
       setStatus("paused");
-
       console.error(
-        "No se pudo reproducir la pista de Byte:",
+        "No se pudo reproducir automáticamente la pista de Byte:",
         error,
       );
     }
+  };
+
+  const closeHint = () => {
+    const audio = audioRef.current;
+
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    setStatus("idle");
+    setOpen(false);
   };
 
   const pauseAudio = () => {
@@ -1054,6 +662,29 @@ function ByteHintAudio() {
     setStatus("paused");
   };
 
+  const playAudio = async () => {
+    const audio = audioRef.current;
+
+    if (!audio || !HINT_AUDIO_SRC) {
+      return;
+    }
+
+    if (audio.ended) {
+      audio.currentTime = 0;
+    }
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error(
+        "No se pudo reproducir la pista de Byte:",
+        error,
+      );
+    }
+  };
+
   const restartAudio = async () => {
     const audio = audioRef.current;
 
@@ -1061,41 +692,18 @@ function ByteHintAudio() {
       return;
     }
 
-    audio.pause();
     audio.currentTime = 0;
-    setText("");
 
     try {
       await audio.play();
       setStatus("playing");
     } catch (error) {
       setStatus("paused");
-
       console.error(
-        "No se pudo reiniciar la pista de Byte:",
+        "No se pudo repetir la pista de Byte:",
         error,
       );
     }
-  };
-
-  const updateTypedText = () => {
-    const audio = audioRef.current;
-
-    if (!audio) {
-      return;
-    }
-
-    const typedState = getByteHintTypedState(
-      audio.currentTime,
-      audio.duration,
-    );
-
-    setText(typedState.text);
-  };
-
-  const finishAudio = () => {
-    setStatus("ended");
-    setText(BYTE_HINT_FINAL_TEXT);
   };
 
   const statusText =
@@ -1105,77 +713,111 @@ function ByteHintAudio() {
         ? "Audio en pausa"
         : status === "ended"
           ? "Pista completada"
-          : "Listo para escuchar";
+          : "Pista preparada";
 
   return (
-    <>
-      <p aria-live="polite">
-        {text}
-
-        {status === "playing" && (
-          <span
-            className="mnx-cofre-typing-cursor"
-            aria-hidden="true"
-          />
-        )}
-      </p>
-
-      <div className="mnx-cofre-audio-controls mnx-cofre-audio-compact">
-        <audio
-          ref={audioRef}
-          src={HINT_AUDIO_SRC ?? undefined}
-          preload="metadata"
-          onPlay={() => setStatus("playing")}
-          onPause={() => {
-            if (!audioRef.current?.ended) {
-              setStatus("paused");
-            }
-          }}
-          onTimeUpdate={updateTypedText}
-          onEnded={finishAudio}
-        />
-
-        <button
-          type="button"
-          onClick={playAudio}
-          disabled={
-            !HINT_AUDIO_SRC || status === "playing"
+    <div
+      className={`mnx-cofre-byte-float ${
+        open ? "mnx-cofre-byte-float-open" : ""
+      }`}
+    >
+      <audio
+        ref={audioRef}
+        src={HINT_AUDIO_SRC ?? undefined}
+        preload="metadata"
+        onPlay={() => setStatus("playing")}
+        onPause={() => {
+          if (!audioRef.current?.ended) {
+            setStatus("paused");
           }
-          aria-label="Reproducir pista de Byte"
-        >
-          <FiPlay />
-        </button>
+        }}
+        onEnded={() => setStatus("ended")}
+      />
 
-        <button
-          type="button"
-          onClick={pauseAudio}
-          disabled={status !== "playing"}
-          aria-label="Pausar pista de Byte"
-        >
-          <FiPause />
-        </button>
+      {open && (
+        <article className="mnx-cofre-byte-panel">
+          <button
+            type="button"
+            className="mnx-cofre-byte-close"
+            onClick={closeHint}
+            aria-label="Cerrar pista de Byte"
+          >
+            <FiX />
+          </button>
 
-        <button
-          type="button"
-          onClick={restartAudio}
-          disabled={!HINT_AUDIO_SRC}
-          aria-label="Repetir pista de Byte"
-        >
-          <FiRotateCcw />
-        </button>
+          <div className="mnx-cofre-byte-panel-media">
+            <ByteBlinkMedia
+              active={status === "playing"}
+              className="mnx-cofre-byte-panel-character"
+            />
+          </div>
 
-        <span
-          className={`mnx-cofre-audio-status ${
-            status === "playing"
-              ? "mnx-cofre-audio-playing"
-              : ""
-          }`}
-        >
-          <FiVolume2 />
-          {statusText}
-        </span>
-      </div>
-    </>
+          <div className="mnx-cofre-byte-panel-copy">
+            <span className="mnx-cofre-byte-panel-label">
+              Pista de Byte
+            </span>
+            <h3>Piensa en partes iguales</h3>
+            <p>{BYTE_HINT_FULL_TEXT}</p>
+
+            <div className="mnx-cofre-audio-controls mnx-cofre-audio-compact">
+              <button
+                type="button"
+                onClick={playAudio}
+                disabled={!HINT_AUDIO_SRC || status === "playing"}
+                aria-label="Reproducir pista de Byte"
+              >
+                <FiPlay />
+              </button>
+
+              <button
+                type="button"
+                onClick={pauseAudio}
+                disabled={status !== "playing"}
+                aria-label="Pausar pista de Byte"
+              >
+                <FiPause />
+              </button>
+
+              <button
+                type="button"
+                onClick={restartAudio}
+                disabled={!HINT_AUDIO_SRC}
+                aria-label="Repetir pista de Byte"
+              >
+                <FiRotateCcw />
+              </button>
+
+              <span
+                className={`mnx-cofre-audio-status ${
+                  status === "playing"
+                    ? "mnx-cofre-audio-playing"
+                    : ""
+                }`}
+              >
+                <FiVolume2 />
+                {statusText}
+              </span>
+            </div>
+          </div>
+        </article>
+      )}
+
+      <button
+        type="button"
+        className="mnx-cofre-byte-launcher"
+        onClick={openHint}
+        aria-label="Abrir pista de Byte"
+        aria-expanded={open}
+      >
+        <span>PISTA</span>
+        <img
+          src={HINT_CHARACTER.src}
+          alt="Byte"
+          draggable={false}
+        />
+        <i aria-hidden="true">?</i>
+      </button>
+    </div>
   );
 }
 
@@ -1203,21 +845,23 @@ export function CofreBienvenida() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [chestPhase, setChestPhase] =
     useState<ChestPhase>("fall");
-  const [attempts, setAttempts] = useState(0);
- const [resultModalOpen, setResultModalOpen] = useState(false); 
-  /* =======================================================
-     AUDIO DE INTRODUCCIÓN + TEXTO ESCRITO POCO A POCO
-     ======================================================= */
+  const [attempts] = useState(0);
+  const [guideAudioStatus, setGuideAudioStatus] =
+    useState<AudioStatus>("idle");
+
   const introAudioRef = useRef<HTMLAudioElement | null>(null);
   const [introAudioStatus, setIntroAudioStatus] =
     useState<AudioStatus>("idle");
+
   const currentIntroCharacter =
-  introAudioStatus === "playing"
-    ? INTRO_CHARACTER_TALKING
-    : INTRO_CHARACTER_IDLE;
-  const [introText, setIntroText] = useState(
-    INTRO_INITIAL_TEXT,
-  );
+    introAudioStatus === "playing"
+      ? INTRO_CHARACTER_TALKING
+      : INTRO_CHARACTER_IDLE;
+
+  const currentGuideCharacter =
+    guideAudioStatus === "playing"
+      ? INTRO_CHARACTER_TALKING
+      : GUIDE_CHARACTER;
 
   const currentChestAnimation =
     chestPhase === "fall" ? chestFall : chestVib;
@@ -1261,13 +905,13 @@ export function CofreBienvenida() {
 
     if (audio.ended) {
       audio.currentTime = 0;
-      setIntroText("");
     }
 
     try {
       await audio.play();
       setIntroAudioStatus("playing");
     } catch (error) {
+      setIntroAudioStatus("paused");
       console.error(
         "No se pudo reproducir el audio de introducción:",
         error,
@@ -1294,37 +938,17 @@ export function CofreBienvenida() {
     }
 
     audio.currentTime = 0;
-    setIntroText("");
 
     try {
       await audio.play();
       setIntroAudioStatus("playing");
     } catch (error) {
+      setIntroAudioStatus("paused");
       console.error(
         "No se pudo reiniciar el audio de introducción:",
         error,
       );
     }
-  };
-
-  const updateIntroTypedText = () => {
-    const audio = introAudioRef.current;
-
-    if (!audio) {
-      return;
-    }
-
-    const typedState = getIntroTypedState(
-      audio.currentTime,
-      audio.duration,
-    );
-
-    setIntroText(typedState.text);
-  };
-
-  const finishIntroAudio = () => {
-    setIntroAudioStatus("ended");
-    setIntroText(INTRO_FINAL_TEXT);
   };
 
   const introStatusText =
@@ -1387,40 +1011,38 @@ export function CofreBienvenida() {
         "Selecciona una respuesta en cada pregunta para abrir el cofre.",
         true,
       );
-
       return;
     }
 
     const total = (
-      Object.keys(
-        correctAnswers,
-      ) as QuestionKey[]
+      Object.keys(correctAnswers) as QuestionKey[]
     ).filter(
       (question) =>
-        answers[question] ===
-        correctAnswers[question],
+        answers[question] === correctAnswers[question],
     ).length;
 
     setChecked(true);
     setSolved(total === 2);
 
-    // 1. Obtener el ID de usuario desde la sesión
-    let idUsuario = 17; // ID por defecto
+    let idUsuario = 17;
+
     try {
       const sessionString = localStorage.getItem("auth_session");
+
       if (sessionString) {
         const session = JSON.parse(sessionString);
-        if (session && session.id_usuario) idUsuario = Number(session.id_usuario);
+
+        if (session && session.id_usuario) {
+          idUsuario = Number(session.id_usuario);
+        }
       }
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
     }
 
-    // 2. Determinar las estrellas de la partida actual
     const nuevasEstrellas = total === 2 ? 3 : total === 1 ? 1 : 0;
     const esCorrecto = total === 2;
 
-    // 3. Estructurar el Payload para enviar al backend
     const payload = {
       id_usuario: idUsuario,
       mundo: "MathNumbers",
@@ -1434,43 +1056,46 @@ export function CofreBienvenida() {
       xp_obtenido: total * 25,
       completada: esCorrecto,
       tiempo_segundos: 0,
-      xp_base: 50
+      xp_base: 50,
     };
 
     try {
-      // 4. Verificar si ya tenía estrellas ganadas localmente
-      const progresoKey = `progreso_${idUsuario}_cofre-bienvenida`;
-      const progresoPrevioRaw = localStorage.getItem(progresoKey);
+      const progresoKey =
+        `progreso_${idUsuario}_cofre-bienvenida`;
+      const progresoPrevioRaw =
+        localStorage.getItem(progresoKey);
       let yaTeniaEstrellas = false;
       let estrellasAnteriores = 0;
 
       if (progresoPrevioRaw) {
         const progresoPrevio = JSON.parse(progresoPrevioRaw);
-        estrellasAnteriores = progresoPrevio.estrellas_obtenidas || 0;
+        estrellasAnteriores =
+          progresoPrevio.estrellas_obtenidas || 0;
         yaTeniaEstrellas = estrellasAnteriores > 0;
       }
 
-      // Guardamos en PostgreSQL
       await guardarProgresoActividad(payload);
 
-      // Guardamos localmente el máximo de estrellas obtenidas
       localStorage.setItem(
         progresoKey,
-        JSON.stringify({ estrellas_obtenidas: Math.max(estrellasAnteriores, nuevasEstrellas) })
+        JSON.stringify({
+          estrellas_obtenidas: Math.max(
+            estrellasAnteriores,
+            nuevasEstrellas,
+          ),
+        }),
       );
 
-      /*
-       * Si las dos respuestas son correctas, redirige directamente
-       * a la pantalla de actividad completada.
-       */
       if (total === 2) {
         if (yaTeniaEstrellas) {
           showToast(
             `¡Increíble! Has vuelto a abrir el cofre. Ya cuentas con las ${estrellasAnteriores} ⭐ de esta bienvenida en tu perfil.`,
-            false
+            false,
           );
         } else {
-          showToast(`¡Perfecto! El cofre se iluminó. ¡Has ganado ${nuevasEstrellas} estrellas! ⭐`);
+          showToast(
+            `¡Perfecto! El cofre se iluminó. ¡Has ganado ${nuevasEstrellas} estrellas! ⭐`,
+          );
         }
 
         window.setTimeout(() => {
@@ -1484,12 +1109,11 @@ export function CofreBienvenida() {
               },
             },
           );
-        }, 1300); // 1.3 segundos para que lea la tostada perfectamente
+        }, 1300);
 
         return;
       }
 
-      // Flujo original si no están todas correctas
       showToast(
         total === 1
           ? "Vas cerca: una respuesta está correcta."
@@ -1511,16 +1135,18 @@ export function CofreBienvenida() {
           },
         );
       }, 1100);
-
     } catch (error) {
       console.error(error);
-      showToast("Error de conexión: No se pudo verificar tu progreso.", true);
+      showToast(
+        "Error de conexión: No se pudo verificar tu progreso.",
+        true,
+      );
     }
   };
 
   return (
     <main
-      className={`mnx-cofre-page ${
+      className={`mnx-cofre-page mnx-cofre-radar-layout ${
         solved ? "mnx-cofre-solved" : ""
       }`}
     >
@@ -1641,43 +1267,49 @@ export function CofreBienvenida() {
         </div>
 
         <section className="mnx-cofre-main">
-          <div className="mnx-cofre-breadcrumb">
+          <div className="mnx-cofre-top-actions">
             <button
               type="button"
-              onClick={() => irARuta("/seleccion-mundos")}
+              onClick={() => irARuta(hintRoute)}
             >
-              Mundos
+              <FiHelpCircle />
+              Ayuda
             </button>
-            <span>›</span>
+
             <button
               type="button"
               onClick={() => irARuta(activityListRoute)}
             >
-              MathNumbers
-            </button>
-            <span>›</span>
-            <button
-              type="button"
-              className="mnx-cofre-breadcrumb-current"
-            >
-              Actividad 1
+              <FiLogOut />
+              Salir de la actividad
             </button>
           </div>
 
-          <header className="mnx-cofre-topbar">
-            <div className="mnx-cofre-title-area">
+          <header className="mnx-cofre-header">
+            <div className="mnx-cofre-header-copy">
+              <div className="mnx-cofre-breadcrumb">
+                <strong>MathNumbers</strong>
+                <span>/</span>
+                <span>Fracciones y decimales</span>
+              </div>
+
               <div className="mnx-cofre-title-row">
-                <img
-                  src={cofreTitleChest}
-                  alt=""
-                  aria-hidden="true"
-                />
+                <span className="mnx-cofre-title-icon">
+                  <img
+                    src={cofreTitleChest}
+                    alt=""
+                    aria-hidden="true"
+                  />
+                </span>
                 <h1>El Cofre de Bienvenida</h1>
               </div>
 
               <p>
                 Descubre cómo una fracción y un decimal pueden
                 representar exactamente la misma cantidad.
+                <br />
+                Completa las dos preguntas para llenar la energía
+                del cofre.
               </p>
 
               <div className="mnx-cofre-pills">
@@ -1688,66 +1320,16 @@ export function CofreBienvenida() {
               </div>
             </div>
 
-            <div className="mnx-cofre-top-actions">
-              <button
-                type="button"
-                onClick={() => irARuta(hintRoute)}
-              >
-                <FiHelpCircle />
-                Ayuda
-              </button>
-
-              <button
-                type="button"
-                onClick={() => irARuta(activityListRoute)}
-              >
-                <FiLogOut />
-                Salir
-              </button>
-            </div>
-          </header>
-
-          <section className="mnx-cofre-intro">
-            <div className="mnx-cofre-intro-stage">
-              {/*
-                CAMBIAR PERSONAJE PRINCIPAL:
-                Edita INTRO_CHARACTER al inicio del archivo.
-                Cambia su tamaño en .mnx-cofre-intro-character.
-              */}
-              <CharacterMedia
-                key={
-                  introAudioStatus === "playing"
-                    ? "suma-talking"
-                    : "suma-idle"
-                }
-                media={currentIntroCharacter}
-              />
-              <div className="mnx-cofre-character-shadow" />
-            </div>
-
-            <article className="mnx-cofre-speech-cloud">
-              <div className="mnx-cofre-speech-copy">
+            <div className="mnx-cofre-welcome">
+              <article className="mnx-cofre-speech">
                 <span className="mnx-cofre-speaker-label">
                   Comandante Suma explica
                 </span>
 
-                {/*
-                  TEXTO DE LA INTRODUCCIÓN:
-                  - Al entrar muestra INTRO_INITIAL_TEXT.
-                  - Al reproducir el audio se escribe poco a poco.
-                  - Cambia el guion en INTRO_SCRIPT al inicio.
-                */}
-                <p
-                  className="mnx-cofre-intro-instruction"
-                  aria-live="polite"
-                >
-                  {introText}
-                  {introAudioStatus === "playing" && (
-                    <span
-                      className="mnx-cofre-typing-cursor"
-                      aria-hidden="true"
-                    />
-                  )}
+                <p aria-live="polite">
+                  {introAudioStatus === "idle"
+                    ? INTRO_INITIAL_TEXT
+                    : INTRO_FULL_TEXT}
                 </p>
 
                 <div className="mnx-cofre-audio-controls">
@@ -1763,8 +1345,9 @@ export function CofreBienvenida() {
                         setIntroAudioStatus("paused");
                       }
                     }}
-                    onTimeUpdate={updateIntroTypedText}
-                    onEnded={finishIntroAudio}
+                    onEnded={() =>
+                      setIntroAudioStatus("ended")
+                    }
                   />
 
                   <button
@@ -1774,7 +1357,7 @@ export function CofreBienvenida() {
                       !INTRO_AUDIO_SRC ||
                       introAudioStatus === "playing"
                     }
-                    aria-label="Reproducir instrucción del Comandante Suma"
+                    aria-label="Reproducir instrucción de Suma"
                   >
                     <FiPlay />
                   </button>
@@ -1783,7 +1366,7 @@ export function CofreBienvenida() {
                     type="button"
                     onClick={pauseIntroAudio}
                     disabled={introAudioStatus !== "playing"}
-                    aria-label="Pausar instrucción del Comandante Suma"
+                    aria-label="Pausar instrucción de Suma"
                   >
                     <FiPause />
                   </button>
@@ -1792,7 +1375,7 @@ export function CofreBienvenida() {
                     type="button"
                     onClick={restartIntroAudio}
                     disabled={!INTRO_AUDIO_SRC}
-                    aria-label="Repetir instrucción del Comandante Suma"
+                    aria-label="Repetir instrucción de Suma"
                   >
                     <FiRotateCcw />
                   </button>
@@ -1808,298 +1391,232 @@ export function CofreBienvenida() {
                     {introStatusText}
                   </span>
                 </div>
+              </article>
+
+              <div className="mnx-cofre-hero-stage">
+                <CharacterMedia
+                  key={
+                    introAudioStatus === "playing"
+                      ? "suma-talking"
+                      : "suma-idle"
+                  }
+                  media={currentIntroCharacter}
+                />
+              </div>
+            </div>
+          </header>
+
+          <section className="mnx-cofre-activity-grid">
+            <article className="mnx-cofre-art">
+              <div className="mnx-cofre-chest-visual">
+                <img
+                  key={chestPhase}
+                  className="mnx-cofre-chest-animation"
+                  src={currentChestAnimation}
+                  alt="Animación del Cofre de Bienvenida"
+                  draggable={false}
+                />
               </div>
 
-              <div className="mnx-cofre-speech-decoration">
-                <span>1/2</span>
-                <b>=</b>
-                <span>0.5</span>
-                <small>¡Dos formas, la misma cantidad!</small>
+              <div className="mnx-cofre-mission">
+                <FiZap />
+                <div>
+                  <strong>Energía del cofre</strong>
+                  <div className="mnx-cofre-energy-track">
+                    <b style={{ width: `${energy}%` }} />
+                  </div>
+                  <p>
+                    {energy}% cargado · cada respuesta agrega 50%.
+                  </p>
+                </div>
               </div>
             </article>
-          </section>
 
-          <section className="mnx-cofre-layout">
-            <section className="mnx-cofre-board">
-              <div className="mnx-cofre-board-heading">
+            <section className="mnx-cofre-guide-card">
+              <div className="mnx-cofre-section-heading">
+                <span>↔</span>
                 <div>
-                  <span className="mnx-cofre-board-icon">
-                    <FiBookOpen />
-                  </span>
-
-                  <div>
-                    <strong>Misión del cofre</strong>
-                    <p>
-                      Completa las dos preguntas para llenar su
-                      energía al 100%.
-                    </p>
-                  </div>
+                  <strong>Guía visual rápida</strong>
+                  <p>
+                    La escritura cambia, pero la cantidad se mantiene.
+                  </p>
                 </div>
-
-                <span className="mnx-cofre-mission-state">
-                  <i /> Misión activa
-                </span>
               </div>
 
-              <div className="mnx-cofre-activity-grid">
-                <article className="mnx-cofre-chest-card">
-                  <div className="mnx-cofre-chest-head">
-                    <span>Cofre de bienvenida</span>
-                    <b>{energy}% energía</b>
-                  </div>
-
-                  <div className="mnx-cofre-chest-stage">
-                    {/*
-                      CAMBIAR ANIMACIONES DEL COFRE:
-                      Modifica chestFall/chestVib en mathNumbersAssets.ts.
-                      El tamaño se controla en
-                      .mnx-cofre-chest-animation.
-                    */}
-                    <img
-                      key={chestPhase}
-                      className="mnx-cofre-chest-animation"
-                      src={currentChestAnimation}
-                      alt="Animación del Cofre de Bienvenida"
-                      draggable={false}
-                    />
-                  </div>
-
-                  <div className="mnx-cofre-energy-panel">
-                    <div className="mnx-cofre-energy-title">
-                      <FiZap />
-                      <strong>Energía del cofre</strong>
-                      <span>{energy}%</span>
-                    </div>
-
-                    <div className="mnx-cofre-energy-track">
-                      <b style={{ width: `${energy}%` }} />
-                    </div>
-
-                    <small>
-                      Cada respuesta seleccionada agrega 50% de
-                      energía.
-                    </small>
+              <div className="mnx-cofre-guide-grid">
+                <article>
+                  <p>
+                    <strong>1/2</strong> es la mitad de la barra.
+                  </p>
+                  <div className="mnx-cofre-demo-row">
+                    <span className="mnx-cofre-demo-bar mnx-cofre-demo-half">
+                      <i />
+                      <b />
+                    </span>
+                    <em>=</em>
+                    <strong>0.5</strong>
                   </div>
                 </article>
 
-                <div className="mnx-cofre-learning-area">
-                  <section className="mnx-cofre-guide-card">
-                    <div className="mnx-cofre-section-heading">
-                      <span>✦</span>
-                      <div>
-                        <strong>Guía visual rápida</strong>
-                        <p>
-                          Mira cómo cambia la escritura, pero no la
-                          cantidad.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mnx-cofre-guide-grid">
-                      <article>
-                        <p>
-                          <strong>1/2</strong> es la mitad de la
-                          barra.
-                        </p>
-
-                        <div className="mnx-cofre-demo-row">
-                          <span className="mnx-cofre-demo-bar mnx-cofre-demo-half">
-                            <i />
-                            <b />
-                          </span>
-                          <em>=</em>
-                          <strong>0.5</strong>
-                        </div>
-                      </article>
-
-                      <article>
-                        <p>
-                          <strong>0.25</strong> es una de cuatro
-                          partes.
-                        </p>
-
-                        <div className="mnx-cofre-demo-row">
-                          <span className="mnx-cofre-demo-bar mnx-cofre-demo-quarter">
-                            <i />
-                            <b />
-                            <b />
-                            <b />
-                          </span>
-                          <em>=</em>
-                          <Fraction top="1" bottom="4" />
-                        </div>
-                      </article>
-                    </div>
-                  </section>
-
-                  <section className="mnx-cofre-questions">
-                    <article className="mnx-cofre-question-card">
-                      <div className="mnx-cofre-question-title">
-                        <span>1</span>
-                        <h2>
-                          La batería está cargada a 1/2. ¿Cuál es
-                          su equivalente decimal?
-                        </h2>
-                      </div>
-
-                      <div className="mnx-cofre-options">
-                        <button
-                          type="button"
-                          className={answerClass("q1", "a")}
-                          onClick={() => selectAnswer("q1", "a")}
-                        >
-                          <span>A</span>
-                          <strong>0.2</strong>
-                          <i><FiCheck /></i>
-                        </button>
-
-                        <button
-                          type="button"
-                          className={answerClass("q1", "b")}
-                          onClick={() => selectAnswer("q1", "b")}
-                        >
-                          <span>B</span>
-                          <strong>0.5</strong>
-                          <i><FiCheck /></i>
-                        </button>
-
-                        <button
-                          type="button"
-                          className={answerClass("q1", "c")}
-                          onClick={() => selectAnswer("q1", "c")}
-                        >
-                          <span>C</span>
-                          <strong>1.5</strong>
-                          <i><FiCheck /></i>
-                        </button>
-
-                        <button
-                          type="button"
-                          className={answerClass("q1", "d")}
-                          onClick={() => selectAnswer("q1", "d")}
-                        >
-                          <span>D</span>
-                          <strong>2.0</strong>
-                          <i><FiCheck /></i>
-                        </button>
-                      </div>
-                    </article>
-
-                    <article className="mnx-cofre-question-card">
-                      <div className="mnx-cofre-question-title">
-                        <span>2</span>
-                        <h2>
-                          El sistema muestra 0.25 de energía. ¿Cuál
-                          es la fracción equivalente?
-                        </h2>
-                      </div>
-
-                      <div className="mnx-cofre-options">
-                        <button
-                          type="button"
-                          className={answerClass("q2", "a")}
-                          onClick={() => selectAnswer("q2", "a")}
-                        >
-                          <span>A</span>
-                          <Fraction top="1" bottom="2" />
-                          <i><FiCheck /></i>
-                        </button>
-
-                        <button
-                          type="button"
-                          className={answerClass("q2", "b")}
-                          onClick={() => selectAnswer("q2", "b")}
-                        >
-                          <span>B</span>
-                          <Fraction top="1" bottom="4" />
-                          <i><FiCheck /></i>
-                        </button>
-
-                        <button
-                          type="button"
-                          className={answerClass("q2", "c")}
-                          onClick={() => selectAnswer("q2", "c")}
-                        >
-                          <span>C</span>
-                          <Fraction top="2" bottom="5" />
-                          <i><FiCheck /></i>
-                        </button>
-
-                        <button
-                          type="button"
-                          className={answerClass("q2", "d")}
-                          onClick={() => selectAnswer("q2", "d")}
-                        >
-                          <span>D</span>
-                          <Fraction top="4" bottom="1" />
-                          <i><FiCheck /></i>
-                        </button>
-                      </div>
-                    </article>
-                  </section>
-                </div>
+                <article>
+                  <p>
+                    <strong>0.25</strong> es una de cuatro partes.
+                  </p>
+                  <div className="mnx-cofre-demo-row">
+                    <span className="mnx-cofre-demo-bar mnx-cofre-demo-quarter">
+                      <i />
+                      <b />
+                      <b />
+                      <b />
+                    </span>
+                    <em>=</em>
+                    <Fraction top="1" bottom="4" />
+                  </div>
+                </article>
               </div>
             </section>
 
-            <aside className="mnx-cofre-help-panel">
-              <article className="mnx-cofre-help-card mnx-cofre-guide-help">
-                <CharacterMedia media={GUIDE_CHARACTER} />
-
-                <div>
-                  <span className="mnx-cofre-help-label">
-                    Consejo de Suma
-                  </span>
-                  <h3>Busca la misma cantidad</h3>
-
-                  <SumaGuideAudio />
+            <section className="mnx-cofre-questions">
+              <article className="mnx-cofre-question-card">
+                <div className="mnx-cofre-question-title">
+                  <span>1</span>
+                  <h2>
+                    La batería está cargada a 1/2. ¿Cuál es su
+                    equivalente decimal?
+                  </h2>
                 </div>
-              </article>
 
-              <article className="mnx-cofre-help-card mnx-cofre-byte-help">
-                <ByteBlinkMedia />
-
-                <div>
-                  <span className="mnx-cofre-help-label">
-                    Pista de Byte
-                  </span>
-                  <h3>Piensa en partes iguales</h3>
-
-                  <ByteHintAudio />
+                <div className="mnx-cofre-options">
+                  <button
+                    type="button"
+                    className={answerClass("q1", "a")}
+                    onClick={() => selectAnswer("q1", "a")}
+                  >
+                    <span>A</span>
+                    <strong>0.2</strong>
+                    <i><FiCheck /></i>
+                  </button>
 
                   <button
                     type="button"
-                    className="mnx-cofre-hint-button"
-                    onClick={() => irARuta(hintRoute)}
+                    className={answerClass("q1", "b")}
+                    onClick={() => selectAnswer("q1", "b")}
                   >
-                    <FiHelpCircle />
-                    Ver pista completa
+                    <span>B</span>
+                    <strong>0.5</strong>
+                    <i><FiCheck /></i>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={answerClass("q1", "c")}
+                    onClick={() => selectAnswer("q1", "c")}
+                  >
+                    <span>C</span>
+                    <strong>1.5</strong>
+                    <i><FiCheck /></i>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={answerClass("q1", "d")}
+                    onClick={() => selectAnswer("q1", "d")}
+                  >
+                    <span>D</span>
+                    <strong>2.0</strong>
+                    <i><FiCheck /></i>
                   </button>
                 </div>
               </article>
 
+              <article className="mnx-cofre-question-card">
+                <div className="mnx-cofre-question-title">
+                  <span>2</span>
+                  <h2>
+                    El sistema muestra 0.25 de energía. ¿Cuál es la
+                    fracción equivalente?
+                  </h2>
+                </div>
+
+                <div className="mnx-cofre-options">
+                  <button
+                    type="button"
+                    className={answerClass("q2", "a")}
+                    onClick={() => selectAnswer("q2", "a")}
+                  >
+                    <span>A</span>
+                    <Fraction top="1" bottom="2" />
+                    <i><FiCheck /></i>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={answerClass("q2", "b")}
+                    onClick={() => selectAnswer("q2", "b")}
+                  >
+                    <span>B</span>
+                    <Fraction top="1" bottom="4" />
+                    <i><FiCheck /></i>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={answerClass("q2", "c")}
+                    onClick={() => selectAnswer("q2", "c")}
+                  >
+                    <span>C</span>
+                    <Fraction top="2" bottom="5" />
+                    <i><FiCheck /></i>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={answerClass("q2", "d")}
+                    onClick={() => selectAnswer("q2", "d")}
+                  >
+                    <span>D</span>
+                    <Fraction top="4" bottom="1" />
+                    <i><FiCheck /></i>
+                  </button>
+                </div>
+              </article>
+            </section>
+
+            <section className="mnx-cofre-reminder-card">
+              <CharacterMedia media={currentGuideCharacter} />
+              <div>
+                <span className="mnx-cofre-help-label">
+                  Consejo de Suma
+                </span>
+                <h3>Busca la misma cantidad</h3>
+                <SumaGuideAudio
+                  onStatusChange={setGuideAudioStatus}
+                />
+              </div>
+            </section>
+
+            <aside className="mnx-cofre-actions">
               <article className="mnx-cofre-evidence-card">
                 <FiInfo />
                 <div>
                   <strong>Evidencia guardada</strong>
                   <p>
-                    Tus respuestas quedan listas para revisarlas en
+                    Tus respuestas quedarán disponibles en
                     Retroalimentación.
                   </p>
                 </div>
               </article>
-            </aside>
-          </section>
 
-          <section className="mnx-cofre-check-zone">
-            <button
-              type="button"
-              className="mnx-cofre-check-button"
-              onClick={comprobar}
-            >
-              <FiCheck />
-              Comprobar respuestas
-              <span>{progress}/2 listas</span>
-            </button>
+              <button
+                type="button"
+                className="mnx-cofre-check-button"
+                onClick={comprobar}
+              >
+                <FiCheck />
+                Comprobar respuestas
+                <span>{progress}/2 listas</span>
+              </button>
+            </aside>
           </section>
 
           <section className="mnx-cofre-stats">
@@ -2137,6 +1654,8 @@ export function CofreBienvenida() {
           </section>
         </section>
       </section>
+
+      <FloatingByteHint />
 
       <button
         className="mnx-cofre-logout"

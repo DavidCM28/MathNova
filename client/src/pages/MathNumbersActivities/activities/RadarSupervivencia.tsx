@@ -1,6 +1,11 @@
 import "./RadarSupervivencia.css";
+import audioIntroSumaRadar from "../../../assets/mathnumbers/02-radar-supervivencia/intro_suma_radar.mp3";
+import audioConsejoSumaRadar from "../../../assets/mathnumbers/02-radar-supervivencia/consejo_suma_radar.mp3";
+import audioPistaByteRadar from "../../../assets/mathnumbers/02-radar-supervivencia/pista_byte_radar.mp3";
+import bytePista from "../../../assets/mathnumbers/byte_pista.png";
+import videoByteRadar from "../../../assets/mathnumbers/02-radar-supervivencia/byte_hablando_radar.mp4";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { DragEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -14,10 +19,15 @@ import {
   FiInfo,
   FiLogOut,
   FiMessageSquare,
+  FiPause,
+  FiPlay,
+  FiRotateCcw,
   FiSave,
   FiShield,
   FiTarget,
   FiUser,
+  FiVolume2,
+  FiX,
 } from "react-icons/fi";
 
 import {
@@ -33,7 +43,8 @@ import { useToast } from "../hooks/useToast";
 import { guardarProgresoActividad } from "../../../services/progresoService";
 import {
   cofreGuide,
-  cofreHero,
+  cofreHeroTalking,
+  cofreHeroTalkingIdle,
   logo,
   menuHamburguesa,
   radarImage,
@@ -98,6 +109,608 @@ const getSignal = (value?: string) =>
 const numberToColumn = (
   value: string | number,
 ) => Number(value) + 6;
+
+type AudioStatus = "idle" | "playing" | "paused" | "ended";
+
+const SUMA_RADAR_VISIBLE_TEXT =
+  "Coloca las cuatro señales en la posición correcta de la recta numérica. Puedes arrastrarlas o seleccionarlas antes de elegir su lugar.";
+
+const BYTE_RADAR_TEXT =
+  "Usa el cero como referencia. Los números negativos van a la izquierda y los positivos a la derecha. Después compara qué tan lejos está cada señal del cero y colócala sobre el número que representa.";
+
+function RadarSumaIntro() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [status, setStatus] = useState<AudioStatus>("idle");
+
+  const playAudio = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (audio.ended) {
+      audio.currentTime = 0;
+    }
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error("No se pudo reproducir la voz de Suma en Radar:", error);
+    }
+  };
+
+  const pauseAudio = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    setStatus("paused");
+  };
+
+  const restartAudio = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error("No se pudo reiniciar la voz de Suma en Radar:", error);
+    }
+  };
+
+  const statusText =
+    status === "playing"
+      ? "Suma está hablando"
+      : status === "paused"
+        ? "Audio en pausa"
+        : status === "ended"
+          ? "Instrucción completada"
+          : "Listo para escuchar";
+
+  return (
+    <div className="mnx-radar-welcome">
+      <article className="mnx-radar-speech">
+        <strong>¡Atención, explorador!</strong>
+        <span>{SUMA_RADAR_VISIBLE_TEXT}</span>
+
+        <audio
+          ref={audioRef}
+          src={audioIntroSumaRadar}
+          preload="metadata"
+          onPlay={() => setStatus("playing")}
+          onPause={() => {
+            if (!audioRef.current?.ended) {
+              setStatus("paused");
+            }
+          }}
+          onEnded={() => setStatus("ended")}
+        />
+
+        <div className="mnx-radar-suma-audio">
+          <button
+            type="button"
+            onClick={playAudio}
+            disabled={status === "playing"}
+            aria-label="Reproducir instrucción del Comandante Suma"
+          >
+            <FiPlay />
+          </button>
+
+          <button
+            type="button"
+            onClick={pauseAudio}
+            disabled={status !== "playing"}
+            aria-label="Pausar instrucción del Comandante Suma"
+          >
+            <FiPause />
+          </button>
+
+          <button
+            type="button"
+            onClick={restartAudio}
+            aria-label="Repetir instrucción del Comandante Suma"
+          >
+            <FiRotateCcw />
+          </button>
+
+          <span className={status === "playing" ? "is-playing" : ""}>
+            <FiVolume2 />
+            {statusText}
+          </span>
+        </div>
+      </article>
+
+      <img
+        key={status === "playing" ? "suma-radar-talking" : "suma-radar-idle"}
+        className="mnx-radar-hero"
+        src={
+          status === "playing"
+            ? cofreHeroTalking
+            : cofreHeroTalkingIdle
+        }
+        alt="Comandante Suma"
+      />
+    </div>
+  );
+}
+
+
+const SUMA_RADAR_ADVICE_TEXT =
+  "Usa el cero como punto de referencia. Los números negativos se colocan a la izquierda y los positivos a la derecha. Entre dos números negativos, el que está más lejos del cero queda más a la izquierda.";
+
+function RadarSumaAdvice() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [status, setStatus] = useState<AudioStatus>("idle");
+
+  const playAudio = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (audio.ended) {
+      audio.currentTime = 0;
+    }
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error("No se pudo reproducir el consejo de Suma en Radar:", error);
+    }
+  };
+
+  const pauseAudio = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    setStatus("paused");
+  };
+
+  const restartAudio = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error("No se pudo repetir el consejo de Suma en Radar:", error);
+    }
+  };
+
+  const statusText =
+    status === "playing"
+      ? "Suma está hablando"
+      : status === "paused"
+        ? "Audio en pausa"
+        : status === "ended"
+          ? "Consejo completado"
+          : "Listo para escuchar";
+
+  return (
+    <section className="mnx-radar-reminder-card mnx-radar-reminder mnx-radar-suma-advice">
+      <img
+        key={status === "playing" ? "suma-radar-advice-talking" : "suma-radar-advice-idle"}
+        src={status === "playing" ? cofreHeroTalking : cofreGuide}
+        alt="Comandante Suma dando un consejo"
+        draggable={false}
+      />
+
+      <div className="mnx-radar-suma-advice-copy">
+        <span className="mnx-radar-suma-advice-label">Consejo de Suma</span>
+        <h3>Usa el cero como referencia</h3>
+        <p>{SUMA_RADAR_ADVICE_TEXT}</p>
+
+        <audio
+          ref={audioRef}
+          src={audioConsejoSumaRadar}
+          preload="metadata"
+          onPlay={() => setStatus("playing")}
+          onPause={() => {
+            if (!audioRef.current?.ended) {
+              setStatus("paused");
+            }
+          }}
+          onEnded={() => setStatus("ended")}
+        />
+
+        <div className="mnx-radar-suma-audio mnx-radar-suma-advice-audio">
+          <button
+            type="button"
+            onClick={playAudio}
+            disabled={status === "playing"}
+            aria-label="Reproducir consejo de Suma"
+          >
+            <FiPlay />
+          </button>
+
+          <button
+            type="button"
+            onClick={pauseAudio}
+            disabled={status !== "playing"}
+            aria-label="Pausar consejo de Suma"
+          >
+            <FiPause />
+          </button>
+
+          <button
+            type="button"
+            onClick={restartAudio}
+            aria-label="Repetir consejo de Suma"
+          >
+            <FiRotateCcw />
+          </button>
+
+          <span className={status === "playing" ? "is-playing" : ""}>
+            <FiVolume2 />
+            {statusText}
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function limpiarFondoByteRadar(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+) {
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const data = imageData.data;
+  const total = width * height;
+  const visitado = new Uint8Array(total);
+  const pila: number[] = [];
+
+  const esFondo = (index: number) => {
+    const pixel = index * 4;
+    const r = data[pixel];
+    const g = data[pixel + 1];
+    const b = data[pixel + 2];
+
+    const esClaro = r > 224 && g > 224 && b > 224;
+    const casiSinColor =
+      Math.abs(r - g) < 34 &&
+      Math.abs(r - b) < 34 &&
+      Math.abs(g - b) < 34;
+
+    const esMagenta =
+      r > 175 &&
+      b > 175 &&
+      g < 135 &&
+      Math.abs(r - b) < 90;
+
+    return (esClaro && casiSinColor) || esMagenta;
+  };
+
+  const agregar = (index: number) => {
+    if (index < 0 || index >= total) return;
+    if (visitado[index]) return;
+    if (!esFondo(index)) return;
+
+    visitado[index] = 1;
+    pila.push(index);
+  };
+
+  for (let x = 0; x < width; x += 1) {
+    agregar(x);
+    agregar((height - 1) * width + x);
+  }
+
+  for (let y = 0; y < height; y += 1) {
+    agregar(y * width);
+    agregar(y * width + width - 1);
+  }
+
+  while (pila.length > 0) {
+    const index = pila.pop();
+    if (index === undefined) continue;
+
+    data[index * 4 + 3] = 0;
+
+    const x = index % width;
+    const y = Math.floor(index / width);
+
+    if (x > 0) agregar(index - 1);
+    if (x < width - 1) agregar(index + 1);
+    if (y > 0) agregar(index - width);
+    if (y < height - 1) agregar(index + width);
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+}
+
+function dibujarByteRadar(
+  ctx: CanvasRenderingContext2D,
+  video: HTMLVideoElement,
+  width: number,
+  height: number,
+) {
+  const videoWidth = video.videoWidth || width;
+  const videoHeight = video.videoHeight || height;
+  const escala = Math.min(width / videoWidth, height / videoHeight);
+  const drawWidth = videoWidth * escala;
+  const drawHeight = videoHeight * escala;
+  const offsetX = (width - drawWidth) / 2;
+  const offsetY = (height - drawHeight) / 2;
+
+  ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight);
+}
+
+function ByteRadarMedia({ active }: { active: boolean }) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [videoReady, setVideoReady] = useState(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) return;
+
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return;
+
+    const canvasWidth = 480;
+    const canvasHeight = 520;
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    let animationFrame = 0;
+    let lastDraw = 0;
+
+    const drawFrame = () => {
+      if (video.readyState < 2) return;
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      dibujarByteRadar(ctx, video, canvasWidth, canvasHeight);
+      limpiarFondoByteRadar(ctx, canvasWidth, canvasHeight);
+    };
+
+    const drawAnimation = (time: number) => {
+      if (time - lastDraw >= 45 && video.readyState >= 2) {
+        drawFrame();
+        lastDraw = time;
+      }
+      animationFrame = window.requestAnimationFrame(drawAnimation);
+    };
+
+    const prepare = () => {
+      drawFrame();
+      setVideoReady(true);
+    };
+
+    video.addEventListener("loadeddata", prepare);
+    if (video.readyState >= 2) prepare();
+    animationFrame = window.requestAnimationFrame(drawAnimation);
+
+    return () => {
+      video.removeEventListener("loadeddata", prepare);
+      window.cancelAnimationFrame(animationFrame);
+      video.pause();
+    };
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+
+    if (active) {
+      video.play().catch((error) => {
+        console.error("No se pudo reproducir la animación de Byte en Radar:", error);
+      });
+    } else {
+      video.pause();
+      video.currentTime = 0;
+    }
+  }, [active]);
+
+  return (
+    <>
+      <video
+        ref={videoRef}
+        src={videoByteRadar}
+        muted
+        loop
+        playsInline
+        preload="auto"
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          width: "1px",
+          height: "1px",
+          opacity: 0,
+          pointerEvents: "none",
+        }}
+      />
+
+      {!videoReady && (
+        <img
+          className="mnx-radar-byte-character"
+          src={bytePista}
+          alt="Byte"
+          draggable={false}
+        />
+      )}
+
+      <canvas
+        ref={canvasRef}
+        className="mnx-radar-byte-character"
+        role="img"
+        aria-label="Byte hablando y ofreciendo una pista"
+        style={{ display: videoReady ? "block" : "none" }}
+      />
+    </>
+  );
+}
+
+function FloatingByteRadar() {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [open, setOpen] = useState(false);
+  const [status, setStatus] = useState<AudioStatus>("idle");
+
+  const openHint = async () => {
+    setOpen(true);
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error("No se pudo reproducir automáticamente la pista de Byte en Radar:", error);
+    }
+  };
+
+  const closeHint = () => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+    setStatus("idle");
+    setOpen(false);
+  };
+
+  const pauseAudio = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    setStatus("paused");
+  };
+
+  const playAudio = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (audio.ended) audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error("No se pudo reproducir la pista de Byte en Radar:", error);
+    }
+  };
+
+  const restartAudio = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error("No se pudo repetir la pista de Byte en Radar:", error);
+    }
+  };
+
+  const statusText =
+    status === "playing"
+      ? "Byte está hablando"
+      : status === "paused"
+        ? "Audio en pausa"
+        : status === "ended"
+          ? "Pista completada"
+          : "Pista preparada";
+
+  return (
+    <div className={`mnx-radar-byte-float ${open ? "mnx-radar-byte-float-open" : ""}`}>
+      <audio
+        ref={audioRef}
+        src={audioPistaByteRadar}
+        preload="metadata"
+        onPlay={() => setStatus("playing")}
+        onPause={() => {
+          if (!audioRef.current?.ended && open) {
+            setStatus("paused");
+          }
+        }}
+        onEnded={() => setStatus("ended")}
+      />
+
+      {open && (
+        <article className="mnx-radar-byte-panel">
+          <button
+            type="button"
+            className="mnx-radar-byte-close"
+            onClick={closeHint}
+            aria-label="Cerrar pista de Byte"
+          >
+            <FiX />
+          </button>
+
+          <div className="mnx-radar-byte-media">
+            <ByteRadarMedia active={status === "playing"} />
+          </div>
+
+          <div className="mnx-radar-byte-copy">
+            <span className="mnx-radar-byte-label">Pista de Byte</span>
+            <h3>Usa el cero como referencia</h3>
+            <p>{BYTE_RADAR_TEXT}</p>
+
+            <div className="mnx-radar-byte-audio">
+              <button
+                type="button"
+                onClick={playAudio}
+                disabled={status === "playing"}
+                aria-label="Reproducir pista de Byte"
+              >
+                <FiPlay />
+              </button>
+
+              <button
+                type="button"
+                onClick={pauseAudio}
+                disabled={status !== "playing"}
+                aria-label="Pausar pista de Byte"
+              >
+                <FiPause />
+              </button>
+
+              <button
+                type="button"
+                onClick={restartAudio}
+                aria-label="Repetir pista de Byte"
+              >
+                <FiRotateCcw />
+              </button>
+
+              <span className={status === "playing" ? "is-playing" : ""}>
+                <FiVolume2 />
+                {statusText}
+              </span>
+            </div>
+          </div>
+        </article>
+      )}
+
+      <button
+        type="button"
+        className="mnx-radar-byte-launcher"
+        onClick={openHint}
+        aria-label="Abrir pista de Byte"
+        aria-expanded={open}
+      >
+        <span>PISTA</span>
+        <img src={bytePista} alt="Byte" draggable={false} />
+        <i aria-hidden="true">?</i>
+      </button>
+    </div>
+  );
+}
 
 export function RadarSupervivencia() {
   const navigate = useNavigate();
@@ -577,25 +1190,7 @@ export function RadarSupervivencia() {
             </p>
           </div>
 
-          <div className="mnx-radar-welcome">
-            <article className="mnx-radar-speech">
-              <strong>
-                ¡Atención, explorador!
-              </strong>
-
-              <span>
-                Usa el 0 como punto de referencia:
-                los negativos van a la izquierda y
-                los positivos a la derecha.
-              </span>
-            </article>
-
-            <img
-              className="mnx-radar-hero"
-              src={cofreHero}
-              alt="Comandante Suma"
-            />
-          </div>
+          <RadarSumaIntro />
         </header>
 
         <section className="mnx-radar-activity-grid">
@@ -760,23 +1355,7 @@ export function RadarSupervivencia() {
             </div>
           </section>
 
-          <section className="mnx-radar-reminder-card mnx-radar-reminder">
-            <img
-              src={cofreGuide}
-              alt="Comandante Suma"
-            />
-
-            <p>
-              <strong>
-                Recuerda:
-              </strong>{" "}
-              cuanto más negativo es un número,
-              más lejos queda a la izquierda del
-              cero.
-            </p>
-
-            <span>↔</span>
-          </section>
+          <RadarSumaAdvice />
 
           <section className="mnx-radar-question-card mnx-radar-question">
             <div className="mnx-radar-question-head">
@@ -856,6 +1435,8 @@ export function RadarSupervivencia() {
           </section>
         </section>
       </section>
+
+      <FloatingByteRadar />
 
       <button
         className="mnx-radar-logout-float"
