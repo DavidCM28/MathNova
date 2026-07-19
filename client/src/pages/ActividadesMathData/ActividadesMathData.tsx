@@ -309,6 +309,8 @@ function ActividadesMathData() {
       navigate("/actividades-math-data/rampas-lanzamiento");
     } else if (index === 2) {
       navigate("/actividades-math-data/encuesta-tripulacion");
+    } else if (index === 3) {
+      navigate("/actividades-math-data/holograma-reportes");
     }
   }}
                     >

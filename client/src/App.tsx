@@ -26,6 +26,7 @@ import ActividadesMathData from "./pages/ActividadesMathData/ActividadesMathData
 import GeneradorEnergiaInversa from "./pages/ActividadesMathData/GeneradorEnergiaInversa";
 import RampasDeLanzamiento from "./pages/ActividadesMathData/RampasDeLanzamiento";
 import EncuestaTripulacion from "./pages/ActividadesMathData/EncuestaTripulacion";
+import HologramaReportes from "./pages/ActividadesMathData/HologramaReportes";
 
 import ActividadesMathNumbers from "./pages/ActividadesMathNumbers/ActividadesMathNumbers";
 import MathNumbersActivityRouter from "./pages/MathNumbersActivities/MathNumbersActivityRouter";
@@ -196,6 +197,8 @@ function App() {
             </RequireAuth>
           }
         />
+        <Route path="/actividades-math-data/holograma-reportes" element={
+          <RequireAuth><HologramaReportes /></RequireAuth>} />
         <Route
           path="/retroalimentacion"
           element={
