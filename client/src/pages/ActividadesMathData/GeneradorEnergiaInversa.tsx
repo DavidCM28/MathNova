@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import "./GeneradorEnergiaInversa.css";
 
@@ -34,6 +35,8 @@ import villanoPista from "../../assets/villano-pista.png";
 // ============================================
 import villanoHablandoVideo from "../../assets/villano-hablando.mp4";
 import audioVillanoDesafio from "../../assets/villano-audio-desafio.mp3";
+import villanoDerrotadoVideo from "../../assets/villano-derrotado.mp4";
+import audioVillanoDerrotado from "../../assets/villano-audio-derrotado.mp3";
 import baitHablandoVideo from "../../assets/bait-hablando.mp4";
 import pistaAudio from "../../assets/pista-audio.mp3";
 import baitPistaImg from "../../assets/bait-pista.png";
@@ -163,7 +166,7 @@ function PistaBaitModal({
     setProgreso((audio.currentTime / audio.duration) * 100);
   };
 
-  return (
+  return createPortal(
     <div className="pb-overlay" role="dialog" aria-modal="true" aria-label={titulo}>
       <div className={`pb-modal pb-modal-${tema}`}>
         <button
@@ -238,7 +241,8 @@ function PistaBaitModal({
           {botonTexto}
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -260,6 +264,7 @@ function GeneradorEnergiaInversa() {
   const [cargando, setCargando] = useState(false);
   const [resultado, setResultado] = useState<"exito" | "fallo" | "incompleto" | "pista" | null>(null);
   const [mostrarIntroVillano, setMostrarIntroVillano] = useState(false);
+  const [mostrarVillanoDerrotado, setMostrarVillanoDerrotado] = useState(false);
   const [mostrarPistaModal, setMostrarPistaModal] = useState(false);
 
   const irARuta = (ruta: string) => {
@@ -529,323 +534,7 @@ function GeneradorEnergiaInversa() {
   // PANTALLA: ACTIVIDAD COMPLETADA
   // ==========================================
 
-  if (resultado === "exito") return (
-    <div className="res-page res-exito-page">
-
-      {/* CONFETI */}
-      <div className="res-confetti" aria-hidden="true">
-        {Array.from({ length: 22 }).map((_, i) => (
-          <span key={i} className={`res-confetti-dot res-confetti-dot-${i % 6}`} />
-        ))}
-      </div>
-
-      {/* HEADER */}
-      <header className="res-header">
-        <img src={logo} alt="MathNova" className="res-logo" />
-        <button className="res-inicio-btn" onClick={() => navigate("/")}>
-          Inicio
-        </button>
-      </header>
-
-      {/* HERO */}
-      <div className="res-hero">
-
-        {/* IZQUIERDA: título + mensaje */}
-        <div className="res-hero-left">
-          <div className="res-titulo-row">
-            <div className="res-icono-check">✔</div>
-            <div>
-              <h1 className="res-titulo">¡Actividad completada!</h1>
-              <p className="res-subtitulo">
-                Has terminado con éxito la misión de{" "}
-                <span className="res-mathnova-color">MathData</span>.
-              </p>
-            </div>
-          </div>
-
-          <div className="res-mensaje-box res-mensaje-verde">
-            <div className="res-icono-estrella-circle">
-              <img src={estrellaMision} alt="estrella" />
-            </div>
-            <div>
-              <strong>¡Excelente trabajo, explorador!</strong>
-              <p>
-                Cada reto superado fortalece tus habilidades para analizar datos.
-                Sigue así y conquista la siguiente misión.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* DERECHA: villano + trofeo + estrella (una sola imagen combinada) */}
-
-      </div>
-
-      {/* BOTTOM */}
-      <div className="res-bottom">
-                <div className="res-villano-exito-group">
-          <img
-            src={villanoTrofeoCompleto}
-            alt="Villano celebrando con trofeo"
-            className="res-villano-trofeo-img"
-          />
-        </div>
-
-
-        {/* COLUMNA IZQUIERDA */}
-        <div className="res-bottom-left">
-
-          {/* CARD RESUMEN */}
-          <div className="res-resumen-card">
-            <div className="res-resumen-header">
-              <FiBarChart2 />
-              <span>Resumen de la actividad</span>
-            </div>
-            <div className="res-resumen-stats">
-
-              <div className="res-stat">
-                <img src={iconoAciertos} alt="" className="res-stat-img" />
-                <strong className="res-stat-num-verde">3/3</strong>
-                <small>Aciertos</small>
-                <em>¡Perfecto!</em>
-              </div>
-
-              <div className="res-stat-sep" />
-
-              <div className="res-stat">
-                <img src={iconoTiempo} alt="" className="res-stat-img" />
-                <strong>04:28</strong>
-                <small>Tiempo</small>
-                <em>min</em>
-              </div>
-
-              <div className="res-stat-sep" />
-
-              <div className="res-stat">
-                <img src={iconoPrecision} alt="" className="res-stat-img" />
-                <strong className="res-stat-num-verde">100%</strong>
-                <small>Precisión</small>
-                <em>¡Impecable!</em>
-              </div>
-
-              <div className="res-stat-sep" />
-
-              <div className="res-stat">
-                <img src={iconoRecompensa} alt="" className="res-stat-img" />
-                <strong className="res-pts-naranja">+50 pts</strong>
-                <small>Recompensa</small>
-                <em>Puntos ganados</em>
-              </div>
-
-              <div className="res-stat-sep" />
-
-              <div className="res-stat">
-                <img src={iconoInsignia} alt="" className="res-stat-img" />
-                <strong>Misión<br />cumplida</strong>
-                <small>Insignia obtenida</small>
-                <em>¡Felicidades!</em>
-              </div>
-
-            </div>
-          </div>
-
-          {/* CARD PROGRESO */}
-          <div className="res-progreso-card">
-            <img src={iconoProgreso} alt="" className="res-progreso-img" />
-            <div className="res-progreso-info">
-              <small>Tu progreso en el tema:</small>
-              <strong>Encuestas y Frecuencias</strong>
-              <div className="res-barra-wrap">
-                <div className="res-barra-track">
-                  <div className="res-barra-fill res-barra-verde" style={{ width: "75%" }}>
-                    <span className="res-barra-pct">75%</span>
-                  </div>
-                </div>
-                <small>¡Vas muy bien! 15% para completar este tema.</small>
-              </div>
-            </div>
-            <div className="res-hito-box">
-              <img src={estrellaMision} alt="" className="res-hito-estrella" />
-              <div>
-                <small>Siguiente hito</small>
-                <strong className="res-hito-pct">80%</strong>
-                <small>Gran Analista</small>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        {/* COLUMNA DERECHA: botones */}
-        <div className="res-bottom-right">
-          <button
-            className="res-btn res-btn-azul"
-            onClick={() => navigate("/actividades-math-data")}
-          >
-            Siguiente actividad
-          </button>
-          <button
-            className="res-btn res-btn-outline"
-            onClick={handleReiniciarActividad}
-          >
-            Repetir actividad
-          </button>
-          <button
-            className="res-btn res-btn-outline"
-            onClick={() => navigate("/actividades-math-data")}
-          >
-            Volver a actividades
-          </button>
-        </div>
-
-      </div>
-    </div>
-  );
   // ==========================================
-
-  if (resultado === "fallo") return (
-    <div className="res-page res-fallo-page">
-      <header className="res-header">
-        <img src={logo} alt="MathNova" className="res-logo" />
-        <button className="res-inicio-btn" onClick={() => navigate("/")}>
-          Inicio
-        </button>
-      </header>
-
-      <div className="res-body">
-          <div className="res-hero-personajes">
-    <img
-      src={villanoIntentar}
-      alt="Villano retando"
-      className="res-villano-img"
-    />
-  </div>
-
-        <div className="res-left">
-          <div className="res-titulo-row">
-            <div className="res-icono-retry">&#x1F504;</div>
-            <div>
-              <h1 className="res-titulo">¡Vuelve a intentarlo!</h1>
-              <p className="res-subtitulo">
-                Aún no completas con éxito la misión de{" "}
-                <span className="res-mathnova-color">MathData</span>.
-              </p>
-            </div>
-          </div>
-
-          <div className="res-mensaje-box res-mensaje-azul">
-            <div className="res-icono-datos">📊</div>
-            <div>
-              <strong>¡No te rindas, explorador!</strong>
-              <p>
-                Los errores también enseñan. Revisa tus respuestas, inténtalo
-                de nuevo y sigue fortaleciendo tus habilidades para analizar
-                datos, tablas y frecuencias.
-              </p>
-            </div>
-          </div>
-
-          <div className="res-resumen-card">
-            <div className="res-resumen-header">
-              <FiBarChart2 />
-              <span>Resumen de la actividad</span>
-            </div>
-            <div className="res-resumen-stats">
-              <div className="res-stat">
-                <img src={iconoAciertos} alt="" className="res-stat-img" />
-                <strong>1/3</strong>
-                <small>Aciertos</small>
-                <em>¡Sigue así!</em>
-              </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoTiempo} alt="" className="res-stat-img" />
-                <strong>04:28</strong>
-                <small>Tiempo</small>
-                <em>min</em>
-              </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoPrecision} alt="" className="res-stat-img" />
-                <strong>33%</strong>
-                <small>Precisión</small>
-                <em>Puedes mejorar</em>
-              </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoRecompensa} alt="" className="res-stat-img" />
-                <strong className="res-pts-azul">+10 pts</strong>
-                <small>Recompensa</small>
-                <em>Puntos ganados</em>
-              </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoInsignia} alt="" className="res-stat-img" />
-                <strong>Sigue intentando</strong>
-                <small>Insignia obtenida</small>
-                <em>¡No te rindas!</em>
-              </div>
-            </div>
-          </div>
-
-          <div className="res-progreso-card">
-            <img src={iconoProgreso} alt="" className="res-progreso-img" />
-            <div className="res-progreso-info">
-              <small>Tu progreso en el tema:</small>
-              <strong>Encuestas y Frecuencias</strong>
-              <div className="res-barra-wrap">
-                <div className="res-barra-track">
-                  <div className="res-barra-fill res-barra-azul" style={{ width: "60%" }}>
-                    <span className="res-barra-pct">60%</span>
-                  </div>
-                </div>
-                <small>¡Vas avanzando! Sigue practicando para completar este tema.</small>
-              </div>
-            </div>
-            <div className="res-hito-box">
-              <img src={estrellaMision} alt="" className="res-hito-estrella" />
-              <div>
-                <strong>Siguiente hito</strong>
-                <em>80%</em>
-                <small>Gran Analista</small>
-              </div>
-            </div>
-          </div>
-        </div>
-
-          <div className="res-acciones">
-            <button
-              className="res-btn res-btn-azul"
-              onClick={handleReiniciarActividad}
-            >
-              Intentar de nuevo
-            </button>
-            <button
-              className="res-btn res-btn-outline"
-              onClick={() => setMostrarPistaModal(true)}
-            >
-              Ver pista
-            </button>
-            <button
-              className="res-btn res-btn-outline"
-              onClick={() => navigate("/actividades-math-data")}
-            >
-              {"<-"} Volver a actividades
-            </button>
-          </div>
-        </div>
-
-        {mostrarPistaModal && (
-          <PistaBaitModal
-            contenido="¡No te dejes engañar por el mago! Recuerda que reactores ÷ tiempo siempre es igual a 12. Si te atoras, observa la tabla, identifica ese patrón y úsalo para encontrar la respuesta. ¡Tú puedes, agente!"
-            videoSrc={baitHablandoVideo}
-            audioSrc={pistaAudio}
-            onClose={() => setMostrarPistaModal(false)}
-          />
-        )}
-      </div>
-
-  );
 
   // ==========================================
   // PANTALLA: PISTA (AYUDA)
@@ -1285,6 +974,18 @@ function GeneradorEnergiaInversa() {
         />
       )}
 
+      {mostrarVillanoDerrotado && (
+        <PistaBaitModal
+          tema="rojo"
+          titulo="Transmisión interceptada"
+          contenido="¡Imposible! Calculaste la constante... activaste el escudo... ¡Esto no ha terminado, agente!"
+          videoSrc={villanoDerrotadoVideo}
+          audioSrc={audioVillanoDerrotado}
+          botonTexto="Cerrar transmisión"
+          onClose={() => setMostrarVillanoDerrotado(false)}
+        />
+      )}
+
       {/* PISTA DE BAIT: aparece al presionar el botón de pista en "Predice y responde" */}
       {mostrarPistaModal && (
         <PistaBaitModal
@@ -1293,6 +994,226 @@ function GeneradorEnergiaInversa() {
           audioSrc={pistaAudio}
           onClose={() => setMostrarPistaModal(false)}
         />
+      )}
+
+      {/* VENTANA EMERGENTE: ACTIVIDAD COMPLETADA */}
+      {resultado === "exito" && (
+        <div className="res-modal-overlay">
+          <div className="res-modal-card res-modal-exito res-modal-wide">
+            <div className="res-confetti" aria-hidden="true">
+              {Array.from({ length: 16 }).map((_, i) => (
+                <span key={i} className={`res-confetti-dot res-confetti-dot-${i % 6}`} />
+              ))}
+            </div>
+
+            <div className="res-titulo-row">
+              <div className="res-icono-check">✔</div>
+              <div>
+                <h1 className="res-titulo">¡Actividad completada!</h1>
+                <p className="res-subtitulo">
+                  Has terminado con éxito la misión de{" "}
+                  <span className="res-mathnova-color">MathData</span>.
+                </p>
+              </div>
+            </div>
+
+            <div className="res-mensaje-box res-mensaje-verde">
+              <div className="res-icono-estrella-circle">
+                <img src={estrellaMision} alt="estrella" />
+              </div>
+              <div>
+                <strong>¡Excelente trabajo, explorador!</strong>
+                <p>
+                  Cada reto superado fortalece tus habilidades para analizar
+                  datos. Sigue así y conquista la siguiente misión.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="gen1-villano-trigger res-modal-villano-trigger"
+              onClick={() => setMostrarVillanoDerrotado(true)}
+              aria-label="Abrir mensaje interceptado del villano derrotado"
+            >
+              <span className="gen1-villano-trigger-dot" />
+              <FaBroadcastTower />
+              Mensaje interceptado
+            </button>
+
+            <div className="res-villano-exito-group">
+              <img
+                src={villanoTrofeoCompleto}
+                alt="Villano celebrando con trofeo"
+                className="res-villano-trofeo-img"
+              />
+            </div>
+
+            <div className="res-modal-body">
+              <div className="res-modal-left">
+                <div className="res-resumen-card">
+                  <div className="res-resumen-header">
+                    <FiBarChart2 />
+                    <span>Resumen de la actividad</span>
+                  </div>
+                  <div className="res-resumen-stats">
+                    <div className="res-stat">
+                      <img src={iconoAciertos} alt="" className="res-stat-img" />
+                      <strong className="res-stat-num-verde">3/3</strong>
+                      <small>Aciertos</small>
+                      <em>¡Perfecto!</em>
+                    </div>
+                    <div className="res-stat-sep" />
+                    <div className="res-stat">
+                      <img src={iconoTiempo} alt="" className="res-stat-img" />
+                      <strong>04:28</strong>
+                      <small>Tiempo</small>
+                      <em>min</em>
+                    </div>
+                    <div className="res-stat-sep" />
+                    <div className="res-stat">
+                      <img src={iconoPrecision} alt="" className="res-stat-img" />
+                      <strong className="res-stat-num-verde">100%</strong>
+                      <small>Precisión</small>
+                      <em>¡Impecable!</em>
+                    </div>
+                    <div className="res-stat-sep" />
+                    <div className="res-stat">
+                      <img src={iconoRecompensa} alt="" className="res-stat-img" />
+                      <strong className="res-pts-naranja">+50 pts</strong>
+                      <small>Recompensa</small>
+                      <em>Puntos ganados</em>
+                    </div>
+                    <div className="res-stat-sep" />
+                    <div className="res-stat">
+                      <img src={iconoInsignia} alt="" className="res-stat-img" />
+                      <strong>Misión<br />cumplida</strong>
+                      <small>Insignia obtenida</small>
+                      <em>¡Felicidades!</em>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="res-modal-right">
+                <button
+                  className="res-btn res-btn-azul"
+                  onClick={() => navigate("/actividades-math-data")}
+                >
+                  Siguiente actividad
+                </button>
+                <button className="res-btn res-btn-outline" onClick={handleReiniciarActividad}>
+                  Repetir actividad
+                </button>
+                <button
+                  className="res-btn res-btn-outline"
+                  onClick={() => navigate("/actividades-math-data")}
+                >
+                  Volver a actividades
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* VENTANA EMERGENTE: VUELVE A INTENTARLO */}
+      {resultado === "fallo" && (
+        <div className="res-modal-overlay">
+          <div className="res-modal-card res-modal-fallo res-modal-wide">
+            <div className="res-titulo-row">
+              <div className="res-icono-retry">&#x1F504;</div>
+              <div>
+                <h1 className="res-titulo">¡Vuelve a intentarlo!</h1>
+                <p className="res-subtitulo">
+                  Aún no completas con éxito la misión de{" "}
+                  <span className="res-mathnova-color">MathData</span>.
+                </p>
+              </div>
+            </div>
+
+            <div className="res-mensaje-box res-mensaje-azul">
+              <div className="res-icono-datos">📊</div>
+              <div>
+                <strong>¡No te rindas, explorador!</strong>
+                <p>
+                  Los errores también enseñan. Revisa tus respuestas,
+                  inténtalo de nuevo y sigue fortaleciendo tus habilidades
+                  para analizar datos, tablas y frecuencias.
+                </p>
+              </div>
+            </div>
+
+            <div className="res-villano-fallo-group">
+              <img src={villanoIntentar} alt="Villano retando" className="res-villano-img" />
+            </div>
+
+            <div className="res-modal-body">
+              <div className="res-modal-left">
+                <div className="res-resumen-card">
+                  <div className="res-resumen-header">
+                    <FiBarChart2 />
+                    <span>Resumen de la actividad</span>
+                  </div>
+                  <div className="res-resumen-stats">
+                    <div className="res-stat">
+                      <img src={iconoAciertos} alt="" className="res-stat-img" />
+                      <strong>1/3</strong>
+                      <small>Aciertos</small>
+                      <em>¡Sigue así!</em>
+                    </div>
+                    <div className="res-stat-sep" />
+                    <div className="res-stat">
+                      <img src={iconoTiempo} alt="" className="res-stat-img" />
+                      <strong>04:28</strong>
+                      <small>Tiempo</small>
+                      <em>min</em>
+                    </div>
+                    <div className="res-stat-sep" />
+                    <div className="res-stat">
+                      <img src={iconoPrecision} alt="" className="res-stat-img" />
+                      <strong>33%</strong>
+                      <small>Precisión</small>
+                      <em>Puedes mejorar</em>
+                    </div>
+                    <div className="res-stat-sep" />
+                    <div className="res-stat">
+                      <img src={iconoRecompensa} alt="" className="res-stat-img" />
+                      <strong className="res-pts-azul">+10 pts</strong>
+                      <small>Recompensa</small>
+                      <em>Puntos ganados</em>
+                    </div>
+                    <div className="res-stat-sep" />
+                    <div className="res-stat">
+                      <img src={iconoInsignia} alt="" className="res-stat-img" />
+                      <strong>Sigue intentando</strong>
+                      <small>Insignia obtenida</small>
+                      <em>¡No te rindas!</em>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="res-modal-right">
+                <button className="res-btn res-btn-azul" onClick={handleReiniciarActividad}>
+                  Intentar de nuevo
+                </button>
+                <button
+                  className="res-btn res-btn-outline"
+                  onClick={() => setMostrarPistaModal(true)}
+                >
+                  Ver pista
+                </button>
+                <button
+                  className="res-btn res-btn-outline"
+                  onClick={() => navigate("/actividades-math-data")}
+                >
+                  {"<-"} Volver a actividades
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       <button

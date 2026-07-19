@@ -402,6 +402,76 @@
   transition: transform 0.15s ease, background 0.15s ease;
 }
 
+/* ---- Botón prominente "Bait tiene un mensaje para ti" ---- */
+.rmp-bait-mensaje-trigger {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 44px;
+  padding: 0 18px;
+  margin-top: 18px;
+  border: 1.5px solid rgba(37, 99, 235, 0.35);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0f2a5c, #123a7a);
+  color: #dbeafe;
+  font-size: 13px;
+  font-weight: 900;
+  font-family: "Poppins", Arial, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+  transition: all 0.25s ease;
+  animation: rmpBaitLlamativo 2.8s ease-in-out infinite;
+}
+
+.rmp-bait-mensaje-trigger svg {
+  font-size: 15px;
+  color: #60a5fa;
+}
+
+.rmp-bait-mensaje-trigger:hover {
+  animation-play-state: paused;
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 12px 26px rgba(37, 99, 235, 0.35);
+  border-color: rgba(37, 99, 235, 0.6);
+}
+
+.rmp-bait-mensaje-trigger:focus-visible {
+  animation-play-state: paused;
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.rmp-bait-mensaje-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #60a5fa;
+  flex-shrink: 0;
+  animation: rmpBaitDotPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes rmpBaitLlamativo {
+  0%, 100% {
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5);
+    transform: scale(1.035);
+  }
+}
+
+@keyframes rmpBaitDotPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.55); }
+  50% { transform: scale(1.15); box-shadow: 0 0 0 6px rgba(96, 165, 250, 0); }
+}
+
+.res-modal-villano-trigger {
+  position: relative;
+  z-index: 21;
+  margin-top: 16px;
+}
+
 .rmp-audio-btn:hover { background: #1d4ed8; transform: scale(1.06); }
 
 /* --- Villano / Interferencia --- */
@@ -741,35 +811,6 @@
   line-height: 1.5;
 }
 
-.rmp-texto-verde { color: #16a34a; }
-.rmp-texto-rojo { color: #dc2626; }
-
-.rmp-pista-formula {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12.5px;
-  font-weight: 800;
-  color: #0b1b34;
-}
-
-.rmp-formula-frac {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  border-top: 1.5px solid #2563eb;
-  padding-top: 2px;
-}
-
-.rmp-formula-frac span:first-child {
-  border-bottom: 1.5px solid #2563eb;
-  padding-bottom: 2px;
-  margin-bottom: 2px;
-  color: #2563eb;
-}
-
-.rmp-formula-frac span:last-child { color: #2563eb; }
-
 .rmp-verificar-btn {
   margin-top: auto;
   display: flex;
@@ -791,126 +832,6 @@
 
 .rmp-verificar-btn:hover { background: #0046cc; transform: translateY(-2px); }
 .rmp-verificar-btn:focus-visible { outline: 2px solid #0b1b34; outline-offset: 2px; }
-
-/* ========================================================= */
-/* MODAL: PISTA DE BAIT (mismo estilo que "Mensaje interceptado") */
-/* ========================================================= */
-
-.rmp-pista-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  background: rgba(5, 10, 25, 0.72);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-.rmp-pista-modal {
-  position: relative;
-  width: 100%;
-  max-width: 420px;
-  background: #ffffff;
-  border-radius: 22px;
-  padding: 32px 26px 26px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  text-align: center;
-}
-
-.rmp-pista-cerrar {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: none;
-  background: #f1f5f9;
-  color: #475569;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.18s ease;
-}
-
-.rmp-pista-cerrar:hover { background: #e2e8f0; color: #0b1b34; transform: rotate(90deg); }
-.rmp-pista-cerrar:focus-visible { outline: 2px solid #0058ff; outline-offset: 2px; }
-
-.rmp-pista-modal-img {
-  width: 110px;
-  height: 110px;
-  object-fit: contain;
-}
-
-.rmp-pista-modal h3 {
-  margin: 0;
-  font-size: 19px;
-  font-weight: 900;
-  color: #071331;
-}
-
-.rmp-pista-audio-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: 1.5px solid #bfdbfe;
-  background: #eff6ff;
-  color: #1d4ed8;
-  font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 800;
-  padding: 9px 18px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: all 0.18s ease;
-}
-
-.rmp-pista-audio-btn:hover { background: #dbeafe; border-color: #93c5fd; }
-.rmp-pista-audio-btn:focus-visible { outline: 2px solid #0058ff; outline-offset: 2px; }
-.rmp-pista-audio-btn[aria-pressed="true"] {
-  background: #2563eb;
-  border-color: #2563eb;
-  color: #ffffff;
-}
-
-.rmp-pista-modal p {
-  margin: 0;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #334155;
-  line-height: 1.55;
-}
-
-.rmp-pista-modal .rmp-pista-formula {
-  justify-content: center;
-}
-
-.rmp-pista-cerrar-btn {
-  margin-top: 8px;
-  width: 100%;
-  height: 46px;
-  border: none;
-  border-radius: 12px;
-  background: #0058ff;
-  color: #fff;
-  font-family: inherit;
-  font-size: 13.5px;
-  font-weight: 900;
-  cursor: pointer;
-  box-shadow: 0 10px 24px rgba(0, 88, 255, 0.3);
-  transition: all 0.18s ease;
-}
-
-.rmp-pista-cerrar-btn:hover { background: #0046cc; transform: translateY(-2px); }
-.rmp-pista-cerrar-btn:focus-visible { outline: 2px solid #0b1b34; outline-offset: 2px; }
 
 /* ========================================================= */
 /* RESPONSIVO                                                 */
@@ -955,6 +876,87 @@
 /* ========================= */
 /* PANTALLAS DE RESULTADO    */
 /* ========================= */
+
+/* ---- VENTANA EMERGENTE (éxito / fallo) ---- */
+.res-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: rgba(5, 10, 25, 0.72);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.res-modal-card,
+.res-modal-card * { box-sizing: border-box; }
+
+.res-modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #ffffff;
+  border-radius: 26px;
+  padding: 32px 34px 30px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.4);
+  font-family: "Poppins", Arial, sans-serif;
+  color: #071331;
+}
+
+.res-modal-card.res-modal-wide {
+  max-width: 960px;
+}
+
+.res-modal-card .res-titulo-row {
+  position: relative;
+  z-index: 21;
+}
+
+.res-modal-card .res-mensaje-box {
+  position: relative;
+  z-index: 21;
+  margin-top: 16px;
+}
+
+.res-modal-card .res-resumen-card {
+  margin-top: 0;
+}
+
+/* ---- Cuerpo de 2 columnas: tarjeta ancha + villano/botones ---- */
+.res-modal-body {
+  position: relative;
+  z-index: 21;
+  margin-top: 22px;
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.res-modal-left {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.res-modal-right {
+  position: relative;
+  z-index: 22;
+  width: 200px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.res-modal-right .res-btn {
+  width: 100%;
+}
 
 .res-page,
 .res-page * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1020,25 +1022,6 @@
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(35,90,140,0.1);
   font-family: "Poppins", Arial, sans-serif;
-}
-
-/* ---- HERO ---- */
-.res-hero {
-  position: relative;
-  z-index: 5;
-  display: flex;
-  align-items: flex-end;
-  padding: 0 0 0 36px;
-  min-height: 320px;
-}
-
-.res-hero-left {
-  flex: 1;
-  max-width: 50%;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding-bottom: 30px;
 }
 
 /* círculo check verde */
@@ -1129,70 +1112,52 @@
 }
 
 /* ---- PERSONAJE (villano + trofeo + estrella, una sola imagen) ---- */
-/* position:absolute + mismo z-index que .res-hero (contexto de apilamiento).
-   Como .res-bottom viene después en el DOM con el mismo z-index (5),
-   la tarjeta de resumen siempre se dibuja POR DELANTE, "cortando"
-   la parte inferior del personaje y dando el efecto de que queda detrás. */
+/* position:absolute, directo dentro de la tarjeta del modal (no
+   anidado en la columna de la tarjeta de resumen), para que tenga
+   espacio real donde mostrarse. z-index menor que la tarjeta de
+   resumen y los botones, así queda "detrás" donde se superponen. */
 
-.res-hero-personajes {
-  position: absolute;
-  top: -100px;  right: 20px;
-  z-index: 10;
-  pointer-events: none;
-}
 .res-villano-exito-group {
   position: absolute;
-  top: -430px;
-  right: 20px;
+  top: 220px;
+  right: 24px;
   z-index: 10;
   pointer-events: none;
+  max-height: 230px;
+  overflow: hidden;
+  background: red; /* TEMPORAL: solo para ver el contorno, lo quitamos después */
 }
 .res-villano-trofeo-img {
-  height: 560px;
+  height: 230px;
+  max-height: 230px;
   width: auto;
   object-fit: contain;
   display: block;
-  filter: drop-shadow(0 16px 35px rgba(0,0,0,.25));
-}
-.res-resumen-card{
-    position:relative;
-    z-index:21;
-}
-/* ---- BOTTOM ---- */
-.res-bottom{
-    position: relative;
+  filter: drop-shadow(0 16px 30px rgba(0,0,0,.25));
 }
 
-.res-bottom {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  gap: 24px;
-  padding: 0 36px 30px;
-  align-items: flex-start;
+.res-villano-fallo-group {
+  position: absolute;
+  top: 220px;
+  right: 24px;
+  z-index: 10;
+  pointer-events: none;
+  max-height: 230px;
+  overflow: hidden;
 }
-
-.res-bottom-left {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.res-bottom-right {
-  width: 220px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  align-self: flex-start;
-  margin-top: 70px;
+.res-villano-fallo-group .res-villano-img {
+  height: 230px;
+  max-height: 230px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 16px 30px rgba(0,0,0,.25));
 }
 
 /* ---- CARD RESUMEN ---- */
 .res-resumen-card{
     position:relative;
-    z-index:10;
+    z-index:21;
     background: #fff;
     border: 1.5px solid rgba(179, 213, 240, 0.8);
     border-radius: 20px;
@@ -1271,6 +1236,7 @@
 
 .res-stat-num-verde { color: #16a34a !important; }
 .res-pts-naranja    { color: #ea580c !important; }
+.res-pts-azul       { color: #2563eb !important; }
 
 /* ---- CARD PROGRESO ---- */
 .res-progreso-card {
@@ -1523,7 +1489,7 @@
 .pb-overlay {
   position: fixed;
   inset: 0;
-  z-index: 300;
+  z-index: 500;
   background: rgba(5, 10, 25, 0.72);
   backdrop-filter: blur(4px);
   display: flex;

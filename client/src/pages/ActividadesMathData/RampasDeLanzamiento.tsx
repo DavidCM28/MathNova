@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { getSessionUser } from "../../utils/authSession";
 import logo from "../../assets/logo_MathNova.png";
@@ -17,6 +18,9 @@ import iconoInsignia from "../../assets/icono-insignia.png";
 import iconoProgreso from "../../assets/icono-progreso.png";
 import baitHablandoVideo from "../../assets/bait-hablando.mp4";
 import introBaitAudio from "../../assets/rampas-intro-audio.mp3";
+import pistaBaitAudio from "../../assets/rampas-pista-audio.mp3";
+import baitAudioActividadCompletada from "../../assets/bait-actividad-completada.mp3";
+import baitAudioVuelveAIntentarlo from "../../assets/bait-vuelve-a-intentarlo.mp3";
 import {
   FiGrid,
   FiMessageSquare,
@@ -223,7 +227,7 @@ function PistaBaitModal({
     setProgreso((audio.currentTime / audio.duration) * 100);
   };
 
-  return (
+  return createPortal(
     <div className="pb-overlay" role="dialog" aria-modal="true" aria-label={titulo}>
       <div className={`pb-modal pb-modal-${tema}`}>
         <button
@@ -298,7 +302,8 @@ function PistaBaitModal({
           {botonTexto}
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -326,7 +331,8 @@ export default function RampasDeLanzamiento() {
   const [resultado, setResultado] = useState<"exito" | "fallo" | null>(null);
   const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
   const [mostrarIntroBait, setMostrarIntroBait] = useState(false);
-  const [audioReproduciendo, setAudioReproduciendo] = useState(false);
+  const [mostrarBaitExito, setMostrarBaitExito] = useState(false);
+  const [mostrarBaitFallo, setMostrarBaitFallo] = useState(false);
   const [cargando, setCargando] = useState(false);
 
   // ==========================================
@@ -431,331 +437,9 @@ export default function RampasDeLanzamiento() {
   // PANTALLA: ACTIVIDAD COMPLETADA
   // ==========================================
 
-  if (resultado === "exito") return (
-    <div className="res-page res-exito-page">
-      <div className="res-confetti" aria-hidden="true">
-        {Array.from({ length: 22 }).map((_, i) => (
-          <span key={i} className={`res-confetti-dot res-confetti-dot-${i % 6}`} />
-        ))}
-      </div>
-
-      <header className="res-header">
-        <img src={logo} alt="MathNova" className="res-logo" />
-        <button className="res-inicio-btn" onClick={() => navigate("/actividades-math-data")}>
-          Inicio
-        </button>
-      </header>
-
-      <div className="res-hero">
-        <div className="res-hero-left">
-          <div className="res-titulo-row">
-            <div className="res-icono-check">✔</div>
-            <div>
-              <h1 className="res-titulo">¡Actividad completada!</h1>
-              <p className="res-subtitulo">
-                Has terminado con éxito la misión de{" "}
-                <span className="res-mathnova-color">MathData</span>.
-              </p>
-            </div>
-          </div>
-
-          <div className="res-mensaje-box res-mensaje-verde">
-            <div className="res-icono-estrella-circle">
-              <img src={estrellaMision} alt="estrella" />
-            </div>
-            <div>
-              <strong>¡Excelente trabajo, piloto!</strong>
-              <p>
-                Calibraste las dos rampas de lanzamiento correctamente.
-                Sigue así y conquista la siguiente misión.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="res-bottom">
-        <div className="res-villano-exito-group">
-          <img
-            src={villanoTrofeoCompleto}
-            alt="Villano celebrando con trofeo"
-            className="res-villano-trofeo-img"
-          />
-        </div>
-
-        <div className="res-bottom-left">
-          <div className="res-resumen-card">
-            <div className="res-resumen-header">
-              <FiBarChart2 />
-              <span>Resumen de la actividad</span>
-            </div>
-            <div className="res-resumen-stats">
-              <div className="res-stat">
-                <img src={iconoAciertos} alt="" className="res-stat-img" />
-                <strong className="res-stat-num-verde">2/2</strong>
-                <small>Rampas correctas</small>
-                <em>¡Perfecto!</em>
-              </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoTiempo} alt="" className="res-stat-img" />
-                <strong>—</strong>
-                <small>Tiempo</small>
-                <em>min</em>
-              </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoPrecision} alt="" className="res-stat-img" />
-                <strong className="res-stat-num-verde">100%</strong>
-                <small>Precisión</small>
-                <em>¡Impecable!</em>
-              </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoRecompensa} alt="" className="res-stat-img" />
-                <strong className="res-pts-naranja">+50 pts</strong>
-                <small>Recompensa</small>
-                <em>Puntos ganados</em>
-              </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoInsignia} alt="" className="res-stat-img" />
-                <strong>Misión<br />cumplida</strong>
-                <small>Insignia obtenida</small>
-                <em>¡Felicidades!</em>
-              </div>
-            </div>
-          </div>
-
-          <div className="res-progreso-card">
-            <img src={iconoProgreso} alt="" className="res-progreso-img" />
-            <div className="res-progreso-info">
-              <small>Tu progreso en el tema:</small>
-              <strong>Relaciones y Proporciones</strong>
-              <div className="res-barra-wrap">
-                <div className="res-barra-fill res-barra-verde" style={{ width: "80%" }}>
-                  <span className="res-barra-pct">80%</span>
-                </div>
-                <small>¡Vas muy bien! 20% para completar este tema.</small>
-              </div>
-            </div>
-            <div className="res-hito-box">
-              <img src={estrellaMision} alt="" className="res-hito-estrella" />
-              <div>
-                <small>Siguiente hito</small>
-                <strong className="res-hito-pct">90%</strong>
-                <small>Gran Analista</small>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="res-bottom-right">
-          <button
-            className="res-btn res-btn-azul"
-            onClick={() => navigate("/actividades-math-data")}
-          >
-            Siguiente actividad
-          </button>
-          <button className="res-btn res-btn-outline" onClick={handleReiniciarActividad}>
-            Repetir actividad
-          </button>
-          <button
-            className="res-btn res-btn-outline"
-            onClick={() => navigate("/actividades-math-data")}
-          >
-            Volver a actividades
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
   // ==========================================
   // PANTALLA: VUELVE A INTENTARLO
   // ==========================================
-
-  if (resultado === "fallo") return (
-    <div className="res-page res-fallo-page">
-      <header className="res-header">
-        <img src={logo} alt="MathNova" className="res-logo" />
-        <button className="res-inicio-btn" onClick={() => navigate("/actividades-math-data")}>
-          Inicio
-        </button>
-      </header>
-
-      <div className="res-body">
-        <div className="res-hero-personajes">
-          <img src={villanoIntentar} alt="Villano retando" className="res-villano-img" />
-        </div>
-
-        <div className="res-left">
-          <div className="res-titulo-row">
-            <div className="res-icono-retry">&#x1F504;</div>
-            <div>
-              <h1 className="res-titulo">¡Vuelve a intentarlo!</h1>
-              <p className="res-subtitulo">
-                Aún no completas con éxito la misión de{" "}
-                <span className="res-mathnova-color">MathData</span>.
-              </p>
-            </div>
-          </div>
-
-          <div className="res-mensaje-box res-mensaje-azul">
-            <div className="res-icono-datos">📊</div>
-            <div>
-              <strong>¡No te rindas, piloto!</strong>
-              <p>
-                Revisa la tabla de cada rampa: observa cómo sube o baja la
-                recta, y usa esos valores para calcular la pendiente
-                correcta.
-              </p>
-            </div>
-          </div>
-
-          <div className="res-resumen-card">
-            <div className="res-resumen-header">
-              <FiBarChart2 />
-              <span>Resumen de la actividad</span>
-            </div>
-            <div className="res-resumen-stats">
-              <div className="res-stat">
-                <img src={iconoAciertos} alt="" className="res-stat-img" />
-                <strong>0/2</strong>
-                <small>Rampas correctas</small>
-                <em>¡Sigue así!</em>
-              </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoTiempo} alt="" className="res-stat-img" />
-                <strong>—</strong>
-                <small>Tiempo</small>
-                <em>min</em>
-              </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoPrecision} alt="" className="res-stat-img" />
-                <strong>0%</strong>
-                <small>Precisión</small>
-                <em>Puedes mejorar</em>
-              </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoRecompensa} alt="" className="res-stat-img" />
-                <strong className="res-pts-azul">+10 pts</strong>
-                <small>Recompensa</small>
-                <em>Puntos ganados</em>
-              </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoInsignia} alt="" className="res-stat-img" />
-                <strong>Sigue intentando</strong>
-                <small>Insignia obtenida</small>
-                <em>¡No te rindas!</em>
-              </div>
-            </div>
-          </div>
-
-          <div className="res-progreso-card">
-            <img src={iconoProgreso} alt="" className="res-progreso-img" />
-            <div className="res-progreso-info">
-              <small>Tu progreso en el tema:</small>
-              <strong>Relaciones y Proporciones</strong>
-              <div className="res-barra-wrap">
-                <div className="res-barra-fill res-barra-azul" style={{ width: "60%" }}>
-                  <span className="res-barra-pct">60%</span>
-                </div>
-                <small>¡Vas avanzando! Sigue practicando para completar este tema.</small>
-              </div>
-            </div>
-            <div className="res-hito-box">
-              <img src={estrellaMision} alt="" className="res-hito-estrella" />
-              <div>
-                <strong>Siguiente hito</strong>
-                <em>80%</em>
-                <small>Gran Analista</small>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="res-acciones">
-          <button className="res-btn res-btn-azul" onClick={handleReiniciarActividad}>
-            Intentar de nuevo
-          </button>
-          <button
-            className="res-btn res-btn-outline"
-            onClick={() => setMostrarPistaBait(true)}
-          >
-            Ver pista
-          </button>
-          <button
-            className="res-btn res-btn-outline"
-            onClick={() => navigate("/actividades-math-data")}
-          >
-            {"<-"} Volver a actividades
-          </button>
-        </div>
-      </div>
-
-      {mostrarPistaBait && (
-        <div
-          className="rmp-pista-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Pista de Bait"
-        >
-          <div className="rmp-pista-modal">
-            <button
-              type="button"
-              className="rmp-pista-cerrar"
-              onClick={() => setMostrarPistaBait(false)}
-              aria-label="Cerrar pista"
-            >
-              <FiX />
-            </button>
-
-            <img src={baitPistaImg} alt="Bait" className="rmp-pista-modal-img" />
-
-            <h3>Pista de Bait</h3>
-
-            <button
-              type="button"
-              className="rmp-pista-audio-btn"
-              onClick={() => setAudioReproduciendo((v) => !v)}
-              aria-pressed={audioReproduciendo}
-              aria-label="Reproducir audio de la pista"
-            >
-              <FiVolume2 />
-              {audioReproduciendo ? "Reproduciendo..." : "Escuchar pista"}
-            </button>
-
-            <p>
-              Si la recta sube de izquierda a derecha, la pendiente es{" "}
-              <strong className="rmp-texto-verde">positiva</strong>. Si baja,
-              es <strong className="rmp-texto-rojo">negativa</strong>.
-            </p>
-
-            <div className="rmp-pista-formula">
-              pendiente ={" "}
-              <span className="rmp-formula-frac">
-                <span>cambio vertical</span>
-                <span>cambio horizontal</span>
-              </span>
-            </div>
-
-            <button
-              type="button"
-              className="rmp-pista-cerrar-btn"
-              onClick={() => setMostrarPistaBait(false)}
-            >
-              Cerrar y volver a la actividad
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
 
   // ==========================================
   // PANTALLA PRINCIPAL: LA ACTIVIDAD
@@ -1154,60 +838,13 @@ export default function RampasDeLanzamiento() {
       </main>
 
       {mostrarPistaBait && (
-        <div
-          className="rmp-pista-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Pista de Bait"
-        >
-          <div className="rmp-pista-modal">
-            <button
-              type="button"
-              className="rmp-pista-cerrar"
-              onClick={() => setMostrarPistaBait(false)}
-              aria-label="Cerrar pista"
-            >
-              <FiX />
-            </button>
-
-            <img src={baitPistaImg} alt="Bait" className="rmp-pista-modal-img" />
-
-            <h3>Pista de Bait</h3>
-
-            <button
-              type="button"
-              className="rmp-pista-audio-btn"
-              onClick={() => setAudioReproduciendo((v) => !v)}
-              aria-pressed={audioReproduciendo}
-              aria-label="Reproducir audio de la pista"
-            >
-              <FiVolume2 />
-              {audioReproduciendo ? "Reproduciendo..." : "Escuchar pista"}
-            </button>
-
-            <p>
-              Si la recta sube de izquierda a derecha, la pendiente es{" "}
-              <strong className="rmp-texto-verde">positiva</strong>. Si baja,
-              es <strong className="rmp-texto-rojo">negativa</strong>.
-            </p>
-
-            <div className="rmp-pista-formula">
-              pendiente ={" "}
-              <span className="rmp-formula-frac">
-                <span>cambio vertical</span>
-                <span>cambio horizontal</span>
-              </span>
-            </div>
-
-            <button
-              type="button"
-              className="rmp-pista-cerrar-btn"
-              onClick={() => setMostrarPistaBait(false)}
-            >
-              Cerrar y volver a la actividad
-            </button>
-          </div>
-        </div>
+        <PistaBaitModal
+          titulo="Pista de Bait"
+          contenido="Si la recta sube de izquierda a derecha, la pendiente es positiva. Si baja, es negativa. Recuerda: pendiente = cambio vertical ÷ cambio horizontal."
+          videoSrc={baitHablandoVideo}
+          audioSrc={pistaBaitAudio}
+          onClose={() => setMostrarPistaBait(false)}
+        />
       )}
 
       {mostrarIntroBait && (
@@ -1219,6 +856,259 @@ export default function RampasDeLanzamiento() {
           botonTexto="¡Comenzar misión! 🚀"
           onClose={() => setMostrarIntroBait(false)}
         />
+      )}
+
+      {mostrarBaitExito && (
+        <PistaBaitModal
+          titulo="Bait tiene un mensaje para ti"
+          contenido="¡Excelente trabajo, piloto! Calibraste las dos rampas de lanzamiento correctamente. Sigue así y conquista la siguiente misión."
+          videoSrc={baitHablandoVideo}
+          audioSrc={baitAudioActividadCompletada}
+          botonTexto="Cerrar mensaje"
+          onClose={() => setMostrarBaitExito(false)}
+        />
+      )}
+
+      {mostrarBaitFallo && (
+        <PistaBaitModal
+          titulo="Bait tiene un mensaje para ti"
+          contenido="¡No te rindas, piloto! Revisa la tabla de cada rampa: observa cómo sube o baja la recta, y usa esos valores para calcular la pendiente correcta."
+          videoSrc={baitHablandoVideo}
+          audioSrc={baitAudioVuelveAIntentarlo}
+          botonTexto="Cerrar mensaje"
+          onClose={() => setMostrarBaitFallo(false)}
+        />
+      )}
+
+      {/* VENTANA EMERGENTE: ACTIVIDAD COMPLETADA */}
+      {resultado === "exito" && (
+        <div className="res-modal-overlay">
+          <div className="res-modal-card res-modal-exito res-modal-wide">
+            <div className="res-confetti" aria-hidden="true">
+              {Array.from({ length: 16 }).map((_, i) => (
+                <span key={i} className={`res-confetti-dot res-confetti-dot-${i % 6}`} />
+              ))}
+            </div>
+
+            <div className="res-titulo-row">
+              <div className="res-icono-check">✔</div>
+              <div>
+                <h1 className="res-titulo">¡Actividad completada!</h1>
+                <p className="res-subtitulo">
+                  Has terminado con éxito la misión de{" "}
+                  <span className="res-mathnova-color">MathData</span>.
+                </p>
+              </div>
+            </div>
+
+            <div className="res-mensaje-box res-mensaje-verde">
+              <div className="res-icono-estrella-circle">
+                <img src={estrellaMision} alt="estrella" />
+              </div>
+              <div>
+                <strong>¡Excelente trabajo, piloto!</strong>
+                <p>
+                  Calibraste las dos rampas de lanzamiento correctamente.
+                  Sigue así y conquista la siguiente misión.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="rmp-bait-mensaje-trigger res-modal-villano-trigger"
+              onClick={() => setMostrarBaitExito(true)}
+              aria-label="Abrir mensaje de Bait"
+            >
+              <span className="rmp-bait-mensaje-dot" />
+              <FiMessageSquare />
+              Bait tiene un mensaje para ti
+            </button>
+
+            <div className="res-villano-exito-group">
+              <img
+                src={villanoTrofeoCompleto}
+                alt="Villano celebrando con trofeo"
+                className="res-villano-trofeo-img"
+              />
+            </div>
+
+            <div className="res-modal-body">
+              <div className="res-modal-left">
+                <div className="res-resumen-card">
+                  <div className="res-resumen-header">
+                    <FiBarChart2 />
+                    <span>Resumen de la actividad</span>
+                  </div>
+                  <div className="res-resumen-stats">
+                    <div className="res-stat">
+                      <img src={iconoAciertos} alt="" className="res-stat-img" />
+                      <strong className="res-stat-num-verde">2/2</strong>
+                      <small>Rampas correctas</small>
+                      <em>¡Perfecto!</em>
+                    </div>
+                    <div className="res-stat-sep" />
+                    <div className="res-stat">
+                      <img src={iconoTiempo} alt="" className="res-stat-img" />
+                      <strong>—</strong>
+                      <small>Tiempo</small>
+                      <em>min</em>
+                    </div>
+                    <div className="res-stat-sep" />
+                    <div className="res-stat">
+                      <img src={iconoPrecision} alt="" className="res-stat-img" />
+                      <strong className="res-stat-num-verde">100%</strong>
+                      <small>Precisión</small>
+                      <em>¡Impecable!</em>
+                    </div>
+                    <div className="res-stat-sep" />
+                    <div className="res-stat">
+                      <img src={iconoRecompensa} alt="" className="res-stat-img" />
+                      <strong className="res-pts-naranja">+50 pts</strong>
+                      <small>Recompensa</small>
+                      <em>Puntos ganados</em>
+                    </div>
+                    <div className="res-stat-sep" />
+                    <div className="res-stat">
+                      <img src={iconoInsignia} alt="" className="res-stat-img" />
+                      <strong>Misión<br />cumplida</strong>
+                      <small>Insignia obtenida</small>
+                      <em>¡Felicidades!</em>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="res-modal-right">
+                <button
+                  className="res-btn res-btn-azul"
+                  onClick={() => navigate("/actividades-math-data")}
+                >
+                  Siguiente actividad
+                </button>
+                <button className="res-btn res-btn-outline" onClick={handleReiniciarActividad}>
+                  Repetir actividad
+                </button>
+                <button
+                  className="res-btn res-btn-outline"
+                  onClick={() => navigate("/actividades-math-data")}
+                >
+                  Volver a actividades
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* VENTANA EMERGENTE: VUELVE A INTENTARLO */}
+      {resultado === "fallo" && (
+        <div className="res-modal-overlay">
+          <div className="res-modal-card res-modal-fallo res-modal-wide">
+            <div className="res-titulo-row">
+              <div className="res-icono-retry">&#x1F504;</div>
+              <div>
+                <h1 className="res-titulo">¡Vuelve a intentarlo!</h1>
+                <p className="res-subtitulo">
+                  Aún no completas con éxito la misión de{" "}
+                  <span className="res-mathnova-color">MathData</span>.
+                </p>
+              </div>
+            </div>
+
+            <div className="res-mensaje-box res-mensaje-azul">
+              <div className="res-icono-datos">📊</div>
+              <div>
+                <strong>¡No te rindas, piloto!</strong>
+                <p>
+                  Revisa la tabla de cada rampa: observa cómo sube o baja la
+                  recta, y usa esos valores para calcular la pendiente
+                  correcta.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="rmp-bait-mensaje-trigger res-modal-villano-trigger"
+              onClick={() => setMostrarBaitFallo(true)}
+              aria-label="Abrir mensaje de Bait"
+            >
+              <span className="rmp-bait-mensaje-dot" />
+              <FiMessageSquare />
+              Bait tiene un mensaje para ti
+            </button>
+
+            <div className="res-villano-fallo-group">
+              <img src={villanoIntentar} alt="Villano retando" className="res-villano-img" />
+            </div>
+
+            <div className="res-modal-body">
+              <div className="res-modal-left">
+                <div className="res-resumen-card">
+                  <div className="res-resumen-header">
+                    <FiBarChart2 />
+                    <span>Resumen de la actividad</span>
+                  </div>
+                  <div className="res-resumen-stats">
+                    <div className="res-stat">
+                      <img src={iconoAciertos} alt="" className="res-stat-img" />
+                      <strong>0/2</strong>
+                      <small>Rampas correctas</small>
+                      <em>¡Sigue así!</em>
+                    </div>
+                    <div className="res-stat-sep" />
+                    <div className="res-stat">
+                      <img src={iconoTiempo} alt="" className="res-stat-img" />
+                      <strong>—</strong>
+                      <small>Tiempo</small>
+                      <em>min</em>
+                    </div>
+                    <div className="res-stat-sep" />
+                    <div className="res-stat">
+                      <img src={iconoPrecision} alt="" className="res-stat-img" />
+                      <strong>0%</strong>
+                      <small>Precisión</small>
+                      <em>Puedes mejorar</em>
+                    </div>
+                    <div className="res-stat-sep" />
+                    <div className="res-stat">
+                      <img src={iconoRecompensa} alt="" className="res-stat-img" />
+                      <strong className="res-pts-azul">+10 pts</strong>
+                      <small>Recompensa</small>
+                      <em>Puntos ganados</em>
+                    </div>
+                    <div className="res-stat-sep" />
+                    <div className="res-stat">
+                      <img src={iconoInsignia} alt="" className="res-stat-img" />
+                      <strong>Sigue intentando</strong>
+                      <small>Insignia obtenida</small>
+                      <em>¡No te rindas!</em>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="res-modal-right">
+                <button className="res-btn res-btn-azul" onClick={handleReiniciarActividad}>
+                  Intentar de nuevo
+                </button>
+                <button
+                  className="res-btn res-btn-outline"
+                  onClick={() => setMostrarPistaBait(true)}
+                >
+                  Ver pista
+                </button>
+                <button
+                  className="res-btn res-btn-outline"
+                  onClick={() => navigate("/actividades-math-data")}
+                >
+                  {"<-"} Volver a actividades
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

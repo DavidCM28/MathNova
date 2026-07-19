@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { getSessionUser } from "../../utils/authSession";
 
@@ -22,6 +23,11 @@ import iconoProgreso from "../../assets/icono-progreso.png";
 import interferenciaDivideEncuestaImg from "../../assets/interferencia-divide-encuesta.png";
 import astronautasImg from "../../assets/astronautas-tripulacion.png";
 import interferenciaActivaImg from "../../assets/interferencia-activa.png";
+import baitHablandoVideo from "../../assets/bait-hablando.mp4";
+import introBaitAudioEncuesta from "../../assets/encuesta-intro-audio.mp3";
+import pistaBaitAudioEncuesta from "../../assets/encuesta-pista-audio.mp3";
+import baitAudioActividadCompletada from "../../assets/encuesta-actividad-completada.mp3";
+import baitAudioVuelveAIntentarlo from "../../assets/encuesta-vuelve-a-intentarlo.mp3";
 
 import {
   FiGrid,
@@ -40,6 +46,10 @@ import {
   FiUsers,
   FiGrid as FiTabla,
   FiFileText,
+  FiPlay,
+  FiPause,
+  FiRotateCcw,
+  FiRotateCw,
 } from "react-icons/fi";
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
@@ -77,6 +87,156 @@ function palitos(n: number) {
 type EstadoFila = "correcto" | "pendiente" | "incorrecto";
 
 /* =========================================================
+   COMPONENTE: PISTA DE BAIT (modal con video real)
+   Idéntico al de Generador de Energía y Rampas de
+   Lanzamiento, para que todas las actividades concuerden.
+========================================================= */
+
+type PistaBaitModalProps = {
+  tema?: "azul" | "rojo";
+  titulo?: string;
+  contenido: string;
+  videoSrc: string;
+  audioSrc: string;
+  botonTexto?: string;
+  onClose: () => void;
+};
+
+const SALTO_SEGUNDOS = 10;
+
+function PistaBaitModal({
+  tema = "azul",
+  titulo = "Pista de Bait",
+  contenido,
+  videoSrc,
+  audioSrc,
+  botonTexto = "Cerrar y volver a la actividad",
+  onClose,
+}: PistaBaitModalProps) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [reproduciendo, setReproduciendo] = useState(false);
+  const [progreso, setProgreso] = useState(0);
+
+  const sincronizarVideoConAudio = () => {
+    const audio = audioRef.current;
+    const video = videoRef.current;
+    if (!audio || !video) return;
+    if (Math.abs(video.currentTime - audio.currentTime) > 0.35) {
+      video.currentTime = audio.currentTime;
+    }
+  };
+
+  const alternarReproduccion = () => {
+    const audio = audioRef.current;
+    const video = videoRef.current;
+    if (!audio) return;
+
+    if (audio.paused || audio.ended) {
+      audio.play();
+      video?.play();
+    } else {
+      audio.pause();
+      video?.pause();
+    }
+  };
+
+  const saltar = (segundos: number) => {
+    const audio = audioRef.current;
+    const video = videoRef.current;
+    if (!audio || !audio.duration) return;
+    const nuevoTiempo = Math.min(Math.max(audio.currentTime + segundos, 0), audio.duration);
+    audio.currentTime = nuevoTiempo;
+    if (video) video.currentTime = nuevoTiempo;
+  };
+
+  const actualizarProgreso = () => {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    setProgreso((audio.currentTime / audio.duration) * 100);
+  };
+
+  return createPortal(
+    <div className="pb-overlay" role="dialog" aria-modal="true" aria-label={titulo}>
+      <div className={`pb-modal pb-modal-${tema}`}>
+        <button
+          type="button"
+          className="pb-cerrar"
+          onClick={onClose}
+          aria-label="Cerrar"
+        >
+          <FiX />
+        </button>
+
+        <div className="pb-video-wrap">
+          <video
+            ref={videoRef}
+            src={videoSrc}
+            className="pb-video"
+            muted
+            playsInline
+            preload="auto"
+            onTimeUpdate={sincronizarVideoConAudio}
+            aria-hidden="true"
+          />
+        </div>
+
+        <h3>{titulo}</h3>
+
+        <p>{contenido}</p>
+
+        <div className="pb-controles">
+          <button
+            type="button"
+            className={`pb-btn-salto pb-btn-salto-${tema}`}
+            onClick={() => saltar(-SALTO_SEGUNDOS)}
+            aria-label={`Retroceder ${SALTO_SEGUNDOS} segundos`}
+          >
+            <FiRotateCcw /> {SALTO_SEGUNDOS}s
+          </button>
+
+          <button
+            type="button"
+            className={`pb-btn-play pb-btn-play-${tema}`}
+            onClick={alternarReproduccion}
+            aria-label={reproduciendo ? "Pausar" : "Reproducir"}
+          >
+            {reproduciendo ? <FiPause /> : <FiPlay />}
+          </button>
+
+          <button
+            type="button"
+            className={`pb-btn-salto pb-btn-salto-${tema}`}
+            onClick={() => saltar(SALTO_SEGUNDOS)}
+            aria-label={`Adelantar ${SALTO_SEGUNDOS} segundos`}
+          >
+            {SALTO_SEGUNDOS}s <FiRotateCw />
+          </button>
+        </div>
+
+        <div className="pb-progress-track">
+          <div className={`pb-progress-fill pb-progress-fill-${tema}`} style={{ width: `${progreso}%` }} />
+        </div>
+
+        <audio
+          ref={audioRef}
+          src={audioSrc}
+          onPlay={() => setReproduciendo(true)}
+          onPause={() => setReproduciendo(false)}
+          onEnded={() => setReproduciendo(false)}
+          onTimeUpdate={actualizarProgreso}
+        />
+
+        <button type="button" className={`pb-cerrar-btn pb-cerrar-btn-${tema}`} onClick={onClose}>
+          {botonTexto}
+        </button>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+/* =========================================================
    COMPONENTE PRINCIPAL
 ========================================================= */
 
@@ -101,7 +261,9 @@ export default function EncuestaTripulacion() {
 
   const [resultado, setResultado] = useState<"exito" | "fallo" | null>(null);
   const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
-  const [audioReproduciendo, setAudioReproduciendo] = useState(false);
+  const [mostrarIntroBait, setMostrarIntroBait] = useState(false);
+  const [mostrarBaitExito, setMostrarBaitExito] = useState(false);
+  const [mostrarBaitFallo, setMostrarBaitFallo] = useState(false);
   const [cargandoTabla, setCargandoTabla] = useState(false);
   const [cargandoEnvio, setCargandoEnvio] = useState(false);
 
@@ -324,6 +486,17 @@ export default function EncuestaTripulacion() {
               </p>
             </div>
           </div>
+
+          <button
+            type="button"
+            className="rmp-bait-mensaje-trigger"
+            onClick={() => setMostrarBaitExito(true)}
+            aria-label="Abrir mensaje de Bait"
+          >
+            <span className="rmp-bait-mensaje-dot" />
+            <FiMessageSquare />
+            Bait tiene un mensaje para ti
+          </button>
         </div>
       </div>
 
@@ -421,6 +594,17 @@ export default function EncuestaTripulacion() {
           </button>
         </div>
       </div>
+
+      {mostrarBaitExito && (
+        <PistaBaitModal
+          titulo="Bait tiene un mensaje para ti"
+          contenido="¡Excelente trabajo, piloto! Contaste los votos correctamente y descubriste qué módulo ganó la encuesta. Sigue así y conquista la siguiente misión."
+          videoSrc={baitHablandoVideo}
+          audioSrc={baitAudioActividadCompletada}
+          botonTexto="Cerrar mensaje"
+          onClose={() => setMostrarBaitExito(false)}
+        />
+      )}
     </div>
   );
 
@@ -465,6 +649,17 @@ export default function EncuestaTripulacion() {
               </p>
             </div>
           </div>
+
+          <button
+            type="button"
+            className="rmp-bait-mensaje-trigger"
+            onClick={() => setMostrarBaitFallo(true)}
+            aria-label="Abrir mensaje de Bait"
+          >
+            <span className="rmp-bait-mensaje-dot" />
+            <FiMessageSquare />
+            Bait tiene un mensaje para ti
+          </button>
 
           <div className="res-resumen-card">
             <div className="res-resumen-header">
@@ -549,55 +744,24 @@ export default function EncuestaTripulacion() {
       </div>
 
       {mostrarPistaBait && (
-        <div className="enc-pista-overlay" role="dialog" aria-modal="true" aria-label="Pista de Bait">
-          <div className="enc-pista-modal">
-            <button
-              type="button"
-              className="enc-pista-cerrar"
-              onClick={() => setMostrarPistaBait(false)}
-              aria-label="Cerrar pista"
-            >
-              <FiX />
-            </button>
+        <PistaBaitModal
+          titulo="Pista de Bait"
+          contenido="Cuenta con cuidado la columna de palitos: cada palito vale 1 voto. La frecuencia absoluta es el número total de votos de cada módulo. El módulo con más palitos es el que ganó la encuesta. Ejemplo: 5 palitos seguidos son 5 votos."
+          videoSrc={baitHablandoVideo}
+          audioSrc={pistaBaitAudioEncuesta}
+          onClose={() => setMostrarPistaBait(false)}
+        />
+      )}
 
-            <img src={baitPistaImg} alt="Bait" className="enc-pista-modal-img" />
-
-            <h3>Pista de Bait</h3>
-
-            <button
-              type="button"
-              className="enc-pista-audio-btn"
-              onClick={() => setAudioReproduciendo((v) => !v)}
-              aria-pressed={audioReproduciendo}
-              aria-label="Reproducir audio de la pista"
-            >
-              <FiVolume2 />
-              {audioReproduciendo ? "Reproduciendo..." : "Escuchar pista"}
-            </button>
-
-            <p>
-              Cuenta con cuidado la columna de palitos: cada palito vale{" "}
-              <strong className="enc-texto-azul">1 voto</strong>. La
-              frecuencia absoluta es el número total de votos de cada
-              módulo. El módulo con más palitos es el que{" "}
-              <strong className="enc-texto-verde">ganó la encuesta</strong>.
-            </p>
-
-            <div className="enc-pista-ejemplo">
-              <span>Ejemplo:</span>
-              <strong>{palitos(5)}</strong>
-              <span>5 votos</span>
-            </div>
-
-            <button
-              type="button"
-              className="enc-pista-cerrar-btn"
-              onClick={() => setMostrarPistaBait(false)}
-            >
-              Cerrar y volver a la actividad
-            </button>
-          </div>
-        </div>
+      {mostrarBaitFallo && (
+        <PistaBaitModal
+          titulo="Bait tiene un mensaje para ti"
+          contenido="¡No te rindas, piloto! Cuenta de nuevo los palitos de cada módulo con cuidado, y revisa cuál de los tres obtuvo más votos antes de enviar tu reporte al Centro de Mando."
+          videoSrc={baitHablandoVideo}
+          audioSrc={baitAudioVuelveAIntentarlo}
+          botonTexto="Cerrar mensaje"
+          onClose={() => setMostrarBaitFallo(false)}
+        />
       )}
     </div>
   );
@@ -731,7 +895,12 @@ export default function EncuestaTripulacion() {
                   revela cuál módulo obtuvo más votos.
                 </p>
               </div>
-              <button className="enc-audio-btn" type="button" aria-label="Escuchar instrucciones">
+              <button
+                className="enc-audio-btn"
+                type="button"
+                onClick={() => setMostrarIntroBait(true)}
+                aria-label="Escuchar instrucciones"
+              >
                 <FiVolume2 />
               </button>
             </div>
@@ -935,10 +1104,33 @@ export default function EncuestaTripulacion() {
             >
               <FiCheck /> {cargandoTabla ? "Verificando..." : "Verificar tabla"}
             </button>
+
+            <div className="enc-pista-card">
+              <button
+                type="button"
+                className="enc-pista-trigger"
+                onClick={() => setMostrarPistaBait(true)}
+              >
+                <img src={baitPistaImg} alt="" className="enc-pista-icono" />
+                <strong>Pista de Bait</strong>
+              </button>
+              <p>
+                Cuenta con cuidado la columna de palitos. Cada palito vale{" "}
+                <strong className="enc-texto-azul">1 voto</strong>. La
+                frecuencia absoluta es el número total de votos de cada
+                módulo.
+              </p>
+
+              <div className="enc-pista-ejemplo">
+                <span>Ejemplo:</span>
+                <strong>{palitos(5)}</strong>
+                <span>5 votos</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* RESUMEN E INTERPRETACIÓN + PISTA */}
+        {/* RESUMEN E INTERPRETACIÓN */}
         <div className="enc-bottom-row">
           <div className="enc-resumen-card">
             <div className="enc-card-header">
@@ -989,82 +1181,28 @@ export default function EncuestaTripulacion() {
               <FiSend /> {cargandoEnvio ? "Enviando..." : "Enviar al Centro de Mando"}
             </button>
           </div>
-
-          <div className="enc-pista-card">
-            <button
-              type="button"
-              className="enc-pista-trigger"
-              onClick={() => setMostrarPistaBait(true)}
-            >
-              <img src={baitPistaImg} alt="" className="enc-pista-icono" />
-              <strong>Pista de Bait</strong>
-            </button>
-            <p>
-              Cuenta con cuidado la columna de palitos. Cada palito vale{" "}
-              <strong className="enc-texto-azul">1 voto</strong>. La
-              frecuencia absoluta es el número total de votos de cada
-              módulo.
-            </p>
-
-            <div className="enc-pista-ejemplo">
-              <span>Ejemplo:</span>
-              <strong>{palitos(5)}</strong>
-              <span>5 votos</span>
-            </div>
-          </div>
         </div>
       </main>
 
       {mostrarPistaBait && (
-        <div className="enc-pista-overlay" role="dialog" aria-modal="true" aria-label="Pista de Bait">
-          <div className="enc-pista-modal">
-            <button
-              type="button"
-              className="enc-pista-cerrar"
-              onClick={() => setMostrarPistaBait(false)}
-              aria-label="Cerrar pista"
-            >
-              <FiX />
-            </button>
+        <PistaBaitModal
+          titulo="Pista de Bait"
+          contenido="Cuenta con cuidado la columna de palitos: cada palito vale 1 voto. La frecuencia absoluta es el número total de votos de cada módulo. El módulo con más palitos es el que ganó la encuesta. Ejemplo: 5 palitos seguidos son 5 votos."
+          videoSrc={baitHablandoVideo}
+          audioSrc={pistaBaitAudioEncuesta}
+          onClose={() => setMostrarPistaBait(false)}
+        />
+      )}
 
-            <img src={baitPistaImg} alt="Bait" className="enc-pista-modal-img" />
-
-            <h3>Pista de Bait</h3>
-
-            <button
-              type="button"
-              className="enc-pista-audio-btn"
-              onClick={() => setAudioReproduciendo((v) => !v)}
-              aria-pressed={audioReproduciendo}
-              aria-label="Reproducir audio de la pista"
-            >
-              <FiVolume2 />
-              {audioReproduciendo ? "Reproduciendo..." : "Escuchar pista"}
-            </button>
-
-            <p>
-              Cuenta con cuidado la columna de palitos: cada palito vale{" "}
-              <strong className="enc-texto-azul">1 voto</strong>. La
-              frecuencia absoluta es el número total de votos de cada
-              módulo. El módulo con más palitos es el que{" "}
-              <strong className="enc-texto-verde">ganó la encuesta</strong>.
-            </p>
-
-            <div className="enc-pista-ejemplo">
-              <span>Ejemplo:</span>
-              <strong>{palitos(5)}</strong>
-              <span>5 votos</span>
-            </div>
-
-            <button
-              type="button"
-              className="enc-pista-cerrar-btn"
-              onClick={() => setMostrarPistaBait(false)}
-            >
-              Cerrar y volver a la actividad
-            </button>
-          </div>
-        </div>
+      {mostrarIntroBait && (
+        <PistaBaitModal
+          titulo="¡Hola, piloto!"
+          contenido="En esta misión debes aplicar una encuesta a la tripulación para decidir qué módulo explorar primero. Observa cómo votan los 10 integrantes del escuadrón, cuenta los votos con palitos y completa la tabla de frecuencias. Después revela cuál módulo obtuvo más votos."
+          videoSrc={baitHablandoVideo}
+          audioSrc={introBaitAudioEncuesta}
+          botonTexto="¡Comenzar misión! 🚀"
+          onClose={() => setMostrarIntroBait(false)}
+        />
       )}
 
       {!tablaCompleta && (
