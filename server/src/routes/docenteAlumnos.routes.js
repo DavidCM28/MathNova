@@ -1,6 +1,6 @@
 ﻿const express = require("express");
+const bcrypt = require("bcrypt");
 const pool = require("../db");
-const verificarToken = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -10,144 +10,151 @@ function obtenerIniciales(nombre = "") {
   if (partes.length === 0) return "AL";
   if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
 
-  return `${partes[0][0] || ""}${partes[1][0] || ""}`.toUpperCase();
+  return `${partes[0][0]}${partes[1][0]}`.toUpperCase();
 }
 
-function obtenerColor(id) {
-  const colores = ["blue", "purple", "dark", "green", "orange"];
-  return colores[Math.abs(Number(id) || 0) % colores.length];
+function obtenerColor(idUsuario) {
+  const colores = ["azul", "verde", "morado", "naranja", "rojo", "turquesa"];
+  return colores[Number(idUsuario) % colores.length];
 }
 
 function obtenerBarra(asistencia) {
+  if (asistencia === null || asistencia === undefined) return "sin-datos";
   if (asistencia >= 85) return "alta";
   if (asistencia >= 70) return "media";
-  if (asistencia >= 60) return "baja";
-  return "critica";
+  return "baja";
 }
 
-function numeroRespaldo(id, minimo, maximo) {
-  const rango = maximo - minimo + 1;
-  return minimo + (Math.abs(Number(id) || 0) % rango);
-}
-
-router.get("/", verificarToken, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const buscar = String(req.query.buscar || "").trim();
+    const busqueda = req.query.buscar?.trim() || "";
 
     const resultado = await pool.query(
       `
       WITH progreso_resumen AS (
         SELECT
-          usuario_id,
-          ROUND(AVG(COALESCE(puntaje, 0))::numeric, 1) AS promedio_puntaje,
+          id_usuario,
+          ROUND(AVG(COALESCE(precision, 0))::numeric, 1) AS promedio_precision,
           COUNT(*)::int AS total_actividades,
-          COUNT(*) FILTER (WHERE completada = true)::int AS actividades_completadas,
-          MAX(fecha_completado) AS ultima_fecha,
-          MAX(actividad_nombre) AS ultimo_modulo
-        FROM progreso_alumno
-        GROUP BY usuario_id
+          COUNT(*) FILTER (WHERE completada = true)::int AS actividades_completadas
+        FROM public.actividad_progreso
+        GROUP BY id_usuario
+      ),
+      ultimo_modulo AS (
+        SELECT DISTINCT ON (id_usuario)
+          id_usuario,
+          actividad_titulo
+        FROM public.actividad_progreso
+        ORDER BY id_usuario, fecha_ultimo_intento DESC
       ),
       grupos_alumno AS (
         SELECT
           ga.id_alumno,
-          STRING_AGG(DISTINCT g.nombre_grupo, ', ' ORDER BY g.nombre_grupo) AS grupo
-        FROM grupo_alumnos ga
-        INNER JOIN grupos g
+          g.nombre_grupo
+        FROM public.grupo_alumnos ga
+        INNER JOIN public.grupos g
           ON g.id_grupo = ga.id_grupo
-        WHERE ga.estado = true
-        GROUP BY ga.id_alumno
       )
       SELECT
-        r.id_usuario AS id_alumno,
+        r.id_usuario,
         r.nombre_completo,
         r.correo,
         r.usuario,
-        r.estado AS estado_cuenta,
-        r.fecha_registro,
-        COALESCE(gra.grupo, 'Sin grupo') AS grupo,
-        COALESCE(pr.ultimo_modulo, 'Sin módulo') AS modulo,
-        pr.promedio_puntaje,
+        r.estado,
+        COALESCE(ga.nombre_grupo, 'Sin grupo') AS grupo,
+        COALESCE(um.actividad_titulo, 'Sin módulo') AS modulo,
+        pr.promedio_precision,
         pr.total_actividades,
         pr.actividades_completadas
-      FROM registro r
+      FROM public.registro r
       LEFT JOIN progreso_resumen pr
-        ON pr.usuario_id = r.id_usuario
-      LEFT JOIN grupos_alumno gra
-        ON gra.id_alumno = r.id_usuario
-      WHERE (LOWER(COALESCE(r.rol, '')) = 'estudiante' OR r.role_id = 2)
+        ON pr.id_usuario = r.id_usuario
+      LEFT JOIN ultimo_modulo um
+        ON um.id_usuario = r.id_usuario
+      LEFT JOIN grupos_alumno ga
+        ON ga.id_alumno = r.id_usuario
+      WHERE LOWER(COALESCE(r.rol, '')) = 'estudiante'
+        AND r.estado = true
         AND (
           $1 = ''
-          OR LOWER(r.nombre_completo) LIKE LOWER('%' || $1 || '%')
-          OR LOWER(r.correo) LIKE LOWER('%' || $1 || '%')
-          OR LOWER(COALESCE(r.usuario, '')) LIKE LOWER('%' || $1 || '%')
+          OR LOWER(r.nombre_completo) LIKE LOWER($2)
+          OR LOWER(r.correo) LIKE LOWER($2)
+          OR LOWER(COALESCE(r.usuario, '')) LIKE LOWER($2)
         )
       ORDER BY r.fecha_registro DESC, r.id_usuario DESC
       `,
-      [buscar]
+      [busqueda, `%${busqueda}%`]
     );
 
     const alumnos = resultado.rows.map((alumno) => {
-      const idAlumno = Number(alumno.id_alumno);
+      const totalActividades = Number(alumno.total_actividades || 0);
+      const tieneProgreso = totalActividades > 0;
 
-      const asistencia =
-        alumno.total_actividades && Number(alumno.total_actividades) > 0
-          ? Math.round(
-              (Number(alumno.actividades_completadas || 0) * 100) /
-                Number(alumno.total_actividades)
-            )
-          : numeroRespaldo(idAlumno, 61, 98);
+      const asistencia = tieneProgreso
+        ? Math.round(
+            (Number(alumno.actividades_completadas || 0) * 100) /
+              totalActividades
+          )
+        : null;
 
       const promedio =
-        alumno.promedio_puntaje !== null && alumno.promedio_puntaje !== undefined
-          ? Number((Number(alumno.promedio_puntaje) / 10).toFixed(1))
-          : Number((5.8 + (idAlumno % 38) / 10).toFixed(1));
+        tieneProgreso &&
+        alumno.promedio_precision !== null &&
+        alumno.promedio_precision !== undefined
+          ? Number((Number(alumno.promedio_precision) / 10).toFixed(1))
+          : null;
 
-      const tieneRezago = promedio < 7 || asistencia < 70;
+      const tieneRezago =
+        tieneProgreso &&
+        promedio !== null &&
+        asistencia !== null &&
+        (promedio < 7 || asistencia < 70);
 
       return {
-        id_alumno: idAlumno,
-        iniciales: obtenerIniciales(alumno.nombre_completo),
+        id: alumno.id_usuario,
         nombre: alumno.nombre_completo,
         correo: alumno.correo,
         usuario: alumno.usuario,
-        grupo: alumno.grupo,
-        modulo: alumno.modulo,
+        iniciales: obtenerIniciales(alumno.nombre_completo),
+        color: obtenerColor(alumno.id_usuario),
+        grupo: alumno.grupo || "Sin grupo",
+        modulo: alumno.modulo || "Sin módulo",
         asistencia,
         promedio,
-        estado: alumno.estado_cuenta && !tieneRezago ? "Activo" : "Rezago",
-        color: obtenerColor(idAlumno),
+        estado: tieneRezago ? "Rezago" : "Activo",
         barra: obtenerBarra(asistencia),
-        fecha_registro: alumno.fecha_registro,
       };
     });
 
     const total = alumnos.length;
     const activos = alumnos.filter((alumno) => alumno.estado === "Activo").length;
     const rezago = alumnos.filter((alumno) => alumno.estado === "Rezago").length;
-    const asistenciaBaja = alumnos.filter((alumno) => alumno.asistencia < 70).length;
+
+    const alumnosConPromedio = alumnos.filter(
+      (alumno) => alumno.promedio !== null && alumno.promedio !== undefined
+    );
 
     const promedioGeneral =
-      total > 0
+      alumnosConPromedio.length > 0
         ? Number(
             (
-              alumnos.reduce((suma, alumno) => suma + Number(alumno.promedio || 0), 0) /
-              total
+              alumnosConPromedio.reduce(
+                (suma, alumno) => suma + Number(alumno.promedio),
+                0
+              ) / alumnosConPromedio.length
             ).toFixed(1)
           )
         : null;
 
     return res.json({
       ok: true,
+      alumnos,
       resumen: {
         total,
         activos,
         rezago,
-        asistencia_baja: asistenciaBaja,
-        promedio_general: promedioGeneral,
-        porcentaje_activos: total > 0 ? Math.round((activos * 100) / total) : 0,
-        porcentaje_rezago: total > 0 ? Math.round((rezago * 100) / total) : 0,
+        promedioGeneral,
       },
-      alumnos,
     });
   } catch (error) {
     console.error("Error al obtener alumnos docentes:", error);
@@ -155,6 +162,244 @@ router.get("/", verificarToken, async (req, res) => {
     return res.status(500).json({
       ok: false,
       mensaje: "No se pudieron obtener los alumnos.",
+    });
+  }
+});
+
+router.post("/", async (req, res) => {
+  try {
+    const nombreCompleto = req.body.nombre_completo?.trim();
+    const correo = req.body.correo?.trim().toLowerCase();
+    const usuario = req.body.usuario?.trim();
+    const password = req.body.password?.trim();
+
+    if (!nombreCompleto || !correo || !usuario || !password) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: "Completa todos los campos.",
+      });
+    }
+
+    if (!correo.includes("@")) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: "Escribe un correo válido.",
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: "La contraseña debe tener al menos 6 caracteres.",
+      });
+    }
+
+    const existe = await pool.query(
+      `
+      SELECT id_usuario
+      FROM public.registro
+      WHERE correo = $1 OR usuario = $2
+      LIMIT 1
+      `,
+      [correo, usuario]
+    );
+
+    if (existe.rows.length > 0) {
+      return res.status(409).json({
+        ok: false,
+        mensaje: "Ya existe un alumno con ese correo o usuario.",
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const resultado = await pool.query(
+      `
+      INSERT INTO public.registro (
+        nombre_completo,
+        correo,
+        usuario,
+        password_hash,
+        rol,
+        estado,
+        acepto_terminos
+      )
+      VALUES ($1, $2, $3, $4, 'estudiante', true, true)
+      RETURNING id_usuario, nombre_completo, correo, usuario
+      `,
+      [nombreCompleto, correo, usuario, passwordHash]
+    );
+
+    return res.status(201).json({
+      ok: true,
+      mensaje: "Alumno agregado correctamente.",
+      alumno: resultado.rows[0],
+    });
+  } catch (error) {
+    console.error("Error al agregar alumno:", error);
+
+    return res.status(500).json({
+      ok: false,
+      mensaje: "No se pudo agregar el alumno.",
+    });
+  }
+});
+
+router.put("/:id_alumno", async (req, res) => {
+  try {
+    const idAlumno = Number(req.params.id_alumno);
+
+    const nombreCompleto = req.body.nombre_completo?.trim();
+    const correo = req.body.correo?.trim().toLowerCase();
+    const usuario = req.body.usuario?.trim();
+    const password = req.body.password?.trim();
+
+    if (!idAlumno) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: "El alumno no es válido.",
+      });
+    }
+
+    if (!nombreCompleto || !correo || !usuario) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: "Completa nombre, correo y usuario.",
+      });
+    }
+
+    if (!correo.includes("@")) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: "Escribe un correo válido.",
+      });
+    }
+
+    if (password && password.length < 6) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: "La contraseña debe tener al menos 6 caracteres.",
+      });
+    }
+
+    const existe = await pool.query(
+      `
+      SELECT id_usuario
+      FROM public.registro
+      WHERE (correo = $1 OR usuario = $2)
+        AND id_usuario <> $3
+      LIMIT 1
+      `,
+      [correo, usuario, idAlumno]
+    );
+
+    if (existe.rows.length > 0) {
+      return res.status(409).json({
+        ok: false,
+        mensaje: "Ya existe otro usuario con ese correo o usuario.",
+      });
+    }
+
+    let resultado;
+
+    if (password) {
+      const passwordHash = await bcrypt.hash(password, 10);
+
+      resultado = await pool.query(
+        `
+        UPDATE public.registro
+        SET
+          nombre_completo = $1,
+          correo = $2,
+          usuario = $3,
+          password_hash = $4,
+          fecha_actualizacion = CURRENT_TIMESTAMP
+        WHERE id_usuario = $5
+          AND LOWER(COALESCE(rol, '')) = 'estudiante'
+        RETURNING id_usuario, nombre_completo, correo, usuario
+        `,
+        [nombreCompleto, correo, usuario, passwordHash, idAlumno]
+      );
+    } else {
+      resultado = await pool.query(
+        `
+        UPDATE public.registro
+        SET
+          nombre_completo = $1,
+          correo = $2,
+          usuario = $3,
+          fecha_actualizacion = CURRENT_TIMESTAMP
+        WHERE id_usuario = $4
+          AND LOWER(COALESCE(rol, '')) = 'estudiante'
+        RETURNING id_usuario, nombre_completo, correo, usuario
+        `,
+        [nombreCompleto, correo, usuario, idAlumno]
+      );
+    }
+
+    if (resultado.rows.length === 0) {
+      return res.status(404).json({
+        ok: false,
+        mensaje: "Alumno no encontrado.",
+      });
+    }
+
+    return res.json({
+      ok: true,
+      mensaje: "Alumno actualizado correctamente.",
+      alumno: resultado.rows[0],
+    });
+  } catch (error) {
+    console.error("Error al editar alumno:", error);
+
+    return res.status(500).json({
+      ok: false,
+      mensaje: "No se pudo editar el alumno.",
+    });
+  }
+});
+
+router.delete("/:id_alumno", async (req, res) => {
+  try {
+    const idAlumno = Number(req.params.id_alumno);
+
+    if (!idAlumno) {
+      return res.status(400).json({
+        ok: false,
+        mensaje: "El alumno no es válido.",
+      });
+    }
+
+    const resultado = await pool.query(
+      `
+      UPDATE public.registro
+      SET
+        estado = false,
+        fecha_actualizacion = CURRENT_TIMESTAMP
+      WHERE id_usuario = $1
+        AND LOWER(COALESCE(rol, '')) = 'estudiante'
+      RETURNING id_usuario
+      `,
+      [idAlumno]
+    );
+
+    if (resultado.rows.length === 0) {
+      return res.status(404).json({
+        ok: false,
+        mensaje: "Alumno no encontrado.",
+      });
+    }
+
+    return res.json({
+      ok: true,
+      mensaje: "Alumno eliminado correctamente.",
+    });
+  } catch (error) {
+    console.error("Error al eliminar alumno:", error);
+
+    return res.status(500).json({
+      ok: false,
+      mensaje: "No se pudo eliminar el alumno.",
     });
   }
 });

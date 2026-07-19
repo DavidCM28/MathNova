@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type FormEvent,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdministrarAlumnosDocente.css";
 
@@ -12,13 +18,14 @@ import {
   FiUsers,
   FiEdit,
   FiBarChart2,
+  FiTrendingUp,
   FiChevronDown,
   FiLogOut,
   FiHelpCircle,
   FiSettings,
   FiPlus,
   FiSearch,
-  FiUpload,
+  FiDownload,
   FiUserPlus,
   FiEye,
   FiTrash2,
@@ -34,7 +41,8 @@ import {
 } from "react-icons/fi";
 
 type Alumno = {
-  id_alumno: number;
+  id?: number;
+  id_alumno?: number;
   iniciales: string;
   nombre: string;
   correo: string;
@@ -66,6 +74,19 @@ type DocenteAlumnosResponse = {
   mensaje?: string;
 };
 
+type ApiResponse = {
+  ok?: boolean;
+  mensaje?: string;
+  [key: string]: unknown;
+};
+
+type AlertaVisual = {
+  tipo: "success" | "error";
+  titulo: string;
+  mensaje: string;
+  nombre?: string;
+};
+
 const API_DOCENTE_ALUMNOS = "http://localhost:3001/api/docente/alumnos";
 const ALUMNOS_POR_PAGINA = 5;
 
@@ -79,6 +100,39 @@ const resumenInicial: Resumen = {
   porcentaje_rezago: 0,
 };
 
+const formAgregarInicial = {
+  nombre_completo: "",
+  correo: "",
+  usuario: "",
+  password: "",
+};
+
+const formEditarInicial = {
+  nombre_completo: "",
+  correo: "",
+  usuario: "",
+  password: "",
+};
+
+function obtenerToken() {
+  return (
+    localStorage.getItem("token") ||
+    localStorage.getItem("mathnova_token") ||
+    sessionStorage.getItem("token") ||
+    sessionStorage.getItem("mathnova_token")
+  );
+}
+
+async function leerRespuesta(response: Response): Promise<ApiResponse> {
+  const texto = await response.text();
+
+  try {
+    return texto ? JSON.parse(texto) : {};
+  } catch {
+    throw new Error("El backend no devolvió JSON.");
+  }
+}
+
 function formatearFecha(fecha?: string) {
   if (!fecha) return "Sin fecha";
 
@@ -89,24 +143,115 @@ function formatearFecha(fecha?: string) {
   });
 }
 
+function obtenerIdAlumno(alumno: Alumno): number {
+  return Number(alumno.id_alumno ?? alumno.id);
+}
+
+function obtenerIniciales(alumno: Alumno) {
+  const inicialesBackend = alumno.iniciales?.trim();
+
+  if (inicialesBackend) {
+    return inicialesBackend.slice(0, 2).toUpperCase();
+  }
+
+  return (
+    alumno.nombre
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((parte) => parte.charAt(0))
+      .join("")
+      .toUpperCase() || "AL"
+  );
+}
+
+const PALETA_AVATARES = [
+  "#ff4d57",
+  "#ff9800",
+  "#7c3aed",
+  "#0f62fe",
+  "#14b8a6",
+  "#ec4899",
+  "#2563eb",
+  "#8b5cf6",
+  "#10b981",
+  "#f97316",
+];
+
+function obtenerColorPersonalizado(color?: string) {
+  if (!color) return null;
+
+  const colores: Record<string, string> = {
+    blue: "#0f62fe",
+    purple: "#7c3aed",
+    dark: "#32405f",
+    green: "#14b8a6",
+    orange: "#ff9800",
+    pink: "#ec4899",
+    red: "#ff4d57",
+    teal: "#14b8a6",
+  };
+
+  const colorNormalizado = color.trim().toLowerCase();
+
+  if (colores[colorNormalizado]) {
+    return colores[colorNormalizado];
+  }
+
+  if (/^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(colorNormalizado)) {
+    return colorNormalizado;
+  }
+
+  if (/^(rgb|rgba|hsl|hsla)\(/i.test(colorNormalizado)) {
+    return colorNormalizado;
+  }
+
+  return null;
+}
+
+function obtenerColorAvatar(alumno: Alumno) {
+  const colorPersonalizado = obtenerColorPersonalizado(alumno.color);
+
+  if (colorPersonalizado && alumno.color?.trim().toLowerCase() !== "blue") {
+    return colorPersonalizado;
+  }
+
+  const semilla = `${obtenerIdAlumno(alumno)}-${alumno.nombre}`;
+  const valorSemilla = Array.from(semilla).reduce(
+    (acumulado, caracter) => acumulado + caracter.charCodeAt(0),
+    0,
+  );
+
+  return PALETA_AVATARES[valorSemilla % PALETA_AVATARES.length];
+}
+
+function estiloAvatar(alumno: Alumno): CSSProperties {
+  return {
+    backgroundColor: obtenerColorAvatar(alumno),
+  };
+}
+
 function AdministrarAlumnosDocente() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [alumnos, setAlumnos] = useState<Alumno[]>([]);
   const [resumen, setResumen] = useState<Resumen>(resumenInicial);
   const [busqueda, setBusqueda] = useState("");
   const [cargando, setCargando] = useState(true);
+  const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
+  const [mensajeExito, setMensajeExito] = useState("");
   const [paginaActual, setPaginaActual] = useState(1);
+  const [reloadKey, setReloadKey] = useState(0);
+
   const [modalAgregarOpen, setModalAgregarOpen] = useState(false);
+  const [formAgregar, setFormAgregar] = useState(formAgregarInicial);
+
+  const [alumnoDetalle, setAlumnoDetalle] = useState<Alumno | null>(null);
   const [alumnoEditar, setAlumnoEditar] = useState<Alumno | null>(null);
-  const [formEditar, setFormEditar] = useState({
-    nombre: "",
-    grupo: "",
-    modulo: "",
-    asistencia: "",
-    promedio: "",
-    estado: "Activo" as "Activo" | "Rezago",
-  });
+  const [alumnoEliminar, setAlumnoEliminar] = useState<Alumno | null>(null);
+  const [alertaVisual, setAlertaVisual] = useState<AlertaVisual | null>(null);
+  const [formEditar, setFormEditar] = useState(formEditarInicial);
 
   const [gruposOpen, setGruposOpen] = useState(() => {
     return localStorage.getItem("docente-grupos-open") !== "false";
@@ -122,18 +267,35 @@ function AdministrarAlumnosDocente() {
 
   useEffect(() => {
     document.body.style.overflow =
-      menuOpen || modalAgregarOpen || alumnoEditar ? "hidden" : "auto";
+      menuOpen ||
+      modalAgregarOpen ||
+      Boolean(alumnoDetalle) ||
+      Boolean(alumnoEditar) ||
+      Boolean(alumnoEliminar) ||
+      Boolean(alertaVisual)
+        ? "hidden"
+        : "auto";
 
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [menuOpen, modalAgregarOpen, alumnoEditar]);
+  }, [
+    menuOpen,
+    modalAgregarOpen,
+    alumnoDetalle,
+    alumnoEditar,
+    alumnoEliminar,
+    alertaVisual,
+  ]);
 
   useEffect(() => {
     const cerrarConEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setModalAgregarOpen(false);
-        setAlumnoEditar(null);
+        cerrarModalAgregar();
+        cerrarModalDetalle();
+        cerrarModalEditar();
+        setAlumnoEliminar(null);
+        setAlertaVisual(null);
       }
     };
 
@@ -159,7 +321,7 @@ function AdministrarAlumnosDocente() {
         setError("");
         setPaginaActual(1);
 
-        const token = localStorage.getItem("token");
+        const token = obtenerToken();
 
         if (!token) {
           throw new Error("Debes iniciar sesión para ver los alumnos.");
@@ -181,17 +343,7 @@ function AdministrarAlumnosDocente() {
           },
         });
 
-        const texto = await response.text();
-
-        let data: DocenteAlumnosResponse;
-
-        try {
-          data = texto ? JSON.parse(texto) : null;
-        } catch {
-          throw new Error(
-            "El backend no devolvió JSON. Revisa que la ruta /api/docente/alumnos esté registrada.",
-          );
-        }
+        const data = (await leerRespuesta(response)) as DocenteAlumnosResponse;
 
         if (!response.ok) {
           throw new Error(
@@ -222,7 +374,7 @@ function AdministrarAlumnosDocente() {
     return () => {
       window.clearTimeout(timer);
     };
-  }, [busqueda]);
+  }, [busqueda, reloadKey]);
 
   const totalPaginas = Math.max(
     1,
@@ -238,6 +390,11 @@ function AdministrarAlumnosDocente() {
 
   const alumnosRecientes = alumnos.slice(0, 3);
 
+  const limpiarMensajes = () => {
+    setError("");
+    setMensajeExito("");
+  };
+
   const irARuta = (ruta: string, menu?: string) => {
     if (menu) {
       setSelectedMenu(menu);
@@ -247,43 +404,272 @@ function AdministrarAlumnosDocente() {
     navigate(ruta);
   };
 
+  const cerrarModalAgregar = () => {
+    setModalAgregarOpen(false);
+    setFormAgregar(formAgregarInicial);
+  };
+
+  const abrirModalDetalle = (alumno: Alumno) => {
+    limpiarMensajes();
+    setAlumnoDetalle(alumno);
+  };
+
+  const cerrarModalDetalle = () => {
+    setAlumnoDetalle(null);
+  };
+
   const abrirModalEditar = (alumno: Alumno) => {
     setFormEditar({
-      nombre: alumno.nombre,
-      grupo: alumno.grupo,
-      modulo: alumno.modulo,
-      asistencia: alumno.asistencia !== null ? String(alumno.asistencia) : "",
-      promedio: alumno.promedio !== null ? String(alumno.promedio) : "",
-      estado: alumno.estado,
+      nombre_completo: alumno.nombre,
+      correo: alumno.correo,
+      usuario: alumno.usuario || "",
+      password: "",
     });
+
     setAlumnoEditar(alumno);
   };
 
   const cerrarModalEditar = () => {
     setAlumnoEditar(null);
-    setFormEditar({
-      nombre: "",
-      grupo: "",
-      modulo: "",
-      asistencia: "",
-      promedio: "",
-      estado: "Activo",
-    });
-  };
-
-  const cambiarCampoEditar = (
-    campo: "nombre" | "grupo" | "modulo" | "asistencia" | "promedio" | "estado",
-    valor: string,
-  ) => {
-    setFormEditar((actual) => ({
-      ...actual,
-      [campo]: valor,
-    }));
+    setFormEditar(formEditarInicial);
   };
 
   const cambiarPagina = (pagina: number) => {
     const paginaSegura = Math.min(Math.max(pagina, 1), totalPaginas);
     setPaginaActual(paginaSegura);
+  };
+
+  const crearAlumno = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    try {
+      setGuardando(true);
+      limpiarMensajes();
+
+      const token = obtenerToken();
+
+      if (!token) {
+        throw new Error("Debes iniciar sesión para agregar alumnos.");
+      }
+
+      const response = await fetch(API_DOCENTE_ALUMNOS, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formAgregar),
+      });
+
+      const data = await leerRespuesta(response);
+
+      if (!response.ok) {
+        throw new Error(data?.mensaje || "No se pudo agregar el alumno.");
+      }
+
+      const nombreAlumnoNuevo = formAgregar.nombre_completo.trim();
+
+      cerrarModalAgregar();
+      setMensajeExito("");
+      setAlertaVisual({
+        tipo: "success",
+        titulo: "¡Alumno agregado!",
+        mensaje: "El estudiante fue registrado correctamente en MathNova.",
+        nombre: nombreAlumnoNuevo,
+      });
+      setReloadKey((valor) => valor + 1);
+    } catch (error) {
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "No se pudo agregar el alumno.";
+
+      setError("");
+      setAlertaVisual({
+        tipo: "error",
+        titulo: "No se pudo agregar",
+        mensaje,
+      });
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  const actualizarAlumno = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!alumnoEditar) return;
+
+    try {
+      setGuardando(true);
+      limpiarMensajes();
+
+      const token = obtenerToken();
+
+      if (!token) {
+        throw new Error("Debes iniciar sesión para editar alumnos.");
+      }
+
+      const idAlumno = obtenerIdAlumno(alumnoEditar);
+
+      if (!Number.isInteger(idAlumno) || idAlumno <= 0) {
+        throw new Error("No se encontró el identificador del alumno.");
+      }
+
+      const response = await fetch(`${API_DOCENTE_ALUMNOS}/${idAlumno}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formEditar),
+      });
+
+      const data = await leerRespuesta(response);
+
+      if (!response.ok) {
+        throw new Error(data?.mensaje || "No se pudo editar el alumno.");
+      }
+
+      const nombreAlumnoActualizado =
+        formEditar.nombre_completo.trim() || alumnoEditar.nombre;
+
+      cerrarModalEditar();
+      setMensajeExito("");
+      setAlertaVisual({
+        tipo: "success",
+        titulo: "¡Alumno actualizado!",
+        mensaje:
+          "Los datos del estudiante se actualizaron correctamente en MathNova.",
+        nombre: nombreAlumnoActualizado,
+      });
+      setReloadKey((valor) => valor + 1);
+    } catch (error) {
+      const mensaje =
+        error instanceof Error ? error.message : "No se pudo editar el alumno.";
+
+      setError("");
+      setAlertaVisual({
+        tipo: "error",
+        titulo: "No se pudo actualizar",
+        mensaje,
+        nombre: formEditar.nombre_completo.trim() || alumnoEditar.nombre,
+      });
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  const solicitarEliminarAlumno = (alumno: Alumno) => {
+    limpiarMensajes();
+    setAlumnoEliminar(alumno);
+  };
+
+  const cancelarEliminarAlumno = () => {
+    if (!guardando) setAlumnoEliminar(null);
+  };
+
+  const eliminarAlumno = async () => {
+    if (!alumnoEliminar) return;
+
+    const alumnoSeleccionado = alumnoEliminar;
+
+    try {
+      setGuardando(true);
+      limpiarMensajes();
+
+      const token = obtenerToken();
+
+      if (!token) {
+        throw new Error("Debes iniciar sesión para eliminar alumnos.");
+      }
+
+      const idAlumno = obtenerIdAlumno(alumnoSeleccionado);
+
+      if (!Number.isInteger(idAlumno) || idAlumno <= 0) {
+        throw new Error("No se encontró el identificador del alumno.");
+      }
+
+      const response = await fetch(`${API_DOCENTE_ALUMNOS}/${idAlumno}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await leerRespuesta(response);
+
+      if (!response.ok) {
+        throw new Error(data?.mensaje || "No se pudo eliminar el alumno.");
+      }
+
+      setAlumnoEliminar(null);
+      setMensajeExito("");
+      setAlertaVisual({
+        tipo: "success",
+        titulo: "Alumno eliminado",
+        mensaje: "La cuenta del estudiante fue desactivada correctamente.",
+        nombre: alumnoSeleccionado.nombre,
+      });
+      setReloadKey((valor) => valor + 1);
+    } catch (error) {
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "No se pudo eliminar el alumno.";
+
+      setAlumnoEliminar(null);
+      setError("");
+      setAlertaVisual({
+        tipo: "error",
+        titulo: "No se pudo eliminar",
+        mensaje,
+        nombre: alumnoSeleccionado.nombre,
+      });
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  const descargarListaAlumnos = () => {
+    const encabezados = [
+      "Nombre",
+      "Correo",
+      "Usuario",
+      "Grupo",
+      "Modulo",
+      "Asistencia",
+      "Promedio",
+      "Estado",
+    ];
+
+    const filas = alumnos.map((alumno) => [
+      alumno.nombre,
+      alumno.correo,
+      alumno.usuario || "",
+      alumno.grupo,
+      alumno.modulo,
+      alumno.asistencia !== null ? `${alumno.asistencia}%` : "",
+      alumno.promedio !== null ? String(alumno.promedio) : "",
+      alumno.estado,
+    ]);
+
+    const csv = [encabezados, ...filas]
+      .map((fila) =>
+        fila.map((valor) => `"${String(valor).replace(/"/g, '""')}"`).join(","),
+      )
+      .join("\n");
+
+    const archivo = new Blob([`\uFEFF${csv}`], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = URL.createObjectURL(archivo);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "alumnos-mathnova.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
   };
 
   const inicioMostrado =
@@ -440,6 +826,19 @@ function AdministrarAlumnosDocente() {
             <button
               type="button"
               className={`docente-menu-item ${
+                selectedMenu === "avance-actividad" ? "active-soft" : ""
+              }`}
+              onClick={() =>
+                irARuta("/avance-actividad-docente", "avance-actividad")
+              }
+            >
+              <FiTrendingUp />
+              <span>Avance de actividad</span>
+            </button>
+
+            <button
+              type="button"
+              className={`docente-menu-item ${
                 selectedMenu === "estadisticas" ? "active-soft" : ""
               }`}
               onClick={() => irARuta("/estadisticas-docente", "estadisticas")}
@@ -478,20 +877,22 @@ function AdministrarAlumnosDocente() {
             <button
               type="button"
               className="admin-action-btn primary"
-              onClick={() => setModalAgregarOpen(true)}
+              onClick={() => {
+                limpiarMensajes();
+                setModalAgregarOpen(true);
+              }}
             >
               <FiPlus />
               Agregar alumno
             </button>
 
-            <button type="button" className="admin-action-btn">
-              <FiUpload />
-              Importar lista
-            </button>
-
-            <button type="button" className="admin-action-btn">
-              <FiUserPlus />
-              Asignar grupo
+            <button
+              type="button"
+              className="admin-action-btn"
+              onClick={descargarListaAlumnos}
+            >
+              <FiDownload />
+              Descargar lista
             </button>
           </div>
 
@@ -509,6 +910,12 @@ function AdministrarAlumnosDocente() {
         {error && (
           <section className="admin-table-card">
             <p>{error}</p>
+          </section>
+        )}
+
+        {mensajeExito && (
+          <section className="admin-table-card">
+            <p>{mensajeExito}</p>
           </section>
         )}
 
@@ -590,10 +997,14 @@ function AdministrarAlumnosDocente() {
               </div>
             ) : alumnosPagina.length > 0 ? (
               alumnosPagina.map((alumno) => (
-                <div className="admin-table-row" key={alumno.id_alumno}>
+                <div className="admin-table-row" key={obtenerIdAlumno(alumno)}>
                   <span className="student-cell">
-                    <b className={`student-avatar ${alumno.color}`}>
-                      {alumno.iniciales}
+                    <b
+                      className="student-avatar"
+                      style={estiloAvatar(alumno)}
+                      aria-hidden="true"
+                    >
+                      {obtenerIniciales(alumno)}
                     </b>
                     {alumno.nombre}
                   </span>
@@ -627,14 +1038,21 @@ function AdministrarAlumnosDocente() {
                   </span>
 
                   <span className="actions-cell">
-                    <button type="button" aria-label="Ver alumno">
+                    <button
+                      type="button"
+                      aria-label={`Ver a ${alumno.nombre}`}
+                      onClick={() => abrirModalDetalle(alumno)}
+                    >
                       <FiEye />
                     </button>
 
                     <button
                       type="button"
                       aria-label={`Editar a ${alumno.nombre}`}
-                      onClick={() => abrirModalEditar(alumno)}
+                      onClick={() => {
+                        limpiarMensajes();
+                        abrirModalEditar(alumno);
+                      }}
                     >
                       <FiEdit2 />
                     </button>
@@ -642,7 +1060,9 @@ function AdministrarAlumnosDocente() {
                     <button
                       type="button"
                       className="delete"
-                      aria-label="Eliminar alumno"
+                      aria-label={`Eliminar a ${alumno.nombre}`}
+                      onClick={() => solicitarEliminarAlumno(alumno)}
+                      disabled={guardando}
                     >
                       <FiTrash2 />
                     </button>
@@ -710,9 +1130,13 @@ function AdministrarAlumnosDocente() {
 
             {alumnosRecientes.length > 0 ? (
               alumnosRecientes.map((alumno) => (
-                <div className="recent-row" key={alumno.id_alumno}>
-                  <span className={`mini-avatar ${alumno.color}`}>
-                    {alumno.iniciales}
+                <div className="recent-row" key={obtenerIdAlumno(alumno)}>
+                  <span
+                    className="mini-avatar"
+                    style={estiloAvatar(alumno)}
+                    aria-hidden="true"
+                  >
+                    {obtenerIniciales(alumno)}
                   </span>
                   <p>{alumno.nombre}</p>
                   <b>{formatearFecha(alumno.fecha_registro)}</b>
@@ -726,7 +1150,14 @@ function AdministrarAlumnosDocente() {
               </div>
             )}
 
-            <button type="button" className="link-btn">
+            <button
+              type="button"
+              className="link-btn"
+              onClick={() => {
+                setBusqueda("");
+                setPaginaActual(1);
+              }}
+            >
               Ver todos los alumnos
               <span>→</span>
             </button>
@@ -758,7 +1189,15 @@ function AdministrarAlumnosDocente() {
             <div className="alert-line alert-blue">
               <span></span>
               <p>{resumen.total} alumnos registrados como estudiantes.</p>
-              <button type="button">Ver alumnos</button>
+              <button
+                type="button"
+                onClick={() => {
+                  setBusqueda("");
+                  setPaginaActual(1);
+                }}
+              >
+                Ver alumnos
+              </button>
             </div>
 
             <button type="button" className="link-btn">
@@ -791,13 +1230,182 @@ function AdministrarAlumnosDocente() {
         </footer>
       </section>
 
+      {alumnoDetalle && (
+        <div
+          className="admin-modal-overlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              cerrarModalDetalle();
+            }
+          }}
+        >
+          <section
+            className="admin-modal admin-detail-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-detail-modal-title"
+          >
+            <div className="admin-modal-decoration admin-modal-circle-one"></div>
+            <div className="admin-modal-decoration admin-modal-circle-two"></div>
+
+            <button
+              type="button"
+              className="admin-modal-close"
+              onClick={cerrarModalDetalle}
+              aria-label="Cerrar detalle del alumno"
+            >
+              <FiX />
+            </button>
+
+            <header className="admin-detail-header">
+              <span
+                className="admin-detail-avatar"
+                style={estiloAvatar(alumnoDetalle)}
+                aria-hidden="true"
+              >
+                {obtenerIniciales(alumnoDetalle)}
+              </span>
+
+              <div className="admin-detail-title">
+                <span className="admin-modal-badge">Ficha del estudiante</span>
+                <h2 id="admin-detail-modal-title">{alumnoDetalle.nombre}</h2>
+                <p>
+                  ¿Quieres editar a este estudiante? Revisa su información y
+                  selecciona “Editar alumno”.
+                </p>
+              </div>
+
+              <span
+                className={`status-pill ${
+                  alumnoDetalle.estado === "Activo" ? "activo" : "rezago"
+                }`}
+              >
+                {alumnoDetalle.estado}
+              </span>
+            </header>
+
+            <div className="admin-detail-grid">
+              <article className="admin-detail-item">
+                <span className="admin-detail-item-icon">
+                  <FiMail />
+                </span>
+                <div>
+                  <small>Correo electrónico</small>
+                  <strong>{alumnoDetalle.correo || "Sin correo"}</strong>
+                </div>
+              </article>
+
+              <article className="admin-detail-item">
+                <span className="admin-detail-item-icon">
+                  <FiUser />
+                </span>
+                <div>
+                  <small>Nombre de usuario</small>
+                  <strong>{alumnoDetalle.usuario || "Sin usuario"}</strong>
+                </div>
+              </article>
+
+              <article className="admin-detail-item">
+                <span className="admin-detail-item-icon">
+                  <FiUsers />
+                </span>
+                <div>
+                  <small>Grupo asignado</small>
+                  <strong>{alumnoDetalle.grupo || "Sin grupo"}</strong>
+                </div>
+              </article>
+
+              <article className="admin-detail-item">
+                <span className="admin-detail-item-icon">
+                  <FiGrid />
+                </span>
+                <div>
+                  <small>Módulo actual</small>
+                  <strong>{alumnoDetalle.modulo || "Sin módulo"}</strong>
+                </div>
+              </article>
+            </div>
+
+            <div className="admin-detail-performance">
+              <div className="admin-detail-metric">
+                <span>Asistencia</span>
+                <strong>
+                  {alumnoDetalle.asistencia !== null
+                    ? `${alumnoDetalle.asistencia}%`
+                    : "—"}
+                </strong>
+                <div className="admin-detail-progress">
+                  <i
+                    style={{
+                      width: `${Math.min(
+                        Math.max(alumnoDetalle.asistencia || 0, 0),
+                        100,
+                      )}%`,
+                    }}
+                  ></i>
+                </div>
+              </div>
+
+              <div className="admin-detail-metric">
+                <span>Promedio</span>
+                <strong
+                  className={
+                    alumnoDetalle.promedio !== null &&
+                    alumnoDetalle.promedio < 7
+                      ? "metric-low"
+                      : "metric-good"
+                  }
+                >
+                  {alumnoDetalle.promedio !== null
+                    ? alumnoDetalle.promedio
+                    : "—"}
+                </strong>
+                <small>Calificación actual</small>
+              </div>
+
+              <div className="admin-detail-metric">
+                <span>Fecha de registro</span>
+                <strong className="metric-date">
+                  {formatearFecha(alumnoDetalle.fecha_registro)}
+                </strong>
+                <small>Alta en MathNova</small>
+              </div>
+            </div>
+
+            <div className="admin-detail-actions">
+              <button
+                type="button"
+                className="admin-modal-btn secondary"
+                onClick={cerrarModalDetalle}
+              >
+                Cerrar
+              </button>
+
+              <button
+                type="button"
+                className="admin-modal-btn primary admin-detail-edit-btn"
+                onClick={() => {
+                  const alumnoSeleccionado = alumnoDetalle;
+                  cerrarModalDetalle();
+                  abrirModalEditar(alumnoSeleccionado);
+                }}
+              >
+                <FiEdit2 />
+                Editar alumno
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
       {modalAgregarOpen && (
         <div
           className="admin-modal-overlay"
           role="presentation"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
-              setModalAgregarOpen(false);
+              cerrarModalAgregar();
             }
           }}
         >
@@ -813,7 +1421,7 @@ function AdministrarAlumnosDocente() {
             <button
               type="button"
               className="admin-modal-close"
-              onClick={() => setModalAgregarOpen(false)}
+              onClick={cerrarModalAgregar}
               aria-label="Cerrar modal"
             >
               <FiX />
@@ -834,10 +1442,7 @@ function AdministrarAlumnosDocente() {
               </div>
             </header>
 
-            <form
-              className="admin-modal-form"
-              onSubmit={(event) => event.preventDefault()}
-            >
+            <form className="admin-modal-form" onSubmit={crearAlumno}>
               <label className="admin-modal-field">
                 <span>Nombre completo</span>
                 <div className="admin-modal-input">
@@ -846,6 +1451,14 @@ function AdministrarAlumnosDocente() {
                     type="text"
                     placeholder="Ej. María Fernanda López"
                     autoComplete="name"
+                    value={formAgregar.nombre_completo}
+                    onChange={(event) =>
+                      setFormAgregar((actual) => ({
+                        ...actual,
+                        nombre_completo: event.target.value,
+                      }))
+                    }
+                    required
                   />
                 </div>
               </label>
@@ -858,6 +1471,14 @@ function AdministrarAlumnosDocente() {
                     type="email"
                     placeholder="Ej. maria@correo.com"
                     autoComplete="email"
+                    value={formAgregar.correo}
+                    onChange={(event) =>
+                      setFormAgregar((actual) => ({
+                        ...actual,
+                        correo: event.target.value,
+                      }))
+                    }
+                    required
                   />
                 </div>
               </label>
@@ -870,6 +1491,14 @@ function AdministrarAlumnosDocente() {
                     type="text"
                     placeholder="Ej. maria.lopez"
                     autoComplete="username"
+                    value={formAgregar.usuario}
+                    onChange={(event) =>
+                      setFormAgregar((actual) => ({
+                        ...actual,
+                        usuario: event.target.value,
+                      }))
+                    }
+                    required
                   />
                 </div>
               </label>
@@ -882,6 +1511,15 @@ function AdministrarAlumnosDocente() {
                     type="password"
                     placeholder="Escribe una contraseña"
                     autoComplete="new-password"
+                    value={formAgregar.password}
+                    onChange={(event) =>
+                      setFormAgregar((actual) => ({
+                        ...actual,
+                        password: event.target.value,
+                      }))
+                    }
+                    minLength={6}
+                    required
                   />
                 </div>
               </label>
@@ -890,14 +1528,19 @@ function AdministrarAlumnosDocente() {
                 <button
                   type="button"
                   className="admin-modal-btn secondary"
-                  onClick={() => setModalAgregarOpen(false)}
+                  onClick={cerrarModalAgregar}
+                  disabled={guardando}
                 >
                   Cancelar
                 </button>
 
-                <button type="submit" className="admin-modal-btn primary">
+                <button
+                  type="submit"
+                  className="admin-modal-btn primary"
+                  disabled={guardando}
+                >
                   <FiUserPlus />
-                  Agregar alumno
+                  {guardando ? "Guardando..." : "Agregar alumno"}
                 </button>
               </div>
             </form>
@@ -916,7 +1559,7 @@ function AdministrarAlumnosDocente() {
           }}
         >
           <section
-            className="admin-modal admin-modal-edit"
+            className="admin-modal admin-modal-edit admin-edit-detail-style"
             role="dialog"
             aria-modal="true"
             aria-labelledby="admin-edit-modal-title"
@@ -933,144 +1576,145 @@ function AdministrarAlumnosDocente() {
               <FiX />
             </button>
 
-            <header className="admin-modal-header">
-              <div className="admin-modal-icon admin-modal-edit-icon">
-                <FiEdit2 />
-              </div>
+            <header className="admin-edit-detail-header">
+              <span
+                className="admin-edit-detail-avatar"
+                style={estiloAvatar(alumnoEditar)}
+                aria-hidden="true"
+              >
+                {obtenerIniciales(alumnoEditar)}
+              </span>
 
-              <div>
+              <div className="admin-edit-detail-title">
                 <span className="admin-modal-badge admin-modal-edit-badge">
                   Editando estudiante
                 </span>
                 <h2 id="admin-edit-modal-title">Editar alumno</h2>
-                <p>
-                  Actualiza la información de {alumnoEditar.nombre}. Verifica
-                  los cambios antes de guardar.
-                </p>
-              </div>
-            </header>
-
-            <div className="admin-edit-student-card">
-              <span className={`student-avatar ${alumnoEditar.color}`}>
-                {alumnoEditar.iniciales}
-              </span>
-
-              <div>
-                <strong>{formEditar.nombre || alumnoEditar.nombre}</strong>
-                <p>
-                  {formEditar.grupo || "Sin grupo"} ·{" "}
-                  {formEditar.modulo || "Sin módulo"}
+                <p className="admin-edit-description">
+                  Actualiza la información de{" "}
+                  <strong
+                    className="admin-edit-highlight-name"
+                    style={
+                      {
+                        "--student-color": obtenerColorAvatar(alumnoEditar),
+                      } as CSSProperties
+                    }
+                  >
+                    {alumnoEditar.nombre}
+                  </strong>{" "}
+                  y guarda los cambios cuando termines.
                 </p>
               </div>
 
               <span
                 className={`status-pill ${
-                  formEditar.estado === "Activo" ? "activo" : "rezago"
+                  alumnoEditar.estado === "Activo" ? "activo" : "rezago"
                 }`}
               >
-                {formEditar.estado}
+                {alumnoEditar.estado}
               </span>
+            </header>
+
+            <div className="admin-edit-summary">
+              <div className="admin-edit-summary-item">
+                <span className="admin-edit-summary-icon">
+                  <FiMail />
+                </span>
+                <div>
+                  <small>Correo actual</small>
+                  <strong>{alumnoEditar.correo || "Sin correo"}</strong>
+                </div>
+              </div>
+
+              <div className="admin-edit-summary-item">
+                <span className="admin-edit-summary-icon">
+                  <FiUser />
+                </span>
+                <div>
+                  <small>Usuario actual</small>
+                  <strong>{alumnoEditar.usuario || "Sin usuario"}</strong>
+                </div>
+              </div>
             </div>
 
             <form
               className="admin-modal-form admin-edit-table-form"
-              onSubmit={(event) => event.preventDefault()}
+              onSubmit={actualizarAlumno}
             >
               <label className="admin-modal-field admin-edit-full-field">
-                <span>Alumno</span>
+                <span>Nombre completo</span>
                 <div className="admin-modal-input">
                   <FiUser />
                   <input
                     type="text"
-                    value={formEditar.nombre}
+                    value={formEditar.nombre_completo}
                     onChange={(event) =>
-                      cambiarCampoEditar("nombre", event.target.value)
+                      setFormEditar((actual) => ({
+                        ...actual,
+                        nombre_completo: event.target.value,
+                      }))
                     }
                     placeholder="Nombre completo del alumno"
+                    required
                   />
                 </div>
               </label>
 
               <label className="admin-modal-field">
-                <span>Grupo</span>
+                <span>Correo</span>
                 <div className="admin-modal-input">
-                  <FiUsers />
+                  <FiMail />
+                  <input
+                    type="email"
+                    value={formEditar.correo}
+                    onChange={(event) =>
+                      setFormEditar((actual) => ({
+                        ...actual,
+                        correo: event.target.value,
+                      }))
+                    }
+                    placeholder="correo@ejemplo.com"
+                    required
+                  />
+                </div>
+              </label>
+
+              <label className="admin-modal-field">
+                <span>Usuario</span>
+                <div className="admin-modal-input">
+                  <FiUser />
                   <input
                     type="text"
-                    value={formEditar.grupo}
+                    value={formEditar.usuario}
                     onChange={(event) =>
-                      cambiarCampoEditar("grupo", event.target.value)
+                      setFormEditar((actual) => ({
+                        ...actual,
+                        usuario: event.target.value,
+                      }))
                     }
-                    placeholder="Ej. 3° A o Sin grupo"
-                  />
-                </div>
-              </label>
-
-              <label className="admin-modal-field">
-                <span>Módulo</span>
-                <div className="admin-modal-input">
-                  <FiEdit />
-                  <input
-                    type="text"
-                    value={formEditar.modulo}
-                    onChange={(event) =>
-                      cambiarCampoEditar("modulo", event.target.value)
-                    }
-                    placeholder="Ej. Geometría o Sin módulo"
-                  />
-                </div>
-              </label>
-
-              <label className="admin-modal-field">
-                <span>Asistencia</span>
-                <div className="admin-modal-input admin-modal-number-input">
-                  <FiCheckCircle />
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value={formEditar.asistencia}
-                    onChange={(event) =>
-                      cambiarCampoEditar("asistencia", event.target.value)
-                    }
-                    placeholder="0 a 100"
-                  />
-                  <b>%</b>
-                </div>
-              </label>
-
-              <label className="admin-modal-field">
-                <span>Promedio</span>
-                <div className="admin-modal-input">
-                  <FiStar />
-                  <input
-                    type="number"
-                    min="0"
-                    max="10"
-                    step="0.1"
-                    value={formEditar.promedio}
-                    onChange={(event) =>
-                      cambiarCampoEditar("promedio", event.target.value)
-                    }
-                    placeholder="0.0 a 10.0"
+                    placeholder="usuario"
+                    required
                   />
                 </div>
               </label>
 
               <label className="admin-modal-field admin-edit-full-field">
-                <span>Estado</span>
-                <div className="admin-modal-input admin-modal-select-input">
-                  <FiCheckCircle />
-                  <select
-                    value={formEditar.estado}
+                <span>Nueva contraseña (opcional)</span>
+                <div className="admin-modal-input">
+                  <FiLock />
+                  <input
+                    type="password"
+                    value={formEditar.password}
                     onChange={(event) =>
-                      cambiarCampoEditar("estado", event.target.value)
+                      setFormEditar((actual) => ({
+                        ...actual,
+                        password: event.target.value,
+                      }))
                     }
-                  >
-                    <option value="Activo">Activo</option>
-                    <option value="Rezago">Rezago</option>
-                  </select>
+                    placeholder="Deja vacío si no quieres cambiarla"
+                    autoComplete="new-password"
+                    minLength={6}
+                  />
                 </div>
               </label>
 
@@ -1079,6 +1723,7 @@ function AdministrarAlumnosDocente() {
                   type="button"
                   className="admin-modal-btn secondary"
                   onClick={cerrarModalEditar}
+                  disabled={guardando}
                 >
                   Cancelar
                 </button>
@@ -1086,12 +1731,156 @@ function AdministrarAlumnosDocente() {
                 <button
                   type="submit"
                   className="admin-modal-btn primary admin-modal-save-btn"
+                  disabled={guardando}
                 >
                   <FiCheckCircle />
-                  Guardar cambios
+                  {guardando ? "Guardando..." : "Guardar cambios"}
                 </button>
               </div>
             </form>
+          </section>
+        </div>
+      )}
+
+      {alumnoEliminar && (
+        <div
+          className="admin-feedback-overlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !guardando)
+              cancelarEliminarAlumno();
+          }}
+        >
+          <section
+            className="admin-feedback-modal admin-delete-confirm-modal"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="admin-delete-title"
+            aria-describedby="admin-delete-description"
+          >
+            <div className="admin-feedback-decoration feedback-decoration-one"></div>
+            <div className="admin-feedback-decoration feedback-decoration-two"></div>
+            <button
+              type="button"
+              className="admin-feedback-close"
+              onClick={cancelarEliminarAlumno}
+              aria-label="Cancelar eliminación"
+              disabled={guardando}
+            >
+              <FiX />
+            </button>
+            <div className="admin-feedback-icon danger">
+              <FiTrash2 />
+            </div>
+            <span className="admin-feedback-badge danger">
+              Confirmar acción
+            </span>
+            <h2 id="admin-delete-title">¿Eliminar estudiante?</h2>
+            <p id="admin-delete-description">
+              Estás a punto de desactivar la cuenta de:
+            </p>
+            <div className="admin-feedback-student">
+              <span
+                className="admin-feedback-avatar"
+                style={estiloAvatar(alumnoEliminar)}
+                aria-hidden="true"
+              >
+                {obtenerIniciales(alumnoEliminar)}
+              </span>
+              <div>
+                <strong>{alumnoEliminar.nombre}</strong>
+                <small>
+                  {alumnoEliminar.correo || "Sin correo registrado"}
+                </small>
+              </div>
+            </div>
+            <div className="admin-feedback-warning">
+              <FiAlertTriangle />
+              <p>
+                Esta acción desactivará su cuenta. Confirma solamente si estás
+                seguro de continuar.
+              </p>
+            </div>
+            <div className="admin-feedback-actions">
+              <button
+                type="button"
+                className="admin-feedback-btn secondary"
+                onClick={cancelarEliminarAlumno}
+                disabled={guardando}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="admin-feedback-btn danger"
+                onClick={() => void eliminarAlumno()}
+                disabled={guardando}
+              >
+                <FiTrash2 />
+                {guardando ? "Eliminando..." : "Sí, eliminar"}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {alertaVisual && (
+        <div
+          className="admin-feedback-overlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setAlertaVisual(null);
+          }}
+        >
+          <section
+            className={`admin-feedback-modal admin-result-modal ${alertaVisual.tipo}`}
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="admin-result-title"
+            aria-describedby="admin-result-description"
+          >
+            <div className="admin-feedback-decoration feedback-decoration-one"></div>
+            <div className="admin-feedback-decoration feedback-decoration-two"></div>
+            <button
+              type="button"
+              className="admin-feedback-close"
+              onClick={() => setAlertaVisual(null)}
+              aria-label="Cerrar mensaje"
+            >
+              <FiX />
+            </button>
+            <div
+              className={`admin-feedback-icon ${alertaVisual.tipo === "success" ? "success" : "error"}`}
+            >
+              {alertaVisual.tipo === "success" ? (
+                <FiCheckCircle />
+              ) : (
+                <FiAlertTriangle />
+              )}
+            </div>
+            <span
+              className={`admin-feedback-badge ${alertaVisual.tipo === "success" ? "success" : "danger"}`}
+            >
+              {alertaVisual.tipo === "success"
+                ? "Operación completada"
+                : "Ocurrió un problema"}
+            </span>
+            <h2 id="admin-result-title">{alertaVisual.titulo}</h2>
+            {alertaVisual.nombre && (
+              <div className="admin-result-name">
+                <FiUser />
+                <strong>{alertaVisual.nombre}</strong>
+              </div>
+            )}
+            <p id="admin-result-description">{alertaVisual.mensaje}</p>
+            <button
+              type="button"
+              className={`admin-feedback-btn ${alertaVisual.tipo === "success" ? "success" : "primary"} full`}
+              onClick={() => setAlertaVisual(null)}
+            >
+              <FiCheckCircle />
+              Entendido
+            </button>
           </section>
         </div>
       )}

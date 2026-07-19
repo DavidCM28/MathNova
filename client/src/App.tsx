@@ -4,7 +4,7 @@ import RequireAuth from "./routes/RequireAuth";
 import {
   getSessionUser,
   hasAuthSession,
-  isGuestSession
+  isGuestSession,
 } from "./utils/authSession";
 
 import Login from "./pages/Login/Login";
@@ -20,12 +20,12 @@ import ActividadesMathGeometry from "./pages/ActividadesMathGeometry/Actividades
 import Actividad1MathGeometry from "./pages/ActividadesMathGeometry/Actividad1MathGeometry";
 import Actividad2MathGeometry from "./pages/ActividadesMathGeometry/Actividad2MathGeometry";
 import Actividad3MathGeometry from "./pages/ActividadesMathGeometry/Actividad3MathGeometry";
+import Actividad4MathGeometry from "./pages/ActividadesMathGeometry/Actividad4MathGeometry";
 
 import ActividadesMathData from "./pages/ActividadesMathData/ActividadesMathData";
 import GeneradorEnergiaInversa from "./pages/ActividadesMathData/GeneradorEnergiaInversa";
 import RampasDeLanzamiento from "./pages/ActividadesMathData/RampasDeLanzamiento";
 import EncuestaTripulacion from "./pages/ActividadesMathData/EncuestaTripulacion";
-
 
 import ActividadesMathNumbers from "./pages/ActividadesMathNumbers/ActividadesMathNumbers";
 import MathNumbersActivityRouter from "./pages/MathNumbersActivities/MathNumbersActivityRouter";
@@ -40,6 +40,7 @@ import ActividadesDocente from "./pages/ActividadesDocente/ActividadesDocente";
 import RetroalimentacionDocente from "./pages/RetroalimentacionDocente/RetroalimentacionDocente";
 import EvaluacionesDocente from "./pages/EvaluacionesDocente/EvaluacionesDocente";
 import EstadisticasDocente from "./pages/EstadisticasDocente/EstadisticasDocente";
+import AvanceActividadDocente from "./pages/AvanceActividadDocente/AvanceActividadDocente";
 
 import DashboardAdmin from "./pages/Admin/Dashboard/DashboardAdmin";
 import GroupsAdmin from "./pages/Admin/Groups/GroupsAdmin";
@@ -48,7 +49,6 @@ import ResourcesAdmin from "./pages/Admin/Resources/ResourcesAdmin";
 import ReportsAdmin from "./pages/Admin/Reports/ReportsAdmin";
 import RequestsAdmin from "./pages/Admin/Requests/RequestsAdmin";
 import SettingsAdmin from "./pages/Admin/Settings/SettingsAdmin";
-
 
 type SessionUser = {
   rol?: string;
@@ -60,7 +60,9 @@ type SessionUser = {
 };
 
 const normalizarRol = (rol?: string, roleId?: number | string) => {
-  const valor = String(rol || "").toLowerCase().trim();
+  const valor = String(rol || "")
+    .toLowerCase()
+    .trim();
   const idRol = Number(roleId);
 
   if (
@@ -71,7 +73,7 @@ const normalizarRol = (rol?: string, roleId?: number | string) => {
       "docente_alumno",
       "maestro_estudiante",
       "maestro-estudiante",
-      "mixto"
+      "mixto",
     ].includes(valor)
   ) {
     return "docente_estudiante";
@@ -117,7 +119,7 @@ const obtenerRutaInicial = () => {
 
   const rolUsuario = normalizarRol(
     usuario.rol || usuario.role || usuario.tipo_usuario,
-    usuario.role_id || usuario.roleId || usuario.id_rol
+    usuario.role_id || usuario.roleId || usuario.id_rol,
   );
 
   if (rolUsuario === "admin") {
@@ -187,12 +189,12 @@ function App() {
           }
         />
         <Route
-        path="/actividades-math-data/encuesta-tripulacion"
-        element={
+          path="/actividades-math-data/encuesta-tripulacion"
+          element={
             <RequireAuth>
               <EncuestaTripulacion />
             </RequireAuth>
-        }
+          }
         />
         <Route
           path="/retroalimentacion"
@@ -246,6 +248,11 @@ function App() {
               <Actividad3MathGeometry />
             </RequireAuth>
           }
+        />
+
+        <Route
+          path="/actividades/geometria/actividad-4"
+          element={<Actividad4MathGeometry />}
         />
 
         <Route
@@ -386,6 +393,10 @@ function App() {
               <EstadisticasDocente />
             </RequireAuth>
           }
+        />
+        <Route
+          path="/avance-actividad-docente"
+          element={<AvanceActividadDocente />}
         />
 
         <Route

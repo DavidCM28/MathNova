@@ -10,6 +10,10 @@ import cofreTitleChest from "../../assets/mathnumbers/01-cofre-bienvenida/title-
 import chestFall from "../../assets/mathnumbers/01-cofre-bienvenida/chest_fall.webp";
 import chestVib from "../../assets/mathnumbers/01-cofre-bienvenida/chest_vib.webp";
 import chestSemi from "../../assets/mathnumbers/01-cofre-bienvenida/chest_semi.webp";
+import cofreHeroTalking from "../../assets/mathnumbers/01-cofre-bienvenida/comandante_suma_hablando.webp";
+import cofreHeroTalkingIdle from "../../assets/mathnumbers/01-cofre-bienvenida/comandante_suma_idle.png";
+import cofreIntroByte from "../../assets/mathGeometry/actividad1/byte-pista.png";
+import cofreIntroByteBlink from "../../assets/mathGeometry/actividad1/byte_aciertos_y_pistas_MathGeometry.mp4";
 
 import radarHero from "../../assets/mathnumbers/02-radar-supervivencia/hero-complete-focused.png";
 import radarGuide from "../../assets/mathnumbers/02-radar-supervivencia/guide.png";
@@ -109,4 +113,8 @@ export {
   hintTipClock,
   hintPlanet,
   hintMilestone,
+  cofreHeroTalking,
+  cofreHeroTalkingIdle,
+  cofreIntroByte,
+  cofreIntroByteBlink
 };

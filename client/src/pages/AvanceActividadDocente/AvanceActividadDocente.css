@@ -1,0 +1,1155 @@
+/* =========================================================
+   AVANCE DE ACTIVIDAD DOCENTE
+   DISEÑO COMPLETO, ALINEADO Y RESPONSIVO
+   ========================================================= */
+
+.avance-page {
+  background: #eef4fb;
+}
+
+.avance-content {
+  flex: 1;
+  min-width: 0;
+  overflow-x: hidden;
+  padding: 24px 28px 26px;
+}
+
+/* =========================================================
+   HEADER TIPO CARD
+   ========================================================= */
+
+.avance-header {
+  width: 100%;
+  min-height: 236px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 34px 40px;
+  border: 1px solid #d8e5f5;
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 88% 92%, rgba(0, 88, 255, 0.08), transparent 24%),
+    linear-gradient(135deg, #f8fbff 0%, #eef5ff 62%, #eaf2ff 100%);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+  margin-bottom: 22px;
+}
+
+.avance-header::before {
+  content: "";
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  right: -100px;
+  bottom: -130px;
+  border-radius: 50%;
+  background: rgba(0, 88, 255, 0.06);
+  pointer-events: none;
+}
+
+.avance-header-text {
+  position: relative;
+  z-index: 3;
+  width: min(650px, 56%);
+  min-width: 0;
+}
+
+.avance-header h1 {
+  margin: 0;
+  max-width: 100%;
+  color: #07122e;
+  font-size: clamp(42px, 4vw, 64px);
+  line-height: 1.02;
+  font-weight: 900;
+  letter-spacing: -1.4px;
+  white-space: nowrap;
+}
+
+.avance-header p {
+  max-width: 620px;
+  margin: 18px 0 0;
+  color: #536582;
+  font-size: clamp(14px, 1.05vw, 18px);
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.avance-header-image {
+  position: absolute;
+  right: 24px;
+  bottom: 0;
+  width: min(520px, 43%);
+  height: 214px;
+  object-fit: contain;
+  object-position: right bottom;
+  z-index: 2;
+}
+
+/* =========================================================
+   FILTROS
+   ========================================================= */
+
+.avance-filtros {
+  width: 100%;
+  min-height: 112px;
+  margin: 0 0 22px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns:
+    minmax(180px, 1fr)
+    minmax(155px, 0.86fr)
+    minmax(245px, 1.32fr)
+    minmax(210px, 1.08fr)
+    minmax(110px, 0.62fr)
+    48px;
+  gap: 12px;
+  align-items: end;
+  background: #ffffff;
+  border: 1px solid #dbe7f6;
+  border-radius: 18px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+}
+
+.avance-filtros label {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.avance-filtros label > span {
+  color: #24314f;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.avance-filtros select,
+.avance-filtros input {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  border: 1px solid #c9d8ec;
+  border-radius: 11px;
+  background: #ffffff;
+  color: #24314f;
+  outline: none;
+  padding: 0 13px;
+  font-size: 12px;
+  font-weight: 700;
+  transition:
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    transform 0.22s ease;
+}
+
+.avance-filtros select:hover,
+.avance-filtros input:hover,
+.avance-filtros select:focus,
+.avance-filtros input:focus {
+  border-color: #0058ff;
+  box-shadow: 0 0 0 4px rgba(0, 88, 255, 0.09);
+}
+
+.avance-busqueda {
+  position: relative;
+  justify-content: flex-end;
+}
+
+.avance-busqueda svg {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  color: #64748b;
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.avance-busqueda input {
+  padding-left: 42px;
+}
+
+.avance-icon-button,
+.avance-secondary-button,
+.avance-primary-button {
+  height: 46px;
+  border-radius: 11px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease;
+}
+
+.avance-icon-button {
+  width: 48px;
+  border: 1px solid #b8d0ff;
+  background: #ffffff;
+  color: #0058ff;
+}
+
+.avance-filter-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.avance-secondary-button,
+.avance-primary-button {
+  width: auto;
+  min-width: 165px;
+  padding: 0 18px;
+}
+
+.avance-secondary-button {
+  border: 1px solid #9fc0ff;
+  background: #ffffff;
+  color: #0058ff;
+}
+
+.avance-primary-button {
+  border: 1px solid #0058ff;
+  background: #0058ff;
+  color: #ffffff;
+  box-shadow: 0 9px 18px rgba(0, 88, 255, 0.2);
+}
+
+.avance-icon-button:hover,
+.avance-secondary-button:hover,
+.avance-primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 18px rgba(0, 88, 255, 0.16);
+}
+
+/* =========================================================
+   LAYOUT PRINCIPAL
+   ========================================================= */
+
+.avance-dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 380px);
+  gap: 22px;
+  align-items: start;
+}
+
+.avance-main-column,
+.avance-side-column {
+  min-width: 0;
+  height: auto;
+}
+
+.avance-main-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.avance-side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* =========================================================
+   RESUMEN SUPERIOR
+   ========================================================= */
+
+.avance-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.avance-summary-card,
+.avance-card {
+  background: #ffffff;
+  border: 1px solid #dbe7f6;
+  border-radius: 18px;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.07);
+}
+
+.avance-summary-card {
+  min-width: 0;
+  min-height: 136px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.avance-summary-card > div {
+  min-width: 0;
+}
+
+.avance-summary-card span {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.avance-summary-card strong {
+  display: block;
+  font-size: clamp(36px, 2.8vw, 48px);
+  line-height: 1;
+  font-weight: 900;
+}
+
+.avance-summary-card small {
+  display: block;
+  margin-top: 11px;
+  color: #6b7a91;
+  font-size: 11px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.avance-summary-card i {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  font-size: 25px;
+}
+
+.total-card span,
+.total-card strong {
+  color: #0058ff;
+}
+
+.total-card i {
+  background: #e8f1ff;
+  color: #0058ff;
+}
+
+.not-started-card span,
+.not-started-card strong {
+  color: #5f6b80;
+}
+
+.not-started-card i {
+  background: #edf1f6;
+  color: #64748b;
+}
+
+.progress-card {
+  background: #fffaf0;
+}
+
+.progress-card span,
+.progress-card strong {
+  color: #f59e0b;
+}
+
+.progress-card i {
+  background: #fff0d5;
+  color: #f59e0b;
+}
+
+.completed-card {
+  background: #f4fff8;
+}
+
+.completed-card span,
+.completed-card strong {
+  color: #16a34a;
+}
+
+.completed-card i {
+  background: #ddf8e8;
+  color: #16a34a;
+}
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+
+.avance-card {
+  padding: 22px;
+  overflow: hidden;
+}
+
+.avance-card h2 {
+  margin: 0 0 18px;
+  color: #07122e;
+  font-size: clamp(18px, 1.3vw, 23px);
+  font-weight: 900;
+}
+
+/* =========================================================
+   TABLA
+   ========================================================= */
+
+.avance-table-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  height: auto;
+  min-height: 0;
+}
+
+.avance-table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: #93a4bd #eaf0f8;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.avance-table-scroll::-webkit-scrollbar {
+  height: 9px;
+}
+
+.avance-table-scroll::-webkit-scrollbar-track {
+  background: #eaf0f8;
+  border-radius: 999px;
+}
+
+.avance-table-scroll::-webkit-scrollbar-thumb {
+  background: #93a4bd;
+  border-radius: 999px;
+}
+
+/* Evita que la tabla reserve altura vacía debajo de los registros */
+.avance-table-scroll,
+.avance-table {
+  flex: 0 0 auto;
+}
+
+.avance-table-card > .avance-pagination {
+  flex-shrink: 0;
+}
+
+.avance-table {
+  min-width: 930px;
+}
+
+.avance-table-row {
+  min-height: 58px;
+  display: grid;
+  grid-template-columns:
+    minmax(210px, 1.35fr)
+    minmax(115px, 0.75fr)
+    minmax(230px, 1.25fr)
+    75px
+    minmax(145px, 0.9fr)
+    118px;
+  gap: 12px;
+  align-items: center;
+  border-bottom: 1px solid #edf1f6;
+  color: #334155;
+  font-size: 12px;
+}
+
+.avance-table-head {
+  min-height: 40px;
+  color: #4b5c75;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.avance-student {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #273858;
+  font-weight: 800;
+}
+
+.avance-student i,
+.avance-attention-list i {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 900;
+  font-style: normal;
+}
+
+.avance-status {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 9px;
+  border-radius: 7px;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.avance-status.no-iniciada {
+  background: #e6ebf1;
+  color: #64748b;
+}
+
+.avance-status.en-progreso {
+  background: #fff0d5;
+  color: #f59e0b;
+}
+
+.avance-status.completada {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.avance-status.requiere-apoyo {
+  background: #ffe2e2;
+  color: #ef4444;
+}
+
+.avance-progress-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.avance-progress-cell > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.avance-progress-cell small {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.avance-progress-cell > i {
+  height: 6px;
+  overflow: hidden;
+  display: block;
+  border-radius: 999px;
+  background: #e8edf4;
+  font-style: normal;
+}
+
+.avance-progress-cell b {
+  height: 100%;
+  display: block;
+  border-radius: inherit;
+  background: #94a3b8;
+}
+
+.avance-progress-cell b.en-progreso {
+  background: #f59e0b;
+}
+
+.avance-progress-cell b.completada {
+  background: #16a34a;
+}
+
+.avance-progress-cell b.requiere-apoyo {
+  background: #ef4444;
+}
+
+.avance-row-button {
+  min-width: 104px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid #86b4ff;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #0058ff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.avance-row-button:hover {
+  background: #f3f8ff;
+}
+
+.avance-pagination {
+  min-height: 56px;
+  padding-top: 14px;
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  border-top: 1px solid #edf1f6;
+}
+
+.avance-pagination p {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.avance-pagination > div {
+  display: flex;
+  gap: 7px;
+}
+
+.avance-pagination button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #d7e3f3;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #0058ff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.avance-pagination button.active {
+  background: #0058ff;
+  border-color: #0058ff;
+  color: #ffffff;
+}
+
+.avance-pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   DISTRIBUCIÓN
+   ========================================================= */
+
+.avance-distribution-card {
+  min-height: 250px;
+}
+
+.avance-distribution {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+}
+
+.avance-donut {
+  width: 136px;
+  height: 136px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.avance-donut > div {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.avance-donut strong {
+  color: #07122e;
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.avance-donut span {
+  margin-top: 5px;
+  color: #6b7a91;
+  font-size: 10px;
+}
+
+.avance-distribution ul {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.avance-distribution li {
+  margin: 12px 0;
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  color: #475569;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.avance-distribution li i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.avance-distribution li i.gray {
+  background: #94a3b8;
+}
+
+.avance-distribution li i.orange {
+  background: #f59e0b;
+}
+
+.avance-distribution li i.green {
+  background: #22c55e;
+}
+
+.avance-distribution li i.red {
+  background: #ef4444;
+}
+
+/* =========================================================
+   RENDIMIENTO
+   ========================================================= */
+
+.avance-performance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.avance-performance-grid > div {
+  min-height: 96px;
+  position: relative;
+  padding: 14px;
+  border: 1px solid #e5edf7;
+  border-radius: 12px;
+}
+
+.avance-performance-grid span {
+  display: block;
+  max-width: calc(100% - 25px);
+  color: #5e6e85;
+  font-size: 10px;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.avance-performance-grid strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 25px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.avance-performance-grid strong small {
+  font-size: 11px;
+}
+
+.avance-performance-grid svg {
+  position: absolute;
+  top: 13px;
+  right: 12px;
+}
+
+.green-box {
+  background: #f4fff8;
+  color: #16a34a;
+}
+
+.orange-box {
+  background: #fffaf0;
+  color: #f59e0b;
+}
+
+.purple-box {
+  background: #faf7ff;
+  color: #7c3aed;
+}
+
+.blue-box {
+  background: #f4f8ff;
+  color: #0058ff;
+}
+
+/* =========================================================
+   ATENCIÓN
+   ========================================================= */
+
+.avance-attention-card {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  height: auto;
+}
+
+.avance-attention-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.avance-attention-list > div {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+}
+
+.avance-attention-list span {
+  color: #334155;
+  font-size: 10px;
+  line-height: 1.3;
+  font-weight: 800;
+}
+
+.avance-attention-list small {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #64748b;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.avance-attention-list small svg {
+  color: #ef4444;
+}
+
+.avance-attention-card > button {
+  margin-top: 18px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #0058ff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+/* =========================================================
+   FOOTER Y TOAST
+   ========================================================= */
+
+.avance-footer {
+  margin-top: 22px !important;
+}
+
+.avance-toast {
+  position: fixed;
+  top: 22px;
+  right: 24px;
+  z-index: 9999;
+  min-width: 300px;
+  min-height: 58px;
+  padding: 13px 17px;
+  border: 1px solid #b7efc8;
+  border-left: 5px solid #16a34a;
+  border-radius: 12px;
+  background: #f0fdf4;
+  color: #166534;
+  box-shadow: 0 15px 34px rgba(15, 23, 42, 0.18);
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.avance-toast svg {
+  font-size: 22px;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* =========================================================
+   RESPONSIVO
+   ========================================================= */
+
+@media (max-width: 1499px) {
+  .avance-content {
+    padding: 22px 22px 24px;
+  }
+
+  .avance-header {
+    min-height: 220px;
+    padding: 32px 32px;
+  }
+
+  .avance-header-image {
+    width: min(460px, 42%);
+    height: 198px;
+  }
+
+  .avance-header h1 {
+    font-size: clamp(40px, 4vw, 58px);
+  }
+
+  .avance-filtros {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .avance-icon-button {
+    width: 100%;
+  }
+
+  .avance-dashboard-grid {
+    grid-template-columns: minmax(0, 1fr) 330px;
+  }
+}
+
+@media (max-width: 1199px) {
+  .avance-header {
+    min-height: 210px;
+  }
+
+  .avance-header-text {
+    width: 60%;
+  }
+
+  .avance-header-image {
+    width: 40%;
+  }
+
+  .avance-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .avance-main-column,
+  .avance-side-column {
+    height: auto;
+  }
+
+  .avance-table-card,
+  .avance-attention-card {
+    flex: initial;
+  }
+
+  .avance-side-column {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .avance-attention-card {
+    grid-column: 1 / -1;
+  }
+
+  .avance-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 991px) {
+  .avance-content {
+    padding: 92px 18px 24px;
+  }
+
+  .avance-header {
+    min-height: 232px;
+    padding: 30px 26px;
+  }
+
+  .avance-header-text {
+    width: 66%;
+  }
+
+  .avance-header-image {
+    right: 8px;
+    width: 40%;
+    height: 196px;
+    opacity: 0.82;
+  }
+
+  .avance-header h1 {
+    font-size: 42px;
+    white-space: normal;
+  }
+
+  .avance-filtros {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .avance-actividad-select,
+  .avance-busqueda {
+    grid-column: span 2;
+  }
+
+  .avance-filter-actions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+  .avance-content {
+    padding: 90px 14px 22px;
+  }
+
+  .avance-header {
+    min-height: 290px;
+    padding: 26px 20px;
+    align-items: flex-start;
+  }
+
+  .avance-header-text {
+    width: 100%;
+  }
+
+  .avance-header h1 {
+    max-width: 470px;
+    font-size: 37px;
+  }
+
+  .avance-header p {
+    max-width: 420px;
+    font-size: 14px;
+  }
+
+  .avance-header-image {
+    right: -28px;
+    bottom: 0;
+    width: 70%;
+    height: 170px;
+    opacity: 0.42;
+  }
+
+  .avance-filtros {
+    grid-template-columns: 1fr;
+  }
+
+  .avance-actividad-select,
+  .avance-busqueda {
+    grid-column: auto;
+  }
+
+  .avance-filter-actions {
+    grid-column: auto;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .avance-secondary-button,
+  .avance-primary-button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .avance-summary-grid,
+  .avance-side-column {
+    grid-template-columns: 1fr;
+  }
+
+  .avance-attention-card {
+    grid-column: auto;
+  }
+
+  .avance-pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .avance-footer {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .avance-content {
+    padding: 86px 12px 20px;
+  }
+
+  .avance-header {
+    min-height: 270px;
+    padding: 22px 17px;
+    border-radius: 20px;
+  }
+
+  .avance-header h1 {
+    font-size: 32px;
+    letter-spacing: -0.7px;
+  }
+
+  .avance-header p {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .avance-header-image {
+    width: 80%;
+    height: 150px;
+    right: -42px;
+  }
+
+  .avance-filtros,
+  .avance-card,
+  .avance-summary-card {
+    border-radius: 15px;
+  }
+
+  .avance-filtros {
+    padding: 13px;
+  }
+
+  .avance-summary-card {
+    min-height: 118px;
+    padding: 17px;
+  }
+
+  .avance-performance-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .avance-distribution {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .avance-distribution ul {
+    width: 100%;
+  }
+
+  .avance-attention-list > div {
+    grid-template-columns: 32px minmax(0, 1fr);
+  }
+
+  .avance-attention-list small {
+    grid-column: 2;
+    white-space: normal;
+  }
+
+  .avance-toast {
+    top: 12px;
+    right: 12px;
+    left: 12px;
+    min-width: 0;
+  }
+}
