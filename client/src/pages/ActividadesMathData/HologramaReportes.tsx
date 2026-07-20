@@ -24,12 +24,13 @@ import interferenciaHologramaImg from "../../assets/interferencia-holograma.png"
 import iconoGraficaBarrasImg from "../../assets/icono-grafica-barras.png";
 import iconoGraficaCircularImg from "../../assets/icono-grafica-circular.png";
 
-/* ---- Audios: pendientes por agregar más adelante.
-   Los botones de "Bait tiene un mensaje" y "Pista" ya están
-   listos — cuando tengas los archivos .mp3, agrega el import
-   correspondiente arriba y pásalo como prop audioSrc en cada
-   <PistaBaitModal> de este archivo. Mientras tanto el modal
-   funciona sin audio (solo con el video). ---- */
+/* ---- Audios ---- */
+import introBaitAudioHolograma from "../../assets/intro_bit.mp3";
+import pistaBaitAudioHolograma from "../../assets/pista_bit.mp3";
+
+/* ---- Audios pendientes: éxito y fallo todavía no tienen
+   archivo. Cuando los tengas, agrega el import aquí y pásalo
+   como prop audioSrc en el <PistaBaitModal> correspondiente. ---- */
 
 import {
   FiGrid,
@@ -563,8 +564,9 @@ export default function HologramaReportes() {
       {mostrarPistaBait && (
         <PistaBaitModal
           titulo="Pista de Bait"
-          contenido="La altura de cada barra es igual al número de votos. El porcentaje se calcula como votos entre total por cien. Bosque: 4 de 10 es 40%. Desierto: 3 de 10 es 30%. Cueva de Cristal: 3 de 10 es 30%."
+          contenido="¡No te rindas! Mira la tabla: Bosque 4, Desierto 3, Cueva de Cristal 3. Para la gráfica de barras, esas son las alturas exactas. Para la gráfica circular, divide cada número entre 10 y multiplica por 100. ¡Tú puedes!"
           videoSrc={baitHablandoVideo}
+          audioSrc={pistaBaitAudioHolograma}
           onClose={() => setMostrarPistaBait(false)}
         />
       )}
@@ -657,11 +659,11 @@ export default function HologramaReportes() {
                   </button>
                 </div>
                 <p>
-                  ¡Hola, piloto! El Centro de Mando recibió los datos de la
-                  encuesta. Primero elige qué gráfica quieres usar para
-                  comparar cantidades exactas, después construye la gráfica
-                  de barras, después la gráfica circular y al final responde
-                  las preguntas para activar el holograma.
+                  ¡Agente! El Centro de Mando recibió los datos de la
+                  encuesta. Ahora necesitan un reporte visual: una gráfica
+                  de barras y una gráfica circular. Constrúyelas
+                  correctamente y el holograma se proyectará sobre la mesa
+                  de mando. ¡El mago no va a ganar esta vez!
                 </p>
               </div>
             </div>
@@ -954,8 +956,9 @@ export default function HologramaReportes() {
       {mostrarIntroBait && (
         <PistaBaitModal
           titulo="BIT te explica"
-          contenido="¡Hola, piloto! El Centro de Mando recibió los datos de la encuesta. Primero elige qué gráfica quieres usar para comparar cantidades exactas, después construye la gráfica de barras, después la gráfica circular y al final responde las preguntas para activar el holograma."
+          contenido="¡Agente! El Centro de Mando recibió los datos de la encuesta. Ahora necesitan un reporte visual: una gráfica de barras y una gráfica circular. Constrúyelas correctamente y el holograma se proyectará sobre la mesa de mando. ¡El mago no va a ganar esta vez!"
           videoSrc={baitHablandoVideo}
+          audioSrc={introBaitAudioHolograma}
           botonTexto="¡Comenzar misión! 🚀"
           onClose={() => setMostrarIntroBait(false)}
         />
@@ -964,8 +967,9 @@ export default function HologramaReportes() {
       {mostrarPistaBait && (
         <PistaBaitModal
           titulo="Pista de Bait"
-          contenido="La altura de cada barra es igual al número de votos. El porcentaje se calcula como votos entre total por cien. Bosque: 4 de 10 es 40%. Desierto: 3 de 10 es 30%. Cueva de Cristal: 3 de 10 es 30%."
+          contenido="¡No te rindas! Mira la tabla: Bosque 4, Desierto 3, Cueva de Cristal 3. Para la gráfica de barras, esas son las alturas exactas. Para la gráfica circular, divide cada número entre 10 y multiplica por 100. ¡Tú puedes!"
           videoSrc={baitHablandoVideo}
+          audioSrc={pistaBaitAudioHolograma}
           onClose={() => setMostrarPistaBait(false)}
         />
       )}
