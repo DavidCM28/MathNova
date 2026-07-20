@@ -80,8 +80,23 @@ class TripulacionService {
     const esCorrecto = valor === esperado;
 
     intentosTabla[celda] = intentoActual;
+
+    // ✅ NUEVO: registramos cada intento individual en el historial
+    // permanente (no se borra al reiniciar), para que el docente conserve
+    // la evidencia completa aunque el contador de la sesión actual sí se
+    // reinicie.
+    const historial = [...(progreso.historial_intentos as any[])];
+    historial.push({
+      fecha: new Date().toISOString(),
+      celda,
+      valor,
+      correcto: esCorrecto,
+      intento: intentoActual,
+    });
+
     await progreso.update({
       intentos_tabla: intentosTabla,
+      historial_intentos: historial,
     });
 
     if (esCorrecto) {
@@ -212,8 +227,10 @@ class TripulacionService {
     };
   }
 
-  // Reinicia los campos de trabajo; intentos_tabla, intentos_modulo e
-  // historial_intentos se conservan como registro acumulado para el docente.
+  // Reinicia los campos de trabajo Y los contadores de intentos de la
+  // sesión actual (para que el estudiante tenga 3 intentos frescos otra
+  // vez). El historial_intentos NUNCA se borra: ahí queda el registro
+  // permanente de cada intento individual para el docente.
   async reiniciarActividad(id_estudiante: number): Promise<ReiniciarResponse | null> {
     const progreso = await ActividadTripulacion.findOne({
       where: { id_estudiante },
@@ -225,7 +242,9 @@ class TripulacionService {
 
     await progreso.update({
       valores_tabla: {},
+      intentos_tabla: {},   // ✅ NUEVO: se resetea
       modulo_seleccionado: null,
+      intentos_modulo: 0,   // ✅ NUEVO: se resetea
       completada: false,
       resultado_correcto: null,
       tiempo_total: 0,

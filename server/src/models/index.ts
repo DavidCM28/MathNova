@@ -8,6 +8,7 @@ import Admin from './Admin';
 import ProporcionalidadInversa from './ProporcionalidadInversa';
 import ActividadRampas from './ActividadRampas';
 import ActividadTripulacion from './ActividadTripulacion';
+import ActividadHolograma from './ActividadHolograma';
 
 User.hasOne(Estudiante, { foreignKey: 'id_usuario' });
 Estudiante.belongsTo(User, { foreignKey: 'id_usuario' });
@@ -32,6 +33,7 @@ export {
   ProporcionalidadInversa,
   ActividadRampas,
   ActividadTripulacion,
+  ActividadHolograma,
 };
 
 export const initDb = async (force = false) => {

@@ -1,6 +1,7 @@
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
+import { getSessionUser } from "../../utils/authSession";
 
 import logo from "../../assets/logo_MathNova.png";
 import fondoHologramaImg from "../../assets/fondo-holograma.png";
@@ -28,10 +29,6 @@ import iconoGraficaCircularImg from "../../assets/icono-grafica-circular.png";
 import introBaitAudioHolograma from "../../assets/intro_bit.mp3";
 import pistaBaitAudioHolograma from "../../assets/pista_bit.mp3";
 
-/* ---- Audios pendientes: éxito y fallo todavía no tienen
-   archivo. Cuando los tengas, agrega el import aquí y pásalo
-   como prop audioSrc en el <PistaBaitModal> correspondiente. ---- */
-
 import {
   FiGrid,
   FiMessageSquare,
@@ -56,10 +53,19 @@ import {
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
 /* =========================================================
-   DATOS DE LA MISIÓN
+   CONFIGURACIÓN DEL BACKEND
+========================================================= */
+
+const API_URL = "http://localhost:3001/api";
+
+/* =========================================================
+   DATOS DE LA MISIÓN (valores de referencia para mostrar en
+   pantalla; la validación real vive en el backend, que
+   hereda los votos reales de la Actividad 3 si existen)
 ========================================================= */
 
 type Modulo = "bosque" | "desierto" | "cueva";
+type EstadoCelda = "correcto" | "pendiente" | "incorrecto";
 
 const FRECUENCIAS: Record<Modulo, number> = {
   bosque: 4,
@@ -86,13 +92,9 @@ const COLOR_MODULO: Record<Modulo, string> = {
 };
 
 const TOTAL_VOTOS = 10;
-const MODULO_BARRA_MAS_ALTA: Modulo = "bosque";
-const MODULO_SECTOR_MAYOR: Modulo = "bosque";
 
 /* =========================================================
    COMPONENTE: PISTA DE BAIT (modal con video real)
-   Idéntico al de las actividades anteriores, para que todas
-   concuerden.
 ========================================================= */
 
 type PistaBaitModalProps = {
@@ -243,6 +245,10 @@ function PistaBaitModal({
 export default function HologramaReportes() {
   const navigate = useNavigate();
 
+  // El ID del estudiante se obtiene de la sesión activa en cada render
+  const usuarioSesion = getSessionUser();
+  const ID_ESTUDIANTE = usuarioSesion?.id_usuario;
+
   const [tipoGrafica, setTipoGrafica] = useState<"barras" | "circular" | null>("barras");
 
   const [alturaBarras, setAlturaBarras] = useState<Record<Modulo, string>>({
@@ -250,14 +256,32 @@ export default function HologramaReportes() {
     desierto: "",
     cueva: "",
   });
-  const [barrasVerificadas, setBarrasVerificadas] = useState(false);
+  const [barraEstados, setBarraEstados] = useState<Record<Modulo, EstadoCelda>>({
+    bosque: "pendiente",
+    desierto: "pendiente",
+    cueva: "pendiente",
+  });
+  const [barraBloqueada, setBarraBloqueada] = useState<Record<Modulo, boolean>>({
+    bosque: false,
+    desierto: false,
+    cueva: false,
+  });
 
   const [porcentajes, setPorcentajes] = useState<Record<Modulo, string>>({
     bosque: "",
     desierto: "",
     cueva: "",
   });
-  const [porcentajesVerificados, setPorcentajesVerificados] = useState(false);
+  const [porcentajeEstados, setPorcentajeEstados] = useState<Record<Modulo, EstadoCelda>>({
+    bosque: "pendiente",
+    desierto: "pendiente",
+    cueva: "pendiente",
+  });
+  const [porcentajeBloqueado, setPorcentajeBloqueado] = useState<Record<Modulo, boolean>>({
+    bosque: false,
+    desierto: false,
+    cueva: false,
+  });
 
   const [preguntaBarraAlta, setPreguntaBarraAlta] = useState<Modulo | null>(null);
   const [preguntaSectorMayor, setPreguntaSectorMayor] = useState<Modulo | null>(null);
@@ -268,43 +292,237 @@ export default function HologramaReportes() {
   const [mostrarBaitExito, setMostrarBaitExito] = useState(false);
   const [mostrarBaitFallo, setMostrarBaitFallo] = useState(false);
 
-  const barraEstado = (modulo: Modulo): "correcto" | "pendiente" | "incorrecto" => {
-    if (!barrasVerificadas) return "pendiente";
-    return alturaBarras[modulo].trim() === String(FRECUENCIAS[modulo]) ? "correcto" : "incorrecto";
+  const [cargandoBarras, setCargandoBarras] = useState(false);
+  const [cargandoCirculo, setCargandoCirculo] = useState(false);
+  const [cargandoActivar, setCargandoActivar] = useState(false);
+
+  // ==========================================
+  // CARGAR PROGRESO GUARDADO
+  // ==========================================
+
+  useEffect(() => {
+  const cargarProgreso = async () => {
+    try {
+      const response = await fetch(`${API_URL}/holograma/progreso/${ID_ESTUDIANTE}`);
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        const progreso = data.data;
+        const valoresBarras = (progreso.valores_barras || {}) as Record<string, number>;
+        const intentosBarras = (progreso.intentos_barras || {}) as Record<string, number>;
+        const valoresPorcentajes = (progreso.valores_porcentajes || {}) as Record<string, number>;
+        const intentosPorcentajes = (progreso.intentos_porcentajes || {}) as Record<string, number>;
+        const historial = (progreso.historial_intentos || []) as any[];
+
+        const ultimoIntento = (tipo: "barra" | "sector", modulo: string) =>
+          [...historial].reverse().find((h) => h.tipo === tipo && h.modulo === modulo);
+
+        (["bosque", "desierto", "cueva"] as Modulo[]).forEach((m) => {
+          if (valoresBarras[m] !== undefined) {
+            setAlturaBarras((prev) => ({ ...prev, [m]: String(valoresBarras[m]) }));
+            setBarraEstados((prev) => ({ ...prev, [m]: "correcto" }));
+            setBarraBloqueada((prev) => ({ ...prev, [m]: (intentosBarras[m] || 0) >= 5 }));
+          } else {
+            const ultimo = ultimoIntento("barra", m);
+            if (ultimo) {
+              setAlturaBarras((prev) => ({ ...prev, [m]: String(ultimo.valor) }));
+              setBarraEstados((prev) => ({ ...prev, [m]: "incorrecto" }));
+            }
+          }
+
+          if (valoresPorcentajes[m] !== undefined) {
+            setPorcentajes((prev) => ({ ...prev, [m]: String(valoresPorcentajes[m]) }));
+            setPorcentajeEstados((prev) => ({ ...prev, [m]: "correcto" }));
+            setPorcentajeBloqueado((prev) => ({ ...prev, [m]: (intentosPorcentajes[m] || 0) >= 5 }));
+          } else {
+            const ultimo = ultimoIntento("sector", m);
+            if (ultimo) {
+              setPorcentajes((prev) => ({ ...prev, [m]: String(ultimo.valor) }));
+              setPorcentajeEstados((prev) => ({ ...prev, [m]: "incorrecto" }));
+            }
+          }
+        });
+
+        if (progreso.tipo_grafica_seleccionado) {
+          setTipoGrafica(progreso.tipo_grafica_seleccionado as "barras" | "circular");
+        }
+        if (progreso.pregunta_barra_alta) {
+          setPreguntaBarraAlta(progreso.pregunta_barra_alta as Modulo);
+        }
+        if (progreso.pregunta_sector_mayor) {
+          setPreguntaSectorMayor(progreso.pregunta_sector_mayor as Modulo);
+        }
+
+        if (progreso.completada) {
+          setResultado(progreso.resultado_correcto ? "exito" : "fallo");
+        }
+      }
+    } catch (error) {
+      console.error("Error al cargar progreso:", error);
+    }
   };
 
-  const porcentajeEstado = (modulo: Modulo): "correcto" | "pendiente" | "incorrecto" => {
-    if (!porcentajesVerificados) return "pendiente";
-    return porcentajes[modulo].trim() === String(PORCENTAJES_CORRECTOS[modulo])
-      ? "correcto"
-      : "incorrecto";
+  cargarProgreso();
+}, []);
+
+  // ==========================================
+  // VERIFICAR GRÁFICA DE BARRAS (celda por celda)
+  // ==========================================
+
+  const verificarBarras = async () => {
+    setCargandoBarras(true);
+    try {
+      for (const m of ["bosque", "desierto", "cueva"] as Modulo[]) {
+        if (barraBloqueada[m] || alturaBarras[m].trim() === "") continue;
+
+        const response = await fetch(`${API_URL}/holograma/validar-barra`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id_estudiante: ID_ESTUDIANTE,
+            modulo: m,
+            valor: Number(alturaBarras[m]),
+          }),
+        });
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const r = data.data;
+
+          if (r.celda_completada && !r.correcto) {
+            setAlturaBarras((prev) => ({ ...prev, [m]: String(r.respuesta_correcta) }));
+            setBarraEstados((prev) => ({ ...prev, [m]: "incorrecto" }));
+            setBarraBloqueada((prev) => ({ ...prev, [m]: true }));
+          } else if (r.correcto) {
+            setBarraEstados((prev) => ({ ...prev, [m]: "correcto" }));
+          } else {
+            setBarraEstados((prev) => ({ ...prev, [m]: "incorrecto" }));
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error al verificar barras:", error);
+    } finally {
+      setCargandoBarras(false);
+    }
   };
 
-  const verificarBarras = () => setBarrasVerificadas(true);
-  const verificarCirculo = () => setPorcentajesVerificados(true);
+  // ==========================================
+  // VERIFICAR GRÁFICA CIRCULAR (sector por sector)
+  // ==========================================
 
-  const activarHolograma = () => {
-    const barrasOk = (Object.keys(FRECUENCIAS) as Modulo[]).every(
-      (m) => alturaBarras[m].trim() === String(FRECUENCIAS[m])
-    );
-    const porcentajesOk = (Object.keys(PORCENTAJES_CORRECTOS) as Modulo[]).every(
-      (m) => porcentajes[m].trim() === String(PORCENTAJES_CORRECTOS[m])
-    );
-    const preguntasOk =
-      preguntaBarraAlta === MODULO_BARRA_MAS_ALTA && preguntaSectorMayor === MODULO_SECTOR_MAYOR;
-    const tipoOk = tipoGrafica === "barras";
+  const verificarCirculo = async () => {
+    setCargandoCirculo(true);
+    try {
+      for (const m of ["bosque", "desierto", "cueva"] as Modulo[]) {
+        if (porcentajeBloqueado[m] || porcentajes[m].trim() === "") continue;
 
-    setBarrasVerificadas(true);
-    setPorcentajesVerificados(true);
-    setResultado(tipoOk && barrasOk && porcentajesOk && preguntasOk ? "exito" : "fallo");
+        const response = await fetch(`${API_URL}/holograma/validar-sector`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id_estudiante: ID_ESTUDIANTE,
+            modulo: m,
+            valor: Number(porcentajes[m]),
+          }),
+        });
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const r = data.data;
+
+          if (r.celda_completada && !r.correcto) {
+            setPorcentajes((prev) => ({ ...prev, [m]: String(r.respuesta_correcta) }));
+            setPorcentajeEstados((prev) => ({ ...prev, [m]: "incorrecto" }));
+            setPorcentajeBloqueado((prev) => ({ ...prev, [m]: true }));
+          } else if (r.correcto) {
+            setPorcentajeEstados((prev) => ({ ...prev, [m]: "correcto" }));
+          } else {
+            setPorcentajeEstados((prev) => ({ ...prev, [m]: "incorrecto" }));
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error al verificar porcentajes:", error);
+    } finally {
+      setCargandoCirculo(false);
+    }
   };
 
-  const handleReiniciarActividad = () => {
+  const barraEstado = (modulo: Modulo): EstadoCelda => barraEstados[modulo];
+  const porcentajeEstado = (modulo: Modulo): EstadoCelda => porcentajeEstados[modulo];
+  const porcentajesVerificados = (["bosque", "desierto", "cueva"] as Modulo[]).some(
+    (m) => porcentajeEstados[m] !== "pendiente"
+  );
+
+  // ==========================================
+  // ACTIVAR HOLOGRAMA
+  // ==========================================
+
+  const activarHolograma = async () => {
+    if (!tipoGrafica || !preguntaBarraAlta || !preguntaSectorMayor) return;
+
+    setCargandoActivar(true);
+    try {
+      const response = await fetch(`${API_URL}/holograma/activar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_estudiante: ID_ESTUDIANTE,
+          tipo_grafica: tipoGrafica,
+          pregunta_barra_alta: preguntaBarraAlta,
+          pregunta_sector_mayor: preguntaSectorMayor,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        setResultado(data.data.correcto ? "exito" : "fallo");
+      }
+    } catch (error) {
+      console.error("Error al activar el holograma:", error);
+      alert("❌ Error al conectar con el servidor.");
+    } finally {
+      setCargandoActivar(false);
+    }
+  };
+
+  // ==========================================
+  // ABRIR PISTA (registra la consulta en el backend)
+  // ==========================================
+
+  const abrirPistaBait = () => {
+    setMostrarPistaBait(true);
+    fetch(`${API_URL}/holograma/pista-consultada`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE }),
+    }).catch((error) => console.error("Error al registrar consulta de pista:", error));
+  };
+
+  // ==========================================
+  // REINICIAR ACTIVIDAD
+  // ==========================================
+
+  const handleReiniciarActividad = async () => {
+    try {
+      await fetch(`${API_URL}/holograma/reiniciar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE }),
+      });
+    } catch (error) {
+      console.error("Error al reiniciar actividad:", error);
+    }
+
     setTipoGrafica("barras");
     setAlturaBarras({ bosque: "", desierto: "", cueva: "" });
-    setBarrasVerificadas(false);
+    setBarraEstados({ bosque: "pendiente", desierto: "pendiente", cueva: "pendiente" });
+    setBarraBloqueada({ bosque: false, desierto: false, cueva: false });
     setPorcentajes({ bosque: "", desierto: "", cueva: "" });
-    setPorcentajesVerificados(false);
+    setPorcentajeEstados({ bosque: "pendiente", desierto: "pendiente", cueva: "pendiente" });
+    setPorcentajeBloqueado({ bosque: false, desierto: false, cueva: false });
     setPreguntaBarraAlta(null);
     setPreguntaSectorMayor(null);
     setResultado(null);
@@ -538,7 +756,7 @@ export default function HologramaReportes() {
             <button className="res-btn res-btn-azul" onClick={handleReiniciarActividad}>
               Intentar de nuevo
             </button>
-            <button className="res-btn res-btn-outline" onClick={() => setMostrarPistaBait(true)}>
+            <button className="res-btn res-btn-outline" onClick={abrirPistaBait}>
               Ver pista
             </button>
             <button
@@ -796,14 +1014,20 @@ export default function HologramaReportes() {
                       setAlturaBarras((prev) => ({ ...prev, [m]: e.target.value }))
                     }
                     aria-label={`Altura de la barra de ${NOMBRE_MODULO[m]}`}
+                    disabled={cargandoBarras || barraBloqueada[m]}
                   />
                   {barraEstado(m) === "correcto" && <FiCheckCircle className="hol-check-verde" />}
                 </div>
               ))}
             </div>
 
-            <button type="button" className="hol-verificar-btn" onClick={verificarBarras}>
-              <FiBarChart2 /> Verificar gráfica
+            <button
+              type="button"
+              className="hol-verificar-btn"
+              onClick={verificarBarras}
+              disabled={cargandoBarras}
+            >
+              <FiBarChart2 /> {cargandoBarras ? "Verificando..." : "Verificar gráfica"}
             </button>
           </div>
 
@@ -849,6 +1073,7 @@ export default function HologramaReportes() {
                         setPorcentajes((prev) => ({ ...prev, [m]: e.target.value }))
                       }
                       aria-label={`Porcentaje de ${NOMBRE_MODULO[m]}`}
+                      disabled={cargandoCirculo || porcentajeBloqueado[m]}
                     />
                     <span>%</span>
                     {porcentajeEstado(m) === "correcto" && (
@@ -859,8 +1084,13 @@ export default function HologramaReportes() {
               </div>
             </div>
 
-            <button type="button" className="hol-verificar-btn" onClick={verificarCirculo}>
-              <FiPercent /> Verificar porcentajes
+            <button
+              type="button"
+              className="hol-verificar-btn"
+              onClick={verificarCirculo}
+              disabled={cargandoCirculo}
+            >
+              <FiPercent /> {cargandoCirculo ? "Verificando..." : "Verificar porcentajes"}
             </button>
           </div>
 
@@ -925,7 +1155,7 @@ export default function HologramaReportes() {
             <button
               type="button"
               className="hol-pista-trigger"
-              onClick={() => setMostrarPistaBait(true)}
+              onClick={abrirPistaBait}
             >
               <img src={baitPistaImg} alt="" className="hol-pista-icono" />
               <strong>Pista de BIT</strong>
@@ -947,8 +1177,13 @@ export default function HologramaReportes() {
             </div>
           </div>
 
-          <button type="button" className="hol-activar-btn" onClick={activarHolograma}>
-            <FiZap /> Activar Holograma
+          <button
+            type="button"
+            className="hol-activar-btn"
+            onClick={activarHolograma}
+            disabled={!tipoGrafica || !preguntaBarraAlta || !preguntaSectorMayor || cargandoActivar}
+          >
+            <FiZap /> {cargandoActivar ? "Activando..." : "Activar Holograma"}
           </button>
         </div>
       </main>
