@@ -28,6 +28,53 @@ type ResultModalProps = {
   onRetry?: () => void;
 };
 
+const modalTextByKind: Record<
+  ResultKind,
+  {
+    badge: string;
+    sideLabel: string;
+    sideTitle: string;
+    sideMessage: string;
+    primaryAction: "next" | "retry";
+  }
+> = {
+  completed: {
+    badge: "Actividad completada",
+    sideLabel: "¡Misión completada!",
+    sideTitle: "Sigue avanzando por MathNumbers",
+    sideMessage:
+      "Cada actividad superada fortalece tus habilidades matemáticas.",
+    primaryAction: "next",
+  },
+
+  almost: {
+    badge: "Casi lo logras",
+    sideLabel: "¡Estuviste muy cerca!",
+    sideTitle: "Revisa y vuelve a intentarlo",
+    sideMessage:
+      "Observa tus respuestas, identifica el detalle que falta y prueba nuevamente.",
+    primaryAction: "retry",
+  },
+
+  retry: {
+    badge: "Vuelve a intentarlo",
+    sideLabel: "¡No te rindas!",
+    sideTitle: "Cada intento te ayuda a mejorar",
+    sideMessage:
+      "Usa la pista, revisa el procedimiento y vuelve a resolver la actividad.",
+    primaryAction: "retry",
+  },
+
+  hint: {
+    badge: "Aquí tienes una pista",
+    sideLabel: "¡Pista disponible!",
+    sideTitle: "Analiza antes de responder",
+    sideMessage:
+      "Lee la recomendación con calma y vuelve a la actividad para aplicar la estrategia.",
+    primaryAction: "retry",
+  },
+};
+
 export function ResultModal({
   kind,
   nextRoute,
@@ -37,6 +84,9 @@ export function ResultModal({
 }: ResultModalProps) {
   const navigate = useNavigate();
   const data = resultData[kind];
+  const modalText = modalTextByKind[kind];
+
+  const isCompleted = kind === "completed";
 
   useEffect(() => {
     const previousOverflow =
@@ -94,7 +144,7 @@ export function ResultModal({
 
   return (
     <div
-      className="result-modal-overlay"
+      className={`result-modal-overlay result-modal-overlay--${kind}`}
       role="presentation"
       onMouseDown={(event) => {
         if (
@@ -106,7 +156,7 @@ export function ResultModal({
       }}
     >
       <section
-        className="result-modal"
+        className={`result-modal result-modal--${kind}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="result-modal-title"
@@ -127,13 +177,22 @@ export function ResultModal({
         <div className="result-modal-main">
           <header className="result-modal-header">
             <div className="result-modal-status-icon">
-              <FiCheckCircle />
+              {isCompleted ? (
+                <FiCheckCircle />
+              ) : (
+                <FiRefreshCw />
+              )}
             </div>
 
             <div className="result-modal-header-copy">
               <span className="result-modal-badge">
-                <FiCheckCircle />
-                Actividad completada
+                {isCompleted ? (
+                  <FiCheckCircle />
+                ) : (
+                  <FiRefreshCw />
+                )}
+
+                {modalText.badge}
               </span>
 
               <h1 id="result-modal-title">
@@ -208,18 +267,15 @@ export function ResultModal({
         <aside className="result-modal-side">
           <article className="result-modal-side-message">
             <span>
-              ¡Misión completada!
+              {modalText.sideLabel}
             </span>
 
             <strong>
-              Sigue avanzando por
-              MathNumbers
+              {modalText.sideTitle}
             </strong>
 
             <p>
-              Cada actividad superada
-              fortalece tus habilidades
-              matemáticas.
+              {modalText.sideMessage}
             </p>
           </article>
 
@@ -242,29 +298,45 @@ export function ResultModal({
           </div>
 
           <div className="result-modal-actions">
-            <button
-              type="button"
-              className="result-modal-action result-modal-action--primary"
-              onClick={goNext}
-            >
-              <FiArrowRight />
+            {modalText.primaryAction === "next" ? (
+              <button
+                type="button"
+                className="result-modal-action result-modal-action--primary"
+                onClick={goNext}
+              >
+                <FiArrowRight />
 
-              <span>
-                Siguiente actividad
-              </span>
-            </button>
+                <span>
+                  Siguiente actividad
+                </span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="result-modal-action result-modal-action--primary"
+                onClick={retry}
+              >
+                <FiRefreshCw />
 
-            <button
-              type="button"
-              className="result-modal-action result-modal-action--secondary"
-              onClick={retry}
-            >
-              <FiRefreshCw />
+                <span>
+                  Intentar de nuevo
+                </span>
+              </button>
+            )}
 
-              <span>
-                Repetir actividad
-              </span>
-            </button>
+            {isCompleted && (
+              <button
+                type="button"
+                className="result-modal-action result-modal-action--secondary"
+                onClick={retry}
+              >
+                <FiRefreshCw />
+
+                <span>
+                  Repetir actividad
+                </span>
+              </button>
+            )}
 
             <button
               type="button"

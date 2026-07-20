@@ -29,6 +29,8 @@ import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 import { clearAuthSession } from "../../../utils/authSession";
 import { activityListRoute } from "../constants";
 import { Toast } from "../components/Toast";
+import { ResultModal } from "../components/ResultModal";
+import type { ResultKind } from "../types";
 import { useToast } from "../hooks/useToast";
 import { guardarProgresoActividad } from "../../../services/progresoService";
 import {
@@ -849,6 +851,12 @@ export function CofreBienvenida() {
   const [guideAudioStatus, setGuideAudioStatus] =
     useState<AudioStatus>("idle");
 
+  const [resultModalOpen, setResultModalOpen] =
+    useState(false);
+
+  const [resultModalKind, setResultModalKind] =
+    useState<ResultKind>("completed");
+
   const introAudioRef = useRef<HTMLAudioElement | null>(null);
   const [introAudioStatus, setIntroAudioStatus] =
     useState<AudioStatus>("idle");
@@ -1005,6 +1013,23 @@ export function CofreBienvenida() {
     return "";
   };
 
+  const repetirActividad = () => {
+    setResultModalOpen(false);
+    setAnswers({});
+    setChecked(false);
+    setSolved(false);
+    setChestPhase("fall");
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
+    showToast(
+      "Cofre reiniciado. ¡Responde nuevamente!",
+    );
+  };
+
   const comprobar = async () => {
     if (progress !== 2) {
       showToast(
@@ -1099,16 +1124,8 @@ export function CofreBienvenida() {
         }
 
         window.setTimeout(() => {
-          navigate(
-            "/actividades/mathnumbers/actividad-completada",
-            {
-              state: {
-                activity: "cofre-bienvenida",
-                retryRoute: cofreRoute,
-                nextRoute: radarRoute,
-              },
-            },
-          );
+          setResultModalKind("completed");
+          setResultModalOpen(true);
         }, 1300);
 
         return;
@@ -1122,18 +1139,10 @@ export function CofreBienvenida() {
       );
 
       window.setTimeout(() => {
-        navigate(
-          total === 1
-            ? "/actividades/mathnumbers/casi-lo-logras"
-            : "/actividades/mathnumbers/vuelve-a-intentarlo",
-          {
-            state: {
-              activity: "cofre-bienvenida",
-              retryRoute: cofreRoute,
-              nextRoute: radarRoute,
-            },
-          },
+        setResultModalKind(
+          total === 1 ? "almost" : "retry",
         );
+        setResultModalOpen(true);
       }, 1100);
     } catch (error) {
       console.error(error);
@@ -1665,6 +1674,18 @@ export function CofreBienvenida() {
       >
         <FiLogOut />
       </button>
+
+      {resultModalOpen && (
+        <ResultModal
+          kind={resultModalKind}
+          nextRoute={radarRoute}
+          retryRoute={cofreRoute}
+          onClose={() =>
+            setResultModalOpen(false)
+          }
+          onRetry={repetirActividad}
+        />
+      )}
 
       <Toast toast={toast} />
     </main>

@@ -39,6 +39,7 @@ import { clearAuthSession } from "../../../utils/authSession";
 import { activityListRoute } from "../constants";
 import { Toast } from "../components/Toast";
 import { ResultModal } from "../components/ResultModal";
+import type { ResultKind } from "../types";
 import { useToast } from "../hooks/useToast";
 import { guardarProgresoActividad } from "../../../services/progresoService";
 import {
@@ -738,6 +739,9 @@ export function RadarSupervivencia() {
     setResultModalOpen,
   ] = useState(false);
 
+  const [resultModalKind, setResultModalKind] =
+    useState<ResultKind>("completed");
+
   const progress =
     Object.keys(placements).length;
 
@@ -949,16 +953,8 @@ export function RadarSupervivencia() {
         }
 
         window.setTimeout(() => {
-          navigate(
-            "/actividades/mathnumbers/actividad-completada",
-            {
-              state: {
-                activity: "radar-supervivencia",
-                retryRoute: radarRoute,
-                nextRoute: ascensorRoute,
-              },
-            },
-          );
+          setResultModalKind("completed");
+          setResultModalOpen(true);
         }, 1200); // Damos un poco más de tiempo para leer el mensaje elegante
 
         return;
@@ -971,17 +967,10 @@ export function RadarSupervivencia() {
       );
 
       window.setTimeout(() => {
-        navigate(
-          total >= 2
-            ? "/actividades/mathnumbers/casi-lo-logras"
-            : "/actividades/mathnumbers/vuelve-a-intentarlo",
-          {
-            state: {
-              activity: "radar-supervivencia",
-              retryRoute: radarRoute,
-            },
-          },
+        setResultModalKind(
+          total >= 2 ? "almost" : "retry",
         );
+        setResultModalOpen(true);
       }, 900);
 
     } catch (error) {
@@ -1449,7 +1438,7 @@ export function RadarSupervivencia() {
 
       {resultModalOpen && (
         <ResultModal
-          kind="completed"
+          kind={resultModalKind}
           nextRoute={ascensorRoute}
           retryRoute={radarRoute}
           onClose={() =>

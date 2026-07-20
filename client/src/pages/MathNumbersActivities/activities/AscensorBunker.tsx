@@ -38,6 +38,7 @@ import { clearAuthSession } from "../../../utils/authSession";
 import { activityListRoute } from "../constants";
 import { Toast } from "../components/Toast";
 import { ResultModal } from "../components/ResultModal";
+import type { ResultKind } from "../types";
 import { useToast } from "../hooks/useToast";
 import { guardarProgresoActividad } from "../../../services/progresoService";
 import {
@@ -731,6 +732,9 @@ export function AscensorBunker() {
     setResultModalOpen,
   ] = useState(false);
 
+  const [resultModalKind, setResultModalKind] =
+    useState<ResultKind>("completed");
+
   const progress = slots.filter(
     (slot) => slot !== null,
   ).length;
@@ -917,6 +921,7 @@ export function AscensorBunker() {
         }
 
         window.setTimeout(() => {
+          setResultModalKind("completed");
           setResultModalOpen(true);
         }, 1200); // Damos un poco más de tiempo para leer el mensaje elegante
 
@@ -930,18 +935,10 @@ export function AscensorBunker() {
       );
 
       window.setTimeout(() => {
-        navigate(
-          total >= 3
-            ? "/actividades/mathnumbers/casi-lo-logras"
-            : "/actividades/mathnumbers/vuelve-a-intentarlo",
-          {
-            state: {
-              activity: "ascensor-bunker",
-              retryRoute: ascensorRoute,
-              nextRoute: activityListRoute,
-            },
-          },
+        setResultModalKind(
+          total >= 3 ? "almost" : "retry",
         );
+        setResultModalOpen(true);
       }, 900);
 
     } catch (error) {
@@ -1429,7 +1426,7 @@ export function AscensorBunker() {
 
       {resultModalOpen && (
         <ResultModal
-          kind="completed"
+          kind={resultModalKind}
           nextRoute={escuadronTacticoRoute}
           retryRoute={ascensorRoute}
           onClose={() =>

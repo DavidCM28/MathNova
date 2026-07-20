@@ -32,6 +32,7 @@ import { guardarProgresoActividad } from "../../../services/progresoService";
 
 import { activityListRoute } from "../constants";
 import { ResultModal } from "../components/ResultModal";
+import type { ResultKind } from "../types";
 import { Toast } from "../components/Toast";
 import { useToast } from "../hooks/useToast";
 
@@ -348,6 +349,9 @@ export function EscuadronTactico() {
   const [resultModalOpen, setResultModalOpen] =
     useState(false);
 
+  const [resultModalKind, setResultModalKind] =
+    useState<ResultKind>("completed");
+
   const [challengeOne, setChallengeOne] = useState<
     OperationKey[]
   >([]);
@@ -574,6 +578,7 @@ export function EscuadronTactico() {
         );
 
         window.setTimeout(() => {
+          setResultModalKind("completed");
           setResultModalOpen(true);
         }, 900);
 
@@ -588,18 +593,10 @@ export function EscuadronTactico() {
       );
 
       window.setTimeout(() => {
-        navigate(
-          totalCorrect >= 2
-            ? "/actividades/mathnumbers/casi-lo-logras"
-            : "/actividades/mathnumbers/vuelve-a-intentarlo",
-          {
-            state: {
-              activity: "escuadron-tactico",
-              retryRoute: escuadronRoute,
-              nextRoute: activityListRoute,
-            },
-          },
+        setResultModalKind(
+          totalCorrect >= 2 ? "almost" : "retry",
         );
+        setResultModalOpen(true);
       }, 900);
     } catch (error) {
       console.error(
@@ -1056,7 +1053,7 @@ export function EscuadronTactico() {
 
       {resultModalOpen && (
         <ResultModal
-          kind="completed"
+          kind={resultModalKind}
           nextRoute={activityListRoute}
           retryRoute={escuadronRoute}
           onClose={() => setResultModalOpen(false)}
