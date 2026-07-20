@@ -12,7 +12,10 @@ import zorritoHola from "../../assets/zorrito-hola-explorador.png";
 import actividad1 from "../../assets/Actividad-1-MathNumbers.png";
 import actividad2 from "../../assets/Actividad-2-MathNumbers.png";
 import actividad3 from "../../assets/Actividad-3-MathNumbers.png";
-import actividad4 from "../../assets/Actividad-4-MathNumbers.png";
+
+/* Nueva imagen guardada directamente dentro de src/assets */
+import escuadronTactico from "../../assets/escuadron-tactico.png";
+
 import actividad5 from "../../assets/Actividad-5-MathNumbers.png";
 import actividad6 from "../../assets/Actividad-6-MathNumbers.png";
 import actividad7 from "../../assets/Actividad-7-MathNumbers.png";
@@ -40,6 +43,7 @@ import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 function ActividadesMathNumbers() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [busqueda, setBusqueda] = useState("");
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -71,92 +75,109 @@ function ActividadesMathNumbers() {
       .replace(/[\u0300-\u036f]/g, "")
       .trim();
 
-  const actividades = [
-    {
-      img: actividad1,
-      titulo: "1. El Cofre de Bienvenida",
-      texto: "Sincroniza energía convirtiendo fracciones a decimales.",
-      nivel: "Fácil",
-      tiempo: "5 min",
-      slug: "cofre-bienvenida",
-    },
-    {
-      img: actividad2,
-      titulo: "2. El Radar de Supervivencia",
-      texto: "Ubica números con signo en la recta numérica bajo presión.",
-      nivel: "Fácil",
-      tiempo: "10 min",
-      slug: "radar-supervivencia",
-    },
-    {
-      img: actividad3,
-      titulo: "3. El Ascensor del Búnker",
-      texto: "Programa la ruta ordenando los pisos de menor a mayor.",
-      nivel: "Fácil",
-      tiempo: "12 min",
-      slug: "ascensor-bunker",
-    },
-    {
-      img: actividad4,
-      titulo: "4. Escuadrón Táctico",
-      texto: "Desactiva una trampa láser siguiendo el orden jerárquico.",
-      nivel: "Medio",
-      tiempo: "15 min",
-      slug: "",
-    },
-    {
-      img: actividad5,
-      titulo: "5. Espejos de la Bóveda",
-      texto: "Identifica propiedades conmutativas y asociativas.",
-      nivel: "Fácil",
-      tiempo: "8 min",
-      slug: "",
-    },
-    {
-      img: actividad6,
-      titulo: "6. Simulador de Códigos",
-      texto: "Representa algebraicamente una sucesión sencilla.",
-      nivel: "Medio",
-      tiempo: "14 min",
-      slug: "",
-    },
-    {
-      img: actividad7,
-      titulo: "7. Escalera de Escape",
-      texto: "Identifica aumentos constantes en figuras de hexágonos.",
-      nivel: "Fácil",
-      tiempo: "10 min",
-      slug: "",
-    },
-    {
-      img: actividad8,
-      titulo: "8. Traductor del Sistema",
-      texto: "Traduce lenguaje común al algebraico con una interfaz.",
-      nivel: "Fácil",
-      tiempo: "9 min",
-      slug: "",
-    },
-    {
-      img: actividad9,
-      titulo: "9. Cajas de Suministros",
-      texto: "Plantea y resuelve ecuaciones lineales intuitivamente.",
-      nivel: "Medio",
-      tiempo: "11 min",
-      slug: "",
-    },
-    {
-      img: actividad10,
-      titulo: "10. Ofertas del Mercader",
-      texto: "Calcula porcentajes de descuento en compras virtuales.",
-      nivel: "Fácil",
-      tiempo: "8 min",
-      slug: "",
-    },
-  ];
+  const actividades = useMemo(
+    () => [
+      {
+        img: actividad1,
+        titulo: "1. El Cofre de Bienvenida",
+        texto:
+          "Sincroniza energía convirtiendo fracciones a decimales.",
+        nivel: "Fácil",
+        tiempo: "5 min",
+        slug: "cofre-bienvenida",
+      },
+      {
+        img: actividad2,
+        titulo: "2. El Radar de Supervivencia",
+        texto:
+          "Ubica números con signo en la recta numérica bajo presión.",
+        nivel: "Fácil",
+        tiempo: "10 min",
+        slug: "radar-supervivencia",
+      },
+      {
+        img: actividad3,
+        titulo: "3. El Ascensor del Búnker",
+        texto:
+          "Programa la ruta ordenando los pisos de menor a mayor.",
+        nivel: "Fácil",
+        tiempo: "12 min",
+        slug: "ascensor-bunker",
+      },
+      {
+        img: escuadronTactico,
+        titulo: "4. Escuadrón Táctico",
+        texto:
+          "Desactiva una trampa láser siguiendo el orden jerárquico.",
+        nivel: "Medio",
+        tiempo: "15 min",
+        slug: "escuadron-tactico",
+      },
+      {
+        img: actividad5,
+        titulo: "5. Espejos de la Bóveda",
+        texto:
+          "Identifica propiedades conmutativas y asociativas.",
+        nivel: "Fácil",
+        tiempo: "8 min",
+        slug: "",
+      },
+      {
+        img: actividad6,
+        titulo: "6. Simulador de Códigos",
+        texto:
+          "Representa algebraicamente una sucesión sencilla.",
+        nivel: "Medio",
+        tiempo: "14 min",
+        slug: "",
+      },
+      {
+        img: actividad7,
+        titulo: "7. Escalera de Escape",
+        texto:
+          "Identifica aumentos constantes en figuras de hexágonos.",
+        nivel: "Fácil",
+        tiempo: "10 min",
+        slug: "",
+      },
+      {
+        img: actividad8,
+        titulo: "8. Traductor del Sistema",
+        texto:
+          "Traduce lenguaje común al algebraico con una interfaz.",
+        nivel: "Fácil",
+        tiempo: "9 min",
+        slug: "",
+      },
+      {
+        img: actividad9,
+        titulo: "9. Cajas de Suministros",
+        texto:
+          "Plantea y resuelve ecuaciones lineales intuitivamente.",
+        nivel: "Medio",
+        tiempo: "11 min",
+        slug: "",
+      },
+      {
+        img: actividad10,
+        titulo: "10. Ofertas del Mercader",
+        texto:
+          "Calcula porcentajes de descuento en compras virtuales.",
+        nivel: "Fácil",
+        tiempo: "8 min",
+        slug: "",
+      },
+    ],
+    []
+  );
 
+  /*
+   * Solo se muestran las actividades que ya tienen una ruta.
+   * Escuadrón Táctico aparecerá porque ya tiene su slug.
+   */
   const actividadesVisibles = useMemo(
     () => actividades.filter((item) => item.slug),
-    []
+    [actividades]
   );
 
   const actividadesFiltradas = useMemo(() => {
@@ -184,10 +205,12 @@ function ActividadesMathNumbers() {
   return (
     <main className="numbersx-page">
       <button
+        type="button"
         className={`numbersx-hamburger-btn ${
           menuOpen ? "numbersx-hamburger-open" : ""
         }`}
         onClick={() => setMenuOpen(!menuOpen)}
+        aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
       >
         <img src={menuHamburguesa} alt="Menú" />
       </button>
@@ -204,15 +227,24 @@ function ActividadesMathNumbers() {
           menuOpen ? "numbersx-sidebar-open" : ""
         }`}
       >
-        <img src={logo} alt="MathNova" className="numbersx-sidebar-logo" />
+        <img
+          src={logo}
+          alt="MathNova"
+          className="numbersx-sidebar-logo"
+        />
 
         <nav className="numbersx-sidebar-menu">
-          <button className="numbersx-menu-item" onClick={() => irARuta("/")}>
+          <button
+            type="button"
+            className="numbersx-menu-item"
+            onClick={() => irARuta("/")}
+          >
             <FiGrid />
             <span>Dashboard principal</span>
           </button>
 
           <button
+            type="button"
             className="numbersx-menu-item numbersx-active"
             onClick={() => irARuta("/seleccion-mundos")}
           >
@@ -221,6 +253,7 @@ function ActividadesMathNumbers() {
           </button>
 
           <button
+            type="button"
             className="numbersx-menu-item"
             onClick={() => irARuta("/retroalimentacion")}
           >
@@ -229,6 +262,7 @@ function ActividadesMathNumbers() {
           </button>
 
           <button
+            type="button"
             className="numbersx-menu-item"
             onClick={() => irARuta("/recompensas")}
           >
@@ -237,6 +271,7 @@ function ActividadesMathNumbers() {
           </button>
 
           <button
+            type="button"
             className="numbersx-menu-item"
             onClick={() => irARuta("/perfil-alumno")}
           >
@@ -245,6 +280,7 @@ function ActividadesMathNumbers() {
           </button>
 
           <button
+            type="button"
             className="numbersx-menu-item"
             onClick={() => irARuta("/estadisticas")}
           >
@@ -255,7 +291,11 @@ function ActividadesMathNumbers() {
 
         <div className="numbersx-sidebar-bottom">
           <div className="numbersx-hello-box">
-            <img src={zorritoHola} alt="Explorador MathNumbers" />
+            <img
+              src={zorritoHola}
+              alt="Explorador MathNumbers"
+            />
+
             <span>¡Hola, explorador!</span>
           </div>
 
@@ -267,13 +307,16 @@ function ActividadesMathNumbers() {
 
             <div className="numbersx-star-progress">
               <span>☆</span>
+
               <div>
-                <b></b>
+                <b />
               </div>
+
               <p>60%</p>
             </div>
 
             <img src={mundoNumbers} alt="MathNumbers" />
+
             <small>¡Sigue calculando!</small>
           </div>
         </div>
@@ -292,22 +335,22 @@ function ActividadesMathNumbers() {
               <h1>Actividades de MathNumbers</h1>
 
               <p>
-                Explora números, fracciones, álgebra y porcentajes con retos
-                interactivos.
+                Explora números, fracciones, álgebra y porcentajes con
+                retos interactivos.
               </p>
 
               <div className="numbersx-status-tabs">
-                <button>
+                <button type="button">
                   <FiCircle />
                   Pendientes
                 </button>
 
-                <button>
+                <button type="button">
                   <FiCircle />
                   En curso
                 </button>
 
-                <button>
+                <button type="button">
                   <FiCheckCircle />
                   Completadas
                 </button>
@@ -317,11 +360,14 @@ function ActividadesMathNumbers() {
             <div className="numbersx-search-area">
               <div className="numbersx-search-box">
                 <FiSearch />
+
                 <input
                   type="search"
                   value={busqueda}
                   placeholder="Buscar actividades o temas..."
-                  onChange={(event) => setBusqueda(event.target.value)}
+                  onChange={(event) =>
+                    setBusqueda(event.target.value)
+                  }
                 />
               </div>
 
@@ -338,9 +384,15 @@ function ActividadesMathNumbers() {
 
           {actividadesFiltradas.length > 0 ? (
             <div className={gridClassName}>
-              {actividadesFiltradas.map((item, index) => (
-                <article className="numbersx-activity-card" key={index}>
-                  <img src={item.img} alt={item.titulo} />
+              {actividadesFiltradas.map((item) => (
+                <article
+                  className="numbersx-activity-card"
+                  key={item.slug}
+                >
+                  <img
+                    src={item.img}
+                    alt={item.titulo}
+                  />
 
                   <div className="numbersx-activity-info">
                     <h3>{item.titulo}</h3>
@@ -365,7 +417,9 @@ function ActividadesMathNumbers() {
 
                       <button
                         type="button"
-                        onClick={() => iniciarActividad(item.slug)}
+                        onClick={() =>
+                          iniciarActividad(item.slug)
+                        }
                       >
                         Iniciar
                       </button>
@@ -377,9 +431,17 @@ function ActividadesMathNumbers() {
           ) : (
             <div className="numbersx-empty-search">
               <FiSearch />
+
               <h2>No se encontraron actividades</h2>
-              <p>Intenta buscar por nombre, tema, nivel o tiempo.</p>
-              <button type="button" onClick={() => setBusqueda("")}>
+
+              <p>
+                Intenta buscar por nombre, tema, nivel o tiempo.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => setBusqueda("")}
+              >
                 Ver actividades disponibles
               </button>
             </div>
@@ -390,7 +452,11 @@ function ActividadesMathNumbers() {
           <p>© MathNova. Todos los derechos reservados.</p>
 
           <div className="numbersx-footer-icons">
-            <button onClick={() => navigate("/login")}>
+            <button
+              type="button"
+              onClick={() => navigate("/login")}
+              aria-label="Cerrar sesión"
+            >
               <FiLogOut className="numbersx-logout-icon" />
             </button>
 

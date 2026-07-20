@@ -63,6 +63,15 @@ const ascensorRoute =
   "/actividades/mathnumbers/ascensor-bunker";
 
 /*
+ * Ruta de la siguiente actividad.
+ *
+ * Se utiliza para que el botón "Siguiente actividad"
+ * abra Escuadrón Táctico.
+ */
+const escuadronTacticoRoute =
+  "/actividades/mathnumbers/escuadron-tactico";
+
+/*
  * Orden correcto que valida la actividad.
  *
  * No lo cambies si solamente quieres modificar
@@ -1421,7 +1430,7 @@ export function AscensorBunker() {
       {resultModalOpen && (
         <ResultModal
           kind="completed"
-          nextRoute={activityListRoute}
+          nextRoute={escuadronTacticoRoute}
           retryRoute={ascensorRoute}
           onClose={() =>
             setResultModalOpen(false)
