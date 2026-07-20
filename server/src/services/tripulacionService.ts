@@ -11,7 +11,6 @@ export interface CeldaResponse {
   intento: number;
   mensaje: string;
   mostrar_pista?: boolean;
-  respuesta_correcta?: number;
   celda_completada?: boolean;
 }
 
@@ -40,6 +39,11 @@ class TripulacionService {
   };
 
   private readonly MODULO_GANADOR = 'bosque';
+
+  // A partir de este intento se da una pista más fuerte, pero NUNCA se
+  // revela ni se autocompleta la respuesta. El estudiante siempre tiene
+  // que escribirla él mismo para que cuente como acierto.
+  private readonly LIMITE_PISTA_FUERTE = 10;
 
   async validarCelda(data: CeldaRequest): Promise<CeldaResponse> {
     const { id_estudiante, celda, valor } = data;
@@ -81,9 +85,9 @@ class TripulacionService {
 
     intentosTabla[celda] = intentoActual;
 
-    // ✅ NUEVO: registramos cada intento individual en el historial
-    // permanente (no se borra al reiniciar), para que el docente conserve
-    // la evidencia completa aunque el contador de la sesión actual sí se
+    // Registramos cada intento individual en el historial permanente
+    // (no se borra al reiniciar), para que el docente conserve la
+    // evidencia completa aunque el contador de la sesión actual sí se
     // reinicie.
     const historial = [...(progreso.historial_intentos as any[])];
     historial.push({
@@ -114,25 +118,21 @@ class TripulacionService {
       };
     }
 
-    if (intentoActual >= 3) {
-      // Al 3er intento fallido se revela la respuesta y la celda queda bloqueada
-      const valoresTabla = { ...(progreso.valores_tabla as Record<string, number>) };
-      valoresTabla[celda] = esperado;
-      await progreso.update({
-        valores_tabla: valoresTabla,
-      });
+    // ❌ Ya NO se revela la respuesta ni se bloquea la celda en ningún
+    // momento. El estudiante siempre puede seguir intentando y siempre
+    // debe escribir la respuesta correcta él mismo.
 
+    if (intentoActual >= this.LIMITE_PISTA_FUERTE) {
       return {
         correcto: false,
         intento: intentoActual,
-        mensaje: '¡Esta es la respuesta. Obsérvala bien!',
+        mensaje: 'Ya llevas varios intentos. Pista fuerte: cuenta con mucho cuidado cada palito de esa columna, uno por uno, y anota el total exacto.',
         mostrar_pista: true,
-        respuesta_correcta: esperado,
-        celda_completada: true,
+        celda_completada: false,
       };
     }
 
-    if (intentoActual === 2) {
+    if (intentoActual >= 2) {
       return {
         correcto: false,
         intento: intentoActual,
@@ -224,11 +224,12 @@ class TripulacionService {
       completada: progreso.completada,
       resultado_correcto: progreso.resultado_correcto,
       xp_obtenido: progreso.xp_obtenido,
+      historial_intentos: progreso.historial_intentos,
     };
   }
 
   // Reinicia los campos de trabajo Y los contadores de intentos de la
-  // sesión actual (para que el estudiante tenga 3 intentos frescos otra
+  // sesión actual (para que el estudiante tenga intentos frescos otra
   // vez). El historial_intentos NUNCA se borra: ahí queda el registro
   // permanente de cada intento individual para el docente.
   async reiniciarActividad(id_estudiante: number): Promise<ReiniciarResponse | null> {
@@ -242,9 +243,9 @@ class TripulacionService {
 
     await progreso.update({
       valores_tabla: {},
-      intentos_tabla: {},   // ✅ NUEVO: se resetea
+      intentos_tabla: {},
       modulo_seleccionado: null,
-      intentos_modulo: 0,   // ✅ NUEVO: se resetea
+      intentos_modulo: 0,
       completada: false,
       resultado_correcto: null,
       tiempo_total: 0,

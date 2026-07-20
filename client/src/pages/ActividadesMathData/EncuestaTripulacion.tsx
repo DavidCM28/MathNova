@@ -252,8 +252,6 @@ export default function EncuestaTripulacion() {
 
   const [estadoDesierto, setEstadoDesierto] = useState<EstadoFila>("pendiente");
   const [estadoCueva, setEstadoCueva] = useState<EstadoFila>("pendiente");
-  const [bloqueadaDesierto, setBloqueadaDesierto] = useState(false);
-  const [bloqueadaCueva, setBloqueadaCueva] = useState(false);
   const [mensajeCeldaDesierto, setMensajeCeldaDesierto] = useState("");
   const [mensajeCeldaCueva, setMensajeCeldaCueva] = useState("");
 
@@ -280,18 +278,33 @@ export default function EncuestaTripulacion() {
         if (data.success && data.data) {
           const progreso = data.data;
           const valores = (progreso.valores_tabla || {}) as Record<string, number>;
-          const intentos = (progreso.intentos_tabla || {}) as Record<string, number>;
+          const historial = (progreso.historial_intentos || []) as any[];
+
+          // Busca el último intento registrado para una celda, aunque
+          // todavía no haya acertado (para no perderlo al recargar).
+          const ultimoIntento = (celda: string) =>
+            [...historial].reverse().find((h) => h.celda === celda);
 
           if (valores.desierto !== undefined) {
             setFrecDesierto(String(valores.desierto));
             setEstadoDesierto("correcto");
-            setBloqueadaDesierto((intentos.desierto || 0) >= 3);
+          } else {
+            const ultimo = ultimoIntento("desierto");
+            if (ultimo) {
+              setFrecDesierto(String(ultimo.valor));
+              setEstadoDesierto("incorrecto");
+            }
           }
 
           if (valores.cueva !== undefined) {
             setFrecCueva(String(valores.cueva));
             setEstadoCueva("correcto");
-            setBloqueadaCueva((intentos.cueva || 0) >= 3);
+          } else {
+            const ultimo = ultimoIntento("cueva");
+            if (ultimo) {
+              setFrecCueva(String(ultimo.valor));
+              setEstadoCueva("incorrecto");
+            }
           }
 
           if (progreso.modulo_seleccionado) {
@@ -317,7 +330,7 @@ export default function EncuestaTripulacion() {
   const verificarTabla = async () => {
     setCargandoTabla(true);
     try {
-      if (!bloqueadaDesierto && frecDesierto.trim() !== "") {
+      if (estadoDesierto !== "correcto" && frecDesierto.trim() !== "") {
         const response = await fetch(`${API_URL}/tripulacion/validar-celda`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -332,21 +345,11 @@ export default function EncuestaTripulacion() {
         if (data.success && data.data) {
           const resultadoCelda = data.data;
           setMensajeCeldaDesierto(resultadoCelda.mensaje);
-
-          if (resultadoCelda.celda_completada && !resultadoCelda.correcto) {
-            // 3er intento fallido: se revela la respuesta y se bloquea
-            setFrecDesierto(String(resultadoCelda.respuesta_correcta));
-            setEstadoDesierto("incorrecto");
-            setBloqueadaDesierto(true);
-          } else if (resultadoCelda.correcto) {
-            setEstadoDesierto("correcto");
-          } else {
-            setEstadoDesierto("incorrecto");
-          }
+          setEstadoDesierto(resultadoCelda.correcto ? "correcto" : "incorrecto");
         }
       }
 
-      if (!bloqueadaCueva && frecCueva.trim() !== "") {
+      if (estadoCueva !== "correcto" && frecCueva.trim() !== "") {
         const response = await fetch(`${API_URL}/tripulacion/validar-celda`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -361,16 +364,7 @@ export default function EncuestaTripulacion() {
         if (data.success && data.data) {
           const resultadoCelda = data.data;
           setMensajeCeldaCueva(resultadoCelda.mensaje);
-
-          if (resultadoCelda.celda_completada && !resultadoCelda.correcto) {
-            setFrecCueva(String(resultadoCelda.respuesta_correcta));
-            setEstadoCueva("incorrecto");
-            setBloqueadaCueva(true);
-          } else if (resultadoCelda.correcto) {
-            setEstadoCueva("correcto");
-          } else {
-            setEstadoCueva("incorrecto");
-          }
+          setEstadoCueva(resultadoCelda.correcto ? "correcto" : "incorrecto");
         }
       }
     } catch (error) {
@@ -380,9 +374,7 @@ export default function EncuestaTripulacion() {
     }
   };
 
-  const tablaCompleta =
-    (estadoDesierto === "correcto" || bloqueadaDesierto) &&
-    (estadoCueva === "correcto" || bloqueadaCueva);
+  const tablaCompleta = estadoDesierto === "correcto" && estadoCueva === "correcto";
 
   // ==========================================
   // ENVIAR AL CENTRO DE MANDO (módulo ganador)
@@ -434,8 +426,6 @@ export default function EncuestaTripulacion() {
     setFrecCueva("");
     setEstadoDesierto("pendiente");
     setEstadoCueva("pendiente");
-    setBloqueadaDesierto(false);
-    setBloqueadaCueva(false);
     setMensajeCeldaDesierto("");
     setMensajeCeldaCueva("");
     setModuloSeleccionado(null);
@@ -1013,7 +1003,7 @@ export default function EncuestaTripulacion() {
                       value={frecDesierto}
                       onChange={(e) => setFrecDesierto(e.target.value)}
                       aria-label="Frecuencia absoluta del módulo Desierto"
-                      disabled={cargandoTabla || bloqueadaDesierto}
+                      disabled={cargandoTabla || estadoDesierto === "correcto"}
                     />
                     {mensajeCeldaDesierto && (
                       <p className="enc-mensaje-celda">{mensajeCeldaDesierto}</p>
@@ -1054,7 +1044,7 @@ export default function EncuestaTripulacion() {
                       value={frecCueva}
                       onChange={(e) => setFrecCueva(e.target.value)}
                       aria-label="Frecuencia absoluta del módulo Cueva de Cristal"
-                      disabled={cargandoTabla || bloqueadaCueva}
+                      disabled={cargandoTabla || estadoCueva === "correcto"}
                     />
                     {mensajeCeldaCueva && (
                       <p className="enc-mensaje-celda">{mensajeCeldaCueva}</p>
