@@ -4838,3 +4838,3520 @@ body:has(.act4geo-complete-modal) {
     display: none !important;
   }
 }
+
+/* =========================================================
+   TEXTO SINCRONIZADO DEL PROFESOR ASTRO
+   ========================================================= */
+.act4geo-modal-script-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.act4geo-modal-script-lines p {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.74);
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 800;
+  transition: 0.22s ease;
+}
+
+.act4geo-modal-script-lines .act4geo-modal-script-line-active {
+  background: #eaf2ff;
+  color: #0058ff;
+  transform: translateX(4px);
+  box-shadow: 0 8px 16px rgba(0, 88, 255, 0.12);
+}
+
+/* =========================================================
+   CORRECCIÓN FINAL MULTIMEDIA - ACTIVIDAD 4
+   MISMO COMPORTAMIENTO VISUAL DE LA ACTIVIDAD 1
+   ========================================================= */
+
+/* Botones visibles dentro de las tarjetas del Profesor y Byte */
+.act4geo-guide-cta {
+  width: fit-content;
+  min-height: 31px;
+  margin-top: 10px;
+  padding: 0 13px;
+  border-radius: 999px;
+  background: #0058ff;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 10.5px;
+  line-height: 1;
+  font-weight: 950;
+  box-shadow: 0 10px 18px rgba(0, 88, 255, 0.2);
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease;
+}
+
+.act4geo-guide-cta svg {
+  font-size: 14px;
+}
+
+.act4geo-guide-card:hover .act4geo-guide-cta {
+  transform: translateY(-2px) scale(1.03);
+  background: #0047d6;
+  box-shadow: 0 14px 22px rgba(0, 88, 255, 0.28);
+}
+
+.act4geo-guide-cta-byte {
+  background: #ff7a00;
+  box-shadow: 0 10px 18px rgba(255, 122, 0, 0.2);
+}
+
+.act4geo-byte-card:hover .act4geo-guide-cta-byte {
+  background: #e86400;
+  box-shadow: 0 14px 22px rgba(255, 122, 0, 0.28);
+}
+
+/* La animación de Nova permanece activa durante TODO el audio */
+.act4geo-intro-playing .act4geo-nova-canvas {
+  animation:
+    act4geoNovaFloat 2.2s ease-in-out infinite,
+    act4geoNovaTalk 0.42s ease-in-out infinite !important;
+  transform-origin: center bottom;
+  will-change: transform;
+}
+
+/* Cursor de escritura como en la Actividad 1 */
+.act4geo-typing-cursor {
+  display: inline-block;
+  width: 3px;
+  height: 18px;
+  margin-left: 4px;
+  border-radius: 999px;
+  background: #0058ff;
+  vertical-align: -3px;
+  animation: act4geoCursorBlink 0.8s infinite;
+}
+
+/* Profesor animado mientras su audio está reproduciéndose */
+.act4geo-profe-modal-playing .act4geo-modal-canvas {
+  animation:
+    act4geoProfeFloat 2.15s ease-in-out infinite,
+    act4geoProfeTalk 0.46s ease-in-out infinite !important;
+  transform-origin: center bottom;
+  will-change: transform;
+}
+
+.act4geo-profe-modal-playing .act4geo-modal-play {
+  animation: act4geoMiniPulse 1s ease-in-out infinite;
+}
+
+/* Texto actual del profesor: evita que se recorte antes de terminar */
+.act4geo-modal-cloud {
+  min-height: 162px !important;
+  display: flex;
+  align-items: center;
+  overflow: visible !important;
+}
+
+.act4geo-modal-cloud p {
+  width: 100%;
+  min-height: 72px !important;
+  max-height: none !important;
+  overflow: visible !important;
+  display: block !important;
+  white-space: normal;
+}
+
+/* Transcripción completa: mismo estilo por líneas de Actividad 1 */
+.act4geo-modal-script-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.act4geo-modal-script-lines p {
+  margin: 0;
+  padding: 12px 14px;
+  border-left: 4px solid transparent;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.74);
+  color: #4d5b73;
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 850;
+  transition:
+    color 0.22s ease,
+    background 0.22s ease,
+    border-color 0.22s ease,
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.act4geo-modal-script-lines .act4geo-modal-script-line-active {
+  border-left-color: #0058ff;
+  background: linear-gradient(135deg, #edf4ff, #ffffff);
+  color: #0058ff;
+  transform: translateX(4px);
+  box-shadow: 0 10px 20px rgba(0, 88, 255, 0.1);
+}
+
+/* Las cards dejan espacio para el botón visible */
+.act4geo-profe-card,
+.act4geo-byte-card {
+  min-height: 136px !important;
+  align-items: center !important;
+}
+
+.act4geo-profe-card > div,
+.act4geo-byte-card > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Botón principal de explicación */
+.act4geo-instructions-btn {
+  background: #0058ff !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  box-shadow: 0 12px 22px rgba(0, 88, 255, 0.22);
+}
+
+.act4geo-instructions-btn:hover {
+  background: #0047d6 !important;
+  box-shadow: 0 16px 26px rgba(0, 88, 255, 0.3);
+}
+
+@keyframes act4geoProfeFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+@keyframes act4geoProfeTalk {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.025;
+  }
+}
+
+@keyframes act4geoCursorBlink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  46%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes act4geoMiniPulse {
+  0%,
+  100% {
+    box-shadow: 0 12px 22px rgba(0, 88, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 16px 30px rgba(0, 88, 255, 0.36);
+  }
+}
+
+@media (max-width: 1500px) {
+  .act4geo-profe-card,
+  .act4geo-byte-card {
+    min-height: 142px !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .act4geo-guide-cta {
+    min-height: 32px;
+    font-size: 11px;
+  }
+
+  .act4geo-modal-cloud {
+    min-height: 145px !important;
+  }
+
+  .act4geo-modal-cloud p {
+    min-height: 64px !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .act4geo-profe-card,
+  .act4geo-byte-card {
+    min-height: 132px !important;
+  }
+
+  .act4geo-guide-cta {
+    width: 100%;
+    margin-top: 9px;
+  }
+
+  .act4geo-modal-cloud {
+    min-height: 132px !important;
+  }
+
+  .act4geo-modal-cloud p {
+    min-height: 56px !important;
+    font-size: 15px !important;
+  }
+}
+
+/* =========================================================
+   AJUSTE SOLICITADO — MODAL PROFESOR COMPACTO + LÍNEA DE AVANCE
+   Se agrega al final para no alterar el resto del diseño.
+   ========================================================= */
+
+/* Modal más compacto porque el texto del Profesor Astro es corto. */
+.act4geo-character-modal:has(.act4geo-modal-script-panel) {
+  width: min(1040px, calc(100vw - 36px)) !important;
+  height: min(570px, calc(100dvh - 36px)) !important;
+  min-height: 540px !important;
+  padding: 30px 32px !important;
+  grid-template-columns: 215px minmax(0, 1fr) 265px !important;
+  gap: 24px !important;
+}
+
+.act4geo-character-modal:has(.act4geo-modal-script-panel)
+  .act4geo-modal-character {
+  min-height: 420px !important;
+}
+
+.act4geo-character-modal:has(.act4geo-modal-script-panel)
+  .act4geo-modal-video-wrap,
+.act4geo-character-modal:has(.act4geo-modal-script-panel)
+  .act4geo-modal-canvas {
+  width: 205px !important;
+  height: 390px !important;
+}
+
+.act4geo-character-modal:has(.act4geo-modal-script-panel)
+  .act4geo-modal-content
+  h2 {
+  margin: 14px 0 18px !important;
+  font-size: clamp(38px, 3.6vw, 54px) !important;
+  line-height: 0.96 !important;
+}
+
+.act4geo-character-modal:has(.act4geo-modal-script-panel) .act4geo-modal-cloud {
+  min-height: 142px !important;
+  padding: 24px 27px !important;
+}
+
+.act4geo-character-modal:has(.act4geo-modal-script-panel)
+  .act4geo-modal-cloud
+  p {
+  min-height: 56px !important;
+  font-size: 17px !important;
+}
+
+.act4geo-character-modal:has(.act4geo-modal-script-panel)
+  .act4geo-modal-controls {
+  margin-top: 16px !important;
+}
+
+.act4geo-character-modal:has(.act4geo-modal-script-panel)
+  .act4geo-modal-controls
+  button {
+  min-width: 116px !important;
+  min-height: 46px !important;
+  padding: 0 15px !important;
+}
+
+.act4geo-character-modal:has(.act4geo-modal-script-panel)
+  .act4geo-modal-script-panel {
+  height: 430px !important;
+  padding: 21px !important;
+  align-self: center !important;
+}
+
+.act4geo-character-modal:has(.act4geo-modal-script-panel)
+  .act4geo-modal-script-panel
+  h3 {
+  font-size: 24px !important;
+}
+
+/* Cada frase contiene una línea que avanza con el audio. */
+.act4geo-modal-script-lines p {
+  --act4geo-line-progress: 0;
+  position: relative !important;
+  overflow: hidden !important;
+  padding: 12px 13px 16px !important;
+}
+
+.act4geo-modal-script-lines p > span {
+  position: relative;
+  z-index: 2;
+}
+
+.act4geo-modal-script-lines p::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 7px;
+  height: 5px;
+  border-radius: 999px;
+  background: #e4ebf7;
+  z-index: 1;
+}
+
+.act4geo-modal-script-lines p::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  bottom: 7px;
+  width: calc(100% - 24px);
+  transform: scaleX(var(--act4geo-line-progress));
+  transform-origin: left center;
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0058ff 0%, #2e8cff 72%, #ffb703 100%);
+  box-shadow: 0 4px 10px rgba(0, 88, 255, 0.22);
+  z-index: 2;
+  transition: transform 0.08s linear;
+}
+
+.act4geo-modal-script-lines .act4geo-modal-script-line-complete {
+  color: #34415f !important;
+  background: #f5f8fd !important;
+}
+
+.act4geo-modal-script-lines .act4geo-modal-script-line-active::before {
+  animation: act4geoProfessorLineGlow 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes act4geoProfessorLineGlow {
+  from {
+    filter: brightness(1);
+  }
+  to {
+    filter: brightness(1.18);
+  }
+}
+
+@media (max-width: 1100px) {
+  .act4geo-character-modal:has(.act4geo-modal-script-panel) {
+    width: min(920px, calc(100vw - 28px)) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    grid-template-columns: 200px minmax(0, 1fr) !important;
+    overflow-y: auto !important;
+  }
+
+  .act4geo-character-modal:has(.act4geo-modal-script-panel)
+    .act4geo-modal-script-panel {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: 245px !important;
+    overflow-y: auto !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .act4geo-character-modal:has(.act4geo-modal-script-panel) {
+    width: calc(100vw - 20px) !important;
+    grid-template-columns: 1fr !important;
+    padding: 68px 16px 20px !important;
+  }
+
+  .act4geo-character-modal:has(.act4geo-modal-script-panel)
+    .act4geo-modal-character {
+    min-height: 230px !important;
+  }
+
+  .act4geo-character-modal:has(.act4geo-modal-script-panel)
+    .act4geo-modal-video-wrap,
+  .act4geo-character-modal:has(.act4geo-modal-script-panel)
+    .act4geo-modal-canvas {
+    width: 145px !important;
+    height: 250px !important;
+  }
+
+  .act4geo-character-modal:has(.act4geo-modal-script-panel)
+    .act4geo-modal-script-panel {
+    grid-column: 1 !important;
+    max-height: 260px !important;
+    text-align: left !important;
+  }
+}
+
+/* =========================================================
+   ACTIVIDAD 4 — MODAL DE TRES PISTAS
+   Nova / Profesor Astro / Byte
+   ========================================================= */
+
+.act4geo-hints-modal {
+  width: min(1180px, calc(100vw - 36px)) !important;
+  height: min(680px, calc(100dvh - 36px)) !important;
+  grid-template-columns: 245px minmax(0, 1fr) 315px !important;
+  gap: 26px !important;
+}
+
+.act4geo-hints-modal .act4geo-modal-content h2 {
+  margin-bottom: 16px !important;
+  font-size: clamp(35px, 3.5vw, 52px) !important;
+}
+
+.act4geo-hint-selector {
+  width: 100%;
+  margin: 0 0 17px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.act4geo-hint-selector button {
+  min-width: 0;
+  min-height: 98px;
+  padding: 11px 10px;
+  border: 2px solid #e1e9f7;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #233252;
+  display: grid;
+  grid-template-columns: 31px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 3px 8px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.07);
+  transition:
+    transform 0.23s ease,
+    border-color 0.23s ease,
+    background 0.23s ease,
+    box-shadow 0.23s ease;
+}
+
+.act4geo-hint-selector button:hover {
+  transform: translateY(-3px);
+  border-color: #9dbdff;
+  box-shadow: 0 15px 25px rgba(0, 88, 255, 0.13);
+}
+
+.act4geo-hint-selector button > span {
+  grid-row: 1 / 3;
+  width: 31px;
+  height: 31px;
+  border-radius: 999px;
+  background: #eaf2ff;
+  color: #0058ff;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.act4geo-hint-selector button strong {
+  min-width: 0;
+  color: #061331;
+  font-size: 12px;
+  line-height: 1.1;
+  font-weight: 950;
+}
+
+.act4geo-hint-selector button small {
+  min-width: 0;
+  color: #64748b;
+  font-size: 9.5px;
+  line-height: 1.18;
+  font-weight: 850;
+}
+
+.act4geo-hint-selector .act4geo-hint-tab-active {
+  border-color: #0058ff;
+  background: linear-gradient(135deg, #edf4ff, #ffffff);
+  box-shadow: 0 15px 27px rgba(0, 88, 255, 0.16);
+}
+
+.act4geo-hint-selector .act4geo-hint-tab-active > span {
+  background: #0058ff;
+  color: #ffffff;
+  box-shadow: 0 8px 15px rgba(0, 88, 255, 0.24);
+}
+
+.act4geo-hints-modal .act4geo-modal-cloud {
+  min-height: 132px !important;
+  padding: 24px 28px !important;
+}
+
+.act4geo-hints-modal .act4geo-modal-cloud p {
+  min-height: 58px !important;
+  font-size: 17px !important;
+  line-height: 1.38 !important;
+}
+
+.act4geo-hints-modal .act4geo-modal-script-panel {
+  height: 535px !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.act4geo-hint-script-lines {
+  flex: 1;
+  justify-content: center;
+}
+
+.act4geo-hint-script-lines p {
+  position: relative;
+  overflow: hidden;
+  padding-bottom: 17px !important;
+}
+
+.act4geo-hint-script-lines p::after {
+  content: "";
+  position: absolute;
+  left: 13px;
+  right: 13px;
+  bottom: 7px;
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    #0058ff 0%,
+    #0058ff calc(var(--act4geo-line-progress, 0) * 100%),
+    #dbe7fa calc(var(--act4geo-line-progress, 0) * 100%),
+    #dbe7fa 100%
+  );
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.07);
+  transition: background 0.08s linear;
+}
+
+.act4geo-hint-script-lines .act4geo-modal-script-line-complete {
+  color: #168a4a;
+  background: #effbf4;
+  border-left-color: #1cb765;
+}
+
+.act4geo-hints-modal.act4geo-profe-modal-playing .act4geo-modal-canvas {
+  animation:
+    act4geoProfeFloat 2.15s ease-in-out infinite,
+    act4geoProfeTalk 0.46s ease-in-out infinite !important;
+}
+
+@media (max-width: 1100px) {
+  .act4geo-hints-modal {
+    grid-template-columns: 220px minmax(0, 1fr) !important;
+    height: auto !important;
+    max-height: calc(100dvh - 28px) !important;
+    overflow-y: auto !important;
+  }
+
+  .act4geo-hints-modal .act4geo-modal-script-panel {
+    grid-column: 1 / -1;
+    height: auto !important;
+    min-height: 220px;
+  }
+}
+
+@media (max-width: 760px) {
+  .act4geo-hints-modal {
+    grid-template-columns: 1fr !important;
+    padding: 66px 16px 20px !important;
+  }
+
+  .act4geo-hint-selector {
+    grid-template-columns: 1fr;
+  }
+
+  .act4geo-hint-selector button {
+    min-height: 72px;
+  }
+
+  .act4geo-hints-modal .act4geo-modal-script-panel {
+    grid-column: auto;
+    min-height: 210px;
+    text-align: left;
+  }
+}
+
+/* =========================================================
+   CORRECCIÓN DEFINITIVA — MODAL SIN MOVER EL FONDO
+   =========================================================
+   Esta corrección evita el salto visual al abrir o cerrar un modal.
+
+   IMPORTANTE:
+   - No usa position: fixed en el body.
+   - No cambia la posición de la página.
+   - No manda la vista al inicio al cerrar.
+   - Mantiene visible la página detrás del modal.
+   - Solo bloquea el desplazamiento mientras el modal está abierto.
+   ========================================================= */
+
+/* Mantiene reservado el espacio de la barra para evitar movimientos laterales. */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Bloqueo del fondo sin cambiar la posición actual de la página. */
+html.act4geo-html-locked,
+body.act4geo-body-locked {
+  width: 100% !important;
+  height: auto !important;
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+}
+
+/*
+  MUY IMPORTANTE:
+  Se anula el position: fixed anterior, porque era lo que provocaba
+  que la página pareciera recargarse o regresara a otra posición.
+*/
+body.act4geo-body-locked {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  touch-action: none !important;
+}
+
+/* Respaldo automático si el modal existe aunque las clases no se agreguen. */
+html:has(.act4geo-modal-overlay),
+body:has(.act4geo-modal-overlay) {
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+}
+
+/* El fondo se mantiene visible y en su misma posición. */
+.act4geo-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+
+  /*
+    Conserva la apariencia del fondo:
+    se ve la página, pero no se puede mover.
+  */
+  background: rgba(15, 23, 42, 0.44) !important;
+  -webkit-backdrop-filter: blur(7px) saturate(0.98) !important;
+  backdrop-filter: blur(7px) saturate(0.98) !important;
+}
+
+/* Permite interacción normal dentro del modal. */
+.act4geo-modal-overlay > * {
+  touch-action: auto !important;
+}
+
+/* En escritorio el fondo nunca se desplaza. */
+@media (min-width: 901px) {
+  .act4geo-modal-overlay {
+    touch-action: none !important;
+  }
+}
+
+/*
+  En tablet y celular únicamente el contenido del modal puede desplazarse.
+  La página de atrás continúa inmóvil.
+*/
+@media (max-width: 900px) {
+  .act4geo-modal-overlay {
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    touch-action: pan-y !important;
+  }
+
+  .act4geo-character-modal,
+  .act4geo-hints-modal,
+  .act4geo-complete-modal {
+    overscroll-behavior: contain !important;
+  }
+}
+
+/* =========================================================
+   BOTÓN X DE TODOS LOS MODALES
+   Hover + Click azul
+   ========================================================= */
+
+.act4geo-modal-close {
+  transition:
+    background-color 0.25s ease,
+    transform 0.22s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease !important;
+}
+
+.act4geo-modal-close:hover,
+.act4geo-modal-close:focus-visible {
+  background: #0058ff !important;
+  border-color: #0058ff !important;
+  color: #ffffff !important;
+
+  transform: scale(1.08);
+
+  box-shadow:
+    0 10px 24px rgba(0, 88, 255, 0.35),
+    0 0 0 4px rgba(0, 88, 255, 0.15) !important;
+}
+
+.act4geo-modal-close:active {
+  background: #0047d6 !important;
+  border-color: #0047d6 !important;
+  color: #ffffff !important;
+
+  transform: scale(0.95);
+
+  box-shadow: 0 6px 16px rgba(0, 88, 255, 0.4) !important;
+}
+
+.act4geo-modal-close svg,
+.act4geo-modal-close i {
+  color: inherit !important;
+  stroke: currentColor !important;
+}
+
+/* =========================================================
+   AJUSTE FINAL — SIN BOTÓN INFERIOR NI TARJETA "TU MISIÓN"
+   ========================================================= */
+
+/* Dos acciones principales centradas: Comprobar y Siguiente. */
+.act4geo-game-actions {
+  grid-template-columns: repeat(2, minmax(180px, 1fr)) !important;
+  max-width: 760px;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* El panel derecho queda formado por tres ayudas y el progreso. */
+.act4geo-right-panel {
+  align-content: start;
+}
+
+@media (max-width: 1500px) and (min-width: 992px) {
+  .act4geo-right-panel {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .act4geo-game-actions {
+    grid-template-columns: 1fr !important;
+    max-width: none;
+  }
+}
+
+/* =========================================================
+   CORRECCIÓN DEFINITIVA — PROGRESO MÁS GRANDE Y ALINEADO
+   =========================================================
+   Este bloque debe permanecer al FINAL del archivo.
+   Hace que la tarjeta de progreso llegue hasta la parte baja
+   de la tarjeta del reto, evitando el espacio vacío mostrado.
+   ========================================================= */
+
+/* La columna derecha toma exactamente la altura de la tarjeta del reto. */
+@media (min-width: 1501px) {
+  .act4geo-layout {
+    align-items: stretch !important;
+  }
+
+  .act4geo-game-card,
+  .act4geo-right-panel {
+    align-self: stretch !important;
+  }
+
+  .act4geo-right-panel {
+    height: 100% !important;
+    min-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  /* Empuja la tarjeta hasta el fondo y alinea su borde inferior con el reto. */
+  .act4geo-progress-card {
+    margin-top: auto !important;
+  }
+}
+
+/* Tarjeta de progreso más visible. */
+.act4geo-progress-card {
+  min-height: 112px !important;
+  padding: 17px 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+.act4geo-progress-card strong {
+  margin-bottom: 14px !important;
+  color: #061331 !important;
+  font-size: 15px !important;
+  line-height: 1.2 !important;
+  font-weight: 950 !important;
+}
+
+.act4geo-progress-card div {
+  width: 100% !important;
+  height: 12px !important;
+  flex: 0 0 12px !important;
+  border-radius: 999px !important;
+  background: #e4ebf7 !important;
+}
+
+.act4geo-progress-card span {
+  margin-top: 10px !important;
+  color: #061331 !important;
+  font-size: 14px !important;
+  line-height: 1.1 !important;
+  font-weight: 950 !important;
+}
+
+/* En la vista intermedia conserva el acomodo en tarjetas, pero con texto mayor. */
+@media (max-width: 1500px) and (min-width: 992px) {
+  .act4geo-progress-card {
+    min-height: 118px !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .act4geo-progress-card {
+    min-height: 108px !important;
+  }
+
+  .act4geo-progress-card strong {
+    font-size: 14px !important;
+  }
+
+  .act4geo-progress-card span {
+    font-size: 13px !important;
+  }
+}
+
+/* =========================================================
+   BYTE — FELICITACIÓN AUTOMÁTICA DEL PRIMER RETO
+   Aparece flotando en la esquina inferior derecha, reproduce
+   el audio de acierto y desaparece antes de pasar al reto 2.
+   ========================================================= */
+
+.act4geo-byte-success-toast {
+  position: fixed;
+  right: clamp(18px, 2.6vw, 42px);
+  bottom: clamp(18px, 3vw, 38px);
+  z-index: 8500;
+  width: min(560px, calc(100vw - 36px));
+  min-height: 230px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 190px;
+  align-items: end;
+  pointer-events: none;
+  isolation: isolate;
+  animation: act4geoByteSuccessEnter 0.46s cubic-bezier(0.2, 0.9, 0.25, 1.15)
+    both;
+}
+
+.act4geo-byte-success-glow {
+  position: absolute;
+  right: 24px;
+  bottom: 8px;
+  z-index: -1;
+  width: 230px;
+  height: 118px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(0, 174, 255, 0.3) 0%,
+    transparent 70%
+  );
+  filter: blur(10px);
+  animation: act4geoByteSuccessGlow 1.6s ease-in-out infinite;
+}
+
+.act4geo-byte-success-character {
+  grid-column: 2;
+  grid-row: 1;
+  width: 190px;
+  height: 255px;
+  align-self: end;
+  justify-self: end;
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: visible;
+}
+
+.act4geo-byte-success-video-wrap {
+  width: 180px !important;
+  height: 250px !important;
+  overflow: visible !important;
+}
+
+.act4geo-byte-success-canvas {
+  width: 180px !important;
+  height: 250px !important;
+  display: block !important;
+  object-fit: contain !important;
+  transform-origin: center bottom;
+  filter: drop-shadow(0 18px 22px rgba(0, 88, 255, 0.25))
+    drop-shadow(0 0 18px rgba(70, 203, 255, 0.18));
+  animation:
+    act4geoByteSuccessFloat 1.75s ease-in-out infinite,
+    act4geoByteSuccessTalk 0.44s ease-in-out infinite;
+}
+
+.act4geo-byte-success-bubble {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center;
+  min-width: 0;
+  min-height: 178px;
+  margin: 0 -10px 22px 0;
+  padding: 22px 28px 20px;
+  position: relative;
+  z-index: 5;
+  border: 2px solid rgba(0, 88, 255, 0.18);
+  border-radius: 30px 38px 30px 38px;
+  background:
+    radial-gradient(
+      circle at 13% -28%,
+      rgba(235, 246, 255, 0.96) 0 52px,
+      transparent 53px
+    ),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.99), #f7fbff);
+  color: #061331;
+  box-shadow:
+    0 22px 48px rgba(6, 19, 49, 0.2),
+    0 0 0 7px rgba(255, 255, 255, 0.45),
+    inset 0 -5px 0 rgba(0, 88, 255, 0.05);
+  backdrop-filter: blur(9px);
+}
+
+.act4geo-byte-success-bubble::after {
+  content: "";
+  position: absolute;
+  right: -19px;
+  bottom: 48px;
+  width: 34px;
+  height: 34px;
+  border-right: 2px solid rgba(0, 88, 255, 0.18);
+  border-bottom: 2px solid rgba(0, 88, 255, 0.18);
+  background: #f9fcff;
+  transform: rotate(-45deg);
+  border-radius: 0 0 9px 0;
+}
+
+.act4geo-byte-success-badge {
+  width: fit-content;
+  min-height: 30px;
+  margin-bottom: 10px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #e9fff2, #f7fffa);
+  color: #11984b;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 950;
+  box-shadow: 0 8px 16px rgba(20, 184, 90, 0.12);
+}
+
+.act4geo-byte-success-badge svg {
+  font-size: 16px;
+}
+
+.act4geo-byte-success-bubble > strong {
+  display: block;
+  margin: 0 0 7px;
+  color: #0058ff;
+  font-size: clamp(25px, 2.1vw, 34px);
+  line-height: 1;
+  font-weight: 950;
+  letter-spacing: -0.7px;
+}
+
+.act4geo-byte-success-bubble > p {
+  margin: 0;
+  color: #15213c;
+  font-size: 14px;
+  line-height: 1.34;
+  font-weight: 900;
+}
+
+.act4geo-byte-success-bubble > small {
+  display: block;
+  margin-top: 7px;
+  color: #ff7118;
+  font-size: 13px;
+  line-height: 1.25;
+  font-weight: 950;
+}
+
+.act4geo-byte-success-progress {
+  width: 100%;
+  height: 7px;
+  margin-top: 15px;
+  border-radius: 999px;
+  background: #e7eef9;
+  overflow: hidden;
+}
+
+.act4geo-byte-success-progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0058ff 0%, #30a7ff 58%, #20bf65 100%);
+  transform-origin: left center;
+  animation: act4geoByteSuccessProgress 4.6s linear both;
+}
+
+@keyframes act4geoByteSuccessEnter {
+  0% {
+    opacity: 0;
+    transform: translate3d(70px, 42px, 0) scale(0.82);
+  }
+
+  65% {
+    opacity: 1;
+    transform: translate3d(-7px, -5px, 0) scale(1.035);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes act4geoByteSuccessFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.2deg);
+  }
+
+  50% {
+    transform: translateY(-10px) rotate(1.2deg);
+  }
+}
+
+@keyframes act4geoByteSuccessTalk {
+  0%,
+  100% {
+    scale: 1;
+  }
+
+  50% {
+    scale: 1.025;
+  }
+}
+
+@keyframes act4geoByteSuccessGlow {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: scale(0.94);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes act4geoByteSuccessProgress {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (max-width: 760px) {
+  .act4geo-byte-success-toast {
+    right: 12px;
+    bottom: 12px;
+    width: calc(100vw - 24px);
+    min-height: 210px;
+    grid-template-columns: minmax(0, 1fr) 132px;
+  }
+
+  .act4geo-byte-success-character {
+    width: 132px;
+    height: 205px;
+  }
+
+  .act4geo-byte-success-video-wrap,
+  .act4geo-byte-success-canvas {
+    width: 132px !important;
+    height: 205px !important;
+  }
+
+  .act4geo-byte-success-bubble {
+    min-height: 164px;
+    margin-right: -5px;
+    padding: 18px 18px 17px;
+    border-radius: 25px 31px 25px 31px;
+  }
+
+  .act4geo-byte-success-bubble > strong {
+    font-size: 25px;
+  }
+
+  .act4geo-byte-success-bubble > p {
+    font-size: 12.5px;
+  }
+
+  .act4geo-byte-success-bubble > small {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 470px) {
+  .act4geo-byte-success-toast {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    padding-top: 72px;
+  }
+
+  .act4geo-byte-success-character {
+    grid-column: 1;
+    grid-row: 1;
+    width: 112px;
+    height: 160px;
+    position: absolute;
+    top: -44px;
+    right: 8px;
+  }
+
+  .act4geo-byte-success-video-wrap,
+  .act4geo-byte-success-canvas {
+    width: 112px !important;
+    height: 160px !important;
+  }
+
+  .act4geo-byte-success-bubble {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100%;
+    min-height: 178px;
+    margin: 0;
+    padding: 20px 18px 17px;
+  }
+
+  .act4geo-byte-success-bubble::after {
+    display: none;
+  }
+
+  .act4geo-byte-success-badge {
+    max-width: calc(100% - 105px);
+  }
+
+  .act4geo-byte-success-bubble > strong,
+  .act4geo-byte-success-bubble > p,
+  .act4geo-byte-success-bubble > small {
+    max-width: calc(100% - 84px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .act4geo-byte-success-toast,
+  .act4geo-byte-success-canvas,
+  .act4geo-byte-success-glow,
+  .act4geo-byte-success-progress span {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* =========================================================
+   BYTE — DISEÑO MEJORADO Y MOVIMIENTO SUAVE
+   Este bloque debe permanecer al FINAL del archivo.
+   ========================================================= */
+
+.act4geo-byte-success-toast {
+  right: clamp(20px, 2.4vw, 38px) !important;
+  bottom: clamp(18px, 2.5vw, 34px) !important;
+  width: min(600px, calc(100vw - 40px)) !important;
+  min-height: 248px !important;
+  grid-template-columns: minmax(0, 1fr) 180px !important;
+  align-items: center !important;
+  column-gap: 4px !important;
+  animation: act4geoByteSuccessEnterSoft 0.72s cubic-bezier(0.22, 1, 0.36, 1)
+    both !important;
+  will-change: transform, opacity;
+}
+
+.act4geo-byte-success-bubble {
+  min-height: 184px !important;
+  margin: 0 -4px 0 0 !important;
+  padding: 24px 30px 22px !important;
+  border: 1px solid rgba(0, 88, 255, 0.16) !important;
+  border-radius: 34px 42px 34px 42px !important;
+  background:
+    radial-gradient(
+      circle at 10% -20%,
+      rgba(232, 244, 255, 0.95) 0 60px,
+      transparent 61px
+    ),
+    radial-gradient(
+      circle at 88% 118%,
+      rgba(255, 230, 184, 0.35) 0 72px,
+      transparent 73px
+    ),
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.995) 0%,
+      #f7fbff 62%,
+      #fffaf3 100%
+    ) !important;
+  box-shadow:
+    0 24px 54px rgba(6, 19, 49, 0.18),
+    0 8px 20px rgba(0, 88, 255, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.82) !important;
+  backdrop-filter: blur(14px) saturate(1.08) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.08) !important;
+}
+
+.act4geo-byte-success-bubble::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 10px !important;
+  border: 1px dashed rgba(0, 88, 255, 0.11) !important;
+  border-radius: 26px 34px 26px 34px !important;
+  pointer-events: none !important;
+}
+
+.act4geo-byte-success-bubble::after {
+  right: -15px !important;
+  bottom: 54px !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-right: 1px solid rgba(0, 88, 255, 0.15) !important;
+  border-bottom: 1px solid rgba(0, 88, 255, 0.15) !important;
+  background: #fbfdff !important;
+  border-radius: 0 0 7px 0 !important;
+}
+
+.act4geo-byte-success-badge {
+  min-height: 32px !important;
+  margin-bottom: 12px !important;
+  padding: 0 14px !important;
+  background: linear-gradient(135deg, #ecfff4 0%, #f8fffb 100%) !important;
+  border: 1px solid rgba(20, 184, 90, 0.12) !important;
+  color: #11984b !important;
+  font-size: 11.5px !important;
+  box-shadow: 0 8px 18px rgba(20, 184, 90, 0.11) !important;
+}
+
+.act4geo-byte-success-bubble > strong {
+  margin-bottom: 10px !important;
+  color: #0058ff !important;
+  font-size: clamp(31px, 2.3vw, 40px) !important;
+  line-height: 0.98 !important;
+  letter-spacing: -1.2px !important;
+  text-shadow: 0 6px 18px rgba(0, 88, 255, 0.12) !important;
+}
+
+.act4geo-byte-success-bubble > p {
+  max-width: 360px !important;
+  color: #13203c !important;
+  font-size: 15px !important;
+  line-height: 1.38 !important;
+  font-weight: 900 !important;
+}
+
+.act4geo-byte-success-bubble > small {
+  margin-top: 10px !important;
+  color: #ff6f00 !important;
+  font-size: 13.5px !important;
+  line-height: 1.25 !important;
+  font-weight: 950 !important;
+}
+
+.act4geo-byte-success-progress {
+  height: 8px !important;
+  margin-top: 18px !important;
+  background: #e6edf8 !important;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.06) !important;
+}
+
+.act4geo-byte-success-progress span {
+  background: linear-gradient(
+    90deg,
+    #0058ff 0%,
+    #2d8cff 52%,
+    #20bf65 100%
+  ) !important;
+  animation: act4geoByteSuccessProgress 4.6s linear both !important;
+  box-shadow: 0 0 14px rgba(0, 88, 255, 0.22) !important;
+}
+
+.act4geo-byte-success-character {
+  width: 180px !important;
+  height: 246px !important;
+  align-self: center !important;
+}
+
+.act4geo-byte-success-video-wrap,
+.act4geo-byte-success-canvas {
+  width: 170px !important;
+  height: 238px !important;
+}
+
+.act4geo-byte-success-canvas {
+  filter: drop-shadow(0 18px 24px rgba(0, 88, 255, 0.2))
+    drop-shadow(0 0 16px rgba(70, 203, 255, 0.14)) !important;
+  animation:
+    act4geoByteSuccessFloatSoft 3.6s ease-in-out infinite,
+    act4geoByteSuccessTalkSoft 1.4s ease-in-out infinite !important;
+  transform-origin: center bottom !important;
+  will-change: transform;
+}
+
+.act4geo-byte-success-glow {
+  right: 6px !important;
+  bottom: 8px !important;
+  width: 200px !important;
+  height: 108px !important;
+  opacity: 0.7 !important;
+  filter: blur(16px) !important;
+  animation: act4geoByteSuccessGlowSoft 3.2s ease-in-out infinite !important;
+}
+
+@keyframes act4geoByteSuccessEnterSoft {
+  0% {
+    opacity: 0;
+    transform: translate3d(28px, 20px, 0) scale(0.96);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(-2px, -2px, 0) scale(1.008);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes act4geoByteSuccessFloatSoft {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-0.25deg);
+  }
+  50% {
+    transform: translate3d(0, -4px, 0) rotate(0.25deg);
+  }
+}
+
+@keyframes act4geoByteSuccessTalkSoft {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.008;
+  }
+}
+
+@keyframes act4geoByteSuccessGlowSoft {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 0.78;
+    transform: scale(1.03);
+  }
+}
+
+@media (max-width: 760px) {
+  .act4geo-byte-success-toast {
+    right: 10px !important;
+    bottom: 10px !important;
+    width: calc(100vw - 20px) !important;
+    min-height: 220px !important;
+    grid-template-columns: minmax(0, 1fr) 124px !important;
+  }
+
+  .act4geo-byte-success-character {
+    width: 124px !important;
+    height: 190px !important;
+  }
+
+  .act4geo-byte-success-video-wrap,
+  .act4geo-byte-success-canvas {
+    width: 124px !important;
+    height: 190px !important;
+  }
+
+  .act4geo-byte-success-bubble {
+    min-height: 170px !important;
+    padding: 20px 20px 18px !important;
+    border-radius: 28px 34px 28px 34px !important;
+  }
+
+  .act4geo-byte-success-bubble > strong {
+    font-size: 27px !important;
+  }
+
+  .act4geo-byte-success-bubble > p {
+    font-size: 13px !important;
+  }
+
+  .act4geo-byte-success-bubble > small {
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 470px) {
+  .act4geo-byte-success-toast {
+    padding-top: 66px !important;
+  }
+
+  .act4geo-byte-success-character {
+    width: 104px !important;
+    height: 150px !important;
+    top: -38px !important;
+    right: 10px !important;
+  }
+
+  .act4geo-byte-success-video-wrap,
+  .act4geo-byte-success-canvas {
+    width: 104px !important;
+    height: 150px !important;
+  }
+
+  .act4geo-byte-success-bubble {
+    min-height: 176px !important;
+    padding: 19px 17px 17px !important;
+  }
+
+  .act4geo-byte-success-bubble > strong {
+    font-size: 25px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .act4geo-byte-success-toast,
+  .act4geo-byte-success-canvas,
+  .act4geo-byte-success-glow {
+    animation: none !important;
+  }
+}
+
+/* =========================================================
+   ACTIVIDAD 4 — FELICITACIONES AUTOMÁTICAS
+   Reto 1: Byte | Reto 2: Nova | Reto 3: Profesor Astro
+   Diseño limpio sin nube irregular.
+   ========================================================= */
+
+.act4geo-success-toast {
+  --act4geo-success-main: #0058ff;
+  --act4geo-success-soft: rgba(0, 88, 255, 0.14);
+
+  position: fixed;
+  right: clamp(18px, 2.2vw, 34px);
+  bottom: clamp(18px, 2.4vw, 34px);
+  z-index: 100000;
+
+  width: min(590px, calc(100vw - 36px));
+  min-height: 220px;
+  padding: 22px 26px 22px 214px;
+
+  border: 1px solid rgba(255, 255, 255, 0.88);
+  border-radius: 30px;
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      var(--act4geo-success-soft),
+      transparent 42%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.995),
+      rgba(247, 251, 255, 0.985)
+    );
+
+  display: flex;
+  align-items: center;
+  isolation: isolate;
+  overflow: visible;
+
+  box-shadow:
+    0 28px 70px rgba(6, 19, 49, 0.24),
+    0 8px 24px var(--act4geo-success-soft),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.84);
+
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  animation: act4geoSuccessEnter 0.68s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.act4geo-success-nova {
+  --act4geo-success-main: #ff7900;
+  --act4geo-success-soft: rgba(255, 121, 0, 0.16);
+}
+
+.act4geo-success-profesor {
+  --act4geo-success-main: #6844d7;
+  --act4geo-success-soft: rgba(104, 68, 215, 0.16);
+}
+
+.act4geo-success-aura {
+  position: absolute;
+  left: 14px;
+  bottom: 5px;
+  z-index: -1;
+
+  width: 220px;
+  height: 124px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse,
+    var(--act4geo-success-soft),
+    transparent 70%
+  );
+  filter: blur(10px);
+  animation: act4geoSuccessAura 3.4s ease-in-out infinite;
+}
+
+.act4geo-success-character {
+  position: absolute;
+  left: 9px;
+  bottom: 0;
+
+  width: 194px;
+  height: 254px;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.act4geo-success-video-wrap,
+.act4geo-success-canvas {
+  width: 186px;
+  height: 246px;
+}
+
+.act4geo-success-canvas {
+  display: block;
+  object-fit: contain;
+  transform-origin: center bottom;
+  will-change: transform;
+
+  filter: drop-shadow(0 18px 24px var(--act4geo-success-soft))
+    drop-shadow(0 5px 9px rgba(6, 19, 49, 0.12));
+
+  animation: act4geoSuccessCharacterFloat 3.6s ease-in-out infinite;
+}
+
+.act4geo-success-message {
+  width: 100%;
+  min-width: 0;
+  padding: 3px 2px;
+}
+
+.act4geo-success-badge {
+  width: fit-content;
+  min-height: 31px;
+  margin-bottom: 12px;
+  padding: 0 13px;
+
+  border: 1px solid var(--act4geo-success-soft);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--act4geo-success-main);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  font-size: 11.5px;
+  line-height: 1;
+  font-weight: 950;
+
+  box-shadow: 0 7px 16px var(--act4geo-success-soft);
+}
+
+.act4geo-success-message > strong {
+  display: block;
+  margin: 0 0 9px;
+
+  color: var(--act4geo-success-main);
+  font-size: clamp(30px, 2.4vw, 39px);
+  line-height: 0.98;
+  letter-spacing: -1px;
+  font-weight: 950;
+}
+
+.act4geo-success-message > p {
+  max-width: 340px;
+  margin: 0;
+
+  color: #13203c;
+  font-size: 15px;
+  line-height: 1.35;
+  font-weight: 900;
+}
+
+.act4geo-success-message > small {
+  display: block;
+  max-width: 340px;
+  margin-top: 9px;
+
+  color: #526078;
+  font-size: 13px;
+  line-height: 1.3;
+  font-weight: 850;
+}
+
+.act4geo-success-progress {
+  width: min(100%, 340px);
+  height: 7px;
+  margin-top: 17px;
+
+  border-radius: 999px;
+  background: #e6edf8;
+  overflow: hidden;
+
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+.act4geo-success-progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--act4geo-success-main), #23bf72);
+
+  transform-origin: left center;
+  animation: act4geoSuccessProgress 5.2s linear both;
+}
+
+@keyframes act4geoSuccessEnter {
+  0% {
+    opacity: 0;
+    transform: translate3d(24px, 18px, 0) scale(0.97);
+  }
+
+  68% {
+    opacity: 1;
+    transform: translate3d(-2px, -2px, 0) scale(1.006);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes act4geoSuccessCharacterFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-0.18deg);
+  }
+
+  50% {
+    transform: translate3d(0, -4px, 0) rotate(0.18deg);
+  }
+}
+
+@keyframes act4geoSuccessAura {
+  0%,
+  100% {
+    opacity: 0.56;
+    transform: scale(0.98);
+  }
+
+  50% {
+    opacity: 0.82;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes act4geoSuccessProgress {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (max-width: 720px) {
+  .act4geo-success-toast {
+    right: 10px;
+    bottom: 10px;
+    width: calc(100vw - 20px);
+    min-height: 198px;
+    padding: 18px 18px 18px 150px;
+    border-radius: 24px;
+  }
+
+  .act4geo-success-character {
+    left: 2px;
+    width: 146px;
+    height: 207px;
+  }
+
+  .act4geo-success-video-wrap,
+  .act4geo-success-canvas {
+    width: 141px;
+    height: 201px;
+  }
+
+  .act4geo-success-message > strong {
+    font-size: 27px;
+  }
+
+  .act4geo-success-message > p {
+    font-size: 13px;
+  }
+
+  .act4geo-success-message > small {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 470px) {
+  .act4geo-success-toast {
+    min-height: 252px;
+    padding: 112px 16px 16px;
+    text-align: center;
+  }
+
+  .act4geo-success-character {
+    left: 50%;
+    top: -58px;
+    bottom: auto;
+    width: 126px;
+    height: 176px;
+    transform: translateX(-50%);
+  }
+
+  .act4geo-success-video-wrap,
+  .act4geo-success-canvas {
+    width: 123px;
+    height: 173px;
+  }
+
+  .act4geo-success-badge {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .act4geo-success-message > p,
+  .act4geo-success-message > small,
+  .act4geo-success-progress {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .act4geo-success-toast,
+  .act4geo-success-canvas,
+  .act4geo-success-aura,
+  .act4geo-success-progress span {
+    animation: none !important;
+  }
+}
+
+/* =========================================================
+   CORRECCIÓN DEFINITIVA — FELICITACIONES DE BYTE, NOVA Y
+   PROFESOR ASTRO
+   =========================================================
+   Este bloque debe permanecer AL FINAL del archivo.
+
+   CONTROLES PARA MOVER LOS PERSONAJES:
+   --act4geo-success-character-x: movimiento horizontal.
+     Valor positivo = derecha | valor negativo = izquierda.
+
+   --act4geo-success-character-y: movimiento vertical.
+     Valor positivo = abajo | valor negativo = arriba.
+
+   --act4geo-success-character-width: ancho del personaje.
+   --act4geo-success-character-height: alto del personaje.
+
+   También existen controles separados para cada personaje:
+   --act4geo-byte-success-x / --act4geo-byte-success-y
+   --act4geo-nova-success-x / --act4geo-nova-success-y
+   --act4geo-profesor-success-x / --act4geo-profesor-success-y
+   ========================================================= */
+
+.act4geo-page {
+  /* Posición general de los personajes */
+  --act4geo-success-character-x: 0px;
+  --act4geo-success-character-y: 0px;
+  --act4geo-success-character-width: 190px;
+  --act4geo-success-character-height: 226px;
+
+  /* Ajustes individuales */
+  --act4geo-byte-success-x: 0px;
+  --act4geo-byte-success-y: 4px;
+
+  --act4geo-nova-success-x: 2px;
+  --act4geo-nova-success-y: 5px;
+
+  --act4geo-profesor-success-x: 0px;
+  --act4geo-profesor-success-y: 6px;
+}
+
+/* Tarjeta principal mejor acomodada y con recorte seguro. */
+.act4geo-success-toast {
+  --act4geo-success-main: #0058ff;
+  --act4geo-success-soft: rgba(0, 88, 255, 0.14);
+
+  position: fixed !important;
+  right: clamp(18px, 2.3vw, 38px) !important;
+  bottom: clamp(18px, 2.5vw, 36px) !important;
+  z-index: 100000 !important;
+
+  width: min(710px, calc(100vw - 36px)) !important;
+  min-height: 260px !important;
+  padding: 28px 34px 27px 252px !important;
+
+  border: 1px solid rgba(255, 255, 255, 0.92) !important;
+  border-radius: 34px !important;
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      var(--act4geo-success-soft),
+      transparent 43%
+    ),
+    radial-gradient(
+      circle at 2% 100%,
+      rgba(255, 255, 255, 0.72),
+      transparent 32%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.995) 0%,
+      rgba(248, 251, 255, 0.99) 66%,
+      rgba(255, 252, 247, 0.99) 100%
+    ) !important;
+
+  display: flex !important;
+  align-items: center !important;
+  isolation: isolate !important;
+
+  /*
+    Evita definitivamente que las cabezas, pies o sombras
+    de los personajes se salgan de la tarjeta.
+  */
+  overflow: hidden !important;
+
+  box-shadow:
+    0 28px 72px rgba(6, 19, 49, 0.24),
+    0 10px 26px var(--act4geo-success-soft),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.86) !important;
+
+  -webkit-backdrop-filter: blur(16px) saturate(1.05) !important;
+  backdrop-filter: blur(16px) saturate(1.05) !important;
+}
+
+/* Línea decorativa interior. */
+.act4geo-success-toast::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 11px !important;
+  z-index: 0 !important;
+  border: 1px dashed var(--act4geo-success-soft) !important;
+  border-radius: 25px !important;
+  pointer-events: none !important;
+}
+
+/* Luz suave detrás del personaje, también recortada. */
+.act4geo-success-aura {
+  position: absolute !important;
+  left: 16px !important;
+  bottom: -10px !important;
+  z-index: 1 !important;
+  width: 225px !important;
+  height: 135px !important;
+  border-radius: 50% !important;
+  background: radial-gradient(
+    ellipse,
+    var(--act4geo-success-soft) 0%,
+    transparent 72%
+  ) !important;
+  filter: blur(14px) !important;
+  pointer-events: none !important;
+}
+
+/* Contenedor fijo y seguro del personaje. */
+.act4geo-success-character {
+  position: absolute !important;
+  left: 28px !important;
+  top: 50% !important;
+  bottom: auto !important;
+  z-index: 3 !important;
+
+  width: var(--act4geo-success-character-width) !important;
+  height: var(--act4geo-success-character-height) !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  transform: translate(
+    var(--act4geo-success-character-x),
+    calc(-50% + var(--act4geo-success-character-y))
+  ) !important;
+
+  overflow: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Movimiento individual de Byte. */
+.act4geo-success-byte .act4geo-success-character,
+.act4geo-success-toast:not(.act4geo-success-nova):not(.act4geo-success-profesor)
+  .act4geo-success-character {
+  transform: translate(
+    calc(var(--act4geo-success-character-x) + var(--act4geo-byte-success-x)),
+    calc(
+      -50% + var(--act4geo-success-character-y) + var(--act4geo-byte-success-y)
+    )
+  ) !important;
+}
+
+/* Movimiento individual de Nova. */
+.act4geo-success-nova .act4geo-success-character {
+  transform: translate(
+    calc(var(--act4geo-success-character-x) + var(--act4geo-nova-success-x)),
+    calc(
+      -50% + var(--act4geo-success-character-y) + var(--act4geo-nova-success-y)
+    )
+  ) !important;
+}
+
+/* Movimiento individual del Profesor Astro. */
+.act4geo-success-profesor .act4geo-success-character {
+  transform: translate(
+    calc(
+      var(--act4geo-success-character-x) + var(--act4geo-profesor-success-x)
+    ),
+    calc(
+      -50% + var(--act4geo-success-character-y) +
+        var(--act4geo-profesor-success-y)
+    )
+  ) !important;
+}
+
+/* Canvas/video siempre contenido dentro del área del personaje. */
+.act4geo-success-video-wrap,
+.act4geo-success-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+.act4geo-success-video-wrap {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+
+.act4geo-success-video-wrap video {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.act4geo-success-canvas {
+  display: block !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  transform-origin: center center !important;
+  filter: drop-shadow(0 14px 18px var(--act4geo-success-soft))
+    drop-shadow(0 5px 8px rgba(6, 19, 49, 0.12)) !important;
+}
+
+/* Contenido textual sobre las decoraciones. */
+.act4geo-success-message {
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+.act4geo-success-badge {
+  min-height: 36px !important;
+  margin-bottom: 15px !important;
+  padding: 0 16px !important;
+  border: 1px solid var(--act4geo-success-soft) !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.93) !important;
+  color: var(--act4geo-success-main) !important;
+  font-size: 13px !important;
+  box-shadow: 0 8px 18px var(--act4geo-success-soft) !important;
+}
+
+.act4geo-success-message > strong {
+  display: block !important;
+  margin: 0 0 10px !important;
+  color: var(--act4geo-success-main) !important;
+  font-size: clamp(36px, 3vw, 48px) !important;
+  line-height: 0.98 !important;
+  letter-spacing: -1.4px !important;
+  font-weight: 950 !important;
+}
+
+.act4geo-success-message > p {
+  max-width: 420px !important;
+  margin: 0 !important;
+  color: #13203c !important;
+  font-size: 17px !important;
+  line-height: 1.35 !important;
+  font-weight: 900 !important;
+}
+
+.act4geo-success-message > small {
+  display: block !important;
+  max-width: 420px !important;
+  margin-top: 10px !important;
+  color: #526078 !important;
+  font-size: 14px !important;
+  line-height: 1.28 !important;
+  font-weight: 850 !important;
+}
+
+.act4geo-success-progress {
+  width: min(100%, 420px) !important;
+  height: 8px !important;
+  margin-top: 20px !important;
+  border-radius: 999px !important;
+  background: #e5ebf5 !important;
+  overflow: hidden !important;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.07) !important;
+}
+
+.act4geo-success-progress span {
+  height: 100% !important;
+  border-radius: inherit !important;
+  background: linear-gradient(
+    90deg,
+    var(--act4geo-success-main) 0%,
+    #2e9fff 55%,
+    #22bd70 100%
+  ) !important;
+  box-shadow: 0 0 14px var(--act4geo-success-soft) !important;
+}
+
+/* Colores individuales. */
+.act4geo-success-nova {
+  --act4geo-success-main: #ff6f00 !important;
+  --act4geo-success-soft: rgba(255, 111, 0, 0.16) !important;
+}
+
+.act4geo-success-profesor {
+  --act4geo-success-main: #6844d7 !important;
+  --act4geo-success-soft: rgba(104, 68, 215, 0.16) !important;
+}
+
+/* Animación muy suave que no fuerza al personaje fuera del marco. */
+.act4geo-success-canvas {
+  animation: act4geoSuccessContainedFloat 3.8s ease-in-out infinite !important;
+}
+
+@keyframes act4geoSuccessContainedFloat {
+  0%,
+  100% {
+    transform: translateY(1px) scale(0.97);
+  }
+
+  50% {
+    transform: translateY(-3px) scale(0.98);
+  }
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+@media (max-width: 900px) {
+  .act4geo-page {
+    --act4geo-success-character-width: 156px;
+    --act4geo-success-character-height: 190px;
+  }
+
+  .act4geo-success-toast {
+    width: min(640px, calc(100vw - 24px)) !important;
+    min-height: 226px !important;
+    right: 12px !important;
+    bottom: 12px !important;
+    padding: 23px 24px 22px 194px !important;
+    border-radius: 28px !important;
+  }
+
+  .act4geo-success-character {
+    left: 20px !important;
+  }
+
+  .act4geo-success-message > strong {
+    font-size: clamp(31px, 5vw, 40px) !important;
+  }
+
+  .act4geo-success-message > p {
+    font-size: 15px !important;
+  }
+
+  .act4geo-success-message > small {
+    font-size: 12.5px !important;
+  }
+}
+
+/* =========================================================
+   CELULAR
+   ========================================================= */
+@media (max-width: 600px) {
+  .act4geo-page {
+    --act4geo-success-character-width: 126px;
+    --act4geo-success-character-height: 142px;
+
+    --act4geo-byte-success-y: 1px;
+    --act4geo-nova-success-y: 2px;
+    --act4geo-profesor-success-y: 2px;
+  }
+
+  .act4geo-success-toast {
+    width: calc(100vw - 20px) !important;
+    min-height: 300px !important;
+    right: 10px !important;
+    bottom: 10px !important;
+    padding: 132px 18px 19px !important;
+    border-radius: 26px !important;
+    text-align: center !important;
+    align-items: flex-start !important;
+  }
+
+  .act4geo-success-toast::before {
+    inset: 8px !important;
+    border-radius: 19px !important;
+  }
+
+  .act4geo-success-character {
+    left: 50% !important;
+    top: 9px !important;
+    transform: translateX(
+      calc(-50% + var(--act4geo-success-character-x))
+    ) !important;
+  }
+
+  .act4geo-success-byte .act4geo-success-character,
+  .act4geo-success-toast:not(.act4geo-success-nova):not(
+      .act4geo-success-profesor
+    )
+    .act4geo-success-character {
+    transform: translateX(
+        calc(
+          -50% + var(--act4geo-success-character-x) +
+            var(--act4geo-byte-success-x)
+        )
+      )
+      translateY(
+        calc(var(--act4geo-success-character-y) + var(--act4geo-byte-success-y))
+      ) !important;
+  }
+
+  .act4geo-success-nova .act4geo-success-character {
+    transform: translateX(
+        calc(
+          -50% + var(--act4geo-success-character-x) +
+            var(--act4geo-nova-success-x)
+        )
+      )
+      translateY(
+        calc(var(--act4geo-success-character-y) + var(--act4geo-nova-success-y))
+      ) !important;
+  }
+
+  .act4geo-success-profesor .act4geo-success-character {
+    transform: translateX(
+        calc(
+          -50% + var(--act4geo-success-character-x) +
+            var(--act4geo-profesor-success-x)
+        )
+      )
+      translateY(
+        calc(
+          var(--act4geo-success-character-y) + var(--act4geo-profesor-success-y)
+        )
+      ) !important;
+  }
+
+  .act4geo-success-aura {
+    left: 50% !important;
+    top: 48px !important;
+    bottom: auto !important;
+    width: 170px !important;
+    height: 82px !important;
+    transform: translateX(-50%) !important;
+  }
+
+  .act4geo-success-badge {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .act4geo-success-message > strong {
+    font-size: 31px !important;
+  }
+
+  .act4geo-success-message > p,
+  .act4geo-success-message > small,
+  .act4geo-success-progress {
+    max-width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .act4geo-success-message > p {
+    font-size: 14px !important;
+  }
+
+  .act4geo-success-message > small {
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .act4geo-success-toast {
+    min-height: 290px !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .act4geo-success-message > strong {
+    font-size: 28px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .act4geo-success-toast,
+  .act4geo-success-canvas,
+  .act4geo-success-aura,
+  .act4geo-success-progress span {
+    animation: none !important;
+  }
+}
+
+/* =========================================================
+   AJUSTE FINAL — FELICITACIONES MÁS COMPACTAS
+   BYTE / NOVA / PROFESOR ASTRO
+   =========================================================
+   Este bloque debe permanecer AL FINAL del archivo.
+   Reduce el tamaño del modal sin cortar personajes ni texto.
+   ========================================================= */
+
+.act4geo-page {
+  /* CONTROLES RÁPIDOS DEL MODAL */
+  --act4geo-success-toast-width: 560px;
+  --act4geo-success-toast-height: 205px;
+
+  /* CONTROLES DEL PERSONAJE */
+  --act4geo-success-character-width: 150px;
+  --act4geo-success-character-height: 176px;
+  --act4geo-success-character-left: 22px;
+  --act4geo-success-character-x: 0px;
+  --act4geo-success-character-y: 4px;
+
+  /* AJUSTES INDIVIDUALES */
+  --act4geo-byte-success-x: 0px;
+  --act4geo-byte-success-y: 2px;
+
+  --act4geo-nova-success-x: 1px;
+  --act4geo-nova-success-y: 3px;
+
+  --act4geo-profesor-success-x: 0px;
+  --act4geo-profesor-success-y: 3px;
+}
+
+.act4geo-success-toast {
+  width: min(var(--act4geo-success-toast-width), calc(100vw - 34px)) !important;
+  min-height: var(--act4geo-success-toast-height) !important;
+  height: auto !important;
+
+  right: clamp(16px, 2vw, 30px) !important;
+  bottom: clamp(16px, 2vw, 28px) !important;
+
+  padding: 20px 24px 19px 194px !important;
+
+  border-radius: 27px !important;
+  overflow: hidden !important;
+
+  box-shadow:
+    0 22px 52px rgba(6, 19, 49, 0.2),
+    0 8px 22px var(--act4geo-success-soft),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.88) !important;
+}
+
+.act4geo-success-toast::before {
+  inset: 9px !important;
+  border-radius: 20px !important;
+}
+
+.act4geo-success-aura {
+  left: 8px !important;
+  bottom: -9px !important;
+  width: 180px !important;
+  height: 98px !important;
+  filter: blur(12px) !important;
+}
+
+.act4geo-success-character {
+  left: var(--act4geo-success-character-left) !important;
+  top: 50% !important;
+  bottom: auto !important;
+
+  width: var(--act4geo-success-character-width) !important;
+  height: var(--act4geo-success-character-height) !important;
+
+  transform: translate(
+    var(--act4geo-success-character-x),
+    calc(-50% + var(--act4geo-success-character-y))
+  ) !important;
+
+  overflow: hidden !important;
+}
+
+/* Byte */
+.act4geo-success-byte .act4geo-success-character,
+.act4geo-success-toast:not(.act4geo-success-nova):not(.act4geo-success-profesor)
+  .act4geo-success-character {
+  transform: translate(
+    calc(var(--act4geo-success-character-x) + var(--act4geo-byte-success-x)),
+    calc(
+      -50% + var(--act4geo-success-character-y) + var(--act4geo-byte-success-y)
+    )
+  ) !important;
+}
+
+/* Nova */
+.act4geo-success-nova .act4geo-success-character {
+  transform: translate(
+    calc(var(--act4geo-success-character-x) + var(--act4geo-nova-success-x)),
+    calc(
+      -50% + var(--act4geo-success-character-y) + var(--act4geo-nova-success-y)
+    )
+  ) !important;
+}
+
+/* Profesor Astro */
+.act4geo-success-profesor .act4geo-success-character {
+  transform: translate(
+    calc(
+      var(--act4geo-success-character-x) + var(--act4geo-profesor-success-x)
+    ),
+    calc(
+      -50% + var(--act4geo-success-character-y) +
+        var(--act4geo-profesor-success-y)
+    )
+  ) !important;
+}
+
+.act4geo-success-video-wrap,
+.act4geo-success-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+.act4geo-success-video-wrap {
+  overflow: hidden !important;
+}
+
+.act4geo-success-canvas {
+  object-fit: contain !important;
+  object-position: center !important;
+  transform-origin: center !important;
+}
+
+/* Texto más compacto. */
+.act4geo-success-message {
+  padding: 0 !important;
+}
+
+.act4geo-success-badge {
+  min-height: 31px !important;
+  margin-bottom: 10px !important;
+  padding: 0 13px !important;
+  font-size: 11.5px !important;
+}
+
+.act4geo-success-message > strong {
+  margin-bottom: 7px !important;
+  font-size: clamp(29px, 2.4vw, 38px) !important;
+  line-height: 0.98 !important;
+  letter-spacing: -0.9px !important;
+}
+
+.act4geo-success-message > p {
+  max-width: 335px !important;
+  font-size: 14px !important;
+  line-height: 1.3 !important;
+}
+
+.act4geo-success-message > small {
+  max-width: 335px !important;
+  margin-top: 7px !important;
+  font-size: 12.5px !important;
+  line-height: 1.25 !important;
+}
+
+.act4geo-success-progress {
+  width: min(100%, 335px) !important;
+  height: 7px !important;
+  margin-top: 14px !important;
+}
+
+/* Movimiento suave sin que se salga. */
+.act4geo-success-canvas {
+  animation: act4geoSuccessCompactFloat 3.8s ease-in-out infinite !important;
+}
+
+@keyframes act4geoSuccessCompactFloat {
+  0%,
+  100% {
+    transform: translateY(1px) scale(0.96);
+  }
+
+  50% {
+    transform: translateY(-2px) scale(0.97);
+  }
+}
+
+/* =========================================================
+   PANTALLAS MEDIANAS
+   ========================================================= */
+@media (max-width: 900px) {
+  .act4geo-page {
+    --act4geo-success-toast-width: 520px;
+    --act4geo-success-toast-height: 190px;
+    --act4geo-success-character-width: 132px;
+    --act4geo-success-character-height: 156px;
+    --act4geo-success-character-left: 17px;
+  }
+
+  .act4geo-success-toast {
+    width: min(
+      var(--act4geo-success-toast-width),
+      calc(100vw - 24px)
+    ) !important;
+    min-height: var(--act4geo-success-toast-height) !important;
+    right: 12px !important;
+    bottom: 12px !important;
+    padding: 18px 20px 17px 165px !important;
+  }
+
+  .act4geo-success-message > strong {
+    font-size: 31px !important;
+  }
+
+  .act4geo-success-message > p {
+    font-size: 13px !important;
+  }
+
+  .act4geo-success-message > small {
+    font-size: 11.5px !important;
+  }
+}
+
+/* =========================================================
+   CELULAR
+   ========================================================= */
+@media (max-width: 600px) {
+  .act4geo-page {
+    --act4geo-success-toast-width: calc(100vw - 20px);
+    --act4geo-success-toast-height: 245px;
+    --act4geo-success-character-width: 108px;
+    --act4geo-success-character-height: 116px;
+    --act4geo-success-character-left: 50%;
+    --act4geo-success-character-y: 0px;
+  }
+
+  .act4geo-success-toast {
+    width: calc(100vw - 20px) !important;
+    min-height: var(--act4geo-success-toast-height) !important;
+    right: 10px !important;
+    bottom: 10px !important;
+    padding: 108px 16px 16px !important;
+    text-align: center !important;
+    align-items: flex-start !important;
+    border-radius: 24px !important;
+  }
+
+  .act4geo-success-character {
+    left: 50% !important;
+    top: 7px !important;
+    transform: translateX(-50%) !important;
+  }
+
+  .act4geo-success-byte .act4geo-success-character,
+  .act4geo-success-toast:not(.act4geo-success-nova):not(
+      .act4geo-success-profesor
+    )
+    .act4geo-success-character {
+    transform: translateX(
+        calc(
+          -50% + var(--act4geo-success-character-x) +
+            var(--act4geo-byte-success-x)
+        )
+      )
+      translateY(
+        calc(var(--act4geo-success-character-y) + var(--act4geo-byte-success-y))
+      ) !important;
+  }
+
+  .act4geo-success-nova .act4geo-success-character {
+    transform: translateX(
+        calc(
+          -50% + var(--act4geo-success-character-x) +
+            var(--act4geo-nova-success-x)
+        )
+      )
+      translateY(
+        calc(var(--act4geo-success-character-y) + var(--act4geo-nova-success-y))
+      ) !important;
+  }
+
+  .act4geo-success-profesor .act4geo-success-character {
+    transform: translateX(
+        calc(
+          -50% + var(--act4geo-success-character-x) +
+            var(--act4geo-profesor-success-x)
+        )
+      )
+      translateY(
+        calc(
+          var(--act4geo-success-character-y) + var(--act4geo-profesor-success-y)
+        )
+      ) !important;
+  }
+
+  .act4geo-success-aura {
+    left: 50% !important;
+    top: 44px !important;
+    bottom: auto !important;
+    width: 145px !important;
+    height: 70px !important;
+    transform: translateX(-50%) !important;
+  }
+
+  .act4geo-success-badge {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .act4geo-success-message > strong {
+    font-size: 28px !important;
+  }
+
+  .act4geo-success-message > p,
+  .act4geo-success-message > small,
+  .act4geo-success-progress {
+    max-width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .act4geo-success-message > p {
+    font-size: 13px !important;
+  }
+
+  .act4geo-success-message > small {
+    font-size: 11px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .act4geo-success-toast {
+    min-height: 236px !important;
+    padding-left: 13px !important;
+    padding-right: 13px !important;
+  }
+
+  .act4geo-success-message > strong {
+    font-size: 26px !important;
+  }
+}
+
+/* =========================================================
+   AUDIO + TEXTO SINCRONIZADO
+   MODAL INCORRECTO (SOMBRA) Y MISIÓN COMPLETADA (NOVA)
+   =========================================================
+   Este bloque debe permanecer al FINAL del archivo.
+   ========================================================= */
+
+.act4geo-sombra-script-lines,
+.act4geo-complete-transcript-inline .act4geo-modal-script-lines {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+.act4geo-sombra-script-lines p,
+.act4geo-complete-transcript-inline .act4geo-modal-script-lines p {
+  --act4geo-line-progress: 0;
+  position: relative !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 11px 12px 17px !important;
+  border-left: 4px solid transparent !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  color: #4d5b73 !important;
+  font-size: 12px !important;
+  line-height: 1.3 !important;
+  font-weight: 850 !important;
+  transition:
+    color 0.22s ease,
+    background 0.22s ease,
+    border-color 0.22s ease,
+    transform 0.22s ease,
+    box-shadow 0.22s ease !important;
+}
+
+.act4geo-sombra-script-lines p::after,
+.act4geo-complete-transcript-inline .act4geo-modal-script-lines p::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 12px !important;
+  right: 12px !important;
+  bottom: 7px !important;
+  height: 5px !important;
+  border-radius: 999px !important;
+  background: #e4ebf7 !important;
+}
+
+.act4geo-sombra-script-lines p::before,
+.act4geo-complete-transcript-inline .act4geo-modal-script-lines p::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 12px !important;
+  bottom: 7px !important;
+  width: calc(100% - 24px) !important;
+  height: 5px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(
+    90deg,
+    #8b2be2 0%,
+    #b25cff 70%,
+    #ffb703 100%
+  ) !important;
+  transform: scaleX(var(--act4geo-line-progress)) !important;
+  transform-origin: left center !important;
+  transition: transform 0.08s linear !important;
+  z-index: 2 !important;
+}
+
+.act4geo-sombra-script-lines .act4geo-modal-script-line-active {
+  border-left-color: #8b2be2 !important;
+  background: linear-gradient(135deg, #f7efff, #ffffff) !important;
+  color: #7b20c9 !important;
+  transform: translateX(4px) !important;
+  box-shadow: 0 10px 20px rgba(139, 43, 226, 0.12) !important;
+}
+
+.act4geo-sombra-script-lines .act4geo-modal-script-line-complete {
+  border-left-color: #20b65b !important;
+  background: #effbf4 !important;
+  color: #168a4a !important;
+}
+
+.act4geo-complete-transcript-inline {
+  width: 100% !important;
+  min-height: 0 !important;
+  max-height: 205px !important;
+  margin: 16px 0 0 !important;
+  padding: 16px !important;
+  border: 2px solid rgba(255, 159, 24, 0.14) !important;
+  border-radius: 22px !important;
+  background: rgba(255, 255, 255, 0.93) !important;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08) !important;
+  overflow-y: auto !important;
+}
+
+.act4geo-complete-transcript-inline h3 {
+  margin: 0 0 12px !important;
+  padding-bottom: 7px !important;
+  border-bottom: 4px solid #ffb703 !important;
+  color: #ff7900 !important;
+  font-size: 19px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+}
+
+.act4geo-complete-transcript-inline .act4geo-modal-script-line-active {
+  border-left-color: #ff7900 !important;
+  background: linear-gradient(135deg, #fff4e8, #ffffff) !important;
+  color: #d65f00 !important;
+  transform: translateX(4px) !important;
+  box-shadow: 0 10px 20px rgba(255, 121, 0, 0.12) !important;
+}
+
+.act4geo-complete-transcript-inline .act4geo-modal-script-line-complete {
+  border-left-color: #20b65b !important;
+  background: #effbf4 !important;
+  color: #168a4a !important;
+}
+
+/* Oculta el cuadro falso creado con pseudo-elementos, porque ahora ya existe
+   una transcripción real con el texto sincronizado. */
+.act4geo-complete-actions::before,
+.act4geo-complete-actions::after {
+  display: none !important;
+}
+
+.act4geo-complete-actions {
+  padding-top: 0 !important;
+}
+
+.act4geo-complete-actions button {
+  top: 0 !important;
+}
+
+.act4geo-character-modal:has(.act4geo-sombra-script-lines) {
+  width: min(1040px, calc(100vw - 36px)) !important;
+  height: min(570px, calc(100dvh - 36px)) !important;
+  min-height: 530px !important;
+  grid-template-columns: 215px minmax(0, 1fr) 275px !important;
+  gap: 24px !important;
+}
+
+.act4geo-character-modal:has(.act4geo-sombra-script-lines)
+  .act4geo-modal-character {
+  min-height: 410px !important;
+}
+
+.act4geo-character-modal:has(.act4geo-sombra-script-lines)
+  .act4geo-modal-video-wrap,
+.act4geo-character-modal:has(.act4geo-sombra-script-lines)
+  .act4geo-modal-canvas {
+  width: 200px !important;
+  height: 370px !important;
+}
+
+.act4geo-character-modal:has(.act4geo-sombra-script-lines)
+  .act4geo-modal-script-panel {
+  height: 430px !important;
+  overflow-y: auto !important;
+}
+
+@media (max-width: 1100px) {
+  .act4geo-character-modal:has(.act4geo-sombra-script-lines) {
+    width: min(920px, calc(100vw - 28px)) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    grid-template-columns: 200px minmax(0, 1fr) !important;
+    overflow-y: auto !important;
+  }
+
+  .act4geo-character-modal:has(.act4geo-sombra-script-lines)
+    .act4geo-modal-script-panel {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: 250px !important;
+  }
+
+  .act4geo-complete-transcript-inline {
+    max-height: 230px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .act4geo-character-modal:has(.act4geo-sombra-script-lines) {
+    width: calc(100vw - 20px) !important;
+    grid-template-columns: 1fr !important;
+    padding: 68px 16px 20px !important;
+  }
+
+  .act4geo-character-modal:has(.act4geo-sombra-script-lines)
+    .act4geo-modal-character {
+    min-height: 225px !important;
+  }
+
+  .act4geo-character-modal:has(.act4geo-sombra-script-lines)
+    .act4geo-modal-video-wrap,
+  .act4geo-character-modal:has(.act4geo-sombra-script-lines)
+    .act4geo-modal-canvas {
+    width: 145px !important;
+    height: 245px !important;
+  }
+
+  .act4geo-complete-transcript-inline {
+    max-height: none !important;
+    text-align: left !important;
+  }
+}
+
+/* =========================================================
+   CORRECCIÓN DEFINITIVA — MODAL DE SOMBRA Y MISIÓN COMPLETADA
+   Este bloque debe permanecer AL FINAL del archivo.
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   SOMBRA: modal compacto, texto proporcionado y sin huecos.
+   --------------------------------------------------------- */
+
+.act4geo-character-modal:has(.act4geo-sombra-script-lines) {
+  width: min(980px, calc(100vw - 34px)) !important;
+  height: min(540px, calc(100dvh - 34px)) !important;
+  min-height: 500px !important;
+  max-height: calc(100dvh - 34px) !important;
+  padding: 30px !important;
+  grid-template-columns: 205px minmax(0, 1fr) 260px !important;
+  gap: 22px !important;
+  align-items: center !important;
+  overflow: hidden !important;
+}
+
+.act4geo-character-modal:has(.act4geo-sombra-script-lines)
+  .act4geo-modal-character {
+  min-height: 390px !important;
+}
+
+.act4geo-character-modal:has(.act4geo-sombra-script-lines)
+  .act4geo-modal-video-wrap,
+.act4geo-character-modal:has(.act4geo-sombra-script-lines)
+  .act4geo-modal-canvas {
+  width: 190px !important;
+  height: 350px !important;
+}
+
+.act4geo-character-modal:has(.act4geo-sombra-script-lines)
+  .act4geo-modal-content
+  h2 {
+  margin: 13px 0 16px !important;
+  font-size: clamp(34px, 3.4vw, 48px) !important;
+}
+
+.act4geo-character-modal:has(.act4geo-sombra-script-lines)
+  .act4geo-modal-cloud {
+  min-height: 128px !important;
+  padding: 24px 26px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.act4geo-character-modal:has(.act4geo-sombra-script-lines)
+  .act4geo-modal-cloud
+  p {
+  width: 100% !important;
+  min-height: 0 !important;
+  font-size: 17px !important;
+  line-height: 1.35 !important;
+}
+
+.act4geo-character-modal:has(.act4geo-sombra-script-lines)
+  .act4geo-modal-controls {
+  margin-top: 16px !important;
+}
+
+.act4geo-character-modal:has(.act4geo-sombra-script-lines)
+  .act4geo-modal-controls
+  button {
+  min-width: 112px !important;
+  min-height: 44px !important;
+  padding: 0 14px !important;
+}
+
+.act4geo-character-modal:has(.act4geo-sombra-script-lines)
+  .act4geo-modal-script-panel {
+  height: auto !important;
+  min-height: 390px !important;
+  max-height: 430px !important;
+  padding: 20px !important;
+  overflow-y: auto !important;
+}
+
+.act4geo-character-modal:has(.act4geo-sombra-script-lines)
+  .act4geo-modal-script-panel
+  h3 {
+  font-size: 23px !important;
+}
+
+.act4geo-sombra-script-lines {
+  gap: 9px !important;
+  margin-top: 14px !important;
+}
+
+.act4geo-sombra-script-lines p {
+  min-height: 62px !important;
+  padding: 12px 12px 18px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.act4geo-sombra-script-lines p span {
+  display: block !important;
+  width: 100% !important;
+}
+
+/* ---------------------------------------------------------
+   MISIÓN COMPLETADA: estructura estable de tres columnas.
+   Izquierda Nova, centro mensaje, derecha texto y botones.
+   --------------------------------------------------------- */
+
+.act4geo-modal-overlay:has(.act4geo-complete-modal) {
+  padding: 18px !important;
+  overflow: auto !important;
+  align-items: center !important;
+}
+
+.act4geo-complete-modal {
+  width: min(1180px, calc(100vw - 36px)) !important;
+  height: min(640px, calc(100dvh - 36px)) !important;
+  min-height: 570px !important;
+  max-height: calc(100dvh - 36px) !important;
+  padding: 30px !important;
+  grid-template-columns: 250px minmax(390px, 1fr) 280px !important;
+  grid-template-rows: minmax(0, 1fr) !important;
+  gap: 24px !important;
+  align-items: center !important;
+  overflow: hidden !important;
+}
+
+.act4geo-complete-hero {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  min-height: 490px !important;
+  overflow: hidden !important;
+}
+
+.act4geo-complete-video-wrap,
+.act4geo-complete-nova-canvas {
+  width: 220px !important;
+  height: 400px !important;
+}
+
+.act4geo-complete-decoration {
+  left: -70px !important;
+  bottom: -115px !important;
+  width: 540px !important;
+  height: 540px !important;
+  opacity: 0.2 !important;
+}
+
+.act4geo-complete-content {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  height: auto !important;
+  padding: 10px 0 !important;
+  align-self: center !important;
+  overflow: visible !important;
+}
+
+.act4geo-complete-content > span {
+  min-height: 36px !important;
+  margin-bottom: 11px !important;
+  padding: 0 15px !important;
+  font-size: 12px !important;
+}
+
+.act4geo-complete-content h2 {
+  margin: 0 0 16px !important;
+  font-size: clamp(44px, 4vw, 58px) !important;
+  line-height: 0.94 !important;
+}
+
+.act4geo-complete-cloud {
+  min-height: 130px !important;
+  padding: 22px 24px !important;
+}
+
+.act4geo-complete-cloud p {
+  font-size: 16px !important;
+  line-height: 1.34 !important;
+}
+
+.act4geo-complete-controls {
+  margin: 14px 0 !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+.act4geo-complete-controls button {
+  min-height: 43px !important;
+  padding: 0 14px !important;
+  font-size: 12px !important;
+}
+
+.act4geo-complete-summary {
+  gap: 8px !important;
+}
+
+.act4geo-complete-summary article {
+  min-height: 76px !important;
+  padding: 10px !important;
+}
+
+.act4geo-complete-summary article strong {
+  font-size: 21px !important;
+}
+
+/* Columna derecha real. */
+.act4geo-complete-side {
+  grid-column: 3 !important;
+  grid-row: 1 !important;
+  width: 100% !important;
+  height: auto !important;
+  min-width: 0 !important;
+  padding: 8px 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 16px !important;
+  position: relative !important;
+  z-index: 8 !important;
+}
+
+.act4geo-complete-transcript-inline {
+  width: 100% !important;
+  min-height: 210px !important;
+  max-height: 250px !important;
+  margin: 0 !important;
+  padding: 18px !important;
+  overflow-y: auto !important;
+  border-radius: 24px !important;
+}
+
+.act4geo-complete-transcript-inline h3 {
+  margin-bottom: 12px !important;
+  font-size: 21px !important;
+}
+
+.act4geo-complete-transcript-inline .act4geo-modal-script-lines {
+  gap: 8px !important;
+}
+
+.act4geo-complete-transcript-inline .act4geo-modal-script-lines p {
+  min-height: 52px !important;
+  padding: 10px 11px 16px !important;
+  font-size: 11.5px !important;
+}
+
+/* El texto queda exactamente arriba de los botones. */
+.act4geo-complete-side .act4geo-complete-actions {
+  position: static !important;
+  inset: auto !important;
+  width: 100% !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 11px !important;
+}
+
+.act4geo-complete-side .act4geo-complete-actions::before,
+.act4geo-complete-side .act4geo-complete-actions::after {
+  display: none !important;
+}
+
+.act4geo-complete-side .act4geo-complete-actions button {
+  position: static !important;
+  top: auto !important;
+  width: 100% !important;
+  min-height: 52px !important;
+  margin: 0 !important;
+}
+
+/* ---------------------------------------------------------
+   RESPONSIVO
+   --------------------------------------------------------- */
+
+@media (max-width: 1080px) {
+  .act4geo-complete-modal {
+    width: min(930px, calc(100vw - 28px)) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100dvh - 28px) !important;
+    grid-template-columns: 210px minmax(0, 1fr) !important;
+    grid-template-rows: auto auto !important;
+    overflow-y: auto !important;
+  }
+
+  .act4geo-complete-hero {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    min-height: 390px !important;
+  }
+
+  .act4geo-complete-content {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+  }
+
+  .act4geo-complete-side {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 280px !important;
+    align-items: start !important;
+  }
+
+  .act4geo-complete-transcript-inline {
+    min-height: 190px !important;
+    max-height: 220px !important;
+  }
+
+  .act4geo-complete-video-wrap,
+  .act4geo-complete-nova-canvas {
+    width: 190px !important;
+    height: 350px !important;
+  }
+
+  .act4geo-character-modal:has(.act4geo-sombra-script-lines) {
+    width: min(900px, calc(100vw - 28px)) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    grid-template-columns: 190px minmax(0, 1fr) !important;
+    overflow-y: auto !important;
+  }
+
+  .act4geo-character-modal:has(.act4geo-sombra-script-lines)
+    .act4geo-modal-script-panel {
+    grid-column: 1 / -1 !important;
+    min-height: 0 !important;
+    max-height: 230px !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .act4geo-modal-overlay {
+    align-items: flex-start !important;
+    padding: 10px !important;
+    overflow-y: auto !important;
+  }
+
+  .act4geo-character-modal:has(.act4geo-sombra-script-lines),
+  .act4geo-complete-modal {
+    width: calc(100vw - 20px) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 10px 0 !important;
+    padding: 64px 15px 20px !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto !important;
+    gap: 16px !important;
+    overflow: visible !important;
+    text-align: center !important;
+  }
+
+  .act4geo-character-modal:has(.act4geo-sombra-script-lines)
+    .act4geo-modal-character {
+    min-height: 220px !important;
+  }
+
+  .act4geo-character-modal:has(.act4geo-sombra-script-lines)
+    .act4geo-modal-video-wrap,
+  .act4geo-character-modal:has(.act4geo-sombra-script-lines)
+    .act4geo-modal-canvas {
+    width: 140px !important;
+    height: 240px !important;
+  }
+
+  .act4geo-character-modal:has(.act4geo-sombra-script-lines)
+    .act4geo-modal-script-panel {
+    grid-column: 1 !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    text-align: left !important;
+  }
+
+  .act4geo-complete-hero,
+  .act4geo-complete-content,
+  .act4geo-complete-side {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+  }
+
+  .act4geo-complete-hero {
+    min-height: 265px !important;
+  }
+
+  .act4geo-complete-video-wrap,
+  .act4geo-complete-nova-canvas {
+    width: 155px !important;
+    height: 280px !important;
+  }
+
+  .act4geo-complete-decoration {
+    left: 50% !important;
+    bottom: -80px !important;
+    width: 360px !important;
+    height: 360px !important;
+    transform: translateX(-50%) !important;
+  }
+
+  .act4geo-complete-content {
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .act4geo-complete-content h2 {
+    text-align: center !important;
+    font-size: clamp(36px, 11vw, 46px) !important;
+  }
+
+  .act4geo-complete-cloud::before,
+  .act4geo-complete-cloud::after {
+    display: none !important;
+  }
+
+  .act4geo-complete-summary {
+    grid-template-columns: 1fr !important;
+  }
+
+  .act4geo-complete-side {
+    display: flex !important;
+  }
+
+  .act4geo-complete-transcript-inline {
+    min-height: 0 !important;
+    max-height: none !important;
+    text-align: left !important;
+  }
+}
+
+/* =========================================================
+   CORRECCIÓN FINAL — FONDO GRANDE Y ANIMACIONES SIN CORTARSE
+   Mantener este bloque AL FINAL del archivo.
+   ========================================================= */
+
+.act4geo-page {
+  /*
+    CONTROLES DE LA IMAGEN DECORATIVA DEL MODAL COMPLETADO:
+    width / height = tamaño.
+    left = mover hacia la derecha con valores positivos.
+    bottom = mover verticalmente.
+  */
+  --act4geo-complete-bg-width: 980px !important;
+  --act4geo-complete-bg-height: 980px !important;
+  --act4geo-complete-bg-left: 390px !important;
+  --act4geo-complete-bg-bottom: -155px !important;
+  --act4geo-complete-bg-opacity: 0.31 !important;
+}
+
+/* La imagen del trofeo se extiende como fondo central y hacia la derecha. */
+.act4geo-complete-decoration {
+  left: var(--act4geo-complete-bg-left) !important;
+  bottom: var(--act4geo-complete-bg-bottom) !important;
+  width: var(--act4geo-complete-bg-width) !important;
+  height: var(--act4geo-complete-bg-height) !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  opacity: var(--act4geo-complete-bg-opacity) !important;
+  transform: none !important;
+  z-index: 1 !important;
+}
+
+/* El personaje siempre permanece por encima del trofeo. */
+.act4geo-complete-video-wrap,
+.act4geo-complete-nova-canvas {
+  position: relative !important;
+  z-index: 8 !important;
+}
+
+/* El contenido y el panel derecho quedan por encima del fondo. */
+.act4geo-complete-content,
+.act4geo-complete-side {
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+/* Sombra y Nova siguen visualmente activas mientras el audio esté activo. */
+.act4geo-profe-modal-playing .act4geo-modal-canvas,
+.act4geo-complete-modal:has(.act4geo-complete-play)
+  .act4geo-complete-nova-canvas {
+  will-change: transform !important;
+}
+
+/* La animación del personaje no se oculta ni se recorta antes de terminar. */
+.act4geo-character-modal:has(.act4geo-sombra-script-lines)
+  .act4geo-modal-character,
+.act4geo-character-modal:has(.act4geo-sombra-script-lines)
+  .act4geo-modal-video-wrap,
+.act4geo-complete-hero,
+.act4geo-complete-video-wrap {
+  overflow: visible !important;
+}
+
+/* Fondo más parecido al modal de referencia: trofeo amplio y centrado. */
+.act4geo-complete-modal {
+  background:
+    radial-gradient(
+      circle at 96% 0%,
+      rgba(255, 214, 112, 0.25) 0 150px,
+      transparent 151px
+    ),
+    radial-gradient(
+      circle at 3% 98%,
+      rgba(0, 88, 255, 0.08) 0 105px,
+      transparent 106px
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.99) 0%,
+      rgba(255, 253, 247, 0.985) 100%
+    ) !important;
+}
+
+/* Ajustes para pantallas medianas. */
+@media (max-width: 1180px) {
+  .act4geo-page {
+    --act4geo-complete-bg-width: 690px !important;
+    --act4geo-complete-bg-height: 690px !important;
+    --act4geo-complete-bg-left: 120px !important;
+    --act4geo-complete-bg-bottom: -125px !important;
+    --act4geo-complete-bg-opacity: 0.27 !important;
+  }
+}
+
+/* Tablet y celular. */
+@media (max-width: 760px) {
+  .act4geo-page {
+    --act4geo-complete-bg-width: 470px !important;
+    --act4geo-complete-bg-height: 470px !important;
+    --act4geo-complete-bg-left: 50% !important;
+    --act4geo-complete-bg-bottom: -120px !important;
+    --act4geo-complete-bg-opacity: 0.23 !important;
+  }
+
+  .act4geo-complete-decoration {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .act4geo-page {
+    --act4geo-complete-bg-width: 390px !important;
+    --act4geo-complete-bg-height: 390px !important;
+    --act4geo-complete-bg-bottom: -95px !important;
+  }
+}
+
+/* =========================================================
+   CONTROL FINAL DE LA IMAGEN DE FONDO DEL MODAL COMPLETADO
+   =========================================================
+   ESTA ES LA PARTE QUE DEBES MODIFICAR PARA HACER MÁS PEQUEÑA
+   O MÁS GRANDE LA IMAGEN DEL TROFEO/FONDO.
+
+   PARA HACERLA MÁS PEQUEÑA:
+   baja estos dos valores:
+
+   --act4geo-complete-bg-width
+   --act4geo-complete-bg-height
+
+   EJEMPLOS:
+   900px = grande
+   760px = mediana
+   620px = más pequeña
+
+   PARA MOVERLA:
+   --act4geo-complete-bg-left
+     número positivo = mueve a la derecha
+     número negativo = mueve a la izquierda
+
+   --act4geo-complete-bg-bottom
+     número más alto = sube la imagen
+     número más negativo = baja la imagen
+
+   PARA HACERLA MÁS TRANSPARENTE:
+   baja --act4geo-complete-bg-opacity
+   ========================================================= */
+
+.act4geo-page {
+  /* ===== TAMAÑO DE LA IMAGEN DE FONDO ===== */
+  --act4geo-complete-bg-width: 760px !important;
+  --act4geo-complete-bg-height: 760px !important;
+
+  /* ===== POSICIÓN DE LA IMAGEN DE FONDO ===== */
+  --act4geo-complete-bg-left: 350px !important;
+  --act4geo-complete-bg-bottom: -145px !important;
+
+  /* ===== TRANSPARENCIA DE LA IMAGEN DE FONDO ===== */
+  --act4geo-complete-bg-opacity: 0.3 !important;
+}
+
+.act4geo-complete-decoration {
+  width: var(--act4geo-complete-bg-width) !important;
+  height: var(--act4geo-complete-bg-height) !important;
+  left: var(--act4geo-complete-bg-left) !important;
+  bottom: var(--act4geo-complete-bg-bottom) !important;
+  opacity: var(--act4geo-complete-bg-opacity) !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+}
+
+@media (max-width: 1180px) {
+  .act4geo-page {
+    /* PARA HACER MÁS PEQUEÑA LA IMAGEN EN TABLET, BAJA ESTOS DOS VALORES */
+    --act4geo-complete-bg-width: 650px !important;
+    --act4geo-complete-bg-height: 650px !important;
+
+    --act4geo-complete-bg-left: 110px !important;
+    --act4geo-complete-bg-bottom: -115px !important;
+    --act4geo-complete-bg-opacity: 0.27 !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .act4geo-page {
+    /* PARA HACER MÁS PEQUEÑA LA IMAGEN EN CELULAR, BAJA ESTOS DOS VALORES */
+    --act4geo-complete-bg-width: 440px !important;
+    --act4geo-complete-bg-height: 440px !important;
+
+    --act4geo-complete-bg-left: 50% !important;
+    --act4geo-complete-bg-bottom: -105px !important;
+    --act4geo-complete-bg-opacity: 0.23 !important;
+  }
+
+  .act4geo-complete-decoration {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .act4geo-page {
+    /* TAMAÑO DE LA IMAGEN EN CELULARES PEQUEÑOS */
+    --act4geo-complete-bg-width: 360px !important;
+    --act4geo-complete-bg-height: 360px !important;
+    --act4geo-complete-bg-bottom: -85px !important;
+  }
+}

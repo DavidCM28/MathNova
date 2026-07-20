@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import {
   getSessionUser,
@@ -48,6 +54,19 @@ import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 type OpcionId = "A" | "B" | "C" | "D";
 type EstadoRevision = "pendiente" | "correcto" | "incorrecto";
 type ModalId = "profesor" | "byte" | "sombra" | "completado" | null;
+type PistaAct4Id = "frente" | "linea" | "letras";
+type PersonajePistaAct4 = "Nova" | "Profesor Astro" | "Byte";
+type PersonajeAciertoAct4 = "Byte" | "Nova" | "Profesor Astro";
+
+type AciertoEspecialAct4 = {
+  personaje: PersonajeAciertoAct4;
+  audio: string;
+  video: string;
+  titulo: string;
+  mensaje: string;
+  cierre: string;
+  clase: "byte" | "nova" | "profesor";
+};
 
 type SessionUser = {
   rol?: string;
@@ -70,6 +89,17 @@ import videoNova from "../../assets/mathGeometry/actividad4/nova_explicando_act_
 import videoProfesor from "../../assets/mathGeometry/actividad4/instrucciones_profe_astro_act_4_MathGeometry.mp4";
 import videoByte from "../../assets/mathGeometry/actividad4/byte_aciertos_y_pistas_act_4_MathGeometry.mp4";
 import videoSombra from "../../assets/mathGeometry/actividad4/act_4_sombra_error_MathGeometry_.mp4";
+
+import audioNovaIntroduccion from "../../assets/mathGeometry/actividad4/Nova_introduccion_act_4.mp3";
+import audioProfesorAstro from "../../assets/mathGeometry/actividad4/Act4_instruccion_profe_astro.mp3";
+import audioPistaNova from "../../assets/mathGeometry/actividad4/act_4_nova_Pista_1_Para_retos_de_angulos_frente_a_frente.mp3";
+import audioPistaProfesor from "../../assets/mathGeometry/actividad4/act4_astro_Pista_2_Para_retos_de_linea_recta.mp3";
+import audioPistaByte from "../../assets/mathGeometry/actividad4/act_4_byte_Pista_3_Para_retos_con_letras_especificas.mp3";
+import audioByteAcierto from "../../assets/mathGeometry/actividad4/act4_cuando_acierta_Byte.mp3";
+import audioProfesorAcierto from "../../assets/mathGeometry/actividad4/act4_cuando_acierta_angulos_frente_a_frente_Profesor_Astro.mp3";
+import audioNovaAcierto from "../../assets/mathGeometry/actividad4/act4_cuando_acierta_linea_recta_Nova.mp3";
+import audioSombraError from "../../assets/mathGeometry/actividad4/act4_cuando_se_equivoca_sombra_del_error.mp3";
+import audioNovaCierre from "../../assets/mathGeometry/actividad4/act4_nova_cierre_de_actividad.mp3";
 
 const RETOS: Reto[] = [
   {
@@ -148,7 +178,174 @@ const RETOS: Reto[] = [
   },
 ];
 
-const TEXTO_PENDIENTE = "";
+const GUION_NOVA_INTRODUCCION = [
+  "¡Hola, explorador!",
+  "Hoy veremos qué pasa cuando dos láseres se cruzan.",
+  "Observa las letras A, B, C y D.",
+  "Tu misión es elegir la respuesta correcta.",
+  "¡Comencemos!",
+];
+
+const GUION_PROFESOR_ASTRO = [
+  "Cuando dos líneas se cruzan, se forman varios ángulos.",
+  "Algunos están frente a frente.",
+  "Otros están juntos y forman una línea recta.",
+  "Observa bien la figura antes de responder.",
+];
+
+const TEXTO_INICIAL_NOVA =
+  "Presiona reproducir para escuchar la introducción de Nova.";
+const TEXTO_FINAL_NOVA = "¡Comencemos!";
+const TEXTO_INICIAL_PROFESOR =
+  "Presiona reproducir para escuchar las instrucciones del Profesor Astro.";
+const TEXTO_FINAL_PROFESOR = "Observa bien la figura antes de responder.";
+
+const GUION_SOMBRA_ERROR = [
+  "Casi lo logras.",
+  "Observa otra vez la figura.",
+  "Revisa si los ángulos están frente a frente o si forman una línea recta.",
+  "Inténtalo de nuevo.",
+];
+
+const TEXTO_INICIAL_SOMBRA =
+  "Presiona reproducir para escuchar el mensaje de Sombra.";
+const TEXTO_FINAL_SOMBRA = "Inténtalo de nuevo.";
+
+const GUION_NOVA_CIERRE = [
+  "¡Misión completada!",
+  "Aprendiste a reconocer ángulos frente a frente y ángulos que forman una línea recta.",
+  "¡Muy buen trabajo, explorador!",
+];
+
+const TEXTO_INICIAL_COMPLETADO =
+  "Presiona reproducir para escuchar el mensaje final de Nova.";
+const TEXTO_FINAL_COMPLETADO = "¡Muy buen trabajo, explorador!";
+
+const PISTAS_ACT4: Record<
+  PistaAct4Id,
+  {
+    id: PistaAct4Id;
+    titulo: string;
+    subtitulo: string;
+    personaje: PersonajePistaAct4;
+    audio: string;
+    video: string;
+    guion: string[];
+  }
+> = {
+  frente: {
+    id: "frente",
+    titulo: "Pista Ángulos frente a frente",
+    subtitulo: "Busca los ángulos opuestos",
+    personaje: "Nova",
+    audio: audioPistaNova,
+    video: videoNova,
+    guion: [
+      "Busca los ángulos que están uno frente al otro.",
+      "No están pegados, están cruzando el centro del láser.",
+    ],
+  },
+  linea: {
+    id: "linea",
+    titulo: "Pista Línea recta",
+    subtitulo: "Comprueba si forman un camino recto",
+    personaje: "Profesor Astro",
+    audio: audioPistaProfesor,
+    video: videoProfesor,
+    guion: [
+      "Observa si dos ángulos están juntos sobre la misma línea.",
+      "Si al unirlos forman un camino recto, esa es la respuesta.",
+    ],
+  },
+  letras: {
+    id: "letras",
+    titulo: "Pista Letras específicas",
+    subtitulo: "Encuentra primero la letra solicitada",
+    personaje: "Byte",
+    audio: audioPistaByte,
+    video: videoByte,
+    guion: [
+      "Primero encuentra la letra que te pide el reto.",
+      "Después mira si debes buscar su ángulo opuesto o un ángulo vecino que forme línea recta.",
+    ],
+  },
+};
+
+const ORDEN_PISTAS_ACT4: PistaAct4Id[] = ["frente", "linea", "letras"];
+const TEXTO_INICIAL_PISTA = "Elige una de las tres pistas para escucharla.";
+
+const ACIERTOS_ESPECIALES_ACT4: Partial<Record<number, AciertoEspecialAct4>> = {
+  0: {
+    personaje: "Byte",
+    audio: audioByteAcierto,
+    video: videoByte,
+    titulo: "¡Muy bien!",
+    mensaje: "Observaste correctamente el cruce de los láseres.",
+    cierre: "Pasemos al siguiente reto.",
+    clase: "byte",
+  },
+  1: {
+    personaje: "Nova",
+    audio: audioNovaAcierto,
+    video: videoNova,
+    titulo: "¡Excelente!",
+    mensaje: "Elegiste dos ángulos que juntos forman una línea recta.",
+    cierre: "¡Buen trabajo!",
+    clase: "nova",
+  },
+  2: {
+    personaje: "Profesor Astro",
+    audio: audioProfesorAcierto,
+    video: videoProfesor,
+    titulo: "¡Correcto!",
+    mensaje: "Esos ángulos están frente a frente.",
+    cierre: "Por eso son ángulos opuestos por el vértice.",
+    clase: "profesor",
+  },
+};
+
+function obtenerTextoSincronizado(
+  tiempo: number,
+  duracion: number,
+  guion: string[],
+) {
+  const duracionSegura =
+    Number.isFinite(duracion) && duracion > 0 ? duracion : guion.length * 2.5;
+  const pesos = guion.map((linea) => Math.max(1, linea.length));
+  const totalPesos = pesos.reduce((total, peso) => total + peso, 0) || 1;
+  let inicio = 0;
+
+  for (let indice = 0; indice < guion.length; indice += 1) {
+    const duracionLinea = (pesos[indice] / totalPesos) * duracionSegura;
+    const fin = inicio + duracionLinea;
+
+    if (tiempo >= inicio && tiempo < fin) {
+      const progreso = Math.min(
+        1,
+        Math.max(0, (tiempo - inicio) / duracionLinea),
+      );
+      const texto = guion[indice];
+      const letras = Math.max(
+        1,
+        Math.ceil(texto.length * Math.min(1, progreso * 1.55)),
+      );
+
+      return {
+        texto: texto.slice(0, letras),
+        indice,
+        progresoLinea: Math.round(progreso * 100),
+      };
+    }
+
+    inicio = fin;
+  }
+
+  return {
+    texto: guion[guion.length - 1],
+    indice: guion.length - 1,
+    progresoLinea: 100,
+  };
+}
 
 function limpiarFondoBlancoDeBordes(
   ctx: CanvasRenderingContext2D,
@@ -241,6 +438,7 @@ type VideoCanvasProps = {
   height?: number;
   playing?: boolean;
   restartSignal?: number;
+  loopWhenPlaying?: boolean;
   onEnded?: () => void;
   label: string;
 };
@@ -253,6 +451,7 @@ function VideoCanvasTransparente({
   height = 640,
   playing = true,
   restartSignal = 0,
+  loopWhenPlaying = false,
   onEnded,
   label,
 }: VideoCanvasProps) {
@@ -322,7 +521,7 @@ function VideoCanvasTransparente({
     if (!video) return;
 
     video.muted = true;
-    video.loop = false;
+    video.loop = loopWhenPlaying;
     video.playsInline = true;
 
     if (playing) {
@@ -330,7 +529,7 @@ function VideoCanvasTransparente({
     } else {
       video.pause();
     }
-  }, [playing, src]);
+  }, [loopWhenPlaying, playing, src]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -391,16 +590,54 @@ function Actividad4MathGeometry() {
   /* La animación de Nova solo se reproduce al presionar Play. */
   const [novaReproduciendo, setNovaReproduciendo] = useState(false);
   const [reinicioNova, setReinicioNova] = useState(0);
+  const audioNovaRef = useRef<HTMLAudioElement | null>(null);
+  const [textoNova, setTextoNova] = useState(TEXTO_INICIAL_NOVA);
+  const [indiceNovaActivo, setIndiceNovaActivo] = useState(-1);
 
   /* Animaciones de los modales: detenidas hasta presionar Play. */
   const [modalReproduciendo, setModalReproduciendo] = useState(false);
   const [reinicioModal, setReinicioModal] = useState(0);
+  const audioProfesorRef = useRef<HTMLAudioElement | null>(null);
+  const [textoProfesor, setTextoProfesor] = useState(TEXTO_INICIAL_PROFESOR);
+  const [indiceProfesorActivo, setIndiceProfesorActivo] = useState(-1);
+  const [progresoProfesorActivo, setProgresoProfesorActivo] = useState(0);
 
-  /* Animación de Nova en misión completada. */
+  /* Modal de respuesta incorrecta con Sombra. */
+  const audioSombraRef = useRef<HTMLAudioElement | null>(null);
+  const [textoSombra, setTextoSombra] = useState(TEXTO_INICIAL_SOMBRA);
+  const [indiceSombraActivo, setIndiceSombraActivo] = useState(-1);
+  const [progresoSombraActivo, setProgresoSombraActivo] = useState(0);
+
+  /* Pistas de Nova, Profesor Astro y Byte. */
+  const [pistaSeleccionada, setPistaSeleccionada] =
+    useState<PistaAct4Id>("frente");
+  const [textoPista, setTextoPista] = useState(TEXTO_INICIAL_PISTA);
+  const [indicePistaActivo, setIndicePistaActivo] = useState(-1);
+  const [progresoPistaActivo, setProgresoPistaActivo] = useState(0);
+  const audioPistaRef = useRef<HTMLAudioElement | null>(null);
+
+  /* Animación, audio y texto de Nova en misión completada. */
   const [completadoReproduciendo, setCompletadoReproduciendo] = useState(false);
   const [reinicioCompletado, setReinicioCompletado] = useState(0);
+  const audioCompletadoRef = useRef<HTMLAudioElement | null>(null);
+  const [textoCompletado, setTextoCompletado] = useState(
+    TEXTO_INICIAL_COMPLETADO,
+  );
+  const [indiceCompletadoActivo, setIndiceCompletadoActivo] = useState(-1);
+  const [progresoCompletadoActivo, setProgresoCompletadoActivo] = useState(0);
+
+  /* Tres felicitaciones automáticas: Byte, Nova y Profesor Astro. */
+  const [aciertoEspecial, setAciertoEspecial] =
+    useState<AciertoEspecialAct4 | null>(null);
+  const [aciertoEspecialReproduciendo, setAciertoEspecialReproduciendo] =
+    useState(false);
+  const [reinicioAciertoEspecial, setReinicioAciertoEspecial] = useState(0);
+  const audioAciertoEspecialRef = useRef<HTMLAudioElement | null>(null);
+  const aciertoEspecialFallbackRef = useRef<number | null>(null);
+  const retoAciertoEspecialRef = useRef<number | null>(null);
 
   const reto = RETOS[retoActual];
+  const pistaActiva = PISTAS_ACT4[pistaSeleccionada];
   const progreso = Math.round((completados / RETOS.length) * 100);
 
   const tiempo = useMemo(() => {
@@ -412,37 +649,488 @@ function Actividad4MathGeometry() {
   }, [segundos]);
 
   useEffect(() => {
-    if (pausado || modal !== null) return;
+    if (pausado || modal !== null || aciertoEspecial !== null) return;
 
     const timer = window.setInterval(() => {
       setSegundos((valor) => valor + 1);
     }, 1000);
 
     return () => window.clearInterval(timer);
-  }, [pausado, modal]);
+  }, [pausado, modal, aciertoEspecial !== null]);
 
   useEffect(() => {
-    if (pausado || modal !== null) {
+    if (pausado || modal !== null || aciertoEspecial !== null) {
+      audioNovaRef.current?.pause();
       setNovaReproduciendo(false);
     }
-  }, [pausado, modal]);
+  }, [pausado, modal, aciertoEspecial !== null]);
 
   useEffect(() => {
+    audioProfesorRef.current?.pause();
+    audioPistaRef.current?.pause();
+    audioSombraRef.current?.pause();
+    audioCompletadoRef.current?.pause();
     setModalReproduciendo(false);
 
-    if (modal !== "completado") {
+    if (modal === "profesor") {
+      setTextoProfesor(TEXTO_INICIAL_PROFESOR);
+      setIndiceProfesorActivo(-1);
+      setProgresoProfesorActivo(0);
+    }
+
+    if (modal === "byte") {
+      setTextoPista(TEXTO_INICIAL_PISTA);
+      setIndicePistaActivo(-1);
+      setProgresoPistaActivo(0);
+      setPistaSeleccionada("frente");
+    }
+
+    if (modal === "sombra") {
+      setTextoSombra(TEXTO_INICIAL_SOMBRA);
+      setIndiceSombraActivo(-1);
+      setProgresoSombraActivo(0);
+    }
+
+    if (modal === "completado") {
+      setTextoCompletado(TEXTO_INICIAL_COMPLETADO);
+      setIndiceCompletadoActivo(-1);
+      setProgresoCompletadoActivo(0);
+    } else {
       setCompletadoReproduciendo(false);
     }
   }, [modal]);
 
+  /*
+    Cuando la respuesta es incorrecta, el modal de Sombra se abre y comienza
+    automáticamente. No es necesario presionar Reproducir.
+  */
+  useEffect(() => {
+    if (modal !== "sombra") return;
+
+    const temporizador = window.setTimeout(() => {
+      const audio = audioSombraRef.current;
+      if (!audio) return;
+
+      audio.currentTime = 0;
+      setTextoSombra("");
+      setIndiceSombraActivo(0);
+      setProgresoSombraActivo(0);
+      setReinicioModal((valor) => valor + 1);
+      setModalReproduciendo(true);
+
+      void audio.play().catch(() => {
+        setModalReproduciendo(false);
+        setTextoSombra(TEXTO_INICIAL_SOMBRA);
+      });
+    }, 120);
+
+    return () => window.clearTimeout(temporizador);
+  }, [modal]);
+
+  /*
+    Cuando se completa la actividad, el modal final se abre y Nova comienza
+    automáticamente. No es necesario presionar el botón Reproducir.
+  */
+  useEffect(() => {
+    if (modal !== "completado") return;
+
+    const temporizador = window.setTimeout(() => {
+      const audio = audioCompletadoRef.current;
+      if (!audio) return;
+
+      audio.currentTime = 0;
+      setTextoCompletado("");
+      setIndiceCompletadoActivo(0);
+      setProgresoCompletadoActivo(0);
+      setReinicioCompletado((valor) => valor + 1);
+      setCompletadoReproduciendo(true);
+
+      void audio.play().catch(() => {
+        setCompletadoReproduciendo(false);
+        setTextoCompletado(TEXTO_INICIAL_COMPLETADO);
+      });
+    }, 140);
+
+    return () => window.clearTimeout(temporizador);
+  }, [modal]);
+
   useEffect(() => {
     const bloquear = menuOpen || modal !== null;
-    document.body.style.overflow = bloquear ? "hidden" : "auto";
+    const body = document.body;
+    const html = document.documentElement;
+
+    body.classList.toggle("act4geo-body-locked", bloquear);
+    html.classList.toggle("act4geo-html-locked", bloquear);
 
     return () => {
-      document.body.style.overflow = "auto";
+      body.classList.remove("act4geo-body-locked");
+      html.classList.remove("act4geo-html-locked");
     };
   }, [menuOpen, modal]);
+
+  const reproducirNova = () => {
+    if (pausado || modal !== null || aciertoEspecial !== null) return;
+    const audio = audioNovaRef.current;
+    if (!audio) return;
+
+    if (audio.ended || audio.currentTime >= audio.duration) {
+      audio.currentTime = 0;
+      setReinicioNova((valor) => valor + 1);
+    }
+
+    setNovaReproduciendo(true);
+    void audio.play().catch(() => setNovaReproduciendo(false));
+  };
+
+  const pausarNova = () => {
+    audioNovaRef.current?.pause();
+    setNovaReproduciendo(false);
+  };
+
+  const reiniciarIntroduccionNova = () => {
+    const audio = audioNovaRef.current;
+    if (!audio || pausado || modal !== null || aciertoEspecial !== null) return;
+    audio.currentTime = 0;
+    setTextoNova("");
+    setIndiceNovaActivo(0);
+    setReinicioNova((valor) => valor + 1);
+    setNovaReproduciendo(true);
+    void audio.play().catch(() => setNovaReproduciendo(false));
+  };
+
+  const actualizarTextoNova = () => {
+    const audio = audioNovaRef.current;
+    if (!audio) return;
+    const estado = obtenerTextoSincronizado(
+      audio.currentTime,
+      audio.duration,
+      GUION_NOVA_INTRODUCCION,
+    );
+    setTextoNova(estado.texto);
+    setIndiceNovaActivo(estado.indice);
+  };
+
+  const reproducirProfesor = () => {
+    const audio = audioProfesorRef.current;
+    if (!audio || modal !== "profesor") return;
+
+    if (audio.ended || audio.currentTime >= audio.duration) {
+      audio.currentTime = 0;
+      setReinicioModal((valor) => valor + 1);
+    }
+
+    setModalReproduciendo(true);
+    void audio.play().catch(() => setModalReproduciendo(false));
+  };
+
+  const pausarProfesor = () => {
+    audioProfesorRef.current?.pause();
+    setModalReproduciendo(false);
+  };
+
+  const reiniciarProfesor = () => {
+    const audio = audioProfesorRef.current;
+    if (!audio || modal !== "profesor") return;
+    audio.currentTime = 0;
+    setTextoProfesor("");
+    setIndiceProfesorActivo(0);
+    setProgresoProfesorActivo(0);
+    setReinicioModal((valor) => valor + 1);
+    setModalReproduciendo(true);
+    void audio.play().catch(() => setModalReproduciendo(false));
+  };
+
+  const actualizarTextoProfesor = () => {
+    const audio = audioProfesorRef.current;
+    if (!audio) return;
+    const estado = obtenerTextoSincronizado(
+      audio.currentTime,
+      audio.duration,
+      GUION_PROFESOR_ASTRO,
+    );
+    setTextoProfesor(estado.texto);
+    setIndiceProfesorActivo(estado.indice);
+    setProgresoProfesorActivo(estado.progresoLinea);
+  };
+
+  const seleccionarPista = (id: PistaAct4Id) => {
+    audioPistaRef.current?.pause();
+    if (audioPistaRef.current) audioPistaRef.current.currentTime = 0;
+    setPistaSeleccionada(id);
+    setTextoPista(TEXTO_INICIAL_PISTA);
+    setIndicePistaActivo(-1);
+    setProgresoPistaActivo(0);
+    setModalReproduciendo(false);
+    setReinicioModal((valor) => valor + 1);
+  };
+
+  const reproducirPista = () => {
+    const audio = audioPistaRef.current;
+    if (!audio || modal !== "byte") return;
+
+    if (audio.ended || audio.currentTime >= audio.duration) {
+      audio.currentTime = 0;
+      setReinicioModal((valor) => valor + 1);
+    }
+
+    setModalReproduciendo(true);
+    void audio.play().catch(() => setModalReproduciendo(false));
+  };
+
+  const pausarPista = () => {
+    audioPistaRef.current?.pause();
+    setModalReproduciendo(false);
+  };
+
+  const reiniciarPista = () => {
+    const audio = audioPistaRef.current;
+    if (!audio || modal !== "byte") return;
+    audio.currentTime = 0;
+    setTextoPista("");
+    setIndicePistaActivo(0);
+    setProgresoPistaActivo(0);
+    setReinicioModal((valor) => valor + 1);
+    setModalReproduciendo(true);
+    void audio.play().catch(() => setModalReproduciendo(false));
+  };
+
+  const actualizarTextoPista = () => {
+    const audio = audioPistaRef.current;
+    if (!audio) return;
+    const estado = obtenerTextoSincronizado(
+      audio.currentTime,
+      audio.duration,
+      pistaActiva.guion,
+    );
+    setTextoPista(estado.texto);
+    setIndicePistaActivo(estado.indice);
+    setProgresoPistaActivo(estado.progresoLinea);
+  };
+
+  const reproducirSombra = () => {
+    const audio = audioSombraRef.current;
+    if (!audio || modal !== "sombra") return;
+
+    if (audio.ended || audio.currentTime >= audio.duration) {
+      audio.currentTime = 0;
+      setReinicioModal((valor) => valor + 1);
+    }
+
+    setModalReproduciendo(true);
+    void audio.play().catch(() => setModalReproduciendo(false));
+  };
+
+  const pausarSombra = () => {
+    audioSombraRef.current?.pause();
+    setModalReproduciendo(false);
+  };
+
+  const reiniciarSombra = () => {
+    const audio = audioSombraRef.current;
+    if (!audio || modal !== "sombra") return;
+
+    audio.currentTime = 0;
+    setTextoSombra("");
+    setIndiceSombraActivo(0);
+    setProgresoSombraActivo(0);
+    setReinicioModal((valor) => valor + 1);
+    setModalReproduciendo(true);
+    void audio.play().catch(() => setModalReproduciendo(false));
+  };
+
+  const actualizarTextoSombra = () => {
+    const audio = audioSombraRef.current;
+    if (!audio) return;
+
+    const estado = obtenerTextoSincronizado(
+      audio.currentTime,
+      audio.duration,
+      GUION_SOMBRA_ERROR,
+    );
+
+    setTextoSombra(estado.texto);
+    setIndiceSombraActivo(estado.indice);
+    setProgresoSombraActivo(estado.progresoLinea);
+  };
+
+  const reproducirCompletado = () => {
+    const audio = audioCompletadoRef.current;
+    if (!audio || modal !== "completado") return;
+
+    if (audio.ended || audio.currentTime >= audio.duration) {
+      audio.currentTime = 0;
+      setReinicioCompletado((valor) => valor + 1);
+    }
+
+    setCompletadoReproduciendo(true);
+    void audio.play().catch(() => setCompletadoReproduciendo(false));
+  };
+
+  const pausarCompletado = () => {
+    audioCompletadoRef.current?.pause();
+    setCompletadoReproduciendo(false);
+  };
+
+  const reiniciarCompletado = () => {
+    const audio = audioCompletadoRef.current;
+    if (!audio || modal !== "completado") return;
+
+    audio.currentTime = 0;
+    setTextoCompletado("");
+    setIndiceCompletadoActivo(0);
+    setProgresoCompletadoActivo(0);
+    setReinicioCompletado((valor) => valor + 1);
+    setCompletadoReproduciendo(true);
+    void audio.play().catch(() => setCompletadoReproduciendo(false));
+  };
+
+  const actualizarTextoCompletado = () => {
+    const audio = audioCompletadoRef.current;
+    if (!audio) return;
+
+    const estado = obtenerTextoSincronizado(
+      audio.currentTime,
+      audio.duration,
+      GUION_NOVA_CIERRE,
+    );
+
+    setTextoCompletado(estado.texto);
+    setIndiceCompletadoActivo(estado.indice);
+    setProgresoCompletadoActivo(estado.progresoLinea);
+  };
+
+  /*
+    Igual que en la Actividad 1, el texto se actualiza de forma continua.
+    No dependemos únicamente de onTimeUpdate porque ese evento avanza muy lento
+    en algunos navegadores y puede hacer que el texto parezca detenerse.
+  */
+  useEffect(() => {
+    if (!novaReproduciendo) return;
+
+    const intervalo = window.setInterval(() => {
+      actualizarTextoNova();
+    }, 25);
+
+    return () => window.clearInterval(intervalo);
+  }, [novaReproduciendo]);
+
+  useEffect(() => {
+    if (modal !== "profesor" || !modalReproduciendo) return;
+
+    const intervalo = window.setInterval(() => {
+      actualizarTextoProfesor();
+    }, 25);
+
+    return () => window.clearInterval(intervalo);
+  }, [modal, modalReproduciendo]);
+
+  useEffect(() => {
+    if (modal !== "byte" || !modalReproduciendo) return;
+
+    const intervalo = window.setInterval(() => {
+      actualizarTextoPista();
+    }, 30);
+
+    return () => window.clearInterval(intervalo);
+  }, [modal, modalReproduciendo, pistaSeleccionada]);
+
+  useEffect(() => {
+    if (modal !== "sombra" || !modalReproduciendo) return;
+
+    const intervalo = window.setInterval(() => {
+      actualizarTextoSombra();
+    }, 25);
+
+    return () => window.clearInterval(intervalo);
+  }, [modal, modalReproduciendo]);
+
+  useEffect(() => {
+    if (modal !== "completado" || !completadoReproduciendo) return;
+
+    const intervalo = window.setInterval(() => {
+      actualizarTextoCompletado();
+    }, 25);
+
+    return () => window.clearInterval(intervalo);
+  }, [modal, completadoReproduciendo]);
+
+  useEffect(() => {
+    return () => {
+      audioAciertoEspecialRef.current?.pause();
+
+      if (aciertoEspecialFallbackRef.current !== null) {
+        window.clearTimeout(aciertoEspecialFallbackRef.current);
+      }
+    };
+  }, []);
+
+  const finalizarAciertoEspecial = () => {
+    if (aciertoEspecialFallbackRef.current !== null) {
+      window.clearTimeout(aciertoEspecialFallbackRef.current);
+      aciertoEspecialFallbackRef.current = null;
+    }
+
+    const retoCelebrado = retoAciertoEspecialRef.current;
+    retoAciertoEspecialRef.current = null;
+
+    audioAciertoEspecialRef.current?.pause();
+    setAciertoEspecialReproduciendo(false);
+    setAciertoEspecial(null);
+
+    if (retoCelebrado === null) return;
+
+    const nuevosCompletados = Math.max(completados, retoCelebrado + 1);
+    setCompletados(nuevosCompletados);
+
+    if (retoCelebrado >= RETOS.length - 1) {
+      setCompletados(RETOS.length);
+      setModal("completado");
+      return;
+    }
+
+    setRetoActual(retoCelebrado + 1);
+    setSeleccion(null);
+    setRevision("pendiente");
+  };
+
+  const iniciarAciertoEspecial = (
+    configuracion: AciertoEspecialAct4,
+    indiceReto: number,
+  ) => {
+    retoAciertoEspecialRef.current = indiceReto;
+    setAciertoEspecial(configuracion);
+    setAciertoEspecialReproduciendo(true);
+    setReinicioAciertoEspecial((valor) => valor + 1);
+  };
+
+  useEffect(() => {
+    if (!aciertoEspecial) return;
+
+    const audio = audioAciertoEspecialRef.current;
+
+    if (aciertoEspecialFallbackRef.current !== null) {
+      window.clearTimeout(aciertoEspecialFallbackRef.current);
+      aciertoEspecialFallbackRef.current = null;
+    }
+
+    if (!audio) {
+      aciertoEspecialFallbackRef.current = window.setTimeout(
+        finalizarAciertoEspecial,
+        5200,
+      );
+      return;
+    }
+
+    audio.currentTime = 0;
+
+    void audio.play().catch(() => {
+      setAciertoEspecialReproduciendo(false);
+      aciertoEspecialFallbackRef.current = window.setTimeout(
+        finalizarAciertoEspecial,
+        5200,
+      );
+    });
+  }, [aciertoEspecial]);
 
   const obtenerDashboardPrincipal = () => {
     if (isGuestSession() && !hasAuthSession()) return "/dashboard";
@@ -491,18 +1179,25 @@ function Actividad4MathGeometry() {
   };
 
   const seleccionarOpcion = (opcion: OpcionId) => {
-    if (revision === "correcto" || pausado) return;
+    if (revision === "correcto" || pausado || aciertoEspecial !== null) return;
     setSeleccion(opcion);
     setRevision("pendiente");
   };
 
   const comprobar = () => {
-    if (!seleccion || pausado) return;
+    if (!seleccion || pausado || aciertoEspecial !== null) return;
 
     setIntentos((valor) => valor + 1);
 
     if (seleccion === reto.correcta) {
       setRevision("correcto");
+
+      const configuracionAcierto = ACIERTOS_ESPECIALES_ACT4[retoActual];
+
+      if (configuracionAcierto) {
+        iniciarAciertoEspecial(configuracionAcierto, retoActual);
+      }
+
       return;
     }
 
@@ -511,7 +1206,7 @@ function Actividad4MathGeometry() {
   };
 
   const siguiente = () => {
-    if (revision !== "correcto") return;
+    if (revision !== "correcto" || aciertoEspecial !== null) return;
 
     const nuevosCompletados = Math.max(completados, retoActual + 1);
     setCompletados(nuevosCompletados);
@@ -536,26 +1231,65 @@ function Actividad4MathGeometry() {
     setSegundos(0);
     setModal(null);
     setPausado(false);
+    audioNovaRef.current?.pause();
+    if (audioNovaRef.current) audioNovaRef.current.currentTime = 0;
+    setTextoNova(TEXTO_INICIAL_NOVA);
+    setIndiceNovaActivo(-1);
     setNovaReproduciendo(false);
     setReinicioNova((valor) => valor + 1);
+    audioProfesorRef.current?.pause();
+    if (audioProfesorRef.current) audioProfesorRef.current.currentTime = 0;
+    setTextoProfesor(TEXTO_INICIAL_PROFESOR);
+    setIndiceProfesorActivo(-1);
+    setProgresoProfesorActivo(0);
+    audioPistaRef.current?.pause();
+    if (audioPistaRef.current) audioPistaRef.current.currentTime = 0;
+    setPistaSeleccionada("frente");
+    setTextoPista(TEXTO_INICIAL_PISTA);
+    setIndicePistaActivo(-1);
+    setProgresoPistaActivo(0);
     setModalReproduciendo(false);
     setReinicioModal((valor) => valor + 1);
+    audioSombraRef.current?.pause();
+    if (audioSombraRef.current) audioSombraRef.current.currentTime = 0;
+    setTextoSombra(TEXTO_INICIAL_SOMBRA);
+    setIndiceSombraActivo(-1);
+    setProgresoSombraActivo(0);
+    audioCompletadoRef.current?.pause();
+    if (audioCompletadoRef.current) {
+      audioCompletadoRef.current.currentTime = 0;
+    }
+    setTextoCompletado(TEXTO_INICIAL_COMPLETADO);
+    setIndiceCompletadoActivo(-1);
+    setProgresoCompletadoActivo(0);
     setCompletadoReproduciendo(false);
     setReinicioCompletado((valor) => valor + 1);
+    audioAciertoEspecialRef.current?.pause();
+    if (audioAciertoEspecialRef.current) {
+      audioAciertoEspecialRef.current.currentTime = 0;
+    }
+    if (aciertoEspecialFallbackRef.current !== null) {
+      window.clearTimeout(aciertoEspecialFallbackRef.current);
+      aciertoEspecialFallbackRef.current = null;
+    }
+    retoAciertoEspecialRef.current = null;
+    setAciertoEspecial(null);
+    setAciertoEspecialReproduciendo(false);
+    setReinicioAciertoEspecial((valor) => valor + 1);
   };
 
   const videoModal =
     modal === "profesor"
       ? videoProfesor
       : modal === "byte"
-        ? videoByte
+        ? pistaActiva.video
         : videoSombra;
 
   const tituloModal =
     modal === "profesor"
       ? "Consejo del Profesor Astro"
       : modal === "byte"
-        ? "Pista de Byte"
+        ? pistaActiva.titulo
         : "Mensaje de Sombra";
 
   return (
@@ -736,24 +1470,47 @@ function Actividad4MathGeometry() {
                 height={640}
                 playing={novaReproduciendo && !pausado && modal === null}
                 restartSignal={reinicioNova}
-                onEnded={() => setNovaReproduciendo(false)}
+                loopWhenPlaying
+                onEnded={() => undefined}
                 label="Nova explicando la actividad"
               />
             </div>
+
+            <audio
+              ref={audioNovaRef}
+              src={audioNovaIntroduccion}
+              preload="auto"
+              onTimeUpdate={actualizarTextoNova}
+              onEnded={() => {
+                setNovaReproduciendo(false);
+                setTextoNova(TEXTO_FINAL_NOVA);
+                setIndiceNovaActivo(GUION_NOVA_INTRODUCCION.length - 1);
+                // Regresa la animación al primer fotograma para que no quede trabada.
+                setReinicioNova((valor) => valor + 1);
+              }}
+            />
 
             <div className="act4geo-speech-cloud">
               <div className="act4geo-speech-main">
                 <span className="act4geo-cloud-label">
                   Introducción de Nova
                 </span>
-                <p>{TEXTO_PENDIENTE}</p>
+                <p>
+                  {textoNova}
+                  {novaReproduciendo && (
+                    <span
+                      className="act4geo-typing-cursor"
+                      aria-hidden="true"
+                    />
+                  )}
+                </p>
               </div>
 
               <div className="act4geo-nova-mini-controls">
                 <button
                   type="button"
                   className="act4geo-nova-control-btn act4geo-nova-control-play"
-                  onClick={() => setNovaReproduciendo(true)}
+                  onClick={reproducirNova}
                   disabled={pausado || modal !== null}
                   title="Reproducir animación de Nova"
                   aria-label="Reproducir animación de Nova"
@@ -764,7 +1521,7 @@ function Actividad4MathGeometry() {
                 <button
                   type="button"
                   className="act4geo-nova-control-btn"
-                  onClick={() => setNovaReproduciendo(false)}
+                  onClick={pausarNova}
                   disabled={!novaReproduciendo}
                   title="Pausar animación de Nova"
                   aria-label="Pausar animación de Nova"
@@ -775,10 +1532,7 @@ function Actividad4MathGeometry() {
                 <button
                   type="button"
                   className="act4geo-nova-control-btn act4geo-nova-control-repeat"
-                  onClick={() => {
-                    setReinicioNova((valor) => valor + 1);
-                    setNovaReproduciendo(true);
-                  }}
+                  onClick={reiniciarIntroduccionNova}
                   disabled={pausado || modal !== null}
                   title="Reiniciar animación de Nova"
                   aria-label="Reiniciar animación de Nova"
@@ -844,18 +1598,14 @@ function Actividad4MathGeometry() {
               <div className="act4geo-game-actions">
                 <button
                   type="button"
-                  className="act4geo-instructions-btn"
-                  onClick={() => setModal("profesor")}
-                >
-                  <FiVolume2 />
-                  Instrucciones
-                </button>
-
-                <button
-                  type="button"
                   className="act4geo-check-btn"
                   onClick={comprobar}
-                  disabled={!seleccion || revision === "correcto" || pausado}
+                  disabled={
+                    !seleccion ||
+                    revision === "correcto" ||
+                    pausado ||
+                    aciertoEspecial !== null
+                  }
                 >
                   <FiCheck />
                   Comprobar
@@ -865,7 +1615,7 @@ function Actividad4MathGeometry() {
                   type="button"
                   className="act4geo-next-btn"
                   onClick={siguiente}
-                  disabled={revision !== "correcto"}
+                  disabled={revision !== "correcto" || aciertoEspecial !== null}
                 >
                   Siguiente
                   <FiArrowRight />
@@ -890,6 +1640,10 @@ function Actividad4MathGeometry() {
                     Los ángulos que están frente a frente se llaman opuestos por
                     el vértice.
                   </p>
+                  <span className="act4geo-guide-cta">
+                    <FiVolume2 />
+                    Ver explicación
+                  </span>
                 </div>
               </button>
 
@@ -921,16 +1675,12 @@ function Actividad4MathGeometry() {
                 <div>
                   <h3>Pista de Byte</h3>
                   <p>Abre una pista visual para el reto actual.</p>
+                  <span className="act4geo-guide-cta act4geo-guide-cta-byte">
+                    <FiHelpCircle />
+                    Ver pista
+                  </span>
                 </div>
               </button>
-
-              <article className="act4geo-mission-card">
-                <h3>◎ Tu misión</h3>
-                <p>
-                  Observa bien la figura y elige la respuesta correcta para
-                  avanzar.
-                </p>
-              </article>
 
               <article className="act4geo-progress-card">
                 <strong>Progreso de la actividad</strong>
@@ -992,16 +1742,72 @@ function Actividad4MathGeometry() {
         </footer>
       </section>
 
+      <audio
+        key={aciertoEspecial?.audio ?? "sin-acierto"}
+        ref={audioAciertoEspecialRef}
+        src={aciertoEspecial?.audio}
+        preload="auto"
+        onEnded={finalizarAciertoEspecial}
+      />
+
+      {aciertoEspecial && (
+        <aside
+          className={`act4geo-success-toast act4geo-success-${aciertoEspecial.clase}`}
+          role="status"
+          aria-live="assertive"
+          aria-label={`Respuesta correcta. Habla ${aciertoEspecial.personaje}`}
+        >
+          <div className="act4geo-success-aura" aria-hidden="true" />
+
+          <div className="act4geo-success-character">
+            <VideoCanvasTransparente
+              src={aciertoEspecial.video}
+              className="act4geo-success-video-wrap"
+              canvasClassName="act4geo-success-canvas"
+              width={360}
+              height={640}
+              playing={aciertoEspecialReproduciendo}
+              restartSignal={reinicioAciertoEspecial}
+              loopWhenPlaying
+              onEnded={() => undefined}
+              label={`${aciertoEspecial.personaje} celebrando la respuesta correcta`}
+            />
+          </div>
+
+          <div className="act4geo-success-message">
+            <span className="act4geo-success-badge">
+              <FiCheck />
+              {aciertoEspecial.personaje}
+            </span>
+
+            <strong>{aciertoEspecial.titulo}</strong>
+            <p>{aciertoEspecial.mensaje}</p>
+            <small>{aciertoEspecial.cierre}</small>
+
+            <div className="act4geo-success-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </aside>
+      )}
+
       {modal && modal !== "completado" && (
         <div
           className="act4geo-modal-overlay"
           role="presentation"
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setModal(null);
+            if (event.target === event.currentTarget) {
+              pausarProfesor();
+              pausarPista();
+              pausarSombra();
+              setModal(null);
+            }
           }}
         >
           <section
-            className="act4geo-character-modal"
+            className={`act4geo-character-modal ${
+              modalReproduciendo ? "act4geo-profe-modal-playing" : ""
+            } ${modal === "byte" ? "act4geo-hints-modal" : ""}`}
             role="dialog"
             aria-modal="true"
             aria-label={tituloModal}
@@ -1009,7 +1815,12 @@ function Actividad4MathGeometry() {
             <button
               type="button"
               className="act4geo-modal-close"
-              onClick={() => setModal(null)}
+              onClick={() => {
+                pausarProfesor();
+                pausarPista();
+                pausarSombra();
+                setModal(null);
+              }}
               aria-label="Cerrar modal"
             >
               <FiX />
@@ -1024,10 +1835,71 @@ function Actividad4MathGeometry() {
                 height={640}
                 playing={modalReproduciendo}
                 restartSignal={reinicioModal}
-                onEnded={() => setModalReproduciendo(false)}
+                loopWhenPlaying={
+                  modal === "profesor" || modal === "byte" || modal === "sombra"
+                }
+                onEnded={() => undefined}
                 label={tituloModal}
               />
             </div>
+
+            {modal === "profesor" && (
+              <audio
+                ref={audioProfesorRef}
+                src={audioProfesorAstro}
+                preload="auto"
+                onTimeUpdate={actualizarTextoProfesor}
+                onEnded={() => {
+                  setModalReproduciendo(false);
+                  setTextoProfesor(TEXTO_FINAL_PROFESOR);
+                  setIndiceProfesorActivo(GUION_PROFESOR_ASTRO.length - 1);
+                  setProgresoProfesorActivo(100);
+                  setReinicioModal((valor) => valor + 1);
+                }}
+              />
+            )}
+
+            {modal === "byte" && (
+              <audio
+                key={pistaActiva.id}
+                ref={audioPistaRef}
+                src={pistaActiva.audio}
+                preload="auto"
+                onTimeUpdate={actualizarTextoPista}
+                onEnded={() => {
+                  setModalReproduciendo(false);
+                  setTextoPista(
+                    pistaActiva.guion[pistaActiva.guion.length - 1],
+                  );
+                  setIndicePistaActivo(pistaActiva.guion.length - 1);
+                  setProgresoPistaActivo(100);
+                  setReinicioModal((valor) => valor + 1);
+                }}
+              />
+            )}
+
+            {modal === "sombra" && (
+              <audio
+                ref={audioSombraRef}
+                src={audioSombraError}
+                preload="auto"
+                onTimeUpdate={actualizarTextoSombra}
+                onEnded={() => {
+                  setModalReproduciendo(false);
+                  setTextoSombra(GUION_SOMBRA_ERROR.join(" "));
+                  setIndiceSombraActivo(GUION_SOMBRA_ERROR.length - 1);
+                  setProgresoSombraActivo(100);
+                  window.setTimeout(() => {
+                    setModal(null);
+                    setSeleccion(null);
+                    setRevision("pendiente");
+                    setTextoSombra(TEXTO_INICIAL_SOMBRA);
+                    setIndiceSombraActivo(-1);
+                    setProgresoSombraActivo(0);
+                  }, 450);
+                }}
+              />
+            )}
 
             <div className="act4geo-modal-content">
               <span className="act4geo-modal-badge">
@@ -1035,28 +1907,79 @@ function Actividad4MathGeometry() {
                 {modal === "profesor"
                   ? "Profesor Astro"
                   : modal === "byte"
-                    ? "Byte"
+                    ? pistaActiva.personaje
                     : "Sombra"}
               </span>
 
               <h2>{tituloModal}</h2>
 
+              {modal === "byte" && (
+                <div
+                  className="act4geo-hint-selector"
+                  aria-label="Seleccionar pista"
+                >
+                  {ORDEN_PISTAS_ACT4.map((id, indice) => {
+                    const pista = PISTAS_ACT4[id];
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        className={
+                          id === pistaSeleccionada
+                            ? "act4geo-hint-tab-active"
+                            : ""
+                        }
+                        onClick={() => seleccionarPista(id)}
+                      >
+                        <span>{indice + 1}</span>
+                        <strong>{pista.personaje}</strong>
+                        <small>{pista.subtitulo}</small>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
               <div className="act4geo-modal-cloud">
-                <p>{TEXTO_PENDIENTE}</p>
+                <p>
+                  {modal === "profesor"
+                    ? textoProfesor
+                    : modal === "byte"
+                      ? textoPista
+                      : textoSombra}
+                  {modalReproduciendo && (
+                    <span
+                      className="act4geo-typing-cursor"
+                      aria-hidden="true"
+                    />
+                  )}
+                </p>
               </div>
 
               <div className="act4geo-modal-controls">
                 <button
                   type="button"
                   className="act4geo-modal-play"
-                  onClick={() => setModalReproduciendo(true)}
+                  onClick={
+                    modal === "profesor"
+                      ? reproducirProfesor
+                      : modal === "byte"
+                        ? reproducirPista
+                        : reproducirSombra
+                  }
                 >
                   <FiPlay /> Reproducir
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => setModalReproduciendo(false)}
+                  onClick={
+                    modal === "profesor"
+                      ? pausarProfesor
+                      : modal === "byte"
+                        ? pausarPista
+                        : pausarSombra
+                  }
                   disabled={!modalReproduciendo}
                 >
                   <FiPause /> Pausar
@@ -1064,10 +1987,13 @@ function Actividad4MathGeometry() {
 
                 <button
                   type="button"
-                  onClick={() => {
-                    setReinicioModal((valor) => valor + 1);
-                    setModalReproduciendo(true);
-                  }}
+                  onClick={
+                    modal === "profesor"
+                      ? reiniciarProfesor
+                      : modal === "byte"
+                        ? reiniciarPista
+                        : reiniciarSombra
+                  }
                 >
                   <FiRotateCcw /> Reiniciar
                 </button>
@@ -1082,7 +2008,93 @@ function Actividad4MathGeometry() {
                     ? "Texto del profesor"
                     : "Texto de Sombra"}
               </h3>
-              <div className="act4geo-modal-script-empty" />
+
+              {modal === "profesor" && (
+                <div className="act4geo-modal-script-lines">
+                  {GUION_PROFESOR_ASTRO.map((linea, indice) => (
+                    <p
+                      key={linea}
+                      className={
+                        indice === indiceProfesorActivo
+                          ? "act4geo-modal-script-line-active"
+                          : indice < indiceProfesorActivo
+                            ? "act4geo-modal-script-line-complete"
+                            : ""
+                      }
+                      style={
+                        {
+                          "--act4geo-line-progress":
+                            indice < indiceProfesorActivo
+                              ? 1
+                              : indice === indiceProfesorActivo
+                                ? progresoProfesorActivo / 100
+                                : 0,
+                        } as CSSProperties
+                      }
+                    >
+                      <span>{linea}</span>
+                    </p>
+                  ))}
+                </div>
+              )}
+
+              {modal === "byte" && (
+                <div className="act4geo-modal-script-lines act4geo-hint-script-lines">
+                  {pistaActiva.guion.map((linea, indice) => (
+                    <p
+                      key={`${pistaActiva.id}-${linea}`}
+                      className={
+                        indice === indicePistaActivo
+                          ? "act4geo-modal-script-line-active"
+                          : indice < indicePistaActivo
+                            ? "act4geo-modal-script-line-complete"
+                            : ""
+                      }
+                      style={
+                        {
+                          "--act4geo-line-progress":
+                            indice < indicePistaActivo
+                              ? 1
+                              : indice === indicePistaActivo
+                                ? progresoPistaActivo / 100
+                                : 0,
+                        } as CSSProperties
+                      }
+                    >
+                      <span>{linea}</span>
+                    </p>
+                  ))}
+                </div>
+              )}
+
+              {modal === "sombra" && (
+                <div className="act4geo-modal-script-lines act4geo-sombra-script-lines">
+                  {GUION_SOMBRA_ERROR.map((linea, indice) => (
+                    <p
+                      key={linea}
+                      className={
+                        indice === indiceSombraActivo
+                          ? "act4geo-modal-script-line-active"
+                          : indice < indiceSombraActivo
+                            ? "act4geo-modal-script-line-complete"
+                            : ""
+                      }
+                      style={
+                        {
+                          "--act4geo-line-progress":
+                            indice < indiceSombraActivo
+                              ? 1
+                              : indice === indiceSombraActivo
+                                ? progresoSombraActivo / 100
+                                : 0,
+                        } as CSSProperties
+                      }
+                    >
+                      <span>{linea}</span>
+                    </p>
+                  ))}
+                </div>
+              )}
             </aside>
           </section>
         </div>
@@ -1099,7 +2111,10 @@ function Actividad4MathGeometry() {
             <button
               type="button"
               className="act4geo-modal-close"
-              onClick={() => setModal(null)}
+              onClick={() => {
+                pausarCompletado();
+                setModal(null);
+              }}
               aria-label="Cerrar modal"
             >
               <FiX />
@@ -1121,43 +2136,59 @@ function Actividad4MathGeometry() {
                 height={640}
                 playing={completadoReproduciendo}
                 restartSignal={reinicioCompletado}
-                onEnded={() => setCompletadoReproduciendo(false)}
+                loopWhenPlaying
+                onEnded={() => undefined}
                 label="Nova celebrando la actividad completada"
               />
             </div>
+
+            <audio
+              ref={audioCompletadoRef}
+              src={audioNovaCierre}
+              preload="auto"
+              onTimeUpdate={actualizarTextoCompletado}
+              onEnded={() => {
+                setCompletadoReproduciendo(false);
+                setTextoCompletado(GUION_NOVA_CIERRE.join(" "));
+                setIndiceCompletadoActivo(GUION_NOVA_CIERRE.length - 1);
+                setProgresoCompletadoActivo(100);
+              }}
+            />
 
             <div className="act4geo-complete-content">
               <span>🏆 Actividad completada</span>
               <h2>¡Misión completada!</h2>
 
               <div className="act4geo-complete-cloud">
-                <p>{TEXTO_PENDIENTE}</p>
+                <p>
+                  {textoCompletado}
+                  {completadoReproduciendo && (
+                    <span
+                      className="act4geo-typing-cursor"
+                      aria-hidden="true"
+                    />
+                  )}
+                </p>
               </div>
 
               <div className="act4geo-complete-controls">
                 <button
                   type="button"
                   className="act4geo-complete-play"
-                  onClick={() => setCompletadoReproduciendo(true)}
+                  onClick={reproducirCompletado}
                 >
                   <FiPlay /> Reproducir
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => setCompletadoReproduciendo(false)}
+                  onClick={pausarCompletado}
                   disabled={!completadoReproduciendo}
                 >
                   <FiPause /> Pausar
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setReinicioCompletado((valor) => valor + 1);
-                    setCompletadoReproduciendo(true);
-                  }}
-                >
+                <button type="button" onClick={reiniciarCompletado}>
                   <FiRotateCcw /> Reiniciar
                 </button>
               </div>
@@ -1178,6 +2209,39 @@ function Actividad4MathGeometry() {
                   <span>Recompensa</span>
                   <strong>+240 XP</strong>
                 </article>
+              </div>
+            </div>
+
+            <aside className="act4geo-complete-side">
+              <div className="act4geo-complete-transcript act4geo-complete-transcript-inline">
+                <h3>Texto de Nova</h3>
+
+                <div className="act4geo-modal-script-lines">
+                  {GUION_NOVA_CIERRE.map((linea, indice) => (
+                    <p
+                      key={linea}
+                      className={
+                        indice === indiceCompletadoActivo
+                          ? "act4geo-modal-script-line-active"
+                          : indice < indiceCompletadoActivo
+                            ? "act4geo-modal-script-line-complete"
+                            : ""
+                      }
+                      style={
+                        {
+                          "--act4geo-line-progress":
+                            indice < indiceCompletadoActivo
+                              ? 1
+                              : indice === indiceCompletadoActivo
+                                ? progresoCompletadoActivo / 100
+                                : 0,
+                        } as CSSProperties
+                      }
+                    >
+                      <span>{linea}</span>
+                    </p>
+                  ))}
+                </div>
               </div>
 
               <div className="act4geo-complete-actions">
@@ -1202,7 +2266,7 @@ function Actividad4MathGeometry() {
                   Volver a actividades
                 </button>
               </div>
-            </div>
+            </aside>
           </section>
         </div>
       )}
