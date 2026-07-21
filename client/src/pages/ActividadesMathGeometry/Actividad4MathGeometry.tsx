@@ -18,12 +18,12 @@ import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 
 import heroBanner from "../../assets/mathGeometry/actividad4/banner_act4_MathGeometry.png";
-import reto1 from "../../assets/mathGeometry/actividad4/reto1_act4_MathGeometry.png";
-import reto2 from "../../assets/mathGeometry/actividad4/reto2_act4_MathGeometry.png";
-import reto3 from "../../assets/mathGeometry/actividad4/reto3_act4_MathGeometry.png";
-import reto4 from "../../assets/mathGeometry/actividad4/reto4_act4_MathGeometry.png";
-import reto5 from "../../assets/mathGeometry/actividad4/reto5_act4_MathGeometry.png";
-import reto6 from "../../assets/mathGeometry/actividad4/reto6_act4_MathGeometry.png";
+import reto1 from "../../assets/mathGeometry/actividad4/act4_reto1_MathGeometry.png";
+import reto2 from "../../assets/mathGeometry/actividad4/act4_reto2_MathGeometry.png";
+import reto3 from "../../assets/mathGeometry/actividad4/act4_reto3_MathGeometry.png";
+import reto4 from "../../assets/mathGeometry/actividad4/act4_reto4_MathGeometry.png";
+import reto5 from "../../assets/mathGeometry/actividad4/act4_reto5_MathGeometry.png";
+import reto6 from "../../assets/mathGeometry/actividad4/act4_reto6_MathGeometry.png";
 
 import byteImagen from "../../assets/mathGeometry/actividad4/byte-act4-mathgeometry.png";
 import profesorConsejoImagen from "../../assets/mathGeometry/actividad4/profesor_dando_consejo_actividad_4.png";

@@ -1013,12 +1013,17 @@ export function CofreBienvenida() {
     return "";
   };
 
-  const repetirActividad = () => {
-    setResultModalOpen(false);
+  const limpiarActividad = () => {
     setAnswers({});
     setChecked(false);
     setSolved(false);
     setChestPhase("fall");
+  };
+
+  const repetirActividad = () => {
+    limpiarActividad();
+    setResultModalOpen(false);
+    setResultModalKind("completed");
 
     window.scrollTo({
       top: 0,
@@ -1028,6 +1033,15 @@ export function CofreBienvenida() {
     showToast(
       "Cofre reiniciado. ¡Responde nuevamente!",
     );
+  };
+
+  const cerrarResultado = () => {
+    setResultModalOpen(false);
+
+    if (resultModalKind !== "completed") {
+      limpiarActividad();
+      setResultModalKind("completed");
+    }
   };
 
   const comprobar = async () => {
@@ -1046,7 +1060,7 @@ export function CofreBienvenida() {
         answers[question] === correctAnswers[question],
     ).length;
 
-    setChecked(true);
+    setChecked(total === 2);
     setSolved(total === 2);
 
     let idUsuario = 17;
@@ -1680,9 +1694,7 @@ export function CofreBienvenida() {
           kind={resultModalKind}
           nextRoute={radarRoute}
           retryRoute={cofreRoute}
-          onClose={() =>
-            setResultModalOpen(false)
-          }
+          onClose={cerrarResultado}
           onRetry={repetirActividad}
         />
       )}
