@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 
@@ -17,26 +17,29 @@ import numerosIcon from "../../assets/numeros.png";
 import estadisticaIcon from "../../assets/estadistica.png";
 
 import {
-  FiGrid,
-  FiMessageSquare,
-  FiUser,
-  FiBarChart2,
   FiArrowRight,
-  FiMoreHorizontal,
-  FiLogOut,
+  FiBarChart2,
+  FiGrid,
   FiHelpCircle,
+  FiLogOut,
+  FiMessageSquare,
+  FiMoreHorizontal,
   FiSettings,
+  FiUser,
 } from "react-icons/fi";
 
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
+import { obtenerPerfilAlumno } from "../../services/alumnoService";
 import {
-  obtenerEstadisticasAlumno,
-  obtenerPerfilAlumno,
-  obtenerProgresoAlumno,
-} from "../../services/alumnoService";
-
-import type { ActividadProgreso } from "../../services/alumnoService";
+  obtenerIdUsuarioAutenticado,
+  obtenerProgresoAlumno as obtenerProgresoReal,
+  obtenerResumenAlumno,
+} from "../../services/progresoService";
+import type {
+  ProgresoActividad,
+  ResumenAlumno,
+} from "../../services/progresoService";
 
 import {
   clearAuthSession,
@@ -50,6 +53,7 @@ type Alumno = {
   nombreCompleto?: string;
   nombre_completo?: string;
   correo?: string;
+  correo_electronico?: string;
   usuario?: string | null;
   rol?: string;
   estado?: boolean;
@@ -57,44 +61,112 @@ type Alumno = {
   racha_actual?: number;
 };
 
-type Actividad = ActividadProgreso & {
-  titulo?: string;
-  estado?: string;
-  porcentaje?: number;
-  tema?: string;
-  modulo?: string;
+type PerfilResponse = {
+  perfil?: Alumno;
+  alumno?: Alumno;
+  usuario?: Alumno;
 };
 
-type EstadisticasAlumno = {
-  completadas?: number;
-  promedio?: number;
-  progreso_general?: number;
-  tiempo_formateado?: string;
+type ModuloRecomendado = {
+  nombre: string;
+  icono: string;
+  ruta: string;
+};
 
-  leccionesCompletadas?: number;
-  estrellasGanadas?: number;
-  rachaActual?: number;
-  promedioGeneral?: number;
-  progresoSemanal?: { dia: string; lecciones: number }[];
-  rendimientoPorTema?: { tema: string; promedio: number }[];
-  dominioPorMundo?: { mundo: string; promedio: number }[];
-  tiempoEstudio?: {
-    minutos: number;
-    actividadesCompletas: number;
-    semanal: { dia: string; minutos: number }[];
-  };
+const RUTAS_ACTIVIDAD: Record<string, string> = {
+  "mathnumbers-cofre-bienvenida":
+    "/actividades/mathnumbers/cofre-bienvenida",
+  "cofre-bienvenida":
+    "/actividades/mathnumbers/cofre-bienvenida",
+  cofre_bienvenida:
+    "/actividades/mathnumbers/cofre-bienvenida",
+
+  "mathnumbers-radar-supervivencia":
+    "/actividades/mathnumbers/radar-supervivencia",
+  "radar-supervivencia":
+    "/actividades/mathnumbers/radar-supervivencia",
+  radar_supervivencia:
+    "/actividades/mathnumbers/radar-supervivencia",
+
+  "mathnumbers-ascensor-bunker":
+    "/actividades/mathnumbers/ascensor-bunker",
+  "ascensor-bunker":
+    "/actividades/mathnumbers/ascensor-bunker",
+  ascensor_bunker:
+    "/actividades/mathnumbers/ascensor-bunker",
+
+  "mathnumbers-escuadron-tactico":
+    "/actividades/mathnumbers/escuadron-tactico",
+  "escuadron-tactico":
+    "/actividades/mathnumbers/escuadron-tactico",
+  escuadron_tactico:
+    "/actividades/mathnumbers/escuadron-tactico",
+};
+
+const numeroSeguro = (
+  valor: number | string | null | undefined,
+): number => {
+  const convertido = Number(valor ?? 0);
+  return Number.isFinite(convertido) ? convertido : 0;
+};
+
+const limitarPorcentaje = (valor: number): number =>
+  Math.min(100, Math.max(0, Math.round(valor)));
+
+const obtenerFechaActividad = (
+  actividad: ProgresoActividad,
+): number => {
+  const fecha =
+    actividad.fecha_ultimo_intento ||
+    actividad.fecha_inicio ||
+    "";
+
+  const tiempo = Date.parse(fecha);
+  return Number.isNaN(tiempo) ? 0 : tiempo;
+};
+
+const obtenerRutaActividad = (
+  actividad?: ProgresoActividad,
+): string => {
+  if (!actividad) {
+    return "/seleccion-mundos";
+  }
+
+  return (
+    RUTAS_ACTIVIDAD[actividad.actividad_codigo] ||
+    "/seleccion-mundos"
+  );
+};
+
+const obtenerIconoActividad = (
+  actividad?: ProgresoActividad,
+): string => {
+  const mundo = actividad?.mundo?.toLowerCase() ?? "";
+
+  if (mundo.includes("geometry") || mundo.includes("geometr")) {
+    return geometriaIcon;
+  }
+
+  if (mundo.includes("estad")) {
+    return estadisticaIcon;
+  }
+
+  if (mundo.includes("number") || mundo.includes("número")) {
+    return numerosIcon;
+  }
+
+  return algebraIcon;
 };
 
 function Dashboard() {
+  const navigate = useNavigate();
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [alumno, setAlumno] = useState<Alumno | null>(null);
-  const [estadisticas, setEstadisticas] =
-    useState<EstadisticasAlumno | null>(null);
-  const [actividades, setActividades] = useState<Actividad[]>([]);
+  const [resumen, setResumen] = useState<ResumenAlumno | null>(null);
+  const [actividades, setActividades] = useState<ProgresoActividad[]>([]);
   const [cargando, setCargando] = useState(true);
   const [errorDashboard, setErrorDashboard] = useState("");
-
-  const navigate = useNavigate();
 
   const modoInvitado = isGuestSession();
 
@@ -102,69 +174,150 @@ function Dashboard() {
     alumno?.nombre_completo ||
     alumno?.nombreCompleto ||
     alumno?.usuario ||
+    alumno?.correo_electronico ||
     alumno?.correo;
 
   const nombreUsuario = nombreAlumno
-    ? String(nombreAlumno).split(" ")[0]
+    ? String(nombreAlumno).trim().split(/\s+/)[0]
     : getDisplayName();
 
   const cargarDashboard = useCallback(async () => {
-    const token = localStorage.getItem("token");
     const invitado = isGuestSession();
 
-    if (!token && !invitado) {
+    if (invitado) {
+      setAlumno(null);
+      setResumen(null);
+      setActividades([]);
+      setErrorDashboard("");
+      setCargando(false);
+      return;
+    }
+
+    const idUsuario = obtenerIdUsuarioAutenticado();
+
+    if (!idUsuario) {
+      clearAuthSession();
       navigate("/login", { replace: true });
       return;
     }
 
-    if (invitado) {
-      setAlumno(null);
-      setEstadisticas(null);
-      setActividades([]);
-      setErrorDashboard("");
-      setCargando(false);
-      return;
+    setCargando(true);
+    setErrorDashboard("");
+
+    const [perfilResult, resumenResult, progresoResult] =
+      await Promise.allSettled([
+        obtenerPerfilAlumno(),
+        obtenerResumenAlumno(idUsuario),
+        obtenerProgresoReal(idUsuario),
+      ]);
+
+    let huboErrorProgreso = false;
+
+    if (perfilResult.status === "fulfilled") {
+      const perfilData = perfilResult.value as
+        | PerfilResponse
+        | Alumno;
+
+      const perfilNormalizado =
+        (perfilData as PerfilResponse)?.perfil ||
+        (perfilData as PerfilResponse)?.alumno ||
+        (perfilData as PerfilResponse)?.usuario ||
+        (perfilData as Alumno);
+
+      setAlumno(perfilNormalizado ?? null);
+    } else {
+      console.error(
+        "No se pudo cargar el perfil del alumno:",
+        perfilResult.reason,
+      );
     }
 
-    try {
-      setCargando(true);
-      setErrorDashboard("");
-
-      const [perfilData, estadisticasData, actividadesData] =
-        await Promise.all([
-          obtenerPerfilAlumno(),
-          obtenerEstadisticasAlumno(),
-          obtenerProgresoAlumno(),
-        ]);
-
-      setAlumno(perfilData?.perfil ?? perfilData);
-      setEstadisticas(estadisticasData?.estadisticas ?? estadisticasData);
-      setActividades(Array.isArray(actividadesData) ? actividadesData : []);
-    } catch (error) {
-      const mensaje =
-        error instanceof Error
-          ? error.message
-          : "No se pudo cargar el dashboard";
-
-      setErrorDashboard(mensaje);
-      setActividades([]);
-      console.error("Error al cargar dashboard:", error);
-    } finally {
-      setCargando(false);
+    if (resumenResult.status === "fulfilled") {
+      setResumen(resumenResult.value.resumen ?? null);
+    } else {
+      huboErrorProgreso = true;
+      console.error(
+        "No se pudo cargar el resumen del alumno:",
+        resumenResult.reason,
+      );
     }
+
+    if (progresoResult.status === "fulfilled") {
+      setActividades(
+        Array.isArray(progresoResult.value.progreso)
+          ? progresoResult.value.progreso
+          : [],
+      );
+    } else {
+      huboErrorProgreso = true;
+      setActividades([]);
+      console.error(
+        "No se pudo cargar el progreso del alumno:",
+        progresoResult.reason,
+      );
+    }
+
+    if (huboErrorProgreso) {
+      setErrorDashboard(
+        "No se pudo actualizar todo tu progreso. Revisa que el servidor esté encendido.",
+      );
+    }
+
+    setCargando(false);
   }, [navigate]);
 
   useEffect(() => {
+    const overflowAnterior = document.body.style.overflow;
     document.body.style.overflow = menuOpen ? "hidden" : "auto";
 
     return () => {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = overflowAnterior;
     };
   }, [menuOpen]);
 
   useEffect(() => {
-    cargarDashboard();
+    void cargarDashboard();
   }, [cargarDashboard]);
+
+  useEffect(() => {
+    const actualizarAlVolver = () => {
+      if (document.visibilityState === "visible") {
+        void cargarDashboard();
+      }
+    };
+
+    window.addEventListener("focus", actualizarAlVolver);
+    document.addEventListener(
+      "visibilitychange",
+      actualizarAlVolver,
+    );
+
+    return () => {
+      window.removeEventListener("focus", actualizarAlVolver);
+      document.removeEventListener(
+        "visibilitychange",
+        actualizarAlVolver,
+      );
+    };
+  }, [cargarDashboard]);
+
+  const actividadesOrdenadas = useMemo(
+    () =>
+      [...actividades].sort(
+        (primera, segunda) =>
+          obtenerFechaActividad(segunda) -
+          obtenerFechaActividad(primera),
+      ),
+    [actividades],
+  );
+
+  const actividadActual = useMemo(() => {
+    const actividadNoCompletada = actividadesOrdenadas.find(
+      (actividad) => !actividad.completada,
+    );
+
+    return actividadNoCompletada ?? actividadesOrdenadas[0];
+  }, [actividadesOrdenadas]);
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
@@ -176,116 +329,131 @@ function Dashboard() {
     navigate("/login", { replace: true });
   };
 
-  const numero = (valor: number | string | null | undefined) => {
-    const convertido = Number(valor ?? 0);
-    return Number.isNaN(convertido) ? 0 : convertido;
-  };
-
-  const actividadesSeguras = Array.isArray(actividades) ? actividades : [];
-
-  const leccionesCompletadas = numero(
-    estadisticas?.leccionesCompletadas ?? estadisticas?.completadas
+  const leccionesCompletadas = numeroSeguro(
+    resumen?.lecciones_completadas ??
+      resumen?.actividades_completadas,
   );
 
-  const estrellasTotales = numero(
-    estadisticas?.estrellasGanadas ?? alumno?.estrellas_totales
+  const estrellasTotales = numeroSeguro(
+    resumen?.estrellas_totales ??
+      resumen?.estrellas_ganadas ??
+      alumno?.estrellas_totales,
   );
 
-  const rachaActual = numero(
-    estadisticas?.rachaActual ?? alumno?.racha_actual
+  const rachaActual = numeroSeguro(
+    resumen?.racha_actual ?? alumno?.racha_actual,
   );
 
-  const promedioGeneral = numero(
-    estadisticas?.promedioGeneral ?? estadisticas?.promedio
+  const promedioGeneral = limitarPorcentaje(
+    numeroSeguro(
+      resumen?.promedio_general ??
+        resumen?.precision_promedio,
+    ),
   );
 
-  const progresoGeneral = numero(
-    estadisticas?.progreso_general ?? estadisticas?.promedioGeneral
+  const progresoGeneral = limitarPorcentaje(
+    numeroSeguro(
+      resumen?.progreso_general ?? promedioGeneral,
+    ),
   );
 
-  const actividadActual =
-    actividadesSeguras.find(
-      (actividad) =>
-        actividad.estado === "en_curso" || actividad.completada === false
-    ) ||
-    actividadesSeguras.find((actividad) => actividad.estado === "pendiente") ||
-    actividadesSeguras[0];
-
-  const tituloActividad = modoInvitado
-    ? "Explora MathNova"
-    : actividadActual?.titulo ||
-      actividadActual?.actividadNombre ||
-      actividadActual?.actividadSlug ||
-      "MathNova";
-
-  const progresoCurso =
-    actividadActual?.estado === "en_curso"
-      ? numero(actividadActual.porcentaje ?? actividadActual.puntaje)
-      : progresoGeneral;
+  const progresoActividad = actividadActual
+    ? actividadActual.completada
+      ? 100
+      : limitarPorcentaje(
+          actividadActual.precision ||
+            (numeroSeguro(actividadActual.aciertos) /
+              Math.max(
+                1,
+                numeroSeguro(
+                  actividadActual.total_preguntas,
+                ),
+              )) *
+              100,
+        )
+    : progresoGeneral;
 
   const progresoVisual = modoInvitado
     ? 0
-    : Math.min(Math.max(progresoCurso, 0), 100);
+    : limitarPorcentaje(progresoActividad);
 
-  const tieneProgreso = actividadesSeguras.some(
-    (actividad) =>
-      actividad.estado === "completada" ||
-      actividad.estado === "en_curso" ||
-      actividad.completada === true ||
-      numero(actividad.porcentaje ?? actividad.puntaje) > 0
-  );
+  const tituloActividad = modoInvitado
+    ? "Explora MathNova"
+    : actividadActual?.actividad_titulo ||
+      "Comienza tu primera actividad";
 
-  const modulosRecomendados = tieneProgreso
-    ? [
-        {
-          nombre: "Geometría",
-          icono: geometriaIcon,
-          ruta: "/actividades/geometria",
-        },
-        {
-          nombre: "Números",
-          icono: numerosIcon,
-          ruta: "/temas/numeros",
-        },
-        {
-          nombre: "Estadística",
-          icono: estadisticaIcon,
-          ruta: "/estadisticas",
-        },
-      ]
-    : [];
+  const rutaActividadActual = obtenerRutaActividad(actividadActual);
+  const iconoActividadActual = obtenerIconoActividad(actividadActual);
+
+  const tieneProgreso = actividadesOrdenadas.length > 0;
+
+  const modulosRecomendados: ModuloRecomendado[] =
+    tieneProgreso
+      ? [
+          {
+            nombre: "MathGeometry",
+            icono: geometriaIcon,
+            ruta: "/actividades/geometria",
+          },
+          {
+            nombre: "MathNumbers",
+            icono: numerosIcon,
+            ruta: "/seleccion-mundos",
+          },
+          {
+            nombre: "Revisar estadísticas",
+            icono: estadisticaIcon,
+            ruta: "/estadisticas",
+          },
+        ]
+      : [];
 
   const textoHero = cargando
     ? "Cargando tu progreso..."
     : errorDashboard
-    ? errorDashboard
-    : modoInvitado
-    ? "Explora los mundos, conoce las actividades y descubre cómo funciona MathNova antes de iniciar sesión."
-    : "Aprende, practica y mejora tus habilidades de observación paso a paso.";
+      ? errorDashboard
+      : modoInvitado
+        ? "Explora los mundos, conoce las actividades y descubre cómo funciona MathNova antes de iniciar sesión."
+        : leccionesCompletadas > 0
+          ? `Llevas ${leccionesCompletadas} actividad${
+              leccionesCompletadas === 1 ? "" : "es"
+            } completada${
+              leccionesCompletadas === 1 ? "" : "s"
+            }. ¡Sigue avanzando!`
+          : "Aprende, practica y mejora tus habilidades paso a paso.";
 
   return (
     <main className="dashboard-page">
       <button
-        className={`hamburger-btn ${menuOpen ? "hamburger-open" : ""}`}
-        onClick={() => setMenuOpen(!menuOpen)}
+        type="button"
+        className={`hamburger-btn ${
+          menuOpen ? "hamburger-open" : ""
+        }`}
+        onClick={() => setMenuOpen((actual) => !actual)}
+        aria-label="Abrir menú"
       >
         <img src={menuHamburguesa} alt="Menú" />
       </button>
 
       {menuOpen && (
-        <div className="menu-overlay" onClick={() => setMenuOpen(false)} />
+        <div
+          className="menu-overlay"
+          onClick={() => setMenuOpen(false)}
+          aria-hidden="true"
+        />
       )}
 
       <aside className={`sidebar ${menuOpen ? "sidebar-open" : ""}`}>
         <img src={logo} alt="MathNova" className="sidebar-logo" />
 
         <nav className="sidebar-menu">
-          <button className="menu-item active">
+          <button type="button" className="menu-item active">
             <FiGrid />
             <span>Dashboard principal</span>
           </button>
 
           <button
+            type="button"
             className="menu-item"
             onClick={() => irARuta("/seleccion-mundos")}
           >
@@ -294,6 +462,7 @@ function Dashboard() {
           </button>
 
           <button
+            type="button"
             className="menu-item"
             onClick={() => irARuta("/retroalimentacion")}
           >
@@ -301,12 +470,17 @@ function Dashboard() {
             <span>Retroalimentación</span>
           </button>
 
-          <button className="menu-item" onClick={() => irARuta("/recompensas")}>
+          <button
+            type="button"
+            className="menu-item"
+            onClick={() => irARuta("/recompensas")}
+          >
             <GiTrophyCup />
             <span>Recompensas</span>
           </button>
 
           <button
+            type="button"
             className="menu-item"
             onClick={() => irARuta("/perfil-alumno")}
           >
@@ -315,6 +489,7 @@ function Dashboard() {
           </button>
 
           <button
+            type="button"
             className="menu-item"
             onClick={() => irARuta("/estadisticas")}
           >
@@ -336,11 +511,11 @@ function Dashboard() {
         <section className="hero-section">
           <div className="hero-text">
             <h1>Bienvenido, {nombreUsuario}</h1>
-
             <p>{textoHero}</p>
 
             <div className="hero-actions">
               <button
+                type="button"
                 className="primary-action"
                 onClick={() => irARuta("/seleccion-mundos")}
               >
@@ -348,6 +523,7 @@ function Dashboard() {
               </button>
 
               <button
+                type="button"
                 className="secondary-action"
                 onClick={() => irARuta("/estadisticas")}
               >
@@ -357,9 +533,9 @@ function Dashboard() {
 
             {modoInvitado && (
               <div className="guest-hero-alert">
-                Estás viendo MathNova como espectador. Puedes explorar el
-                dashboard y los mundos disponibles, pero para iniciar actividades
-                y guardar progreso necesitas iniciar sesión o crear una cuenta.
+                Estás viendo MathNova como espectador. Para iniciar
+                actividades y guardar progreso necesitas iniciar sesión o
+                crear una cuenta.
               </div>
             )}
           </div>
@@ -406,13 +582,15 @@ function Dashboard() {
           <article className="stat-card blue-card">
             <div>
               <h3>Promedio general</h3>
-              <strong>{cargando ? "..." : `${promedioGeneral}%`}</strong>
+              <strong>
+                {cargando ? "..." : `${promedioGeneral}%`}
+              </strong>
               <p>
                 {promedioGeneral >= 80
                   ? "Excelente trabajo"
                   : promedioGeneral > 0
-                  ? "Puedes mejorar"
-                  : "Sin calificaciones todavía"}
+                    ? "Puedes mejorar"
+                    : "Sin calificaciones todavía"}
               </p>
             </div>
             <img src={promedioIcon} alt="Promedio" />
@@ -423,8 +601,26 @@ function Dashboard() {
           <article className="continue-card">
             <h2>Continúa donde lo dejaste</h2>
 
-            <div className="course-progress">
-              <img src={algebraIcon} alt={tituloActividad} />
+            <div
+              className="course-progress"
+              role="button"
+              tabIndex={cargando ? -1 : 0}
+              onClick={() => {
+                if (!cargando) {
+                  irARuta(rutaActividadActual);
+                }
+              }}
+              onKeyDown={(event) => {
+                if (
+                  !cargando &&
+                  (event.key === "Enter" || event.key === " ")
+                ) {
+                  event.preventDefault();
+                  irARuta(rutaActividadActual);
+                }
+              }}
+            >
+              <img src={iconoActividadActual} alt={tituloActividad} />
 
               <div className="course-info">
                 <div className="course-header">
@@ -436,11 +632,11 @@ function Dashboard() {
                   <span
                     className="progress-blue"
                     style={{ width: `${progresoVisual}%` }}
-                  ></span>
+                  />
                   <span
                     className="progress-green"
                     style={{ width: "0%" }}
-                  ></span>
+                  />
                 </div>
               </div>
 
@@ -452,7 +648,9 @@ function Dashboard() {
             <h2>Módulos recomendados</h2>
 
             {cargando ? (
-              <p className="modules-empty-text">Cargando recomendaciones...</p>
+              <p className="modules-empty-text">
+                Cargando recomendaciones...
+              </p>
             ) : modulosRecomendados.length > 0 ? (
               <div className="modules-list">
                 {modulosRecomendados.map((modulo) => (
@@ -489,9 +687,15 @@ function Dashboard() {
           <p>© MathNova. Todos los derechos reservados.</p>
 
           <div className="footer-icons">
-            <button className="footer-icon-btn" onClick={cerrarSesion}>
+            <button
+              type="button"
+              className="footer-icon-btn"
+              onClick={cerrarSesion}
+              aria-label="Cerrar sesión"
+            >
               <FiLogOut className="logout-icon" />
             </button>
+
             <FiHelpCircle className="help-icon" />
             <FiSettings className="settings-icon" />
           </div>

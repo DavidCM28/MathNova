@@ -1,4 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import "./Recompensas.css";
 
@@ -27,247 +32,711 @@ import estrellaRe from "../../assets/estrella-re.png";
 import zorritoRecompensa from "../../assets/zorrito_recompensa.png";
 
 import {
-  FiGrid,
-  FiMessageSquare,
-  FiUser,
-  FiBarChart2,
-  FiLogOut,
-  FiHelpCircle,
-  FiSettings,
   FiArrowRight,
+  FiBarChart2,
+  FiGrid,
+  FiHelpCircle,
+  FiLogOut,
+  FiMessageSquare,
+  FiSettings,
+  FiUser,
 } from "react-icons/fi";
 
-import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
+import {
+  GiRingedPlanet,
+  GiTrophyCup,
+} from "react-icons/gi";
 
 import {
-  obtenerEstadisticasAlumno,
   obtenerPerfilAlumno,
-  obtenerProgresoAlumno,
 } from "../../services/alumnoService";
 
 import type {
   Alumno,
-  Actividad,
-  EstadisticasAlumno,
 } from "../../services/alumnoService";
 
+import {
+  obtenerIdUsuarioAutenticado,
+  obtenerResumenAlumno,
+} from "../../services/progresoService";
+
+import type {
+  ResumenAlumno,
+} from "../../services/progresoService";
+
+import {
+  clearAuthSession,
+  isGuestSession,
+} from "../../utils/authSession";
+
+type PerfilRespuesta = {
+  perfil?: Alumno;
+};
+
+type Insignia = {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  imagen: string;
+  desbloqueada: boolean;
+};
+
+type RecompensaDesbloqueable = {
+  nombre: string;
+  obtenidas: number;
+  total: number;
+  imagen: string;
+};
+
+const META_ESTRELLAS = 1000;
+const XP_POR_NIVEL = 250;
+
+const numeroSeguro = (
+  valor:
+    | number
+    | string
+    | null
+    | undefined,
+): number => {
+  const convertido = Number(valor ?? 0);
+
+  return Number.isFinite(convertido)
+    ? convertido
+    : 0;
+};
+
+const limitarPorcentaje = (
+  valor: number,
+): number => {
+  return Math.min(
+    Math.max(
+      Math.round(valor),
+      0,
+    ),
+    100,
+  );
+};
+
+const extraerPerfil = (
+  respuesta: unknown,
+): Alumno | null => {
+  if (
+    typeof respuesta !== "object" ||
+    respuesta === null
+  ) {
+    return null;
+  }
+
+  const datos =
+    respuesta as PerfilRespuesta &
+      Record<string, unknown>;
+
+  if (
+    datos.perfil &&
+    typeof datos.perfil === "object"
+  ) {
+    return datos.perfil;
+  }
+
+  return datos as Alumno;
+};
+
+const obtenerTituloNivel = (
+  nivel: number,
+): string => {
+  if (nivel >= 12) {
+    return "Maestro de MathNova";
+  }
+
+  if (nivel >= 8) {
+    return "Comandante Matemático";
+  }
+
+  if (nivel >= 5) {
+    return "Explorador Avanzado";
+  }
+
+  if (nivel >= 3) {
+    return "Explorador Nova";
+  }
+
+  return "Aprendiz Nova";
+};
+
 function Recompensas() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [alumno, setAlumno] = useState<Alumno | null>(null);
-  const [estadisticas, setEstadisticas] =
-    useState<EstadisticasAlumno | null>(null);
-  const [actividades, setActividades] = useState<Actividad[]>([]);
-  const [cargando, setCargando] = useState(true);
+  const [menuOpen, setMenuOpen] =
+    useState(false);
+
+  const [alumno, setAlumno] =
+    useState<Alumno | null>(null);
+
+  const [resumen, setResumen] =
+    useState<ResumenAlumno | null>(
+      null,
+    );
+
+  const [cargando, setCargando] =
+    useState(true);
+
+  const [
+    errorCarga,
+    setErrorCarga,
+  ] = useState("");
 
   const navigate = useNavigate();
 
+  const modoInvitado =
+    isGuestSession();
+
+  const cargarRecompensas =
+    useCallback(async () => {
+      const invitado =
+        isGuestSession();
+
+      if (invitado) {
+        setAlumno(null);
+        setResumen(null);
+        setErrorCarga("");
+        setCargando(false);
+
+        return;
+      }
+
+      const idUsuario =
+        obtenerIdUsuarioAutenticado();
+
+      if (!idUsuario) {
+        clearAuthSession();
+
+        navigate("/login", {
+          replace: true,
+        });
+
+        return;
+      }
+
+      setCargando(true);
+      setErrorCarga("");
+
+      const resultados =
+        await Promise.allSettled([
+          obtenerPerfilAlumno(),
+          obtenerResumenAlumno(
+            idUsuario,
+          ),
+        ]);
+
+      const [
+        resultadoPerfil,
+        resultadoResumen,
+      ] = resultados;
+
+      let huboError = false;
+
+      if (
+        resultadoPerfil.status ===
+        "fulfilled"
+      ) {
+        setAlumno(
+          extraerPerfil(
+            resultadoPerfil.value,
+          ),
+        );
+      } else {
+        huboError = true;
+
+        console.error(
+          "No se pudo cargar el perfil del alumno:",
+          resultadoPerfil.reason,
+        );
+      }
+
+      if (
+        resultadoResumen.status ===
+        "fulfilled"
+      ) {
+        setResumen(
+          resultadoResumen.value
+            .resumen ?? null,
+        );
+      } else {
+        huboError = true;
+
+        console.error(
+          "No se pudo cargar el resumen de recompensas:",
+          resultadoResumen.reason,
+        );
+      }
+
+      setErrorCarga(
+        huboError
+          ? "Algunos datos no pudieron actualizarse. Revisa que el servidor esté encendido."
+          : "",
+      );
+
+      setCargando(false);
+    }, [navigate]);
+
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "auto";
+    document.body.style.overflow =
+      menuOpen
+        ? "hidden"
+        : "auto";
 
     return () => {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow =
+        "auto";
     };
   }, [menuOpen]);
 
   useEffect(() => {
-    const cargarRecompensas = async () => {
-      const token = localStorage.getItem("token");
+    void cargarRecompensas();
 
-      if (!token) {
-        navigate("/login", { replace: true });
-        return;
-      }
+    const actualizarAlVolver =
+      () => {
+        void cargarRecompensas();
+      };
 
-      try {
-        setCargando(true);
+    const actualizarAlMostrar =
+      () => {
+        if (
+          document.visibilityState ===
+          "visible"
+        ) {
+          void cargarRecompensas();
+        }
+      };
 
-        const [perfilData, estadisticasData, actividadesData] =
-          await Promise.all([
-            obtenerPerfilAlumno(),
-            obtenerEstadisticasAlumno(),
-            obtenerProgresoAlumno(),
-          ]);
+    window.addEventListener(
+      "focus",
+      actualizarAlVolver,
+    );
 
-        setAlumno(perfilData);
-        setEstadisticas(estadisticasData);
-        setActividades(actividadesData);
-      } catch (error) {
-        console.error("Error al cargar recompensas:", error);
-      } finally {
-        setCargando(false);
-      }
+    document.addEventListener(
+      "visibilitychange",
+      actualizarAlMostrar,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "focus",
+        actualizarAlVolver,
+      );
+
+      document.removeEventListener(
+        "visibilitychange",
+        actualizarAlMostrar,
+      );
     };
+  }, [cargarRecompensas]);
 
-    cargarRecompensas();
-  }, [navigate]);
-
-  const irARuta = (ruta: string) => {
+  const irARuta = (
+    ruta: string,
+  ) => {
     setMenuOpen(false);
     navigate(ruta);
   };
 
   const cerrarSesion = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
-    navigate("/login", { replace: true });
+    clearAuthSession();
+
+    navigate("/login", {
+      replace: true,
+    });
   };
 
-  const numero = (valor: number | string | null | undefined) => {
-    return Number(valor ?? 0);
-  };
+  const estrellasTotales =
+    modoInvitado
+      ? 0
+      : numeroSeguro(
+          resumen
+            ?.estrellas_totales ??
+            resumen
+              ?.estrellas_ganadas ??
+            alumno
+              ?.estrellas_totales,
+        );
 
-  const estrellasTotales = numero(alumno?.estrellas_totales);
-  const nivelActual = numero(alumno?.nivel);
-  const tituloNivel = alumno?.titulo || "Aprendiz Nova";
-  const rachaActual = numero(alumno?.racha_actual);
-  const completadas = numero(estadisticas?.completadas);
-  const promedio = numero(estadisticas?.promedio);
-  const progresoGeneral = numero(estadisticas?.progreso_general);
+  const xpTotal = modoInvitado
+    ? 0
+    : numeroSeguro(
+        resumen?.xp_total,
+      );
 
-  const insignias = useMemo(
-    () => [
-      {
-        id: 1,
-        nombre: "Primeros Pasos",
-        descripcion: "Completa tu primera lección",
-        imagen: primerosPasos,
-        desbloqueada: completadas >= 1,
-      },
-      {
-        id: 2,
-        nombre: "Diez Logros",
-        descripcion: "Completa 10 lecciones",
-        imagen: diezLogros,
-        desbloqueada: completadas >= 10,
-      },
-      {
-        id: 3,
-        nombre: "Aprendiz Dedicado",
-        descripcion: "Completa 5 actividades",
-        imagen: aprendizDedicado,
-        desbloqueada: completadas >= 5,
-      },
-      {
-        id: 4,
-        nombre: "Mente Matemática",
-        descripcion: "Obtén promedio mayor a 80%",
-        imagen: menteMatematica,
-        desbloqueada: promedio >= 80,
-      },
-      {
-        id: 5,
-        nombre: "Estrella Constante",
-        descripcion: "Logra una racha de 7",
-        imagen: estrellaConstante,
-        desbloqueada: rachaActual >= 7,
-      },
-    ],
-    [completadas, promedio, rachaActual]
-  );
+  const completadas =
+    modoInvitado
+      ? 0
+      : numeroSeguro(
+          resumen
+            ?.actividades_completadas ??
+            resumen
+              ?.lecciones_completadas,
+        );
 
-  const insigniasGanadas = insignias.filter(
-    (insignia) => insignia.desbloqueada
-  ).length;
+  const intentadas =
+    modoInvitado
+      ? 0
+      : numeroSeguro(
+          resumen
+            ?.actividades_intentadas,
+        );
 
-  const recompensasDesbloqueables = [
-    {
-      nombre: "Avatares",
-      obtenidas: Math.min(Math.floor(estrellasTotales / 50), 12),
-      total: 12,
-      imagen: avatares,
-    },
-    {
-      nombre: "Marcos",
-      obtenidas: Math.min(Math.floor(completadas / 2), 10),
-      total: 10,
-      imagen: marcos,
-    },
-    {
-      nombre: "Stickers",
-      obtenidas: Math.min(Math.floor(estrellasTotales / 25), 20),
-      total: 20,
-      imagen: stickers,
-    },
-    {
-      nombre: "Trofeos",
-      obtenidas: Math.min(Math.floor(nivelActual / 2), 8),
-      total: 8,
-      imagen: trofeos,
-    },
-  ];
+  const promedio = modoInvitado
+    ? 0
+    : numeroSeguro(
+        resumen
+          ?.promedio_general ??
+          resumen
+            ?.precision_promedio,
+      );
 
-  const metaEstrellas = 1000;
-  const estrellasFaltantes = Math.max(metaEstrellas - estrellasTotales, 0);
-  const progresoRecompensa = Math.min(
-    Math.round((estrellasTotales / metaEstrellas) * 100),
-    100
-  );
+  const progresoGeneral =
+    modoInvitado
+      ? 0
+      : numeroSeguro(
+          resumen
+            ?.progreso_general ??
+            resumen
+              ?.promedio_general ??
+            resumen
+              ?.precision_promedio,
+        );
+
+  const rachaActual =
+    modoInvitado
+      ? 0
+      : numeroSeguro(
+          resumen?.racha_actual ??
+            alumno?.racha_actual,
+        );
+
+  /*
+   * El nivel se calcula con el XP real.
+   * No usamos alumno.nivel porque esa
+   * propiedad no existe en el tipo Alumno.
+   */
+  const nivelCalculado =
+    Math.max(
+      1,
+      Math.floor(
+        xpTotal /
+          XP_POR_NIVEL,
+      ) + 1,
+    );
+
+  const nivelActual =
+    modoInvitado
+      ? 1
+      : nivelCalculado;
+
+  /*
+   * El título también se calcula.
+   * No usamos alumno.titulo porque esa
+   * propiedad tampoco existe.
+   */
+  const tituloNivel =
+    obtenerTituloNivel(
+      nivelActual,
+    );
+
+  const insignias =
+    useMemo<Insignia[]>(
+      () => [
+        {
+          id: 1,
+          nombre:
+            "Primeros Pasos",
+          descripcion:
+            "Completa tu primera actividad",
+          imagen:
+            primerosPasos,
+          desbloqueada:
+            completadas >= 1,
+        },
+        {
+          id: 2,
+          nombre:
+            "Diez Logros",
+          descripcion:
+            "Completa 10 actividades",
+          imagen:
+            diezLogros,
+          desbloqueada:
+            completadas >= 10,
+        },
+        {
+          id: 3,
+          nombre:
+            "Aprendiz Dedicado",
+          descripcion:
+            "Completa 5 actividades",
+          imagen:
+            aprendizDedicado,
+          desbloqueada:
+            completadas >= 5,
+        },
+        {
+          id: 4,
+          nombre:
+            "Mente Matemática",
+          descripcion:
+            "Obtén promedio mayor o igual a 80%",
+          imagen:
+            menteMatematica,
+          desbloqueada:
+            promedio >= 80,
+        },
+        {
+          id: 5,
+          nombre:
+            "Estrella Constante",
+          descripcion:
+            "Logra una racha de 7 días",
+          imagen:
+            estrellaConstante,
+          desbloqueada:
+            rachaActual >= 7,
+        },
+      ],
+      [
+        completadas,
+        promedio,
+        rachaActual,
+      ],
+    );
+
+  const insigniasGanadas =
+    insignias.filter(
+      (insignia) =>
+        insignia.desbloqueada,
+    ).length;
+
+  const recompensasDesbloqueables =
+    useMemo<
+      RecompensaDesbloqueable[]
+    >(
+      () => [
+        {
+          nombre: "Avatares",
+          obtenidas: Math.min(
+            Math.floor(
+              estrellasTotales /
+                50,
+            ),
+            12,
+          ),
+          total: 12,
+          imagen: avatares,
+        },
+        {
+          nombre: "Marcos",
+          obtenidas: Math.min(
+            Math.floor(
+              completadas / 2,
+            ),
+            10,
+          ),
+          total: 10,
+          imagen: marcos,
+        },
+        {
+          nombre: "Stickers",
+          obtenidas: Math.min(
+            Math.floor(
+              estrellasTotales /
+                25,
+            ),
+            20,
+          ),
+          total: 20,
+          imagen: stickers,
+        },
+        {
+          nombre: "Trofeos",
+          obtenidas: Math.min(
+            Math.floor(
+              nivelActual / 2,
+            ),
+            8,
+          ),
+          total: 8,
+          imagen: trofeos,
+        },
+      ],
+      [
+        completadas,
+        estrellasTotales,
+        nivelActual,
+      ],
+    );
+
+  const estrellasFaltantes =
+    Math.max(
+      META_ESTRELLAS -
+        estrellasTotales,
+      0,
+    );
+
+  const progresoRecompensa =
+    limitarPorcentaje(
+      META_ESTRELLAS > 0
+        ? (
+            estrellasTotales /
+            META_ESTRELLAS
+          ) * 100
+        : 0,
+    );
 
   const textoMotivacion =
-    estrellasTotales > 0
-      ? "¡Estás muy cerca de desbloquear algo increíble!"
-      : "Completa actividades para empezar a ganar recompensas.";
+    modoInvitado
+      ? "Inicia sesión para ganar recompensas."
+      : estrellasTotales > 0
+        ? "¡Estás avanzando hacia tu próxima recompensa!"
+        : intentadas > 0
+          ? "Mejora tus resultados para comenzar a ganar estrellas."
+          : "Completa actividades para empezar a ganar recompensas.";
 
   return (
     <main className="recompensas-page">
       <button
-        className={`hamburger-btn ${menuOpen ? "hamburger-open" : ""}`}
-        onClick={() => setMenuOpen(!menuOpen)}
+        type="button"
+        className={`hamburger-btn ${
+          menuOpen
+            ? "hamburger-open"
+            : ""
+        }`}
+        onClick={() =>
+          setMenuOpen(
+            (estadoActual) =>
+              !estadoActual,
+          )
+        }
+        aria-label="Abrir menú"
       >
-        <img src={menuHamburguesa} alt="Menú" />
+        <img
+          src={menuHamburguesa}
+          alt="Menú"
+        />
       </button>
 
       {menuOpen && (
-        <div className="menu-overlay" onClick={() => setMenuOpen(false)} />
+        <div
+          className="menu-overlay"
+          onClick={() =>
+            setMenuOpen(false)
+          }
+          aria-hidden="true"
+        />
       )}
 
-      <aside className={`sidebar ${menuOpen ? "sidebar-open" : ""}`}>
-        <img src={logo} alt="MathNova" className="sidebar-logo" />
+      <aside
+        className={`sidebar ${
+          menuOpen
+            ? "sidebar-open"
+            : ""
+        }`}
+      >
+        <img
+          src={logo}
+          alt="MathNova"
+          className="sidebar-logo"
+        />
 
         <nav className="sidebar-menu">
-          <button className="menu-item" onClick={() => irARuta("/dashboard")}>
+          <button
+            type="button"
+            className="menu-item"
+            onClick={() =>
+              irARuta(
+                "/dashboard",
+              )
+            }
+          >
             <FiGrid />
-            <span>Dashboard principal</span>
+
+            <span>
+              Dashboard principal
+            </span>
           </button>
 
           <button
+            type="button"
             className="menu-item"
-            onClick={() => irARuta("/seleccion-mundos")}
+            onClick={() =>
+              irARuta(
+                "/seleccion-mundos",
+              )
+            }
           >
             <GiRingedPlanet />
-            <span>Selección de mundos</span>
+
+            <span>
+              Selección de mundos
+            </span>
           </button>
 
           <button
+            type="button"
             className="menu-item"
-            onClick={() => irARuta("/retroalimentacion")}
+            onClick={() =>
+              irARuta(
+                "/retroalimentacion",
+              )
+            }
           >
             <FiMessageSquare />
-            <span>Retroalimentación</span>
+
+            <span>
+              Retroalimentación
+            </span>
           </button>
 
           <button
+            type="button"
             className="menu-item active"
-            onClick={() => irARuta("/recompensas")}
+            onClick={() =>
+              irARuta(
+                "/recompensas",
+              )
+            }
           >
             <GiTrophyCup />
-            <span>Recompensas</span>
+
+            <span>
+              Recompensas
+            </span>
           </button>
 
           <button
+            type="button"
             className="menu-item"
-            onClick={() => irARuta("/perfil-alumno")}
+            onClick={() =>
+              irARuta(
+                "/perfil-alumno",
+              )
+            }
           >
             <FiUser />
-            <span>Perfil del alumno</span>
+
+            <span>
+              Perfil del alumno
+            </span>
           </button>
 
           <button
+            type="button"
             className="menu-item"
-            onClick={() => irARuta("/estadisticas")}
+            onClick={() =>
+              irARuta(
+                "/estadisticas",
+              )
+            }
           >
             <FiBarChart2 />
-            <span>Estadísticas</span>
+
+            <span>
+              Estadísticas
+            </span>
           </button>
         </nav>
 
@@ -284,7 +753,24 @@ function Recompensas() {
         <header className="recompensas-header">
           <div>
             <h1>Recompensas</h1>
-            <p>Celebra tus logros y desbloquea nuevos premios.</p>
+
+            <p>
+              Celebra tus logros y
+              desbloquea nuevos premios.
+            </p>
+
+            {errorCarga && (
+              <p
+                role="alert"
+                style={{
+                  marginTop: "8px",
+                  color: "#b42318",
+                  fontWeight: 700,
+                }}
+              >
+                {errorCarga}
+              </p>
+            )}
           </div>
 
           <img
@@ -297,57 +783,107 @@ function Recompensas() {
         <section className="rewards-stats">
           <article className="reward-stat yellow-stat">
             <div>
-              <h3>Estrellas totales</h3>
-              <strong>{cargando ? "..." : estrellasTotales}</strong>
+              <h3>
+                Estrellas totales
+              </h3>
+
+              <strong>
+                {cargando
+                  ? "..."
+                  : estrellasTotales}
+              </strong>
+
               <p>
-                {estrellasTotales > 0
+                {estrellasTotales >
+                0
                   ? "¡Sigue sumando estrellas!"
                   : "Aún no tienes estrellas"}
               </p>
             </div>
 
             <div className="icon-circle">
-              <img src={estrellasTotalesIcon} alt="Estrellas" />
+              <img
+                src={
+                  estrellasTotalesIcon
+                }
+                alt="Estrellas"
+              />
             </div>
           </article>
 
           <article className="reward-stat blue-stat">
             <div>
-              <h3>Insignias ganadas</h3>
-              <strong>{cargando ? "..." : insigniasGanadas}</strong>
+              <h3>
+                Insignias ganadas
+              </h3>
+
+              <strong>
+                {cargando
+                  ? "..."
+                  : insigniasGanadas}
+              </strong>
+
               <p>
-                {insigniasGanadas > 0
+                {insigniasGanadas >
+                0
                   ? "¡Vas por un gran camino!"
                   : "Completa actividades para ganar insignias"}
               </p>
             </div>
 
             <div className="icon-circle">
-              <img src={insigniasGanadasIcon} alt="Insignias" />
+              <img
+                src={
+                  insigniasGanadasIcon
+                }
+                alt="Insignias"
+              />
             </div>
           </article>
 
           <article className="reward-stat purple-stat">
             <div>
               <h3>Nivel actual</h3>
-              <strong>{cargando ? "..." : `Nivel ${nivelActual || 1}`}</strong>
+
+              <strong>
+                {cargando
+                  ? "..."
+                  : `Nivel ${nivelActual}`}
+              </strong>
+
               <p>{tituloNivel}</p>
             </div>
 
             <div className="icon-circle">
-              <img src={nivelActualIcon} alt="Nivel" />
+              <img
+                src={nivelActualIcon}
+                alt="Nivel"
+              />
             </div>
           </article>
 
           <article className="reward-stat green-stat">
             <div>
               <h3>Racha actual</h3>
-              <strong>{cargando ? "..." : rachaActual}</strong>
-              <p>{rachaActual > 0 ? "¡Sigue así!" : "Inicia tu racha"}</p>
+
+              <strong>
+                {cargando
+                  ? "..."
+                  : rachaActual}
+              </strong>
+
+              <p>
+                {rachaActual > 0
+                  ? "¡Sigue así!"
+                  : "Inicia tu racha"}
+              </p>
             </div>
 
             <div className="icon-circle">
-              <img src={rachaActualIcon} alt="Racha" />
+              <img
+                src={rachaActualIcon}
+                alt="Racha"
+              />
             </div>
           </article>
         </section>
@@ -355,128 +891,270 @@ function Recompensas() {
         <section className="main-rewards-grid">
           <article className="panel badges-panel">
             <div className="panel-head">
-              <h2>Insignias ganadas</h2>
-              <button onClick={() => irARuta("/estadisticas")}>
-                Ver todas <FiArrowRight />
+              <h2>
+                Insignias ganadas
+              </h2>
+
+              <button
+                type="button"
+                onClick={() =>
+                  irARuta(
+                    "/estadisticas",
+                  )
+                }
+              >
+                Ver todas
+                <FiArrowRight />
               </button>
             </div>
 
             <div className="badges-grid">
-              {insignias.map((insignia) => (
-                <div
-                  className="badge-card"
-                  key={insignia.id}
-                  style={{
-                    opacity: insignia.desbloqueada ? 1 : 0.45,
-                    filter: insignia.desbloqueada
-                      ? "none"
-                      : "grayscale(0.9)",
-                  }}
-                >
-                  <img src={insignia.imagen} alt={insignia.nombre} />
-                  <h4>{insignia.nombre}</h4>
-                  <p>
-                    {insignia.desbloqueada
-                      ? "Insignia desbloqueada"
-                      : insignia.descripcion}
-                  </p>
-                </div>
-              ))}
+              {insignias.map(
+                (insignia) => (
+                  <div
+                    className="badge-card"
+                    key={
+                      insignia.id
+                    }
+                    style={{
+                      opacity:
+                        insignia
+                          .desbloqueada
+                          ? 1
+                          : 0.45,
+                      filter:
+                        insignia
+                          .desbloqueada
+                          ? "none"
+                          : "grayscale(0.9)",
+                    }}
+                  >
+                    <img
+                      src={
+                        insignia.imagen
+                      }
+                      alt={
+                        insignia.nombre
+                      }
+                    />
+
+                    <h4>
+                      {insignia.nombre}
+                    </h4>
+
+                    <p>
+                      {insignia
+                        .desbloqueada
+                        ? "Insignia desbloqueada"
+                        : insignia
+                            .descripcion}
+                    </p>
+                  </div>
+                ),
+              )}
             </div>
           </article>
 
           <article className="panel unlock-panel">
             <div className="panel-head">
-              <h2>Recompensas desbloqueables</h2>
-              <button onClick={() => irARuta("/estadisticas")}>
-                Ver todas <FiArrowRight />
+              <h2>
+                Recompensas desbloqueables
+              </h2>
+
+              <button
+                type="button"
+                onClick={() =>
+                  irARuta(
+                    "/estadisticas",
+                  )
+                }
+              >
+                Ver todas
+                <FiArrowRight />
               </button>
             </div>
 
             <div className="unlock-grid">
-              {recompensasDesbloqueables.map((recompensa) => (
-                <div className="unlock-card" key={recompensa.nombre}>
-                  <h4>{recompensa.nombre}</h4>
-                  <strong>
-                    {cargando ? "..." : recompensa.obtenidas}{" "}
-                    <span>/ {recompensa.total}</span>
-                  </strong>
-                  <img src={recompensa.imagen} alt={recompensa.nombre} />
-                </div>
-              ))}
+              {recompensasDesbloqueables.map(
+                (recompensa) => (
+                  <div
+                    className="unlock-card"
+                    key={
+                      recompensa.nombre
+                    }
+                  >
+                    <h4>
+                      {
+                        recompensa.nombre
+                      }
+                    </h4>
+
+                    <strong>
+                      {cargando
+                        ? "..."
+                        : recompensa
+                            .obtenidas}{" "}
+                      <span>
+                        /{" "}
+                        {
+                          recompensa.total
+                        }
+                      </span>
+                    </strong>
+
+                    <img
+                      src={
+                        recompensa.imagen
+                      }
+                      alt={
+                        recompensa.nombre
+                      }
+                    />
+                  </div>
+                ),
+              )}
             </div>
           </article>
 
           <article className="panel next-panel">
-            <h2>Próxima recompensa</h2>
-            <p>{textoMotivacion}</p>
+            <h2>
+              Próxima recompensa
+            </h2>
+
+            <p>
+              {textoMotivacion}
+            </p>
 
             <div className="reward-progress-wrap">
               <div className="reward-progress-line">
                 <span className="reward-check reward-check-1">
-                  {progresoRecompensa >= 20 ? "✓" : ""}
+                  {progresoRecompensa >=
+                  20
+                    ? "✓"
+                    : ""}
                 </span>
+
                 <span className="reward-check reward-check-2">
-                  {progresoRecompensa >= 40 ? "✓" : ""}
+                  {progresoRecompensa >=
+                  40
+                    ? "✓"
+                    : ""}
                 </span>
+
                 <span className="reward-check reward-check-3">
-                  {progresoRecompensa >= 60 ? "✓" : ""}
+                  {progresoRecompensa >=
+                  60
+                    ? "✓"
+                    : ""}
                 </span>
-                <span className="reward-dot"></span>
+
+                <span className="reward-dot" />
+
                 <span
                   className="reward-green-line"
-                  style={{ width: `${progresoRecompensa}%` }}
-                ></span>
+                  style={{
+                    width: `${progresoRecompensa}%`,
+                  }}
+                />
               </div>
 
               <div className="reward-gift-circle">
-                <img src={proximaRecompensa} alt="Próxima recompensa" />
+                <img
+                  src={
+                    proximaRecompensa
+                  }
+                  alt="Próxima recompensa"
+                />
               </div>
 
-              <div className="reward-empty-circle"></div>
+              <div className="reward-empty-circle" />
 
               <div className="reward-missing">
                 <span>Faltan</span>
-                <b>{cargando ? "..." : estrellasFaltantes}</b>
-                <img src={estrellaRe} alt="Estrella" />
-                <span>estrellas</span>
+
+                <b>
+                  {cargando
+                    ? "..."
+                    : estrellasFaltantes}
+                </b>
+
+                <img
+                  src={estrellaRe}
+                  alt="Estrella"
+                />
+
+                <span>
+                  estrellas
+                </span>
               </div>
             </div>
 
             <h3>
-              <span>{cargando ? "..." : estrellasTotales}</span> /{" "}
-              {metaEstrellas} estrellas
+              <span>
+                {cargando
+                  ? "..."
+                  : estrellasTotales}
+              </span>{" "}
+              / {META_ESTRELLAS}{" "}
+              estrellas
             </h3>
           </article>
 
           <article className="featured-reward">
             <div>
               <h3>
-                Recompensa destacada <span>Épica</span>
+                Recompensa destacada
+                <span>Épica</span>
               </h3>
-              <h2>Avatar Astro Nova</h2>
+
+              <h2>
+                Avatar Astro Nova
+              </h2>
+
               <p>
-                {progresoRecompensa >= 100
+                {progresoRecompensa >=
+                100
                   ? "¡Ya puedes desbloquear este avatar exclusivo!"
-                  : "Un avatar exclusivo para los exploradores más dedicados."}
+                  : `Llevas ${progresoGeneral}% de progreso general y ${xpTotal} XP acumulados.`}
               </p>
-              <button onClick={() => irARuta("/estadisticas")}>
+
+              <button
+                type="button"
+                onClick={() =>
+                  irARuta(
+                    "/estadisticas",
+                  )
+                }
+              >
                 Ver cómo obtenerla
               </button>
             </div>
 
-            <img src={avatarAstroNova} alt="Avatar Astro Nova" />
+            <img
+              src={avatarAstroNova}
+              alt="Avatar Astro Nova"
+            />
           </article>
         </section>
 
         <footer className="recompensas-footer">
-          <p>© MathNova. Todos los derechos reservados.</p>
+          <p>
+            © MathNova. Todos los
+            derechos reservados.
+          </p>
 
           <div className="footer-icons">
-            <button className="footer-icon-btn" onClick={cerrarSesion}>
+            <button
+              type="button"
+              className="footer-icon-btn"
+              onClick={cerrarSesion}
+              aria-label="Cerrar sesión"
+            >
               <FiLogOut className="logout-icon" />
             </button>
+
             <FiHelpCircle />
+
             <FiSettings />
           </div>
         </footer>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./SeleccionMundos.css";
 
@@ -15,19 +15,33 @@ import zorritoHola from "../../assets/zorrito-hola-explorador.png";
 import zorritoSeleccion from "../../assets/zorrito_seleccion_mundo.png";
 
 import {
-  FiGrid,
-  FiMessageSquare,
-  FiUser,
   FiBarChart2,
-  FiLogOut,
+  FiGrid,
   FiHelpCircle,
+  FiLogOut,
+  FiMessageSquare,
   FiSettings,
+  FiUser,
 } from "react-icons/fi";
 
-import { GiRingedPlanet, GiTrophyCup, GiRocket } from "react-icons/gi";
+import {
+  GiRingedPlanet,
+  GiRocket,
+  GiTrophyCup,
+} from "react-icons/gi";
 
 import { obtenerPerfilAlumno } from "../../services/alumnoService";
 import type { Alumno } from "../../services/alumnoService";
+
+import {
+  obtenerIdUsuarioAutenticado,
+  obtenerResumenAlumno,
+} from "../../services/progresoService";
+
+import type {
+  MundoResumen,
+  ResumenAlumno,
+} from "../../services/progresoService";
 
 import {
   clearAuthSession,
@@ -35,14 +49,127 @@ import {
   isGuestSession,
 } from "../../utils/authSession";
 
+type PerfilRespuesta = {
+  perfil?: Alumno;
+};
+
+type MundoVisual = {
+  progreso: number;
+  completadas: number;
+  intentadas: number;
+  estrellas: number;
+  xp: number;
+};
+
+const numeroSeguro = (
+  valor: number | string | null | undefined,
+): number => {
+  const convertido = Number(valor ?? 0);
+  return Number.isFinite(convertido) ? convertido : 0;
+};
+
+const limitarPorcentaje = (
+  valor: number | string | null | undefined,
+): number => {
+  return Math.min(Math.max(Math.round(numeroSeguro(valor)), 0), 100);
+};
+
+const normalizarTexto = (valor: string): string => {
+  return valor
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[\s_-]/g, "");
+};
+
+const extraerPerfil = (respuesta: unknown): Alumno | null => {
+  if (typeof respuesta !== "object" || respuesta === null) {
+    return null;
+  }
+
+  const datos = respuesta as PerfilRespuesta & Record<string, unknown>;
+
+  if (datos.perfil && typeof datos.perfil === "object") {
+    return datos.perfil;
+  }
+
+  return datos as Alumno;
+};
+
 function SeleccionMundos() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [alumno, setAlumno] = useState<Alumno | null>(null);
-  const [cargandoAlumno, setCargandoAlumno] = useState(true);
+  const [resumen, setResumen] = useState<ResumenAlumno | null>(null);
+  const [mundos, setMundos] = useState<MundoResumen[]>([]);
+  const [cargando, setCargando] = useState(true);
+  const [errorCarga, setErrorCarga] = useState("");
 
   const navigate = useNavigate();
-
   const modoInvitado = isGuestSession();
+
+  const cargarDatos = useCallback(async () => {
+    const invitado = isGuestSession();
+
+    if (invitado) {
+      setAlumno(null);
+      setResumen(null);
+      setMundos([]);
+      setErrorCarga("");
+      setCargando(false);
+      return;
+    }
+
+    const idUsuario = obtenerIdUsuarioAutenticado();
+
+    if (!idUsuario) {
+      clearAuthSession();
+      navigate("/login", { replace: true });
+      return;
+    }
+
+    setCargando(true);
+    setErrorCarga("");
+
+    const [resultadoPerfil, resultadoResumen] = await Promise.allSettled([
+      obtenerPerfilAlumno(),
+      obtenerResumenAlumno(idUsuario),
+    ]);
+
+    let huboError = false;
+
+    if (resultadoPerfil.status === "fulfilled") {
+      setAlumno(extraerPerfil(resultadoPerfil.value));
+    } else {
+      huboError = true;
+      console.error(
+        "No se pudo cargar el perfil del alumno:",
+        resultadoPerfil.reason,
+      );
+    }
+
+    if (resultadoResumen.status === "fulfilled") {
+      setResumen(resultadoResumen.value.resumen ?? null);
+      setMundos(
+        Array.isArray(resultadoResumen.value.mundos)
+          ? resultadoResumen.value.mundos
+          : [],
+      );
+    } else {
+      huboError = true;
+      console.error(
+        "No se pudo cargar el resumen de progreso:",
+        resultadoResumen.reason,
+      );
+    }
+
+    setErrorCarga(
+      huboError
+        ? "Algunos datos no pudieron actualizarse. Revisa que el servidor esté encendido."
+        : "",
+    );
+
+    setCargando(false);
+  }, [navigate]);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "auto";
@@ -53,34 +180,74 @@ function SeleccionMundos() {
   }, [menuOpen]);
 
   useEffect(() => {
-    const cargarAlumno = async () => {
-      const token = localStorage.getItem("token");
-      const invitado = isGuestSession();
+    void cargarDatos();
 
-      if (!token && !invitado) {
-        navigate("/login", { replace: true });
-        return;
-      }
+    const actualizarAlVolver = () => {
+      void cargarDatos();
+    };
 
-      if (invitado) {
-        setAlumno(null);
-        setCargandoAlumno(false);
-        return;
-      }
-
-      try {
-        setCargandoAlumno(true);
-        const perfilData = await obtenerPerfilAlumno();
-        setAlumno(perfilData);
-      } catch (error) {
-        console.error("Error al cargar datos del alumno:", error);
-      } finally {
-        setCargandoAlumno(false);
+    const actualizarAlMostrar = () => {
+      if (document.visibilityState === "visible") {
+        void cargarDatos();
       }
     };
 
-    cargarAlumno();
-  }, [navigate]);
+    window.addEventListener("focus", actualizarAlVolver);
+    document.addEventListener("visibilitychange", actualizarAlMostrar);
+
+    return () => {
+      window.removeEventListener("focus", actualizarAlVolver);
+      document.removeEventListener("visibilitychange", actualizarAlMostrar);
+    };
+  }, [cargarDatos]);
+
+  const buscarResumenMundo = useCallback(
+    (nombresAceptados: string[]): MundoResumen | null => {
+      const nombresNormalizados = nombresAceptados.map(normalizarTexto);
+
+      return (
+        mundos.find((mundo) => {
+          const nombreMundo = normalizarTexto(mundo.mundo ?? "");
+
+          return nombresNormalizados.some(
+            (nombre) =>
+              nombreMundo.includes(nombre) || nombre.includes(nombreMundo),
+          );
+        }) ?? null
+      );
+    },
+    [mundos],
+  );
+
+  const construirMundoVisual = useCallback(
+    (nombresAceptados: string[]): MundoVisual => {
+      const mundo = buscarResumenMundo(nombresAceptados);
+
+      return {
+        progreso: limitarPorcentaje(mundo?.precision),
+        completadas: numeroSeguro(mundo?.completadas),
+        intentadas: numeroSeguro(mundo?.intentadas),
+        estrellas: numeroSeguro(mundo?.estrellas),
+        xp: numeroSeguro(mundo?.xp),
+      };
+    },
+    [buscarResumenMundo],
+  );
+
+  const mundoNumbersResumen = useMemo(
+    () => construirMundoVisual(["mathnumbers", "numbers", "numeros"]),
+    [construirMundoVisual],
+  );
+
+  const mundoGeometryResumen = useMemo(
+    () => construirMundoVisual(["mathgeometry", "geometry", "geometria"]),
+    [construirMundoVisual],
+  );
+
+  const mundoDataResumen = useMemo(
+    () => construirMundoVisual(["mathdata", "data", "estadistica"]),
+    [construirMundoVisual],
+  );
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
@@ -94,40 +261,78 @@ function SeleccionMundos() {
 
   const estrellasTotales = modoInvitado
     ? 0
-    : Number(alumno?.estrellas_totales ?? 0);
+    : numeroSeguro(
+        resumen?.estrellas_totales ??
+          resumen?.estrellas_ganadas ??
+          alumno?.estrellas_totales,
+      );
 
   const nombreAlumno = modoInvitado
     ? getDisplayName()
-    : alumno?.nombre_completo?.split(" ")[0] || alumno?.usuario || "Explorador";
+    : alumno?.nombre_completo?.trim().split(/\s+/)[0] ||
+      alumno?.usuario ||
+      getDisplayName() ||
+      "Explorador";
+
+  const descripcionMundo = (mundo: MundoVisual): string => {
+    if (cargando) {
+      return "Cargando";
+    }
+
+    if (mundo.completadas > 0) {
+      return `${mundo.completadas} completada${
+        mundo.completadas === 1 ? "" : "s"
+      }`;
+    }
+
+    if (mundo.intentadas > 0) {
+      return `${mundo.intentadas} intentada${
+        mundo.intentadas === 1 ? "" : "s"
+      }`;
+    }
+
+    return "Sin avance";
+  };
 
   return (
     <main className="mundos-page">
       <button
+        type="button"
         className={`hamburger-btn ${menuOpen ? "hamburger-open" : ""}`}
-        onClick={() => setMenuOpen(!menuOpen)}
+        onClick={() => setMenuOpen((estadoActual) => !estadoActual)}
+        aria-label="Abrir menú"
       >
         <img src={menuHamburguesa} alt="Menú" />
       </button>
 
       {menuOpen && (
-        <div className="menu-overlay" onClick={() => setMenuOpen(false)} />
+        <div
+          className="menu-overlay"
+          onClick={() => setMenuOpen(false)}
+          aria-hidden="true"
+        />
       )}
 
       <aside className={`sidebar ${menuOpen ? "sidebar-open" : ""}`}>
         <img src={logo} alt="MathNova" className="sidebar-logo" />
 
         <nav className="sidebar-menu">
-          <button className="menu-item" onClick={() => irARuta("/dashboard")}>
+          <button
+            type="button"
+            className="menu-item"
+            onClick={() => irARuta("/dashboard")}
+          >
             <FiGrid />
             <span>Dashboard principal</span>
           </button>
 
-          <button className="menu-item active">
+          <button type="button" className="menu-item active">
             <GiRingedPlanet />
             <span>Selección de mundos</span>
           </button>
 
           <button
+            type="button"
             className="menu-item"
             onClick={() => irARuta("/retroalimentacion")}
           >
@@ -135,12 +340,17 @@ function SeleccionMundos() {
             <span>Retroalimentación</span>
           </button>
 
-          <button className="menu-item" onClick={() => irARuta("/recompensas")}>
+          <button
+            type="button"
+            className="menu-item"
+            onClick={() => irARuta("/recompensas")}
+          >
             <GiTrophyCup />
             <span>Recompensas</span>
           </button>
 
           <button
+            type="button"
             className="menu-item"
             onClick={() => irARuta("/perfil-alumno")}
           >
@@ -149,6 +359,7 @@ function SeleccionMundos() {
           </button>
 
           <button
+            type="button"
             className="menu-item"
             onClick={() => irARuta("/estadisticas")}
           >
@@ -177,6 +388,7 @@ function SeleccionMundos() {
         <section className="mundos-hero">
           <div className="mundos-title">
             <h1>Selección de mundos matemáticos</h1>
+
             <p>
               {modoInvitado
                 ? "Explora los mundos disponibles. Para contestar actividades necesitarás iniciar sesión."
@@ -190,6 +402,10 @@ function SeleccionMundos() {
                 iniciar sesión o crear una cuenta.
               </div>
             )}
+
+            {errorCarga && !modoInvitado && (
+              <div className="guest-world-alert">{errorCarga}</div>
+            )}
           </div>
 
           <img
@@ -202,7 +418,7 @@ function SeleccionMundos() {
             <h3>Estrellas totales</h3>
 
             <div className="mundos-stars-row">
-              <strong>{cargandoAlumno ? "..." : estrellasTotales}</strong>
+              <strong>{cargando ? "..." : estrellasTotales}</strong>
               <span>⭐</span>
             </div>
 
@@ -210,8 +426,8 @@ function SeleccionMundos() {
               {modoInvitado
                 ? "Inicia sesión para ganar estrellas"
                 : estrellasTotales > 0
-                ? "Sigue explorando y gana más estrellas"
-                : "Completa actividades para ganar estrellas"}
+                  ? "Sigue explorando y gana más estrellas"
+                  : "Completa actividades para ganar estrellas"}
             </p>
           </article>
         </section>
@@ -225,18 +441,30 @@ function SeleccionMundos() {
 
             <div className="world-progress">
               <div className="level-pill green-pill">
-                <strong>Nivel 4</strong>
-                <span>120</span>
+                <strong>{descripcionMundo(mundoNumbersResumen)}</strong>
+                <span>{cargando ? "..." : `${mundoNumbersResumen.xp} XP`}</span>
               </div>
 
-              <div className="progress-track">
-                <span className="progress-fill green-fill"></span>
+              <div
+                className="progress-track"
+                role="progressbar"
+                aria-label="Progreso de Math Numbers"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={mundoNumbersResumen.progreso}
+              >
+                <span
+                  className="progress-fill green-fill"
+                  style={{ width: `${mundoNumbersResumen.progreso}%` }}
+                />
               </div>
             </div>
 
-            <button onClick={() => irARuta("/temas/numeros")}>
+            <button type="button" onClick={() => irARuta("/temas/numeros")}>
               <GiRocket />
-              Explorar math Numbers
+              {mundoNumbersResumen.intentadas > 0
+                ? "Continuar math Numbers"
+                : "Explorar math Numbers"}
             </button>
           </article>
 
@@ -248,18 +476,33 @@ function SeleccionMundos() {
 
             <div className="world-progress">
               <div className="level-pill orange-pill">
-                <strong>Intermedio</strong>
-                <span>150</span>
+                <strong>{descripcionMundo(mundoGeometryResumen)}</strong>
+                <span>{cargando ? "..." : `${mundoGeometryResumen.xp} XP`}</span>
               </div>
 
-              <div className="progress-track">
-                <span className="progress-fill orange-fill"></span>
+              <div
+                className="progress-track"
+                role="progressbar"
+                aria-label="Progreso de Math Geometry"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={mundoGeometryResumen.progreso}
+              >
+                <span
+                  className="progress-fill orange-fill"
+                  style={{ width: `${mundoGeometryResumen.progreso}%` }}
+                />
               </div>
             </div>
 
-            <button onClick={() => irARuta("/actividades/geometria")}>
+            <button
+              type="button"
+              onClick={() => irARuta("/actividades/geometria")}
+            >
               <GiRocket />
-              Explorar math Geometry
+              {mundoGeometryResumen.intentadas > 0
+                ? "Continuar math Geometry"
+                : "Explorar math Geometry"}
             </button>
           </article>
 
@@ -271,18 +514,33 @@ function SeleccionMundos() {
 
             <div className="world-progress">
               <div className="level-pill blue-pill">
-                <strong>Avanzado</strong>
-                <span>200</span>
+                <strong>{descripcionMundo(mundoDataResumen)}</strong>
+                <span>{cargando ? "..." : `${mundoDataResumen.xp} XP`}</span>
               </div>
 
-              <div className="progress-track">
-                <span className="progress-fill blue-fill"></span>
+              <div
+                className="progress-track"
+                role="progressbar"
+                aria-label="Progreso de Math Data"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={mundoDataResumen.progreso}
+              >
+                <span
+                  className="progress-fill blue-fill"
+                  style={{ width: `${mundoDataResumen.progreso}%` }}
+                />
               </div>
             </div>
 
-            <button onClick={() => irARuta("/actividades-math-data")}>
+            <button
+              type="button"
+              onClick={() => irARuta("/actividades-math-data")}
+            >
               <GiRocket />
-              Explorar math Data
+              {mundoDataResumen.intentadas > 0
+                ? "Continuar math Data"
+                : "Explorar math Data"}
             </button>
           </article>
         </section>
@@ -309,12 +567,16 @@ function SeleccionMundos() {
           <p>© MathNova. Todos los derechos reservados.</p>
 
           <div className="footer-icons">
-            <button className="footer-icon-btn" onClick={cerrarSesion}>
+            <button
+              type="button"
+              className="footer-icon-btn"
+              onClick={cerrarSesion}
+              aria-label="Cerrar sesión"
+            >
               <FiLogOut className="logout-icon" />
             </button>
 
             <FiHelpCircle className="help-icon" />
-
             <FiSettings className="settings-icon" />
           </div>
         </footer>

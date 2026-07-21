@@ -1,6 +1,6 @@
 import "./EscuadronTactico.css";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -28,7 +28,7 @@ import escuadronScene from "../../../assets/escuadron-tactico.png";
 import bytePista from "../../../assets/mathnumbers/byte_pista.png";
 
 import { clearAuthSession } from "../../../utils/authSession";
-import { guardarProgresoActividad } from "../../../services/progresoService";
+import { guardarProgresoUsuarioActual } from "../../../services/progresoService";
 
 import { activityListRoute } from "../constants";
 import { ResultModal } from "../components/ResultModal";
@@ -365,6 +365,12 @@ export function EscuadronTactico() {
   >([]);
 
   const [explanation, setExplanation] = useState("");
+  const [guardandoProgreso, setGuardandoProgreso] =
+    useState(false);
+
+  const inicioActividadRef = useRef<number>(Date.now());
+  const guardandoRef = useRef(false);
+  const resultTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (helpOpen) {
@@ -379,6 +385,14 @@ export function EscuadronTactico() {
       document.body.style.overflow = "auto";
     };
   }, [menuOpen, helpOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (resultTimeoutRef.current !== null) {
+        window.clearTimeout(resultTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const selectedOperations = useMemo(
     () =>
@@ -435,12 +449,39 @@ export function EscuadronTactico() {
     showToast("Explicación guardada correctamente.");
   };
 
+  const limpiarTemporizadorResultado = () => {
+    if (resultTimeoutRef.current !== null) {
+      window.clearTimeout(resultTimeoutRef.current);
+      resultTimeoutRef.current = null;
+    }
+  };
+
+  const abrirModalResultado = (
+    kind: ResultKind,
+    delay = 900,
+  ) => {
+    limpiarTemporizadorResultado();
+
+    resultTimeoutRef.current = window.setTimeout(() => {
+      setResultModalKind(kind);
+      setResultModalOpen(true);
+      resultTimeoutRef.current = null;
+    }, delay);
+  };
+
   const repetirActividad = () => {
+    limpiarTemporizadorResultado();
+
+    guardandoRef.current = false;
+    setGuardandoProgreso(false);
     setResultModalOpen(false);
+    setResultModalKind("completed");
     setChallengeOne([]);
     setChallengeTwo([]);
     setChallengeThree([]);
     setExplanation("");
+
+    inicioActividadRef.current = Date.now();
 
     window.scrollTo({
       top: 0,
@@ -453,6 +494,10 @@ export function EscuadronTactico() {
   };
 
   const verificar = async () => {
+    if (guardandoRef.current) {
+      return;
+    }
+
     if (
       challengeOne.length < correctChallengeOne.length ||
       challengeTwo.length < correctChallengeTwo.length ||
@@ -486,128 +531,96 @@ export function EscuadronTactico() {
       Number(challengeThreeCorrect);
 
     const completed = totalCorrect === 3;
-    const stars = completed
-      ? 3
-      : totalCorrect === 2
-        ? 2
-        : totalCorrect === 1
-          ? 1
-          : 0;
 
-    let userId = 17;
+    const tiempoSegundos = Math.max(
+      1,
+      Math.floor(
+        (Date.now() - inicioActividadRef.current) / 1000,
+      ),
+    );
+
+    guardandoRef.current = true;
+    setGuardandoProgreso(true);
 
     try {
-      const sessionString =
-        localStorage.getItem("auth_session");
+      const resultado =
+        await guardarProgresoUsuarioActual({
+          mundo: "MathNumbers",
+          tema: "Tema 3: Jerarquía y propiedades",
+          actividad_codigo:
+            "mathnumbers-escuadron-tactico",
+          actividad_titulo:
+            "Escuadrón Táctico: Desactivación",
+          aciertos: totalCorrect,
+          total_preguntas: 3,
+          tiempo_segundos: tiempoSegundos,
+          xp_base: 45,
+          completada: completed,
+          respuestas: {
+            reto_1: challengeOne,
+            reto_2: challengeTwo,
+            reto_3: challengeThree,
+            explicacion_texto: explanation.trim(),
+          },
+        });
 
-      if (sessionString) {
-        const session = JSON.parse(sessionString);
+      inicioActividadRef.current = Date.now();
 
-        if (session?.id_usuario) {
-          userId = Number(session.id_usuario);
-        }
-      }
-    } catch (error) {
-      console.error(
-        "No se pudo leer la sesión del alumno:",
-        error,
+      const progresoGuardado = resultado.progreso;
+      const estrellasGuardadas = Number(
+        progresoGuardado.estrellas_obtenidas ?? 0,
       );
-    }
+      const intentosGuardados = Number(
+        progresoGuardado.intentos ?? 1,
+      );
 
-    const payload = {
-      id_usuario: userId,
-      mundo: "mathnumbers",
-      tema: "Tema 3: Jerarquía y propiedades",
-      actividad_codigo: "escuadron-tactico",
-      actividad_titulo:
-        "Escuadrón Táctico: Desactivación",
-      aciertos: totalCorrect,
-      total_preguntas: 3,
-      precision: (totalCorrect / 3) * 100,
-      estrellas_obtenidas: stars,
-      xp_obtenido: totalCorrect * 15,
-      completada: completed,
-      tiempo_segundos: 0,
-      respuestas: {
-        reto_1: challengeOne,
-        reto_2: challengeTwo,
-        reto_3: challengeThree,
-        explicacion_texto: explanation,
-      },
-    };
-
-    try {
-      await guardarProgresoActividad(payload);
-
-      const progressKey =
-        `progreso_${userId}_escuadron-tactico`;
-
-      const previousProgressRaw =
-        localStorage.getItem(progressKey);
-
-      let previousStars = 0;
-
-      if (previousProgressRaw) {
-        const previousProgress =
-          JSON.parse(previousProgressRaw);
-
-        previousStars =
-          Number(
-            previousProgress?.estrellas_obtenidas,
-          ) || 0;
-      }
-
-      localStorage.setItem(
-        progressKey,
-        JSON.stringify({
-          estrellas_obtenidas: Math.max(
-            previousStars,
-            stars,
-          ),
-        }),
+      console.log(
+        "Progreso de Escuadrón Táctico guardado:",
+        progresoGuardado,
       );
 
       if (completed) {
         showToast(
-          previousStars > 0
-            ? `¡Trampa desactivada otra vez! Conservas tus ${Math.max(
-                previousStars,
-                stars,
-              )} estrellas.`
-            : "¡Trampa desactivada! Ganaste 3 estrellas.",
+          intentosGuardados > 1
+            ? `¡Trampa desactivada otra vez! Tu mejor resultado conserva ${estrellasGuardadas} ⭐.`
+            : `¡Trampa desactivada! Ganaste ${estrellasGuardadas} estrellas. ⭐`,
         );
 
-        window.setTimeout(() => {
-          setResultModalKind("completed");
-          setResultModalOpen(true);
-        }, 900);
-
+        abrirModalResultado("completed", 1000);
         return;
       }
 
       showToast(
         totalCorrect === 2
           ? "¡Casi lo logras! Revisa cuál operación tiene prioridad."
-          : "La secuencia aún no es correcta. Usa la ayuda de Byte.",
+          : totalCorrect === 1
+            ? "Una secuencia es correcta. Revisa las otras con la ayuda de Byte."
+            : "La secuencia aún no es correcta. Usa la ayuda de Byte.",
         true,
       );
 
-      window.setTimeout(() => {
-        setResultModalKind(
-          totalCorrect >= 2 ? "almost" : "retry",
-        );
-        setResultModalOpen(true);
-      }, 900);
+      abrirModalResultado(
+        totalCorrect >= 2 ? "almost" : "retry",
+        900,
+      );
     } catch (error) {
       console.error(
         "No se pudo guardar el progreso de Escuadrón Táctico:",
         error,
       );
 
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "No se pudo guardar el progreso.";
+
       showToast(
-        "No se pudo guardar el progreso. Revisa la conexión con el servidor.",
+        `Error de conexión: ${mensaje}`,
         true,
       );
+    } finally {
+      guardandoRef.current = false;
+      setGuardandoProgreso(false);
     }
   };
 
@@ -1003,9 +1016,13 @@ export function EscuadronTactico() {
               type="button"
               className="mnx-escuadron-check-btn"
               onClick={verificar}
+              disabled={guardandoProgreso}
+              aria-busy={guardandoProgreso}
             >
               <FiCheckCircle />
-              Comprobar secuencia
+              {guardandoProgreso
+                ? "Guardando progreso..."
+                : "Comprobar secuencia"}
             </button>
 
             <p className="mnx-escuadron-progress">
