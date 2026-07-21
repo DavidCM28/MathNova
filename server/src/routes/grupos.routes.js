@@ -264,7 +264,7 @@ router.get("/:idGrupo/alumnos-disponibles", verificarToken, async (req, res) => 
           OR LOWER(COALESCE(r.usuario, '')) LIKE LOWER('%' || $2 || '%')
         )
       ORDER BY r.nombre_completo ASC
-      LIMIT 30
+      LIMIT 50
       `,
       [idGrupo, buscar]
     );

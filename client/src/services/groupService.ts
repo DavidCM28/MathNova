@@ -53,7 +53,10 @@ function obtenerToken() {
   return token;
 }
 
-async function leerJson<T>(response: Response, mensajeDefault: string): Promise<T> {
+async function leerJson<T>(
+  response: Response,
+  mensajeDefault: string,
+): Promise<T> {
   const texto = await response.text();
 
   let data: any = {};
