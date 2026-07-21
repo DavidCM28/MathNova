@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getSessionUser } from "../../utils/authSession";
 import "./ActividadesMathData.css";
 
 import logo from "../../assets/logo_MathNova.png";
@@ -32,13 +33,23 @@ import {
   FiFilter,
   FiCheckCircle,
   FiCircle,
+  FiLock,
 } from "react-icons/fi";
 
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
+const API_URL = "http://localhost:3001/api";
+
 function ActividadesMathData() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+
+  // El ID del estudiante se obtiene de la sesión activa en cada render
+  const usuarioSesion = getSessionUser();
+  const ID_ESTUDIANTE = usuarioSesion?.id_usuario;
+
+  // completadas[0] = Generador de Energía, [1] = Rampas, [2] = Tripulación, [3] = Holograma
+  const [completadas, setCompletadas] = useState<boolean[]>([false, false, false, false]);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "auto";
@@ -47,6 +58,41 @@ function ActividadesMathData() {
       document.body.style.overflow = "auto";
     };
   }, [menuOpen]);
+
+  // ==========================================
+  // CARGAR ESTADO DE LAS 4 ACTIVIDADES
+  // ==========================================
+
+  useEffect(() => {
+    const cargarEstado = async () => {
+      try {
+        const response = await fetch(`${API_URL}/progreso-general/${ID_ESTUDIANTE}`);
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          setCompletadas([
+            data.data.proporcionalidad,
+            data.data.rampas,
+            data.data.tripulacion,
+            data.data.holograma,
+          ]);
+        }
+      } catch (error) {
+        console.error("Error al cargar el estado de las actividades:", error);
+      }
+    };
+
+    cargarEstado();
+  }, []);
+
+  // La actividad 0 siempre está desbloqueada; las demás necesitan que la
+  // anterior (índice - 1) esté completada. Las actividades 4 en adelante
+  // (índice 4+) todavía no tienen backend propio, así que no se bloquean.
+  const estaDesbloqueada = (index: number) => {
+    if (index === 0) return true;
+    if (index >= 4) return true;
+    return completadas[index - 1];
+  };
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
@@ -276,50 +322,70 @@ function ActividadesMathData() {
           </div>
 
           <div className="mathdatax-activities-grid">
-            {actividades.map((item, index) => (
-              <article className="mathdatax-activity-card" key={index}>
-                <img src={item.img} alt={item.titulo} />
+            {actividades.map((item, index) => {
+              const bloqueada = index < 4 ? !estaDesbloqueada(index) : true;
 
-                <div className="mathdatax-activity-info">
-                  <h3>{item.titulo}</h3>
+              return (
+                <article
+                  className={`mathdatax-activity-card ${
+                    bloqueada ? "mathdatax-activity-bloqueada" : ""
+                  }`}
+                  key={index}
+                >
+                  <div className="mathdatax-activity-img-wrap">
+                    <img src={item.img} alt={item.titulo} />
 
-                  <p>{item.texto}</p>
-
-                  <span
-                    className={
-                      item.nivel === "Fácil"
-                        ? "mathdatax-easy"
-                        : "mathdatax-medium"
-                    }
-                  >
-                    {item.nivel}
-                  </span>
-
-                  <div className="mathdatax-activity-bottom">
-                    <small>
-                      <FiClock />
-                      {item.tiempo}
-                    </small>
-
-<button
-  onClick={() => {
-    if (index === 0) {
-      navigate("/actividades-math-data/generador-energia");
-    } else if (index === 1) {
-      navigate("/actividades-math-data/rampas-lanzamiento");
-    } else if (index === 2) {
-      navigate("/actividades-math-data/encuesta-tripulacion");
-    } else if (index === 3) {
-      navigate("/actividades-math-data/holograma-reportes");
-    }
-  }}
-                    >
-                      Iniciar
-                    </button>
+                    {bloqueada && (
+                      <div className="mathdatax-lock-overlay">
+                        <FiLock />
+                      </div>
+                    )}
                   </div>
-                </div>
-              </article>
-            ))}
+
+                  <div className="mathdatax-activity-info">
+                    <h3>{item.titulo}</h3>
+
+                    <p>{item.texto}</p>
+
+                    <span
+                      className={
+                        item.nivel === "Fácil"
+                          ? "mathdatax-easy"
+                          : "mathdatax-medium"
+                      }
+                    >
+                      {item.nivel}
+                    </span>
+
+                    <div className="mathdatax-activity-bottom">
+                      <small>
+                        <FiClock />
+                        {item.tiempo}
+                      </small>
+
+                      <button
+                        disabled={bloqueada}
+                        onClick={() => {
+                          if (bloqueada) return;
+
+                          if (index === 0) {
+                            navigate("/actividades-math-data/generador-energia");
+                          } else if (index === 1) {
+                            navigate("/actividades-math-data/rampas-lanzamiento");
+                          } else if (index === 2) {
+                            navigate("/actividades-math-data/encuesta-tripulacion");
+                          } else if (index === 3) {
+                            navigate("/actividades-math-data/holograma-reportes");
+                          }
+                        }}
+                      >
+                        {bloqueada ? "Bloqueada" : "Iniciar"}
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </section>
         <footer className="mathdatax-footer">
