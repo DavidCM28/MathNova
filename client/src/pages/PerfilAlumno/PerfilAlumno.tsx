@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { obtenerPerfilAlumno } from "../../services/alumnoService";
 import {
   obtenerResumenAlumno,
   obtenerProgresoAlumno as obtenerProgresoActividades,
   type ProgresoActividad as ProgresoActividadReal,
 } from "../../services/progresoService";
+
+import { clearAuthSession, getSessionUser } from "../../utils/authSession";
 
 import "../Dashboard/Dashboard.css";
 import "./PerfilAlumno.css";
@@ -44,8 +47,11 @@ import {
   FiLogOut,
 } from "react-icons/fi";
 
-import { GiRingedPlanet, GiTrophyCup, GiFlame } from "react-icons/gi";
-import { clearAuthSession, getSessionUser } from "../../utils/authSession";
+import {
+  GiRingedPlanet,
+  GiTrophyCup,
+  GiFlame,
+} from "react-icons/gi";
 
 type MundoCompletado = {
   id: number;
@@ -59,45 +65,93 @@ type InsigniaAlumno = {
   estado: string;
 };
 
+type MundoResumen = {
+  mundo: string;
+  completadas: number;
+  intentadas: number;
+  estrellas: number;
+  xp: number;
+  precision: number;
+};
+
 type ResumenAlumno = {
+  /*
+   * Nombres usados por la versión anterior
+   * del servicio de perfil.
+   */
   leccionesCompletadas?: number;
   estrellasGanadas?: number;
   rachaActual?: number;
   promedioGeneral?: number;
+
   tiempoEstudio?: {
     minutos?: number;
     actividadesCompletas?: number;
   };
+
+  /*
+   * Nombres actuales enviados por
+   * /api/progreso/resumen/:id_usuario
+   */
   estrellas_totales?: number;
+  estrellas_ganadas?: number;
   xp_total?: number;
+
   actividades_completadas?: number;
+  lecciones_completadas?: number;
   actividades_intentadas?: number;
+
   precision_promedio?: number;
+  promedio_general?: number;
+  progreso_general?: number;
+
   tiempo_total_segundos?: number;
+  tiempo_estudio_segundos?: number;
+  tiempo_estudio_minutos?: number;
+
+  racha_actual?: number;
+};
+
+type RespuestaResumenAlumno = {
+  ok?: boolean;
+  resumen?: ResumenAlumno;
+  mundos?: MundoResumen[];
+};
+
+type RespuestaProgresoAlumno = {
+  ok?: boolean;
+  progreso?: ProgresoActividadReal[];
 };
 
 type AlumnoPerfil = {
   id?: number | string;
   id_usuario?: number | string;
+
   nombreCompleto?: string;
   nombre_completo?: string;
+
   correo?: string;
   usuario?: string | null;
   rol?: string;
   estado?: boolean;
+
   fecha_registro?: string;
   miembro_desde?: string;
+
   grado?: string;
   escuela?: string;
   avatar_url?: string | null;
 
   nivel?: number;
   titulo?: string;
+
   estrellas_totales?: number;
   racha_actual?: number;
   lecciones_completadas?: number;
+
   tiempo_estudio_segundos?: number;
   tiempo_estudio?: string;
+
   progreso_general?: number;
 
   mundos_completados?: MundoCompletado[];
@@ -106,35 +160,71 @@ type AlumnoPerfil = {
 
 type ActividadPerfil = Partial<ProgresoActividadReal> & {
   id?: number | string;
+
   titulo?: string;
   actividadNombre?: string;
   actividadSlug?: string;
+
   estado?: string;
   porcentaje?: number;
+
   tema?: string | null;
   modulo?: string;
+
   updated_at?: string | number | Date | null;
   fechaCompletado?: string | number | Date | null;
+
   estrellas?: number;
   completada?: boolean;
+
   mundo?: string;
+
   actividad_titulo?: string;
   actividad_codigo?: string;
+
   estrellas_obtenidas?: number;
+
   fecha_ultimo_intento?: string | number | Date | null;
+};
+
+const convertirNumero = (
+  valor: unknown,
+  valorPredeterminado = 0
+): number => {
+  const numero = Number(valor);
+
+  return Number.isFinite(numero)
+    ? numero
+    : valorPredeterminado;
+};
+
+const limitarPorcentaje = (valor: unknown): number => {
+  const numero = convertirNumero(valor);
+
+  return Math.max(
+    0,
+    Math.min(100, Math.round(numero))
+  );
 };
 
 function PerfilAlumno() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [alumno, setAlumno] = useState<AlumnoPerfil | null>(null);
-  const [actividades, setActividades] = useState<ActividadPerfil[]>([]);
+
+  const [alumno, setAlumno] =
+    useState<AlumnoPerfil | null>(null);
+
+  const [actividades, setActividades] =
+    useState<ActividadPerfil[]>([]);
+
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "auto";
+    document.body.style.overflow = menuOpen
+      ? "hidden"
+      : "auto";
 
     return () => {
       document.body.style.overflow = "auto";
@@ -142,17 +232,36 @@ function PerfilAlumno() {
   }, [menuOpen]);
 
   const obtenerUsuarioLocal = () => {
-    const claves = ["usuario", "mathnova_user", "user"];
+    const claves = [
+      "usuario",
+      "mathnova_user",
+      "user",
+      "authUser",
+      "auth_session",
+      "session",
+    ];
 
     for (const clave of claves) {
       try {
-        const valorLocal = localStorage.getItem(clave);
-        const valorSesion = sessionStorage.getItem(clave);
+        const valorLocal =
+          localStorage.getItem(clave);
+
+        const valorSesion =
+          sessionStorage.getItem(clave);
+
         const valor = valorLocal || valorSesion;
 
-        if (valor) {
-          return JSON.parse(valor);
+        if (!valor) {
+          continue;
         }
+
+        const datos = JSON.parse(valor);
+
+        return (
+          datos?.usuario ??
+          datos?.user ??
+          datos
+        );
       } catch {
         continue;
       }
@@ -161,22 +270,29 @@ function PerfilAlumno() {
     return getSessionUser();
   };
 
-  const obtenerIdUsuario = (perfil?: AlumnoPerfil | null) => {
+  const obtenerIdUsuario = (
+    perfil?: AlumnoPerfil | null
+  ): number | string | null => {
     const usuarioLocal = obtenerUsuarioLocal();
 
     return (
-      perfil?.id_usuario ||
-      perfil?.id ||
-      usuarioLocal?.id_usuario ||
-      usuarioLocal?.id ||
-      usuarioLocal?.usuario_id ||
-      usuarioLocal?.id_alumno ||
+      perfil?.id_usuario ??
+      perfil?.id ??
+      usuarioLocal?.id_usuario ??
+      usuarioLocal?.id ??
+      usuarioLocal?.usuario_id ??
+      usuarioLocal?.id_alumno ??
       null
     );
   };
 
-  const formatearMinutos = (minutos?: number) => {
-    const total = Number(minutos || 0);
+  const formatearMinutos = (
+    minutos?: number
+  ): string => {
+    const total = Math.max(
+      0,
+      Math.floor(convertirNumero(minutos))
+    );
 
     if (total < 60) {
       return `${total}m`;
@@ -185,7 +301,9 @@ function PerfilAlumno() {
     const horas = Math.floor(total / 60);
     const resto = total % 60;
 
-    return resto > 0 ? `${horas}h ${resto}m` : `${horas}h`;
+    return resto > 0
+      ? `${horas}h ${resto}m`
+      : `${horas}h`;
   };
 
   useEffect(() => {
@@ -197,91 +315,198 @@ function PerfilAlumno() {
           localStorage.getItem("mathnova_token") ||
           sessionStorage.getItem("mathnova_token");
 
-        if (!token) {
-          navigate("/login", { replace: true });
+        const usuarioGuardado = obtenerUsuarioLocal();
+
+        if (!token && !usuarioGuardado) {
+          navigate("/login", {
+            replace: true,
+          });
+
           return;
         }
 
         setCargando(true);
         setError("");
 
-        const perfilData = await obtenerPerfilAlumno();
-        const perfil = perfilData?.perfil ?? perfilData?.usuario ?? {};
-        const usuarioLocal = obtenerUsuarioLocal();
+        /*
+         * Primero obtenemos la información personal
+         * del alumno.
+         */
+        const perfilData =
+          await obtenerPerfilAlumno();
 
-        const idUsuario = obtenerIdUsuario(perfil);
+        const perfil: AlumnoPerfil =
+          perfilData?.perfil ??
+          perfilData?.usuario ??
+          {};
 
-        let resumenProgresoData: {
-          resumen?: ResumenAlumno;
-          mundos?: Array<{
-            mundo: string;
-            completadas: number;
-            intentadas: number;
-            estrellas: number;
-            xp: number;
-            precision: number;
-          }>;
-        } | null = null;
+        const usuarioLocal =
+          obtenerUsuarioLocal();
 
-        let progresoData: { progreso?: ProgresoActividadReal[] } | null = null;
+        const idUsuario =
+          obtenerIdUsuario(perfil);
 
+        let resumenProgresoData:
+          | RespuestaResumenAlumno
+          | null = null;
+
+        let progresoData:
+          | RespuestaProgresoAlumno
+          | null = null;
+
+        /*
+         * Después consultamos el progreso real
+         * guardado en actividad_progreso.
+         */
         if (idUsuario) {
           try {
-            const [resumenResponse, progresoResponse] = await Promise.all([
+            const [
+              resumenResponse,
+              progresoResponse,
+            ] = await Promise.all([
               obtenerResumenAlumno(idUsuario),
               obtenerProgresoActividades(idUsuario),
             ]);
 
-            resumenProgresoData = resumenResponse;
-            progresoData = progresoResponse;
+            /*
+             * Algunos servicios regresan:
+             *
+             * {
+             *   ok: true,
+             *   resumen: {...},
+             *   mundos: [...]
+             * }
+             *
+             * Otros podrían regresar directamente
+             * el objeto resumen. Aquí soportamos ambos.
+             */
+            const posibleResumen =
+              resumenResponse as
+                | RespuestaResumenAlumno
+                | ResumenAlumno;
+
+            if (
+              posibleResumen &&
+              typeof posibleResumen === "object" &&
+              "resumen" in posibleResumen
+            ) {
+              resumenProgresoData =
+                posibleResumen as RespuestaResumenAlumno;
+            } else {
+              resumenProgresoData = {
+                resumen:
+                  posibleResumen as ResumenAlumno,
+                mundos: [],
+              };
+            }
+
+            /*
+             * También soportamos que el servicio de
+             * progreso regrese un arreglo directo.
+             */
+            if (Array.isArray(progresoResponse)) {
+              progresoData = {
+                progreso:
+                  progresoResponse as ProgresoActividadReal[],
+              };
+            } else {
+              progresoData =
+                progresoResponse as RespuestaProgresoAlumno;
+            }
           } catch (errorProgreso) {
             console.warn(
-              "No se pudo cargar el progreso nuevo del alumno:",
+              "No se pudo cargar el progreso del alumno:",
               errorProgreso
             );
           }
+        } else {
+          console.warn(
+            "No se encontró el id_usuario del alumno."
+          );
         }
 
-        const resumenAnterior: ResumenAlumno = perfilData?.resumen ?? {};
-        const resumenNuevo: ResumenAlumno = resumenProgresoData?.resumen ?? {};
+        const resumenAnterior: ResumenAlumno =
+          perfilData?.resumen ?? {};
+
+        const resumenNuevo: ResumenAlumno =
+          resumenProgresoData?.resumen ?? {};
+
+        /*
+         * El resumen nuevo tiene prioridad sobre
+         * cualquier valor anterior del perfil.
+         */
         const resumen: ResumenAlumno = {
           ...resumenAnterior,
           ...resumenNuevo,
         };
 
-        const tiempoTotalSegundos = Number(
-          resumen.tiempo_total_segundos ?? perfil.tiempo_estudio_segundos ?? 0
-        );
+        const tiempoTotalSegundos =
+          convertirNumero(
+            resumen.tiempo_total_segundos ??
+              resumen.tiempo_estudio_segundos ??
+              perfil.tiempo_estudio_segundos ??
+              0
+          );
 
-        const minutosEstudio = Number(
-          resumen?.tiempoEstudio?.minutos ?? Math.floor(tiempoTotalSegundos / 60)
-        );
+        const minutosEstudio =
+          convertirNumero(
+            resumen.tiempo_estudio_minutos ??
+              resumen.tiempoEstudio?.minutos ??
+              Math.floor(
+                tiempoTotalSegundos / 60
+              )
+          );
 
-        const actividadesCompletadas = Number(
-          resumen.actividades_completadas ??
-            resumen.leccionesCompletadas ??
-            resumen.tiempoEstudio?.actividadesCompletas ??
-            perfil.lecciones_completadas ??
-            0
-        );
+        const actividadesCompletadas =
+          convertirNumero(
+            resumen.actividades_completadas ??
+              resumen.lecciones_completadas ??
+              resumen.leccionesCompletadas ??
+              resumen.tiempoEstudio
+                ?.actividadesCompletas ??
+              perfil.lecciones_completadas ??
+              0
+          );
 
-        const estrellasTotales = Number(
-          resumen.estrellas_totales ??
-            resumen.estrellasGanadas ??
-            perfil.estrellas_totales ??
-            0
-        );
+        const estrellasTotales =
+          convertirNumero(
+            resumen.estrellas_totales ??
+              resumen.estrellas_ganadas ??
+              resumen.estrellasGanadas ??
+              perfil.estrellas_totales ??
+              0
+          );
 
-        const progresoPromedio = Number(
-          resumen.precision_promedio ??
-            resumen.promedioGeneral ??
-            perfil.progreso_general ??
-            0
-        );
+        const progresoPromedio =
+          convertirNumero(
+            resumen.progreso_general ??
+              resumen.precision_promedio ??
+              resumen.promedio_general ??
+              resumen.promedioGeneral ??
+              perfil.progreso_general ??
+              0
+          );
+
+        const rachaActual =
+          convertirNumero(
+            resumen.racha_actual ??
+              resumen.rachaActual ??
+              perfil.racha_actual ??
+              0
+          );
 
         const alumnoNormalizado: AlumnoPerfil = {
-          id: perfil.id ?? perfil.id_usuario ?? usuarioLocal?.id_usuario,
-          id_usuario: perfil.id_usuario ?? perfil.id ?? usuarioLocal?.id_usuario,
+          id:
+            perfil.id ??
+            perfil.id_usuario ??
+            usuarioLocal?.id_usuario ??
+            usuarioLocal?.id,
+
+          id_usuario:
+            perfil.id_usuario ??
+            perfil.id ??
+            usuarioLocal?.id_usuario ??
+            usuarioLocal?.id,
 
           nombre_completo:
             perfil.nombre_completo ??
@@ -299,13 +524,38 @@ function PerfilAlumno() {
             usuarioLocal?.usuario ??
             "Alumno",
 
-          correo: perfil.correo ?? usuarioLocal?.correo ?? "Sin correo",
-          usuario: perfil.usuario ?? usuarioLocal?.usuario ?? null,
-          rol: perfil.rol ?? usuarioLocal?.rol ?? "estudiante",
-          estado: perfil.estado ?? true,
+          correo:
+            perfil.correo ??
+            usuarioLocal?.correo ??
+            usuarioLocal?.correo_electronico ??
+            "Sin correo",
 
-          grado: perfil.grado ?? usuarioLocal?.grado ?? "Sin asignar",
-          escuela: perfil.escuela ?? usuarioLocal?.escuela ?? "MathNova",
+          usuario:
+            perfil.usuario ??
+            usuarioLocal?.usuario ??
+            null,
+
+          rol:
+            perfil.rol ??
+            usuarioLocal?.rol ??
+            "estudiante",
+
+          estado:
+            perfil.estado ??
+            usuarioLocal?.estado ??
+            true,
+
+          grado:
+            perfil.grado ??
+            usuarioLocal?.grado ??
+            usuarioLocal?.grado_escolar ??
+            "Sin asignar",
+
+          escuela:
+            perfil.escuela ??
+            usuarioLocal?.escuela ??
+            "MathNova",
+
           fecha_registro:
             perfil.fecha_registro ??
             perfil.miembro_desde ??
@@ -316,48 +566,130 @@ function PerfilAlumno() {
             perfil.fecha_registro ??
             usuarioLocal?.fecha_registro,
 
-          avatar_url: perfil.avatar_url ?? usuarioLocal?.avatar_url ?? null,
+          avatar_url:
+            perfil.avatar_url ??
+            usuarioLocal?.avatar_url ??
+            null,
 
-          nivel: perfil.nivel ?? Math.max(1, Math.floor(estrellasTotales / 6) + 1),
-          titulo: perfil.titulo ?? "Aprendiz Nova",
+          nivel:
+            perfil.nivel ??
+            Math.max(
+              1,
+              Math.floor(estrellasTotales / 6) +
+                1
+            ),
 
-          estrellas_totales: estrellasTotales,
-          racha_actual: Number(resumen.rachaActual ?? perfil.racha_actual ?? 0),
-          lecciones_completadas: actividadesCompletadas,
-          tiempo_estudio_segundos: tiempoTotalSegundos,
+          titulo:
+            perfil.titulo ??
+            "Aprendiz Nova",
+
+          estrellas_totales:
+            estrellasTotales,
+
+          racha_actual:
+            rachaActual,
+
+          lecciones_completadas:
+            actividadesCompletadas,
+
+          tiempo_estudio_segundos:
+            tiempoTotalSegundos,
+
+          /*
+           * Ya no usamos primero el valor antiguo
+           * del perfil, porque podía quedarse en "0m".
+           */
           tiempo_estudio:
-            perfil.tiempo_estudio ?? formatearMinutos(minutosEstudio),
-          progreso_general: Math.round(progresoPromedio),
+            formatearMinutos(minutosEstudio),
+
+          progreso_general:
+            limitarPorcentaje(
+              progresoPromedio
+            ),
         };
 
-        const actividadesDesdeProgreso = Array.isArray(progresoData?.progreso)
-          ? progresoData.progreso.map((actividad) => ({
-              ...actividad,
-              id: actividad.id_progreso,
-              titulo: actividad.actividad_titulo,
-              actividadNombre: actividad.actividad_titulo,
-              actividadSlug: actividad.actividad_codigo,
-              estado: actividad.completada ? "completada" : "en_curso",
-              porcentaje: Number(actividad.precision ?? 0),
-              updated_at: actividad.fecha_ultimo_intento,
-              estrellas: Number(actividad.estrellas_obtenidas ?? 0),
-            }))
-          : [];
+        const actividadesDesdeProgreso =
+          Array.isArray(
+            progresoData?.progreso
+          )
+            ? progresoData.progreso.map(
+                (actividad) => ({
+                  ...actividad,
 
-        const actividadesAnteriores = Array.isArray(perfilData?.actividadesRecientes)
-          ? perfilData.actividadesRecientes
-          : [];
+                  id:
+                    actividad.id_progreso,
+
+                  titulo:
+                    actividad.actividad_titulo,
+
+                  actividadNombre:
+                    actividad.actividad_titulo,
+
+                  actividadSlug:
+                    actividad.actividad_codigo,
+
+                  estado:
+                    actividad.completada
+                      ? "completada"
+                      : "en_curso",
+
+                  porcentaje:
+                    convertirNumero(
+                      actividad.precision
+                    ),
+
+                  updated_at:
+                    actividad.fecha_ultimo_intento,
+
+                  estrellas:
+                    convertirNumero(
+                      actividad.estrellas_obtenidas
+                    ),
+                })
+              )
+            : [];
+
+        const actividadesAnteriores =
+          Array.isArray(
+            perfilData?.actividadesRecientes
+          )
+            ? perfilData.actividadesRecientes
+            : [];
 
         const actividadesNormalizadas =
           actividadesDesdeProgreso.length > 0
             ? actividadesDesdeProgreso
             : actividadesAnteriores;
 
+        console.log(
+          "Perfil normalizado:",
+          alumnoNormalizado
+        );
+
+        console.log(
+          "Resumen nuevo del alumno:",
+          resumenNuevo
+        );
+
+        console.log(
+          "Actividades del alumno:",
+          actividadesNormalizadas
+        );
+
         setAlumno(alumnoNormalizado);
-        setActividades(actividadesNormalizadas as ActividadPerfil[]);
-      } catch (error) {
-        console.error("Error al cargar perfil del alumno:", error);
-        setError("No se pudo cargar el perfil del alumno.");
+
+        setActividades(
+          actividadesNormalizadas as ActividadPerfil[]
+        );
+      } catch (errorPerfil) {
+        console.error(
+          "Error al cargar perfil del alumno:",
+          errorPerfil
+        );
+
+        setError(
+          "No se pudo cargar el perfil del alumno."
+        );
       } finally {
         setCargando(false);
       }
@@ -373,65 +705,108 @@ function PerfilAlumno() {
 
   const cerrarSesion = () => {
     clearAuthSession();
-    navigate("/login", { replace: true });
+
+    navigate("/login", {
+      replace: true,
+    });
   };
 
-  const formatearFecha = (fecha?: string) => {
+  const formatearFecha = (
+    fecha?: string
+  ): string => {
     if (!fecha) {
       return "Sin fecha";
     }
 
-    const fechaConvertida = new Date(fecha);
+    const fechaConvertida =
+      new Date(fecha);
 
-    if (Number.isNaN(fechaConvertida.getTime())) {
+    if (
+      Number.isNaN(
+        fechaConvertida.getTime()
+      )
+    ) {
       return "Sin fecha";
     }
 
-    return fechaConvertida.toLocaleDateString("es-MX", {
-      month: "long",
-      year: "numeric",
-    });
+    return fechaConvertida.toLocaleDateString(
+      "es-MX",
+      {
+        month: "long",
+        year: "numeric",
+      }
+    );
   };
 
   const formatearFechaActividad = (
-    fecha: string | number | Date | null | undefined
-  ) => {
+    fecha:
+      | string
+      | number
+      | Date
+      | null
+      | undefined
+  ): string => {
     if (!fecha) {
       return "Reciente";
     }
 
-    const fechaConvertida = new Date(fecha);
+    const fechaConvertida =
+      new Date(fecha);
 
-    if (Number.isNaN(fechaConvertida.getTime())) {
+    if (
+      Number.isNaN(
+        fechaConvertida.getTime()
+      )
+    ) {
       return "Reciente";
     }
 
-    return fechaConvertida.toLocaleString("es-MX", {
-      day: "2-digit",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return fechaConvertida.toLocaleString(
+      "es-MX",
+      {
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+      }
+    );
   };
 
-  const obtenerNombreMundo = (nombre: string) => {
-    const nombres: Record<string, string> = {
+  const obtenerNombreMundo = (
+    nombre: string
+  ): string => {
+    const nombres: Record<
+      string,
+      string
+    > = {
       MathNumbers: "Planeta Números",
       MathGeometry: "Mundo Geometría",
       MathData: "Galaxia Datos",
-      "Planeta Números": "Planeta Números",
-      "Mundo Geometría": "Mundo Geometría",
-      "Galaxia Datos": "Galaxia Datos",
+
+      "Planeta Números":
+        "Planeta Números",
+
+      "Mundo Geometría":
+        "Mundo Geometría",
+
+      "Galaxia Datos":
+        "Galaxia Datos",
     };
 
     return nombres[nombre] || nombre;
   };
 
-  const obtenerImagenMundo = (nombre: string) => {
-    const imagenes: Record<string, string> = {
+  const obtenerImagenMundo = (
+    nombre: string
+  ): string => {
+    const imagenes: Record<
+      string,
+      string
+    > = {
       MathNumbers: mundo1,
       MathGeometry: mundo2,
       MathData: mundo3,
+
       "Planeta Números": mundo1,
       "Mundo Geometría": mundo2,
       "Galaxia Datos": mundo3,
@@ -440,107 +815,213 @@ function PerfilAlumno() {
     return imagenes[nombre] || mundo1;
   };
 
-  const obtenerImagenInsignia = (nombre: string) => {
-    const imagenes: Record<string, string> = {
+  const obtenerImagenInsignia = (
+    nombre: string
+  ): string => {
+    const imagenes: Record<
+      string,
+      string
+    > = {
       "Primeros Pasos": primerosPasos,
       Explorador: explorador,
       "Cálculo Ágil": calculadorAgil,
       Constancia: constancia,
     };
 
-    return imagenes[nombre] || primerosPasos;
+    return (
+      imagenes[nombre] ||
+      primerosPasos
+    );
   };
 
-  const actividadesSeguras = Array.isArray(actividades) ? actividades : [];
+  const actividadesSeguras =
+    Array.isArray(actividades)
+      ? actividades
+      : [];
 
-  const leccionesCompletadas = Number(alumno?.lecciones_completadas ?? 0);
-  const progresoGeneral = Number(alumno?.progreso_general ?? 0);
-  const segundosEstudio = Number(alumno?.tiempo_estudio_segundos ?? 0);
-
-  const progresoMetaHoras = Math.min((segundosEstudio / 18000) * 100, 100);
-  const progresoMetaActividades = Math.min((leccionesCompletadas / 20) * 100, 100);
-
-  const actividadReciente = useMemo(() => {
-    return actividadesSeguras
-      .map((actividad) => ({
-        ...actividad,
-        titulo:
-          actividad.titulo ||
-          actividad.actividad_titulo ||
-          actividad.actividadNombre ||
-          actividad.actividadSlug ||
-          actividad.actividad_codigo ||
-          "Actividad",
-        estado:
-          actividad.estado || (actividad.completada ? "completada" : "en_curso"),
-        updated_at:
-          actividad.updated_at ||
-          actividad.fecha_ultimo_intento ||
-          actividad.fechaCompletado ||
-          null,
-      }))
-      .slice(0, 3);
-  }, [actividadesSeguras]);
-
-  const mundosCompletados: MundoCompletado[] = useMemo(() => {
-    if (alumno?.mundos_completados && alumno.mundos_completados.length > 0) {
-      return alumno.mundos_completados;
-    }
-
-    const mundosBase = [
-      { id: 1, nombre: "MathNumbers" },
-      { id: 2, nombre: "MathGeometry" },
-      { id: 3, nombre: "MathData" },
-    ];
-
-    return mundosBase.map((mundo) => ({
-      ...mundo,
-      completado: actividadesSeguras.some(
-        (actividad) => actividad.mundo === mundo.nombre && actividad.completada
-      ),
-    }));
-  }, [alumno?.mundos_completados, actividadesSeguras]);
-
-  const insignias: InsigniaAlumno[] = useMemo(() => {
-    if (alumno?.insignias && alumno.insignias.length > 0) {
-      return alumno.insignias;
-    }
-
-    const algunMundoCompletado = mundosCompletados.some(
-      (mundo) => mundo.completado
+  const leccionesCompletadas =
+    convertirNumero(
+      alumno?.lecciones_completadas
     );
 
-    return [
-      {
-        id: 1,
-        nombre: "Primeros Pasos",
-        estado: leccionesCompletadas > 0 ? "Desbloqueada" : "Bloqueada",
-      },
-      {
-        id: 2,
-        nombre: "Explorador",
-        estado: algunMundoCompletado ? "Desbloqueada" : "Bloqueada",
-      },
-      {
-        id: 3,
-        nombre: "Cálculo Ágil",
-        estado: progresoGeneral >= 80 ? "Desbloqueada" : "Bloqueada",
-      },
-      {
-        id: 4,
-        nombre: "Constancia",
-        estado: Number(alumno?.racha_actual || 0) >= 3 ? "Desbloqueada" : "Bloqueada",
-      },
-    ];
-  }, [
-    alumno?.insignias,
-    alumno?.racha_actual,
-    mundosCompletados,
-    leccionesCompletadas,
-    progresoGeneral,
-  ]);
+  const progresoGeneral =
+    limitarPorcentaje(
+      alumno?.progreso_general
+    );
 
-  const textoActividad = (actividad: ActividadPerfil) => {
+  const segundosEstudio =
+    convertirNumero(
+      alumno?.tiempo_estudio_segundos
+    );
+
+  const progresoMetaHoras =
+    Math.min(
+      (segundosEstudio / 18000) *
+        100,
+      100
+    );
+
+  const progresoMetaActividades =
+    Math.min(
+      (leccionesCompletadas / 20) *
+        100,
+      100
+    );
+
+  const actividadReciente =
+    useMemo(() => {
+      return actividadesSeguras
+        .map((actividad) => ({
+          ...actividad,
+
+          titulo:
+            actividad.titulo ||
+            actividad.actividad_titulo ||
+            actividad.actividadNombre ||
+            actividad.actividadSlug ||
+            actividad.actividad_codigo ||
+            "Actividad",
+
+          estado:
+            actividad.estado ||
+            (
+              actividad.completada
+                ? "completada"
+                : "en_curso"
+            ),
+
+          updated_at:
+            actividad.updated_at ||
+            actividad.fecha_ultimo_intento ||
+            actividad.fechaCompletado ||
+            null,
+        }))
+        .sort((actividadA, actividadB) => {
+          const fechaA =
+            actividadA.updated_at
+              ? new Date(
+                  actividadA.updated_at
+                ).getTime()
+              : 0;
+
+          const fechaB =
+            actividadB.updated_at
+              ? new Date(
+                  actividadB.updated_at
+                ).getTime()
+              : 0;
+
+          return fechaB - fechaA;
+        })
+        .slice(0, 3);
+    }, [actividadesSeguras]);
+
+  const mundosCompletados:
+    MundoCompletado[] = useMemo(() => {
+      if (
+        alumno?.mundos_completados &&
+        alumno.mundos_completados.length > 0
+      ) {
+        return alumno.mundos_completados;
+      }
+
+      const mundosBase = [
+        {
+          id: 1,
+          nombre: "MathNumbers",
+        },
+        {
+          id: 2,
+          nombre: "MathGeometry",
+        },
+        {
+          id: 3,
+          nombre: "MathData",
+        },
+      ];
+
+      return mundosBase.map((mundo) => ({
+        ...mundo,
+
+        completado:
+          actividadesSeguras.some(
+            (actividad) =>
+              actividad.mundo ===
+                mundo.nombre &&
+              actividad.completada === true
+          ),
+      }));
+    }, [
+      alumno?.mundos_completados,
+      actividadesSeguras,
+    ]);
+
+  const insignias:
+    InsigniaAlumno[] = useMemo(() => {
+      if (
+        alumno?.insignias &&
+        alumno.insignias.length > 0
+      ) {
+        return alumno.insignias;
+      }
+
+      const algunMundoCompletado =
+        mundosCompletados.some(
+          (mundo) =>
+            mundo.completado
+        );
+
+      return [
+        {
+          id: 1,
+          nombre: "Primeros Pasos",
+
+          estado:
+            leccionesCompletadas > 0
+              ? "Desbloqueada"
+              : "Bloqueada",
+        },
+        {
+          id: 2,
+          nombre: "Explorador",
+
+          estado:
+            algunMundoCompletado
+              ? "Desbloqueada"
+              : "Bloqueada",
+        },
+        {
+          id: 3,
+          nombre: "Cálculo Ágil",
+
+          estado:
+            progresoGeneral >= 80
+              ? "Desbloqueada"
+              : "Bloqueada",
+        },
+        {
+          id: 4,
+          nombre: "Constancia",
+
+          estado:
+            convertirNumero(
+              alumno?.racha_actual
+            ) >= 3
+              ? "Desbloqueada"
+              : "Bloqueada",
+        },
+      ];
+    }, [
+      alumno?.insignias,
+      alumno?.racha_actual,
+      mundosCompletados,
+      leccionesCompletadas,
+      progresoGeneral,
+    ]);
+
+  const textoActividad = (
+    actividad: ActividadPerfil
+  ): string => {
     const titulo =
       actividad.titulo ||
       actividad.actividad_titulo ||
@@ -549,19 +1030,33 @@ function PerfilAlumno() {
       actividad.actividad_codigo ||
       "Actividad";
 
-    if (actividad.estado === "completada" || actividad.completada) {
+    if (
+      actividad.estado ===
+        "completada" ||
+      actividad.completada
+    ) {
       return `Completaste la actividad “${titulo}”`;
     }
 
     return `Iniciaste la actividad “${titulo}”`;
   };
 
-  const iconoActividad = (actividad: ActividadPerfil) => {
-    if (actividad.estado === "completada" || actividad.completada) {
-      return <FiCheckCircle className="green-icon" />;
+  const iconoActividad = (
+    actividad: ActividadPerfil
+  ) => {
+    if (
+      actividad.estado ===
+        "completada" ||
+      actividad.completada
+    ) {
+      return (
+        <FiCheckCircle className="green-icon" />
+      );
     }
 
-    return <FiBookOpen className="blue-icon" />;
+    return (
+      <FiBookOpen className="blue-icon" />
+    );
   };
 
   if (cargando) {
@@ -570,7 +1065,11 @@ function PerfilAlumno() {
         <section className="perfil-content">
           <header className="perfil-title">
             <h1>Cargando perfil...</h1>
-            <p>Estamos preparando tu información.</p>
+
+            <p>
+              Estamos preparando tu
+              información.
+            </p>
           </header>
         </section>
       </main>
@@ -582,7 +1081,10 @@ function PerfilAlumno() {
       <main className="dashboard-page perfil-layout">
         <section className="perfil-content">
           <header className="perfil-title">
-            <h1>Perfil del alumno</h1>
+            <h1>
+              Perfil del alumno
+            </h1>
+
             <p>{error}</p>
           </header>
         </section>
@@ -593,57 +1095,132 @@ function PerfilAlumno() {
   return (
     <main className="dashboard-page perfil-layout">
       <button
-        className={`hamburger-btn ${menuOpen ? "hamburger-open" : ""}`}
-        onClick={() => setMenuOpen(!menuOpen)}
+        type="button"
+        className={`hamburger-btn ${
+          menuOpen
+            ? "hamburger-open"
+            : ""
+        }`}
+        onClick={() =>
+          setMenuOpen(
+            (estadoActual) =>
+              !estadoActual
+          )
+        }
+        aria-label="Abrir menú"
       >
-        <img src={menuHamburguesa} alt="Menú" />
+        <img
+          src={menuHamburguesa}
+          alt="Menú"
+        />
       </button>
 
       {menuOpen && (
-        <div className="menu-overlay" onClick={() => setMenuOpen(false)} />
+        <div
+          className="menu-overlay"
+          onClick={() =>
+            setMenuOpen(false)
+          }
+        />
       )}
 
-      <aside className={`sidebar ${menuOpen ? "sidebar-open" : ""}`}>
-        <img src={logo} alt="MathNova" className="sidebar-logo" />
+      <aside
+        className={`sidebar ${
+          menuOpen
+            ? "sidebar-open"
+            : ""
+        }`}
+      >
+        <img
+          src={logo}
+          alt="MathNova"
+          className="sidebar-logo"
+        />
 
         <nav className="sidebar-menu">
-          <button className="menu-item" onClick={() => irARuta("/dashboard")}>
+          <button
+            type="button"
+            className="menu-item"
+            onClick={() =>
+              irARuta("/dashboard")
+            }
+          >
             <FiGrid />
-            <span>Dashboard principal</span>
+
+            <span>
+              Dashboard principal
+            </span>
           </button>
 
           <button
+            type="button"
             className="menu-item"
-            onClick={() => irARuta("/seleccion-mundos")}
+            onClick={() =>
+              irARuta(
+                "/seleccion-mundos"
+              )
+            }
           >
             <GiRingedPlanet />
-            <span>Selección de mundos</span>
+
+            <span>
+              Selección de mundos
+            </span>
           </button>
 
           <button
+            type="button"
             className="menu-item"
-            onClick={() => irARuta("/retroalimentacion")}
+            onClick={() =>
+              irARuta(
+                "/retroalimentacion"
+              )
+            }
           >
             <FiMessageSquare />
-            <span>Retroalimentación</span>
-          </button>
 
-          <button className="menu-item" onClick={() => irARuta("/recompensas")}>
-            <GiTrophyCup />
-            <span>Recompensas</span>
-          </button>
-
-          <button className="menu-item active">
-            <FiUser />
-            <span>Perfil del alumno</span>
+            <span>
+              Retroalimentación
+            </span>
           </button>
 
           <button
+            type="button"
             className="menu-item"
-            onClick={() => irARuta("/estadisticas")}
+            onClick={() =>
+              irARuta("/recompensas")
+            }
+          >
+            <GiTrophyCup />
+
+            <span>
+              Recompensas
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className="menu-item active"
+          >
+            <FiUser />
+
+            <span>
+              Perfil del alumno
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className="menu-item"
+            onClick={() =>
+              irARuta("/estadisticas")
+            }
           >
             <FiBarChart2 />
-            <span>Estadísticas</span>
+
+            <span>
+              Estadísticas
+            </span>
           </button>
         </nav>
 
@@ -659,46 +1236,79 @@ function PerfilAlumno() {
       <section className="perfil-content">
         <header className="perfil-title">
           <h1>Perfil del alumno</h1>
-          <p>Consulta tu información y tus logros.</p>
+
+          <p>
+            Consulta tu información y
+            tus logros.
+          </p>
         </header>
 
         <section className="perfil-top-grid">
           <article className="perfil-main-card">
             <img
-              src={alumno?.avatar_url || alexPerfil}
-              alt={alumno?.nombre_completo || "Alumno"}
+              src={
+                alumno?.avatar_url ||
+                alexPerfil
+              }
+              alt={
+                alumno?.nombre_completo ||
+                "Alumno"
+              }
               className="alex-img"
             />
 
             <div className="perfil-name">
-              <h2>{alumno?.nombre_completo || "Alumno"}</h2>
+              <h2>
+                {alumno?.nombre_completo ||
+                  "Alumno"}
+              </h2>
 
               <span>
-                ⭐ Nivel {alumno?.nivel ?? 1} •{" "}
-                {alumno?.titulo ?? "Aprendiz Nova"}
+                ⭐ Nivel{" "}
+                {alumno?.nivel ?? 1} •{" "}
+                {alumno?.titulo ??
+                  "Aprendiz Nova"}
               </span>
 
               <div className="racha-box">
                 <GiFlame />
+
                 <div>
-                  <p>Racha actual</p>
-                  <strong>{alumno?.racha_actual ?? 0} días</strong>
+                  <p>
+                    Racha actual
+                  </p>
+
+                  <strong>
+                    {alumno?.racha_actual ??
+                      0}{" "}
+                    días
+                  </strong>
                 </div>
               </div>
             </div>
 
-            <div className="perfil-divider"></div>
+            <div className="perfil-divider" />
 
             <div className="estrellas-box">
-              <p>Estrellas totales</p>
+              <p>
+                Estrellas totales
+              </p>
 
               <div>
-                <img src={estrellasPerfil} alt="Estrellas" />
-                <strong>{alumno?.estrellas_totales ?? 0}</strong>
+                <img
+                  src={estrellasPerfil}
+                  alt="Estrellas"
+                />
+
+                <strong>
+                  {alumno?.estrellas_totales ??
+                    0}
+                </strong>
               </div>
 
               <span>
-                {(alumno?.estrellas_totales ?? 0) > 0
+                {(alumno?.estrellas_totales ??
+                  0) > 0
                   ? "¡Sigue así, vas increíble!"
                   : "Completa actividades para ganar estrellas"}
               </span>
@@ -706,84 +1316,147 @@ function PerfilAlumno() {
           </article>
 
           <article className="mini-card green-mini">
-            <h3>Lecciones completadas</h3>
-            <strong>{leccionesCompletadas}</strong>
+            <h3>
+              Lecciones completadas
+            </h3>
+
+            <strong>
+              {leccionesCompletadas}
+            </strong>
+
             <FiBookOpen className="card-icon" />
           </article>
 
           <article className="mini-card blue-mini">
-            <h3>Tiempo de estudio</h3>
-            <strong>{alumno?.tiempo_estudio ?? "0m"}</strong>
+            <h3>
+              Tiempo de estudio
+            </h3>
+
+            <strong>
+              {alumno?.tiempo_estudio ??
+                "0m"}
+            </strong>
+
             <FiClock />
           </article>
 
           <article className="mini-card purple-mini">
-            <h3>Progreso general</h3>
-            <strong>{progresoGeneral}%</strong>
+            <h3>
+              Progreso general
+            </h3>
+
+            <strong>
+              {progresoGeneral}%
+            </strong>
+
             <FiArrowUpRight />
           </article>
         </section>
 
         <section className="perfil-middle-grid">
           <article className="perfil-panel datos-panel">
-            <h2>Datos del alumno</h2>
+            <h2>
+              Datos del alumno
+            </h2>
 
             <div className="dato-row">
               <FiUser />
-              <span>Nombre completo</span>
-              <strong>{alumno?.nombre_completo || "Sin nombre"}</strong>
+
+              <span>
+                Nombre completo
+              </span>
+
+              <strong>
+                {alumno?.nombre_completo ||
+                  "Sin nombre"}
+              </strong>
             </div>
 
             <div className="dato-row">
               <FiBookOpen />
+
               <span>Grado</span>
-              <strong>{alumno?.grado || "Sin asignar"}</strong>
+
+              <strong>
+                {alumno?.grado ||
+                  "Sin asignar"}
+              </strong>
             </div>
 
             <div className="dato-row">
               <FiHome />
+
               <span>Escuela</span>
-              <strong>{alumno?.escuela || "MathNova"}</strong>
+
+              <strong>
+                {alumno?.escuela ||
+                  "MathNova"}
+              </strong>
             </div>
 
             <div className="dato-row">
               <FiCalendar />
-              <span>Miembro desde</span>
+
+              <span>
+                Miembro desde
+              </span>
+
               <strong>
                 {formatearFecha(
-                  alumno?.miembro_desde || alumno?.fecha_registro
+                  alumno?.miembro_desde ||
+                    alumno?.fecha_registro
                 )}
               </strong>
             </div>
           </article>
 
           <article className="perfil-panel mundos-panel">
-            <h2>Mundos completados</h2>
+            <h2>
+              Mundos completados
+            </h2>
 
             <div className="mundos-list">
-              {mundosCompletados.map((mundo) => (
-                <div className="mundo-item" key={mundo.id}>
-                  <div className="mundo-img-box">
-                    <img
-                      src={obtenerImagenMundo(mundo.nombre)}
-                      alt={obtenerNombreMundo(mundo.nombre)}
-                    />
+              {mundosCompletados.map(
+                (mundo) => (
+                  <div
+                    className="mundo-item"
+                    key={mundo.id}
+                  >
+                    <div className="mundo-img-box">
+                      <img
+                        src={obtenerImagenMundo(
+                          mundo.nombre
+                        )}
+                        alt={obtenerNombreMundo(
+                          mundo.nombre
+                        )}
+                      />
 
-                    {mundo.completado && (
-                      <span className="check-badge">
-                        <FiCheck />
-                      </span>
-                    )}
+                      {mundo.completado && (
+                        <span className="check-badge">
+                          <FiCheck />
+                        </span>
+                      )}
+                    </div>
+
+                    <span>
+                      {obtenerNombreMundo(
+                        mundo.nombre
+                      )}
+                    </span>
                   </div>
-
-                  <span>{obtenerNombreMundo(mundo.nombre)}</span>
-                </div>
-              ))}
+                )
+              )}
             </div>
 
             <button
+              type="button"
               className="ver-link"
-              onClick={() => irARuta("/seleccion-mundos")}
+              onClick={() =>
+                irARuta(
+                  "/seleccion-mundos"
+                )
+              }
             >
               Ver todos los mundos →
             </button>
@@ -791,70 +1464,122 @@ function PerfilAlumno() {
 
           <article className="perfil-panel insignias-panel">
             <div className="panel-header">
-              <h2>Insignias destacadas</h2>
+              <h2>
+                Insignias destacadas
+              </h2>
 
               <button
+                type="button"
                 className="ver-link"
-                onClick={() => irARuta("/recompensas")}
+                onClick={() =>
+                  irARuta(
+                    "/recompensas"
+                  )
+                }
               >
                 Ver todas
               </button>
             </div>
 
             <div className="insignias-list">
-              {insignias.map((insignia) => (
-                <div className="insignia-item" key={insignia.id}>
-                  <img
-                    src={obtenerImagenInsignia(insignia.nombre)}
-                    alt={insignia.nombre}
-                  />
+              {insignias.map(
+                (insignia) => (
+                  <div
+                    className="insignia-item"
+                    key={insignia.id}
+                  >
+                    <img
+                      src={obtenerImagenInsignia(
+                        insignia.nombre
+                      )}
+                      alt={
+                        insignia.nombre
+                      }
+                    />
 
-                  <strong>{insignia.nombre}</strong>
-                  <span>{insignia.estado}</span>
-                </div>
-              ))}
+                    <strong>
+                      {insignia.nombre}
+                    </strong>
+
+                    <span>
+                      {insignia.estado}
+                    </span>
+                  </div>
+                )
+              )}
             </div>
           </article>
         </section>
 
         <section className="perfil-bottom-grid">
           <article className="perfil-panel actividad-panel">
-            <h2>Actividad reciente</h2>
+            <h2>
+              Actividad reciente
+            </h2>
 
-            {actividadReciente.length > 0 ? (
-              actividadReciente.map((actividad, index) => (
-                <div
-                  className="actividad-row"
-                  key={
-                    actividad.id ||
-                    actividad.id_progreso ||
-                    actividad.actividadSlug ||
-                    actividad.actividad_codigo ||
-                    `${actividad.mundo}-${index}`
-                  }
-                >
-                  {iconoActividad(actividad)}
+            {actividadReciente.length >
+            0 ? (
+              actividadReciente.map(
+                (actividad, index) => (
+                  <div
+                    className="actividad-row"
+                    key={
+                      actividad.id ||
+                      actividad.id_progreso ||
+                      actividad.actividadSlug ||
+                      actividad.actividad_codigo ||
+                      `${actividad.mundo}-${index}`
+                    }
+                  >
+                    {iconoActividad(
+                      actividad
+                    )}
 
-                  <span>{textoActividad(actividad)}</span>
+                    <span>
+                      {textoActividad(
+                        actividad
+                      )}
+                    </span>
 
-                  <small>{formatearFechaActividad(actividad.updated_at)}</small>
+                    <small>
+                      {formatearFechaActividad(
+                        actividad.updated_at
+                      )}
+                    </small>
 
-                  <strong>⭐ +{actividad.estrellas_obtenidas ?? actividad.estrellas ?? 0}</strong>
-                </div>
-              ))
+                    <strong>
+                      ⭐ +
+                      {actividad.estrellas_obtenidas ??
+                        actividad.estrellas ??
+                        0}
+                    </strong>
+                  </div>
+                )
+              )
             ) : (
               <div className="recent-empty-box">
-                <p>Aún no tienes actividad reciente.</p>
+                <p>
+                  Aún no tienes
+                  actividad reciente.
+                </p>
+
                 <span>
-                  Cuando inicies o completes actividades, aparecerán aquí
+                  Cuando inicies o
+                  completes actividades,
+                  aparecerán aquí
                   automáticamente.
                 </span>
               </div>
             )}
 
             <button
+              type="button"
               className="ver-link"
-              onClick={() => irARuta("/seleccion-mundos")}
+              onClick={() =>
+                irARuta(
+                  "/seleccion-mundos"
+                )
+              }
             >
               Ver toda tu actividad →
             </button>
@@ -862,56 +1587,99 @@ function PerfilAlumno() {
 
           <article className="perfil-panel metas-panel">
             <div className="panel-header">
-              <h2>Metas de la semana</h2>
-              <span>Semana actual</span>
+              <h2>
+                Metas de la semana
+              </h2>
+
+              <span>
+                Semana actual
+              </span>
             </div>
 
             <div className="meta-row">
               <FiBookOpen />
-              <span>Completa 10 lecciones</span>
+
+              <span>
+                Completa 10 lecciones
+              </span>
 
               <div className="meta-bar">
                 <span
                   style={{
                     width: `${Math.min(
-                      (leccionesCompletadas / 10) * 100,
+                      (leccionesCompletadas /
+                        10) *
+                        100,
                       100
                     )}%`,
                   }}
-                ></span>
+                />
               </div>
 
-              <strong>{leccionesCompletadas}/10</strong>
+              <strong>
+                {leccionesCompletadas}/10
+              </strong>
+
               <b>⭐ +100</b>
             </div>
 
             <div className="meta-row">
               <FiClock />
-              <span>Estudia 5 horas esta semana</span>
+
+              <span>
+                Estudia 5 horas esta
+                semana
+              </span>
 
               <div className="meta-bar">
-                <span style={{ width: `${progresoMetaHoras}%` }}></span>
+                <span
+                  style={{
+                    width: `${progresoMetaHoras}%`,
+                  }}
+                />
               </div>
 
-              <strong>{alumno?.tiempo_estudio ?? "0m"} / 5h</strong>
+              <strong>
+                {alumno?.tiempo_estudio ??
+                  "0m"}{" "}
+                / 5h
+              </strong>
+
               <b>⭐ +100</b>
             </div>
 
             <div className="meta-row">
               <FiEdit />
-              <span>Resuelve 20 actividades</span>
+
+              <span>
+                Resuelve 20 actividades
+              </span>
 
               <div className="meta-bar">
-                <span style={{ width: `${progresoMetaActividades}%` }}></span>
+                <span
+                  style={{
+                    width: `${progresoMetaActividades}%`,
+                  }}
+                />
               </div>
 
-              <strong>{Math.min(leccionesCompletadas, 20)}/20</strong>
+              <strong>
+                {Math.min(
+                  leccionesCompletadas,
+                  20
+                )}
+                /20
+              </strong>
+
               <b>⭐ +100</b>
             </div>
 
             <button
+              type="button"
               className="ver-link"
-              onClick={() => irARuta("/estadisticas")}
+              onClick={() =>
+                irARuta("/estadisticas")
+              }
             >
               Ver todas mis metas →
             </button>
@@ -919,10 +1687,18 @@ function PerfilAlumno() {
         </section>
 
         <footer className="dashboard-footer">
-          <p>© MathNova. Todos los derechos reservados.</p>
+          <p>
+            © MathNova. Todos los
+            derechos reservados.
+          </p>
 
           <div className="footer-icons">
-            <button className="footer-icon-btn" onClick={cerrarSesion}>
+            <button
+              type="button"
+              className="footer-icon-btn"
+              onClick={cerrarSesion}
+              aria-label="Cerrar sesión"
+            >
               <FiLogOut className="logout-icon" />
             </button>
 
