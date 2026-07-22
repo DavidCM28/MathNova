@@ -19,7 +19,6 @@ import {
   FiUsers,
   FiUserPlus,
   FiEdit,
-  FiMessageSquare,
   FiBarChart2,
   FiTrendingUp,
   FiClipboard,
@@ -34,6 +33,94 @@ import {
   FiSettings,
 } from "react-icons/fi";
 
+type ResumenDashboard = {
+  grupos_activos: number;
+  alumnos_registrados: number;
+  alumnos_sin_grupo: number;
+  alumnos_rezagados: number;
+};
+
+type AlumnoRezagado = {
+  id_alumno: number;
+  nombre: string;
+  grupo: string | null;
+  tema: string | null;
+  situacion: string;
+};
+
+type AlumnoDesempeno = {
+  lugar: number;
+  id_alumno: number;
+  nombre: string;
+  grupo: string | null;
+  puntos: number;
+  estrellas: number;
+};
+
+type DashboardDocenteData = {
+  resumen: ResumenDashboard;
+  alumnos_rezagados: AlumnoRezagado[];
+  mejor_desempeno: AlumnoDesempeno[];
+  avisos: string[];
+};
+
+type DashboardDocenteResponse = {
+  ok: boolean;
+  mensaje?: string;
+} & DashboardDocenteData;
+
+const API_DASHBOARD_DOCENTE = "http://localhost:3001/api/docente/dashboard";
+
+const dashboardInicial: DashboardDocenteData = {
+  resumen: {
+    grupos_activos: 0,
+    alumnos_registrados: 0,
+    alumnos_sin_grupo: 0,
+    alumnos_rezagados: 0,
+  },
+  alumnos_rezagados: [],
+  mejor_desempeno: [],
+  avisos: [],
+};
+
+function obtenerToken() {
+  return (
+    localStorage.getItem("token") ||
+    localStorage.getItem("mathnova_token") ||
+    sessionStorage.getItem("token") ||
+    sessionStorage.getItem("mathnova_token")
+  );
+}
+
+async function leerRespuesta<T>(response: Response): Promise<T> {
+  const texto = await response.text();
+
+  try {
+    return texto ? JSON.parse(texto) : ({} as T);
+  } catch {
+    throw new Error(
+      "El backend no devolvió JSON. Revisa que la ruta /api/docente/dashboard esté registrada."
+    );
+  }
+}
+
+function clasePuntoAlumno(index: number) {
+  const clases = ["blue-dot", "light-dot", "gray-dot", "green-dot", "yellow-dot"];
+  return clases[index % clases.length];
+}
+
+function claseSituacion(situacion: string) {
+  const texto = situacion.toLowerCase();
+
+  if (texto.includes("bajo")) return "tag red-tag";
+  if (texto.includes("asistencia")) return "tag orange-tag";
+  if (texto.includes("sin progreso")) return "tag orange-tag";
+  if (texto.includes("sin grupo")) return "tag orange-tag";
+  if (texto.includes("sin entregar")) return "tag strong-red-tag";
+
+  return "tag green-tag";
+}
+
 function DashboardDocente() {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -46,6 +133,11 @@ function DashboardDocente() {
   });
 
   const [selectedMenu, setSelectedMenu] = useState("dashboard");
+
+  const [dashboard, setDashboard] =
+    useState<DashboardDocenteData>(dashboardInicial);
+  const [cargandoDashboard, setCargandoDashboard] = useState(true);
+  const [errorDashboard, setErrorDashboard] = useState("");
 
   const navigate = useNavigate();
 
@@ -65,44 +157,66 @@ function DashboardDocente() {
     localStorage.setItem("docente-alumnos-open", String(alumnosOpen));
   }, [alumnosOpen]);
 
+  useEffect(() => {
+    const cargarDashboard = async () => {
+      try {
+        setCargandoDashboard(true);
+        setErrorDashboard("");
+
+        const token = obtenerToken();
+
+        const response = await fetch(API_DASHBOARD_DOCENTE, {
+          headers: token
+            ? {
+                Authorization: `Bearer ${token}`,
+              }
+            : {},
+        });
+
+        const data = await leerRespuesta<DashboardDocenteResponse>(response);
+
+        if (!response.ok || !data.ok) {
+          throw new Error(
+            data.mensaje || "No se pudo cargar el dashboard docente."
+          );
+        }
+
+        setDashboard({
+          resumen: data.resumen,
+          alumnos_rezagados: data.alumnos_rezagados || [],
+          mejor_desempeno: data.mejor_desempeno || [],
+          avisos: data.avisos || [],
+        });
+      } catch (error) {
+        const mensaje =
+          error instanceof Error
+            ? error.message
+            : "No se pudo cargar el dashboard docente.";
+
+        setErrorDashboard(mensaje);
+        setDashboard(dashboardInicial);
+      } finally {
+        setCargandoDashboard(false);
+      }
+    };
+
+    cargarDashboard();
+  }, []);
+
   const irARuta = (ruta: string, menu: string) => {
     setSelectedMenu(menu);
     setMenuOpen(false);
     navigate(ruta);
   };
 
-  const alumnosMejorDesempeno = [
-    {
-      lugar: "1",
-      nombre: "Mariana Fernanda Ruiz",
-      grupo: "2°A",
-      puntos: "320",
-    },
-    {
-      lugar: "2",
-      nombre: "Santiago Jiménez",
-      grupo: "1°B",
-      puntos: "250",
-    },
-    {
-      lugar: "3",
-      nombre: "Ana Sofía García",
-      grupo: "3°A",
-      puntos: "210",
-    },
-    {
-      lugar: "4",
-      nombre: "Diego Hernández",
-      grupo: "1°C",
-      puntos: "129",
-    },
-    {
-      lugar: "5",
-      nombre: "Lucía Medina",
-      grupo: "3°B",
-      puntos: "90",
-    },
-  ];
+  const cerrarSesion = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("mathnova_token");
+    localStorage.removeItem("usuario");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("mathnova_token");
+    navigate("/login");
+  };
 
   return (
     <main className="docente-page">
@@ -199,7 +313,7 @@ function DashboardDocente() {
                   onClick={() =>
                     irARuta(
                       "/administrar-alumnos-docente",
-                      "administrar-alumnos",
+                      "administrar-alumnos"
                     )
                   }
                   type="button"
@@ -285,8 +399,7 @@ function DashboardDocente() {
             <h1>Bienvenido al Dashboard Docente</h1>
 
             <p>
-              Gestiona tus grupos, revisa actividades y da seguimiento al
-              progreso de tus alumnos.
+              Gestiona tus grupos y da seguimiento al progreso de tus alumnos.
             </p>
 
             <div className="docente-hero-actions">
@@ -321,7 +434,11 @@ function DashboardDocente() {
           <article className="docente-stat-card green-card">
             <div>
               <h3>Grupos activos</h3>
-              <strong>6</strong>
+              <strong>
+                {cargandoDashboard
+                  ? "..."
+                  : dashboard.resumen.grupos_activos}
+              </strong>
             </div>
 
             <div className="stat-icon-circle">
@@ -332,7 +449,11 @@ function DashboardDocente() {
           <article className="docente-stat-card yellow-card">
             <div>
               <h3>Alumnos registrados</h3>
-              <strong>148</strong>
+              <strong>
+                {cargandoDashboard
+                  ? "..."
+                  : dashboard.resumen.alumnos_registrados}
+              </strong>
             </div>
 
             <div className="stat-icon-circle">
@@ -342,8 +463,12 @@ function DashboardDocente() {
 
           <article className="docente-stat-card red-card">
             <div>
-              <h3>Actividades por revisar</h3>
-              <strong>12</strong>
+              <h3>Alumnos sin grupo</h3>
+              <strong>
+                {cargandoDashboard
+                  ? "..."
+                  : dashboard.resumen.alumnos_sin_grupo}
+              </strong>
             </div>
 
             <div className="stat-icon-circle">
@@ -367,40 +492,40 @@ function DashboardDocente() {
                 <span>Situación</span>
               </div>
 
-              <div className="table-row dashboard-row-hover">
-                <span className="student-name blue-dot">Emiliano Morales</span>
-                <span>2°B</span>
-                <span className="dashboard-empty">—</span>
-                <span className="tag red-tag">Bajo rendimiento</span>
-              </div>
+              {cargandoDashboard ? (
+                <div className="table-row dashboard-row-hover">
+                  <span>Cargando alumnos...</span>
+                  <span className="dashboard-empty">—</span>
+                  <span className="dashboard-empty">—</span>
+                  <span className="dashboard-empty">—</span>
+                </div>
+              ) : dashboard.alumnos_rezagados.length === 0 ? (
+                <div className="table-row dashboard-row-hover">
+                  <span>No hay alumnos rezagados por ahora.</span>
+                  <span className="dashboard-empty">—</span>
+                  <span className="dashboard-empty">—</span>
+                  <span className="dashboard-empty">—</span>
+                </div>
+              ) : (
+                dashboard.alumnos_rezagados.map((alumno, index) => (
+                  <div
+                    className="table-row dashboard-row-hover"
+                    key={alumno.id_alumno}
+                  >
+                    <span
+                      className={`student-name ${clasePuntoAlumno(index)}`}
+                    >
+                      {alumno.nombre}
+                    </span>
 
-              <div className="table-row dashboard-row-hover">
-                <span className="student-name light-dot">Valeria Sánchez</span>
-                <span>1°C</span>
-                <span className="dashboard-empty">—</span>
-                <span className="tag orange-tag">Tareas pendientes</span>
-              </div>
-
-              <div className="table-row dashboard-row-hover">
-                <span className="student-name gray-dot">Jose Ramírez</span>
-                <span>2°A</span>
-                <span className="dashboard-empty">—</span>
-                <span className="tag strong-red-tag">Sin entregar</span>
-              </div>
-
-              <div className="table-row dashboard-row-hover">
-                <span className="student-name green-dot">Camila Torres</span>
-                <span>1°C</span>
-                <span className="dashboard-empty">—</span>
-                <span className="tag red-tag">Bajo rendimiento</span>
-              </div>
-
-              <div className="table-row dashboard-row-hover">
-                <span className="student-name yellow-dot">Oscar López</span>
-                <span>2°B</span>
-                <span className="dashboard-empty">—</span>
-                <span className="tag green-tag">Asistencia baja</span>
-              </div>
+                    <span>{alumno.grupo || "Sin grupo"}</span>
+                    <span>{alumno.tema || "Sin módulo"}</span>
+                    <span className={claseSituacion(alumno.situacion)}>
+                      {alumno.situacion}
+                    </span>
+                  </div>
+                ))
+              )}
             </div>
           </article>
 
@@ -419,22 +544,43 @@ function DashboardDocente() {
                 <span>Estrellas</span>
               </div>
 
-              {alumnosMejorDesempeno.map((alumno, index) => (
-                <div
-                  className="performance-row dashboard-row-hover"
-                  key={alumno.nombre}
-                >
-                  <span className={`rank rank-${index + 1}`}>
-                    {alumno.lugar}
-                  </span>
-                  <span>{alumno.nombre}</span>
-                  <span>{alumno.grupo}</span>
-                  <span>{alumno.puntos}</span>
-                  <span className="stars-cell">
-                    <img src={puntosEstrellas} alt="Estrella" />
-                  </span>
+              {cargandoDashboard ? (
+                <div className="performance-row dashboard-row-hover">
+                  <span className="rank">...</span>
+                  <span>Cargando...</span>
+                  <span>—</span>
+                  <span>—</span>
+                  <span>—</span>
                 </div>
-              ))}
+              ) : dashboard.mejor_desempeno.length === 0 ? (
+                <div className="performance-row dashboard-row-hover">
+                  <span className="rank">—</span>
+                  <span>Sin datos todavía</span>
+                  <span>—</span>
+                  <span>—</span>
+                  <span>—</span>
+                </div>
+              ) : (
+                dashboard.mejor_desempeno.map((alumno, index) => (
+                  <div
+                    className="performance-row dashboard-row-hover"
+                    key={alumno.id_alumno}
+                  >
+                    <span className={`rank rank-${index + 1}`}>
+                      {alumno.lugar}
+                    </span>
+
+                    <span>{alumno.nombre}</span>
+                    <span>{alumno.grupo || "Sin grupo"}</span>
+                    <span>{alumno.puntos}</span>
+
+                    <span className="stars-cell">
+                      <img src={puntosEstrellas} alt="Estrella" />
+                      <span>{alumno.estrellas}</span>
+                    </span>
+                  </div>
+                ))
+              )}
             </div>
           </article>
 
@@ -466,8 +612,17 @@ function DashboardDocente() {
                 Avisos
               </h2>
 
-              <p>• Retroalimentación: entrega de calificaciones viernes.</p>
-              <p>• Nueva guía de evaluación disponible.</p>
+              {cargandoDashboard ? (
+                <p>Cargando avisos...</p>
+              ) : errorDashboard ? (
+                <p>• {errorDashboard}</p>
+              ) : dashboard.avisos.length === 0 ? (
+                <p>Sin avisos por ahora.</p>
+              ) : (
+                dashboard.avisos.map((aviso, index) => (
+                  <p key={`${aviso}-${index}`}>• {aviso}</p>
+                ))
+              )}
             </article>
           </aside>
         </section>
@@ -477,7 +632,7 @@ function DashboardDocente() {
 
           <div className="docente-footer-icons">
             <button
-              onClick={() => irARuta("/login", "logout")}
+              onClick={cerrarSesion}
               type="button"
               aria-label="Cerrar sesión"
             >
