@@ -1030,21 +1030,26 @@ export function CofreBienvenida() {
     return "";
   };
 
-  const repetirActividad = () => {
+  const limpiarActividad = () => {
     if (resultTimerRef.current !== null) {
       window.clearTimeout(resultTimerRef.current);
       resultTimerRef.current = null;
     }
 
-    setResultModalOpen(false);
     setAnswers({});
     setChecked(false);
     setSolved(false);
     setChestPhase("fall");
-    setAttempts(0);
     setGuardandoProgreso(false);
 
     inicioActividadRef.current = Date.now();
+  };
+
+  const repetirActividad = () => {
+    limpiarActividad();
+    setAttempts(0);
+    setResultModalOpen(false);
+    setResultModalKind("completed");
 
     window.scrollTo({
       top: 0,
@@ -1054,6 +1059,15 @@ export function CofreBienvenida() {
     showToast(
       "Cofre reiniciado. ¡Responde nuevamente!",
     );
+  };
+
+  const cerrarResultado = () => {
+    setResultModalOpen(false);
+
+    if (resultModalKind !== "completed") {
+      limpiarActividad();
+      setResultModalKind("completed");
+    }
   };
 
   const comprobar = async () => {
@@ -1077,6 +1091,7 @@ export function CofreBienvenida() {
     ).length;
 
     const esCorrecto = total === 2;
+
     const tiempoSegundos = Math.max(
       1,
       Math.floor(
@@ -1084,11 +1099,18 @@ export function CofreBienvenida() {
       ),
     );
 
-    setChecked(true);
+    /*
+     * Solo mostramos las respuestas correctas cuando el alumno
+     * resolvió toda la actividad. Así no revelamos la respuesta
+     * al abrir el modal de "casi" o "vuelve a intentarlo".
+     */
+    setChecked(esCorrecto);
     setSolved(esCorrecto);
+
     setAttempts((intentosActuales) =>
       Math.min(intentosActuales + 1, 3),
     );
+
     setGuardandoProgreso(true);
 
     try {
@@ -1112,6 +1134,7 @@ export function CofreBienvenida() {
       const estrellasGuardadas = Number(
         resultado.progreso.estrellas_obtenidas ?? 0,
       );
+
       const numeroIntentos = Number(
         resultado.progreso.intentos ?? 1,
       );
@@ -1720,9 +1743,7 @@ export function CofreBienvenida() {
           kind={resultModalKind}
           nextRoute={radarRoute}
           retryRoute={cofreRoute}
-          onClose={() =>
-            setResultModalOpen(false)
-          }
+          onClose={cerrarResultado}
           onRetry={repetirActividad}
         />
       )}

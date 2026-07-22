@@ -765,3 +765,42 @@
     justify-content: center;
   }
 }
+
+/* ========================= */
+/* BLOQUEO DE ACTIVIDADES */
+/* ========================= */
+
+.mathdatax-activity-img-wrap {
+  position: relative;
+}
+
+.mathdatax-activity-bloqueada {
+  opacity: 0.55;
+  filter: grayscale(0.6);
+}
+
+.mathdatax-lock-overlay {
+  position: absolute;
+  inset: 10px 10px 0;
+  background: rgba(7, 19, 49, 0.55);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mathdatax-lock-overlay svg {
+  font-size: 30px;
+  color: #ffffff;
+}
+
+.mathdatax-activity-bottom button:disabled {
+  background: #b7c3d1;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mathdatax-activity-bottom button:disabled:hover {
+  background: #b7c3d1;
+  transform: none;
+}

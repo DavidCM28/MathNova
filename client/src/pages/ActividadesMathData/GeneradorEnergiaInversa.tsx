@@ -71,8 +71,6 @@ import { getSessionUser } from "../../utils/authSession";
 // ============================================
 
 const API_URL = "http://localhost:3001/api";
-const usuarioSesion = getSessionUser();
-const ID_ESTUDIANTE = usuarioSesion?.id_usuario;
 
 // ============================================
 // DATOS INICIALES (NO MODIFICAR)
@@ -254,8 +252,13 @@ function GeneradorEnergiaInversa() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
+  // El ID del estudiante se obtiene de la sesión activa en cada render
+  const usuarioSesion = getSessionUser();
+  const ID_ESTUDIANTE = usuarioSesion?.id_usuario;
+
   const [filas, setFilas] = useState(filasIniciales);
   const [puntos, setPuntos] = useState(puntosIniciales);
+  const [puntosIncorrectos, setPuntosIncorrectos] = useState<{ x: number; y: number }[]>([]);
   const [respuesta, setRespuesta] = useState("");
   const [mensajeFeedback, setMensajeFeedback] = useState("");
   const [actividadCompletada, setActividadCompletada] = useState(false);
@@ -350,6 +353,7 @@ function GeneradorEnergiaInversa() {
     setActividadCompletada(false);
     setFilas(filasIniciales);
     setPuntos(puntosIniciales);
+    setPuntosIncorrectos([]);
     setMensajeFeedback("");
     setProgresoPorcentaje(0);
     setRespuesta("");
@@ -392,7 +396,7 @@ function GeneradorEnergiaInversa() {
             if (i !== index) return f;
 
             if (resultado.celda_completada && !resultado.correcto) {
-              // Se agotaron los 3 intentos: se revela la respuesta y se bloquea
+              // Se agotaron los intentos: se revela la respuesta y se bloquea
               return {
                 ...f,
                 y: String(resultado.respuesta_correcta),
@@ -405,13 +409,22 @@ function GeneradorEnergiaInversa() {
           })
         );
 
-        setMensajeFeedback(resultado.mensaje);
-
         if (resultado.correcto) {
+          setMensajeFeedback(resultado.mensaje);
           await guardarProgreso(4);
           if (!puntos.some(p => p.x === fila.x)) {
             setPuntos((prev) => [...prev, { x: fila.x, y: Number(valor) }]);
           }
+          // Ya no está mal: si tenía un punto rojo marcado, se quita
+          setPuntosIncorrectos((prev) => prev.filter((p) => p.x !== fila.x));
+        } else {
+          // Incorrecto: sin mensaje de texto, solo el punto rojo parpadeante
+          // en la gráfica (la pista del asistente ya está disponible aparte)
+          setMensajeFeedback("");
+          setPuntosIncorrectos((prev) => [
+            ...prev.filter((p) => p.x !== fila.x),
+            { x: fila.x, y: Number(valor) },
+          ]);
         }
 
         const celdasCompletadas = filas.filter(f => f.correcto === true || f.bloqueada).length;
@@ -1482,6 +1495,17 @@ function GeneradorEnergiaInversa() {
                 <span
                   key={i}
                   className="gen1-graph-point"
+                  style={{
+                    left: `${(p.x / EJE_X_MAX) * 100}%`,
+                    bottom: `${(p.y / EJE_Y_MAX) * 100}%`,
+                  }}
+                />
+              ))}
+
+              {puntosIncorrectos.map((p, i) => (
+                <span
+                  key={`err-${i}`}
+                  className="gen1-graph-point gen1-graph-point-error"
                   style={{
                     left: `${(p.x / EJE_X_MAX) * 100}%`,
                     bottom: `${(p.y / EJE_Y_MAX) * 100}%`,
