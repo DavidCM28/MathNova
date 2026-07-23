@@ -1911,3 +1911,119 @@ body {
     font-size: 29px;
   }
 }
+
+/* =========================================================
+   TEMAS 1 Y 2 DENTRO DEL MISMO PANEL
+   ========================================================= */
+
+.geomx-topic-block {
+  width: 100%;
+  min-width: 0;
+}
+
+.geomx-topic-block-first {
+  padding-bottom: 6px;
+}
+
+.geomx-topic-block-second {
+  padding-top: 6px;
+}
+
+.geomx-topic-divider {
+  width: 100%;
+  height: 2px;
+  margin: 34px 0;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 159, 24, 0.55) 12%,
+    rgba(255, 159, 24, 0.82) 50%,
+    rgba(255, 159, 24, 0.55) 88%,
+    transparent 100%
+  );
+}
+
+/* Los dos indicadores de tema usan exactamente el mismo color. */
+.geomx-topic-block .geomx-section-heading > span {
+  background: #ff9f18;
+  box-shadow: 0 10px 18px rgba(255, 159, 24, 0.22);
+}
+
+/* Evita que el título largo del Tema 2 se desborde o se corte. */
+.geomx-topic-block-second .geomx-section-heading > div {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.geomx-topic-block-second .geomx-section-heading h2 {
+  max-width: 1050px;
+  font-size: clamp(28px, 2.25vw, 34px);
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+
+/* Las actividades 5 y 6 quedan debajo de las primeras cuatro,
+   alineadas desde la izquierda y dentro del mismo panel. */
+.geomx-topic-two-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.geomx-topic-two-grid .geomx-activity-card {
+  width: 100%;
+}
+
+.geomx-card-5 .geomx-activity-image img,
+.geomx-card-6 .geomx-activity-image img {
+  object-position: center center;
+}
+
+@media (min-width: 1200px) {
+  .geomx-topic-two-grid .geomx-activity-card:nth-child(1) {
+    grid-column: 1;
+  }
+
+  .geomx-topic-two-grid .geomx-activity-card:nth-child(2) {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 1199px) {
+  .geomx-topic-divider {
+    margin: 28px 0;
+  }
+
+  .geomx-topic-two-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .geomx-topic-block-second .geomx-section-heading h2 {
+    font-size: clamp(25px, 3vw, 31px);
+  }
+}
+
+@media (max-width: 767px) {
+  .geomx-topic-divider {
+    margin: 24px 0;
+  }
+
+  .geomx-topic-two-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .geomx-topic-block-second .geomx-section-heading h2 {
+    font-size: 27px;
+    line-height: 1.12;
+  }
+}
+
+@media (max-width: 575px) {
+  .geomx-topic-divider {
+    margin: 20px 0;
+  }
+
+  .geomx-topic-block-second .geomx-section-heading h2 {
+    font-size: 23px;
+    line-height: 1.15;
+  }
+}

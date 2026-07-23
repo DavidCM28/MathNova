@@ -1,0 +1,1520 @@
+/* =========================================================
+   GESTIÓN DE DOCENTES
+   El menú, sidebar, hamburguesa y footer general se conservan
+   desde App.css mediante las clases docente-*.
+   ========================================================= */
+
+.gestion-docentes-content {
+  flex: 1;
+  min-width: 0;
+  height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px 28px;
+  scrollbar-width: none;
+}
+
+.gestion-docentes-content::-webkit-scrollbar {
+  display: none;
+}
+
+/* HERO BASADO EN LA CARD DE ACTIVIDADES */
+
+.gestion-docentes-hero-card {
+  width: 100%;
+  min-height: 186px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 26px;
+  padding: 32px 36px;
+  margin-bottom: 18px;
+  background: linear-gradient(135deg, #f7fbff 0%, #eef5ff 58%, #eaf2ff 100%);
+  border: 1px solid #dbe7f6;
+  border-radius: 22px;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+  animation: gestionFadeUp 0.55s ease both;
+}
+
+.gestion-docentes-hero-card::before {
+  content: "";
+  position: absolute;
+  right: -76px;
+  bottom: -104px;
+  width: 230px;
+  height: 230px;
+  border-radius: 50%;
+  background: rgba(0, 88, 255, 0.06);
+}
+
+.gestion-docentes-hero-text {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  min-width: 0;
+}
+
+.gestion-docentes-hero-text h1 {
+  margin: 0;
+  font-size: clamp(44px, 4.2vw, 70px);
+  line-height: 1;
+  font-weight: 900;
+  color: #070d2b;
+  letter-spacing: -1px;
+}
+
+.gestion-docentes-hero-text p {
+  max-width: 670px;
+  margin: 16px 0 0;
+  font-size: clamp(15px, 1.1vw, 18px);
+  line-height: 1.45;
+  color: #50617c;
+  font-weight: 700;
+}
+
+.gestion-docentes-hero-img {
+  position: relative;
+  z-index: 2;
+  width: min(470px, 38vw);
+  max-height: 170px;
+  object-fit: contain;
+  object-position: right center;
+  align-self: flex-end;
+  filter: drop-shadow(0 14px 18px rgba(15, 23, 42, 0.1));
+}
+
+/* ACCESO SEGURO */
+
+.gestion-access-card {
+  display: grid;
+  grid-template-columns:
+    minmax(250px, 1.1fr)
+    minmax(250px, 0.9fr)
+    auto
+    minmax(220px, 0.8fr);
+  gap: 18px;
+  align-items: center;
+  min-height: 104px;
+  padding: 16px 18px;
+  background: #ffffff;
+  border: 1px solid #dbe7f6;
+  border-radius: 17px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+  animation: gestionFadeUp 0.62s ease both;
+}
+
+.gestion-access-intro {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.gestion-access-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: #0058ff;
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 10px 20px rgba(0, 88, 255, 0.22);
+}
+
+.gestion-access-icon svg {
+  font-size: 27px;
+}
+
+.gestion-access-intro h2 {
+  margin: 0;
+  color: #07122e;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.gestion-access-intro p,
+.gestion-access-note p {
+  margin: 6px 0 0;
+  color: #63718a;
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.gestion-access-field > span,
+.gestion-form-field > span {
+  display: block;
+  margin-bottom: 6px;
+  color: #26334c;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.gestion-access-field > div,
+.gestion-password-input {
+  height: 45px;
+  display: flex;
+  align-items: center;
+  border: 1px solid #cfdced;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.gestion-access-field input,
+.gestion-password-input input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0 12px;
+  color: #111827;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.gestion-access-field button,
+.gestion-password-input button {
+  width: 42px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.gestion-validate-btn {
+  min-width: 145px;
+  height: 45px;
+  border: none;
+  border-radius: 10px;
+  background: #0058ff;
+  color: #ffffff;
+  padding: 0 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(0, 88, 255, 0.2);
+}
+
+.gestion-validate-btn.validated {
+  background: #00a651;
+}
+
+.gestion-access-note {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border-left: 1px solid #e3e9f3;
+  padding-left: 18px;
+}
+
+.gestion-access-note svg {
+  color: #0058ff;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.gestion-access-note p {
+  margin: 0;
+}
+
+.gestion-message {
+  margin: 10px 0 0;
+  padding: 10px 14px;
+  border-radius: 11px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.gestion-message.success {
+  background: #e7f9ee;
+  color: #138a42;
+}
+
+.gestion-message.warning {
+  background: #fff5e3;
+  color: #c77900;
+}
+
+/* ESTADÍSTICAS */
+
+.gestion-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+  animation: gestionFadeUp 0.68s ease both;
+}
+
+.gestion-stat-card {
+  min-height: 104px;
+  border: 1px solid #dbe7f6;
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.gestion-stat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 17px 34px rgba(0, 88, 255, 0.12);
+}
+
+.gestion-stat-card h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.gestion-stat-card strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 36px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.gestion-stat-card p {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.gestion-stat-card > span {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.gestion-stat-card > span svg {
+  font-size: 27px;
+}
+
+.gestion-stat-card.active {
+  color: #00a651;
+  background: #f5fff8;
+}
+
+.gestion-stat-card.active > span {
+  background: #dcfce7;
+}
+
+.gestion-stat-card.inactive {
+  color: #ff6b00;
+  background: #fffaf5;
+}
+
+.gestion-stat-card.inactive > span {
+  background: #fff0df;
+}
+
+.gestion-stat-card.pending {
+  color: #7c3aed;
+  background: #faf7ff;
+}
+
+.gestion-stat-card.pending > span {
+  background: #efe8ff;
+}
+
+/* LAYOUT PRINCIPAL */
+
+.gestion-main-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 390px;
+  gap: 18px;
+  align-items: start;
+  margin-top: 18px;
+  animation: gestionFadeUp 0.74s ease both;
+}
+
+.gestion-list-column {
+  min-width: 0;
+}
+
+.gestion-list-card,
+.gestion-form-card,
+.gestion-important-card {
+  background: #ffffff;
+  border: 1px solid #dbe7f6;
+  border-radius: 17px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+}
+
+.gestion-list-card {
+  overflow: hidden;
+}
+
+.gestion-section-title {
+  padding: 17px 18px 8px;
+}
+
+.gestion-section-title h2,
+.gestion-form-title h2,
+.gestion-important-card h2 {
+  margin: 0;
+  color: #07122e;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.gestion-list-tools {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) auto auto;
+  gap: 12px;
+  align-items: end;
+  padding: 8px 18px 14px;
+}
+
+.gestion-search-box {
+  height: 43px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #cfdced;
+  border-radius: 10px;
+  padding: 0 12px;
+}
+
+.gestion-search-box input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.gestion-status-filter > span {
+  display: block;
+  margin-bottom: 6px;
+  color: #26334c;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.gestion-status-filter > div {
+  height: 43px;
+  display: flex;
+  align-items: center;
+  border: 1px solid #d4deed;
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.gestion-status-filter button {
+  height: 35px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  padding: 0 12px;
+  font-size: 10px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.gestion-status-filter button.active {
+  background: #eef5ff;
+  color: #0058ff;
+  box-shadow: inset 0 0 0 1px #b9d1ff;
+}
+
+.gestion-scroll-form-btn {
+  height: 43px;
+  border: none;
+  border-radius: 10px;
+  background: #0058ff;
+  color: #ffffff;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.gestion-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.gestion-table {
+  min-width: 920px;
+  display: grid;
+  grid-template-columns: 48px 1.25fr 1.55fr 1fr 0.65fr 0.75fr 0.85fr 76px;
+  align-items: center;
+  gap: 9px;
+  padding: 0 12px;
+}
+
+.gestion-table-head {
+  min-height: 34px;
+  border-top: 1px solid #edf1f7;
+  border-bottom: 1px solid #edf1f7;
+  background: #fbfdff;
+  color: #61708a;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.gestion-table-row {
+  min-height: 58px;
+  border-bottom: 1px solid #edf1f7;
+  color: #25324a;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.gestion-teacher-name {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #07122e;
+  font-weight: 900;
+}
+
+.gestion-teacher-name b {
+  width: 31px;
+  height: 31px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0058ff, #6f9dff);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 9px;
+  flex-shrink: 0;
+}
+
+.gestion-status-pill {
+  min-width: 67px;
+  min-height: 27px;
+  border: none;
+  border-radius: 999px;
+  padding: 5px 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 9px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.gestion-status-pill i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.gestion-status-pill.activo {
+  background: #e6f9ed;
+  color: #159447;
+}
+
+.gestion-status-pill.activo i {
+  background: #19b65a;
+}
+
+.gestion-status-pill.inactivo {
+  background: #ffe9e9;
+  color: #e23f3f;
+}
+
+.gestion-status-pill.inactivo i {
+  background: #ff4b4b;
+}
+
+.gestion-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.gestion-actions button {
+  width: 29px;
+  height: 29px;
+  border-radius: 8px;
+  background: #ffffff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.gestion-actions .edit {
+  border: 1px solid #8bb2ff;
+  color: #0058ff;
+}
+
+.gestion-actions .delete {
+  border: 1px solid #ff9a9a;
+  color: #ff4141;
+}
+
+.gestion-empty-table {
+  min-height: 150px;
+  display: grid;
+  place-items: center;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.gestion-table-footer {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+}
+
+.gestion-table-footer p {
+  margin: 0;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.gestion-table-footer > div {
+  display: flex;
+  gap: 6px;
+}
+
+.gestion-table-footer button,
+.gestion-table-footer span {
+  width: 31px;
+  height: 31px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+}
+
+.gestion-table-footer button {
+  border: 1px solid #d7e2f1;
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.gestion-table-footer span {
+  background: #0058ff;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.gestion-important-card {
+  min-height: 74px;
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1.25fr 0.8fr;
+  gap: 18px;
+  padding: 14px 17px;
+  background: #f7fbff;
+}
+
+.gestion-important-card > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gestion-important-card > div + div {
+  border-left: 1px solid #dbe7f6;
+  padding-left: 18px;
+}
+
+.gestion-important-card span {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #eaf2ff;
+  color: #0058ff;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.gestion-important-card h2 {
+  color: #0058ff;
+  font-size: 13px;
+}
+
+.gestion-important-card p {
+  margin: 4px 0 0;
+  color: #61708a;
+  font-size: 9px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+/* FORMULARIO */
+
+.gestion-form-card {
+  position: sticky;
+  top: 0;
+  padding: 18px;
+}
+
+.gestion-form-title {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.gestion-form-title > span {
+  width: 43px;
+  height: 43px;
+  border-radius: 13px;
+  background: #eaf2ff;
+  color: #0058ff;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.gestion-form-title p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.gestion-form-field {
+  display: block;
+  margin-top: 10px;
+}
+
+.gestion-form-field input,
+.gestion-locked-field {
+  width: 100%;
+  height: 42px;
+  border: 1px solid #cfdced;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #111827;
+  outline: none;
+  padding: 0 11px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.gestion-password-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 110px;
+  gap: 8px;
+}
+
+.gestion-generate-btn {
+  height: 42px;
+  border: 1px solid #8bb2ff;
+  border-radius: 9px;
+  background: #f8fbff;
+  color: #0058ff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.gestion-locked-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f5f7fb;
+  color: #7b879a;
+}
+
+.gestion-form-status {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.gestion-form-status button {
+  height: 36px;
+  border: 1px solid #d7e2f1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.gestion-form-status button.active {
+  border-color: #78d89d;
+  background: #f2fff7;
+  color: #00a651;
+}
+
+.gestion-form-status button.inactive {
+  border-color: #ff9f9f;
+  background: #fff4f4;
+  color: #ef4444;
+}
+
+.gestion-form-message {
+  margin: 11px 0 0;
+  padding: 9px 11px;
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.gestion-form-message.success {
+  background: #e7f9ee;
+  color: #138a42;
+}
+
+.gestion-form-message.error {
+  background: #fff0f0;
+  color: #d83d3d;
+}
+
+.gestion-register-btn,
+.gestion-cancel-btn {
+  width: 100%;
+  height: 42px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.gestion-register-btn {
+  margin-top: 15px;
+  border: none;
+  background: #0058ff;
+  color: #ffffff;
+  box-shadow: 0 9px 18px rgba(0, 88, 255, 0.18);
+}
+
+.gestion-cancel-btn {
+  margin-top: 8px;
+  border: 1px solid #d7e2f1;
+  background: #ffffff;
+  color: #0058ff;
+}
+
+.gestion-form-note {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #dbe7f6;
+  border-radius: 10px;
+  background: #f7fbff;
+  display: flex;
+  gap: 8px;
+  color: #64748b;
+}
+
+.gestion-form-note svg {
+  color: #0058ff;
+  flex-shrink: 0;
+}
+
+.gestion-form-note p {
+  margin: 0;
+  font-size: 9px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.gestion-docentes-content .docente-footer {
+  min-height: 68px;
+  margin: 14px 0 0;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1399px) {
+  .gestion-docentes-content {
+    padding: 24px 26px;
+  }
+
+  .gestion-access-card {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .gestion-access-note {
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .gestion-main-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .gestion-form-card {
+    position: static;
+  }
+}
+
+@media (max-width: 991px) {
+  .gestion-docentes-content {
+    height: auto;
+    padding: 118px 18px 24px;
+  }
+
+  .gestion-docentes-hero-card {
+    padding: 24px;
+  }
+
+  .gestion-docentes-hero-text h1 {
+    font-size: 42px;
+  }
+
+  .gestion-docentes-hero-img {
+    width: min(360px, 40vw);
+  }
+
+  .gestion-stats-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gestion-stats-row .gestion-stat-card:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .gestion-list-tools {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .gestion-docentes-content {
+    padding: 112px 18px 24px;
+  }
+
+  .gestion-docentes-hero-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 22px;
+  }
+
+  .gestion-docentes-hero-text h1 {
+    font-size: 37px;
+  }
+
+  .gestion-docentes-hero-img {
+    width: 100%;
+    max-height: 210px;
+    align-self: center;
+  }
+
+  .gestion-access-card,
+  .gestion-stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .gestion-stats-row .gestion-stat-card:last-child {
+    grid-column: auto;
+  }
+
+  .gestion-important-card {
+    grid-template-columns: 1fr;
+  }
+
+  .gestion-important-card > div + div {
+    border-left: none;
+    border-top: 1px solid #dbe7f6;
+    padding: 12px 0 0;
+  }
+}
+
+@media (max-width: 575px) {
+  .gestion-docentes-content {
+    padding: 104px 12px 22px;
+  }
+
+  .gestion-docentes-hero-card {
+    padding: 18px 16px;
+    border-radius: 18px;
+  }
+
+  .gestion-docentes-hero-text h1 {
+    font-size: 31px;
+  }
+
+  .gestion-docentes-hero-text p {
+    font-size: 13px;
+  }
+
+  .gestion-access-card,
+  .gestion-stat-card,
+  .gestion-list-card,
+  .gestion-form-card,
+  .gestion-important-card {
+    border-radius: 14px;
+  }
+
+  .gestion-password-row {
+    grid-template-columns: 1fr;
+  }
+
+  .gestion-generate-btn {
+    width: 100%;
+  }
+
+  .gestion-status-filter > div {
+    width: 100%;
+  }
+
+  .gestion-status-filter button {
+    flex: 1;
+  }
+
+  .gestion-scroll-form-btn {
+    width: 100%;
+  }
+
+  .gestion-table-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@keyframes gestionFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   AJUSTES FINALES DE DISEÑO
+   - Título completo en una sola línea en escritorio.
+   - Banner más grande y mejor equilibrado.
+   - Distribución más cercana al prototipo.
+   - Animaciones suaves de hover y enfoque.
+   - Tabla más compacta para evitar scroll horizontal innecesario.
+   ========================================================= */
+
+/* ---------- HERO FINAL ---------- */
+
+.gestion-docentes-hero-card {
+  min-height: 205px;
+  padding: 30px 38px 24px;
+  gap: 18px;
+  transition:
+    transform 0.32s ease,
+    box-shadow 0.32s ease,
+    border-color 0.32s ease;
+}
+
+.gestion-docentes-hero-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0, 88, 255, 0.2);
+  box-shadow: 0 20px 42px rgba(0, 88, 255, 0.1);
+}
+
+.gestion-docentes-hero-text {
+  flex: 1 1 auto;
+  max-width: none;
+  padding-right: 8px;
+}
+
+.gestion-docentes-hero-text h1 {
+  /* En escritorio mantiene el título completo en una sola línea */
+  white-space: nowrap;
+  font-size: clamp(38px, 3.35vw, 58px);
+  line-height: 1.03;
+  letter-spacing: -1.2px;
+}
+
+.gestion-docentes-hero-text p {
+  max-width: 680px;
+  margin-top: 14px;
+}
+
+.gestion-docentes-hero-img {
+  /* AQUÍ PUEDES HACER MÁS GRANDE O PEQUEÑA LA IMAGEN DEL BANNER */
+  width: min(545px, 38vw);
+  max-height: 195px;
+  flex: 0 1 auto;
+  transform-origin: right bottom;
+  transition:
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.38s ease;
+}
+
+.gestion-docentes-hero-card:hover .gestion-docentes-hero-img {
+  transform: translateY(-5px) scale(1.035);
+  filter: drop-shadow(0 18px 24px rgba(0, 88, 255, 0.14));
+}
+
+/* ---------- CARDS Y PANELES ---------- */
+
+.gestion-access-card,
+.gestion-list-card,
+.gestion-form-card,
+.gestion-important-card {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.gestion-access-card:hover,
+.gestion-list-card:hover,
+.gestion-form-card:hover,
+.gestion-important-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0, 88, 255, 0.2);
+  box-shadow: 0 18px 38px rgba(0, 88, 255, 0.1);
+}
+
+.gestion-access-icon,
+.gestion-form-title > span,
+.gestion-important-card span {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.gestion-access-card:hover .gestion-access-icon,
+.gestion-form-card:hover .gestion-form-title > span,
+.gestion-important-card:hover span {
+  transform: rotate(-5deg) scale(1.08);
+  box-shadow: 0 10px 20px rgba(0, 88, 255, 0.14);
+}
+
+/* ---------- DISTRIBUCIÓN PRINCIPAL ---------- */
+
+.gestion-main-layout {
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 20px;
+}
+
+.gestion-form-card {
+  top: 18px;
+}
+
+/* ---------- CONTROLES ---------- */
+
+.gestion-access-field > div,
+.gestion-password-input,
+.gestion-form-field input,
+.gestion-locked-field,
+.gestion-search-box,
+.gestion-status-filter > div {
+  transition:
+    border-color 0.24s ease,
+    box-shadow 0.24s ease,
+    transform 0.24s ease,
+    background 0.24s ease;
+}
+
+.gestion-access-field > div:hover,
+.gestion-password-input:hover,
+.gestion-form-field input:hover,
+.gestion-search-box:hover,
+.gestion-status-filter > div:hover {
+  border-color: #91b6ff;
+}
+
+.gestion-access-field > div:focus-within,
+.gestion-password-input:focus-within,
+.gestion-search-box:focus-within,
+.gestion-form-field input:focus {
+  border-color: #0058ff;
+  box-shadow: 0 0 0 4px rgba(0, 88, 255, 0.09);
+  transform: translateY(-1px);
+}
+
+.gestion-validate-btn,
+.gestion-scroll-form-btn,
+.gestion-generate-btn,
+.gestion-register-btn,
+.gestion-cancel-btn,
+.gestion-status-filter button,
+.gestion-form-status button,
+.gestion-table-footer button {
+  transition:
+    transform 0.24s ease,
+    box-shadow 0.24s ease,
+    background 0.24s ease,
+    color 0.24s ease,
+    border-color 0.24s ease;
+}
+
+.gestion-validate-btn:hover,
+.gestion-scroll-form-btn:hover,
+.gestion-register-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(0, 88, 255, 0.22);
+}
+
+.gestion-generate-btn:hover,
+.gestion-cancel-btn:hover,
+.gestion-table-footer button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: #eef5ff;
+  border-color: #6f9dff;
+}
+
+.gestion-status-filter button:hover,
+.gestion-form-status button:hover {
+  transform: translateY(-2px);
+}
+
+/* ---------- ESTADÍSTICAS ---------- */
+
+.gestion-stat-card {
+  overflow: hidden;
+  position: relative;
+}
+
+.gestion-stat-card::after {
+  content: "";
+  position: absolute;
+  width: 95px;
+  height: 95px;
+  right: -44px;
+  bottom: -48px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.045;
+  transition: transform 0.35s ease;
+}
+
+.gestion-stat-card:hover::after {
+  transform: scale(1.35);
+}
+
+.gestion-stat-card > span {
+  transition:
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.32s ease;
+}
+
+.gestion-stat-card:hover > span {
+  transform: rotate(-7deg) scale(1.1);
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+}
+
+/* ---------- TABLA MÁS CERCANA AL PROTOTIPO ---------- */
+
+.gestion-table {
+  min-width: 790px;
+  grid-template-columns:
+    42px
+    minmax(130px, 1.2fr)
+    minmax(150px, 1.35fr)
+    minmax(95px, 0.85fr)
+    58px
+    76px
+    84px
+    70px;
+  column-gap: 8px;
+}
+
+.gestion-table-row {
+  transition:
+    background 0.24s ease,
+    transform 0.24s ease,
+    box-shadow 0.24s ease;
+}
+
+.gestion-table-row:hover {
+  position: relative;
+  z-index: 2;
+  background: #f5f9ff;
+  transform: translateY(-1px);
+  box-shadow: inset 4px 0 0 #0058ff;
+}
+
+.gestion-table-row > span:not(.gestion-actions),
+.gestion-table-head > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gestion-teacher-name {
+  min-width: 0;
+}
+
+.gestion-status-pill,
+.gestion-actions button {
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    filter 0.22s ease;
+}
+
+.gestion-status-pill:hover {
+  transform: translateY(-2px) scale(1.03);
+  filter: saturate(1.08);
+}
+
+.gestion-actions button:hover {
+  transform: translateY(-3px) scale(1.08);
+  box-shadow: 0 7px 14px rgba(15, 23, 42, 0.1);
+}
+
+/* ---------- FORMULARIO MÁS COMPACTO COMO EL PROTOTIPO ---------- */
+
+.gestion-form-card {
+  padding: 18px 20px;
+}
+
+.gestion-form-field {
+  margin-top: 9px;
+}
+
+.gestion-register-btn {
+  height: 46px;
+}
+
+.gestion-cancel-btn {
+  height: 42px;
+}
+
+/* ---------- FOOTER ---------- */
+
+.gestion-docentes-content .docente-footer {
+  margin-top: 18px;
+}
+
+/* ---------- RESPONSIVE FINAL ---------- */
+
+@media (max-width: 1500px) and (min-width: 1200px) {
+  .gestion-docentes-hero-text h1 {
+    font-size: clamp(36px, 3vw, 51px);
+  }
+
+  .gestion-docentes-hero-img {
+    width: min(490px, 36vw);
+  }
+
+  .gestion-main-layout {
+    grid-template-columns: minmax(0, 1fr) 345px;
+  }
+}
+
+@media (max-width: 1199px) and (min-width: 992px) {
+  .gestion-docentes-hero-card {
+    min-height: 185px;
+  }
+
+  .gestion-docentes-hero-text h1 {
+    font-size: clamp(34px, 3.2vw, 44px);
+  }
+
+  .gestion-docentes-hero-img {
+    width: min(400px, 34vw);
+  }
+}
+
+@media (max-width: 991px) {
+  .gestion-docentes-hero-text h1 {
+    white-space: normal;
+  }
+
+  .gestion-docentes-hero-img {
+    width: min(390px, 42vw);
+  }
+
+  .gestion-main-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .gestion-docentes-hero-card {
+    min-height: auto;
+  }
+
+  .gestion-docentes-hero-img {
+    width: min(100%, 470px);
+    max-height: 230px;
+  }
+
+  .gestion-table {
+    min-width: 790px;
+  }
+
+  .gestion-access-card:hover,
+  .gestion-list-card:hover,
+  .gestion-form-card:hover,
+  .gestion-important-card:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gestion-docentes-content *,
+  .gestion-docentes-content *::before,
+  .gestion-docentes-content *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* =========================================================
+   AJUSTE DEFINITIVO SOLICITADO
+   ========================================================= */
+
+/* Título más grande y sin partirse en escritorio */
+.gestion-docentes-hero-text h1 {
+  white-space: nowrap;
+  font-size: clamp(48px, 4vw, 68px);
+  line-height: 1;
+  letter-spacing: -1.4px;
+}
+
+/* Banner fijo: conserva su tamaño, pero ya NO tiene animación */
+.gestion-docentes-hero-img {
+  width: min(545px, 38vw);
+  max-height: 200px;
+  transform: none !important;
+  transition: none !important;
+  animation: none !important;
+  filter: drop-shadow(0 14px 18px rgba(15, 23, 42, 0.1));
+}
+
+.gestion-docentes-hero-card:hover .gestion-docentes-hero-img {
+  transform: none !important;
+  filter: drop-shadow(0 14px 18px rgba(15, 23, 42, 0.1));
+}
+
+/* La lista muestra 7 docentes por página para aprovechar el alto
+   del formulario y eliminar el espacio vacío de la columna izquierda. */
+.gestion-table-row {
+  min-height: 57px;
+}
+
+.gestion-list-card {
+  min-height: 542px;
+}
+
+/* Paginación completa 1, 2 y 3 */
+.gestion-table-footer > div.gestion-pagination {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gestion-table-footer .gestion-pagination button {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #d7e2f1;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #64748b;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+  transition:
+    transform 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.gestion-table-footer .gestion-pagination button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: #82abff;
+  color: #0058ff;
+  background: #eef5ff;
+  box-shadow: 0 7px 14px rgba(0, 88, 255, 0.12);
+}
+
+.gestion-table-footer .gestion-pagination .gestion-page-number.active {
+  border-color: #0058ff;
+  background: #0058ff;
+  color: #ffffff;
+  box-shadow: 0 8px 16px rgba(0, 88, 255, 0.2);
+}
+
+.gestion-table-footer .gestion-pagination button:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+/* Alineación del bloque informativo con la columna del formulario */
+.gestion-important-card {
+  margin-top: 14px;
+}
+
+/* En resoluciones medianas el título sigue grande, pero cabe completo */
+@media (max-width: 1500px) and (min-width: 1200px) {
+  .gestion-docentes-hero-text h1 {
+    font-size: clamp(43px, 3.6vw, 60px);
+  }
+}
+
+@media (max-width: 1199px) and (min-width: 992px) {
+  .gestion-docentes-hero-text h1 {
+    font-size: clamp(37px, 3.5vw, 50px);
+  }
+
+  .gestion-docentes-hero-img {
+    width: min(420px, 35vw);
+  }
+}
+
+/* En tablet y celular sí puede partirse para no desbordarse */
+@media (max-width: 991px) {
+  .gestion-docentes-hero-text h1 {
+    white-space: normal;
+  }
+
+  .gestion-list-card {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 575px) {
+  .gestion-table-footer .gestion-pagination {
+    flex-wrap: wrap;
+  }
+
+  .gestion-table-footer .gestion-pagination button {
+    width: 32px;
+    height: 32px;
+  }
+}
