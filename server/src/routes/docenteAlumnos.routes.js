@@ -18,10 +18,10 @@ function obtenerColor(idUsuario) {
   return colores[Number(idUsuario) % colores.length];
 }
 
-function obtenerBarra(asistencia) {
-  if (asistencia === null || asistencia === undefined) return "sin-datos";
-  if (asistencia >= 85) return "alta";
-  if (asistencia >= 70) return "media";
+function obtenerBarraProgreso(progreso) {
+  if (progreso === null || progreso === undefined) return "sin-datos";
+  if (progreso >= 75) return "alta";
+  if (progreso >= 40) return "media";
   return "baja";
 }
 
@@ -48,12 +48,14 @@ router.get("/", async (req, res) => {
         ORDER BY id_usuario, fecha_ultimo_intento DESC
       ),
       grupos_alumno AS (
-        SELECT
+        SELECT DISTINCT ON (ga.id_alumno)
           ga.id_alumno,
           g.nombre_grupo
         FROM public.grupo_alumnos ga
         INNER JOIN public.grupos g
           ON g.id_grupo = ga.id_grupo
+        WHERE ga.estado = true
+        ORDER BY ga.id_alumno, g.nombre_grupo ASC
       )
       SELECT
         r.id_usuario,
@@ -88,13 +90,11 @@ router.get("/", async (req, res) => {
 
     const alumnos = resultado.rows.map((alumno) => {
       const totalActividades = Number(alumno.total_actividades || 0);
+      const actividadesCompletadas = Number(alumno.actividades_completadas || 0);
       const tieneProgreso = totalActividades > 0;
 
-      const asistencia = tieneProgreso
-        ? Math.round(
-            (Number(alumno.actividades_completadas || 0) * 100) /
-              totalActividades
-          )
+      const progreso = tieneProgreso
+        ? Math.round((actividadesCompletadas * 100) / totalActividades)
         : null;
 
       const promedio =
@@ -107,8 +107,13 @@ router.get("/", async (req, res) => {
       const tieneRezago =
         tieneProgreso &&
         promedio !== null &&
-        asistencia !== null &&
-        (promedio < 7 || asistencia < 70);
+        (promedio < 7 || (progreso !== null && progreso < 40));
+
+      let estado = "Sin progreso";
+
+      if (tieneProgreso) {
+        estado = tieneRezago ? "Rezago" : "Activo";
+      }
 
       return {
         id: alumno.id_usuario,
@@ -119,19 +124,32 @@ router.get("/", async (req, res) => {
         color: obtenerColor(alumno.id_usuario),
         grupo: alumno.grupo || "Sin grupo",
         modulo: alumno.modulo || "Sin módulo",
-        asistencia,
+        progreso,
         promedio,
-        estado: tieneRezago ? "Rezago" : "Activo",
-        barra: obtenerBarra(asistencia),
+        total_actividades: totalActividades,
+        actividades_completadas: actividadesCompletadas,
+        estado,
+        barra: obtenerBarraProgreso(progreso),
       };
     });
 
     const total = alumnos.length;
     const activos = alumnos.filter((alumno) => alumno.estado === "Activo").length;
     const rezago = alumnos.filter((alumno) => alumno.estado === "Rezago").length;
+    const sinProgreso = alumnos.filter(
+      (alumno) => alumno.estado === "Sin progreso"
+    ).length;
+
+    const progresoBajo = alumnos.filter(
+      (alumno) => alumno.progreso !== null && alumno.progreso < 40
+    ).length;
 
     const alumnosConPromedio = alumnos.filter(
       (alumno) => alumno.promedio !== null && alumno.promedio !== undefined
+    );
+
+    const alumnosConProgreso = alumnos.filter(
+      (alumno) => alumno.progreso !== null && alumno.progreso !== undefined
     );
 
     const promedioGeneral =
@@ -146,6 +164,16 @@ router.get("/", async (req, res) => {
           )
         : null;
 
+    const progresoPromedio =
+      alumnosConProgreso.length > 0
+        ? Math.round(
+            alumnosConProgreso.reduce(
+              (suma, alumno) => suma + Number(alumno.progreso),
+              0
+            ) / alumnosConProgreso.length
+          )
+        : null;
+
     return res.json({
       ok: true,
       alumnos,
@@ -153,7 +181,10 @@ router.get("/", async (req, res) => {
         total,
         activos,
         rezago,
+        sin_progreso: sinProgreso,
         promedioGeneral,
+        progresoPromedio,
+        progreso_bajo: progresoBajo,
       },
     });
   } catch (error) {
