@@ -101,7 +101,7 @@ function MisGruposDocente() {
   const navigate = useNavigate();
 
   const alumnosDelGrupoEditando = grupoEditando
-    ? alumnosPorGrupo[grupoEditando.id_grupo] ?? []
+    ? (alumnosPorGrupo[grupoEditando.id_grupo] ?? [])
     : [];
 
   const obtenerCantidadAlumnos = (grupo: Grupo) => {
@@ -903,7 +903,16 @@ function MisGruposDocente() {
             </div>
 
             <div className="docente-menu-divider"></div>
-
+            <button
+              type="button"
+              className={`docente-menu-item ${
+                selectedMenu === "gestion-docentes" ? "active-soft" : ""
+              }`}
+              onClick={() => irARuta("/gestion-docentes")}
+            >
+              <FiUserCheck />
+              <span>Gestión de docentes</span>
+            </button>
             <button
               className={`docente-menu-item ${
                 selectedMenu === "actividades" ? "active-soft" : ""

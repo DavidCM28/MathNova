@@ -26,6 +26,7 @@ import {
   FiChevronDown,
   FiPlus,
   FiUser,
+  FiUserCheck,
   FiAlertTriangle,
   FiAward,
   FiLogOut,
@@ -99,13 +100,19 @@ async function leerRespuesta<T>(response: Response): Promise<T> {
     return texto ? JSON.parse(texto) : ({} as T);
   } catch {
     throw new Error(
-      "El backend no devolvió JSON. Revisa que la ruta /api/docente/dashboard esté registrada."
+      "El backend no devolvió JSON. Revisa que la ruta /api/docente/dashboard esté registrada.",
     );
   }
 }
 
 function clasePuntoAlumno(index: number) {
-  const clases = ["blue-dot", "light-dot", "gray-dot", "green-dot", "yellow-dot"];
+  const clases = [
+    "blue-dot",
+    "light-dot",
+    "gray-dot",
+    "green-dot",
+    "yellow-dot",
+  ];
   return clases[index % clases.length];
 }
 
@@ -177,7 +184,7 @@ function DashboardDocente() {
 
         if (!response.ok || !data.ok) {
           throw new Error(
-            data.mensaje || "No se pudo cargar el dashboard docente."
+            data.mensaje || "No se pudo cargar el dashboard docente.",
           );
         }
 
@@ -313,7 +320,7 @@ function DashboardDocente() {
                   onClick={() =>
                     irARuta(
                       "/administrar-alumnos-docente",
-                      "administrar-alumnos"
+                      "administrar-alumnos",
                     )
                   }
                   type="button"
@@ -349,6 +356,17 @@ function DashboardDocente() {
             </div>
 
             <div className="docente-menu-divider"></div>
+
+            <button
+              className={`docente-menu-item ${
+                selectedMenu === "gestion-docentes" ? "active-soft" : ""
+              }`}
+              onClick={() => irARuta("/gestion-docentes", "gestion-docentes")}
+              type="button"
+            >
+              <FiUserCheck />
+              <span>Gestión de docentes</span>
+            </button>
 
             <button
               className={`docente-menu-item ${
@@ -435,9 +453,7 @@ function DashboardDocente() {
             <div>
               <h3>Grupos activos</h3>
               <strong>
-                {cargandoDashboard
-                  ? "..."
-                  : dashboard.resumen.grupos_activos}
+                {cargandoDashboard ? "..." : dashboard.resumen.grupos_activos}
               </strong>
             </div>
 
@@ -512,9 +528,7 @@ function DashboardDocente() {
                     className="table-row dashboard-row-hover"
                     key={alumno.id_alumno}
                   >
-                    <span
-                      className={`student-name ${clasePuntoAlumno(index)}`}
-                    >
+                    <span className={`student-name ${clasePuntoAlumno(index)}`}>
                       {alumno.nombre}
                     </span>
 
