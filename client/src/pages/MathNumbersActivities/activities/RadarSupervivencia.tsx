@@ -4,6 +4,7 @@ import audioConsejoSumaRadar from "../../../assets/mathnumbers/02-radar-superviv
 import audioPistaByteRadar from "../../../assets/mathnumbers/02-radar-supervivencia/pista_byte_radar.mp3";
 import bytePista from "../../../assets/mathnumbers/byte_pista.png";
 import videoByteRadar from "../../../assets/mathnumbers/02-radar-supervivencia/byte_hablando_radar.mp4";
+import radarAnimado from "../../../assets/mathnumbers/02-radar-supervivencia/carpeta_radar_animado.webp";
 
 import { useEffect, useRef, useState } from "react";
 import type { DragEvent } from "react";
@@ -50,7 +51,6 @@ import {
   cofreHeroTalkingIdle,
   logo,
   menuHamburguesa,
-  radarImage,
   zorritoConsejo,
 } from "../mathNumbersAssets";
 
@@ -1226,10 +1226,14 @@ export function RadarSupervivencia() {
 
         <section className="mnx-radar-activity-grid">
           <article className="mnx-radar-art">
-            <img
-              src={radarImage}
-              alt="Radar de supervivencia"
-            />
+            <div className="mnx-radar-visual">
+              <img
+                className="mnx-radar-visual-image"
+                src={radarAnimado}
+                alt="Radar de supervivencia calibrando señales"
+                draggable={false}
+              />
+            </div>
 
             <div className="mnx-radar-mission">
               <FiTarget />

@@ -2217,3 +2217,144 @@ body {
     justify-content: center;
   }
 }
+
+
+/* =========================================================
+   RADAR ANIMADO DEL BLOQUE "TU MISIÓN"
+   El recurso se mantiene dentro de su propio contenedor para
+   no mover la tarjeta, la misión ni el resto de la actividad.
+   ========================================================= */
+
+.mnx-radar-visual {
+  position: absolute;
+  inset: 16px 16px 151px;
+  z-index: 1;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(136, 255, 159, 0.34);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at center, rgba(59, 255, 130, 0.12), transparent 58%),
+    #020d09;
+  box-shadow:
+    inset 0 0 30px rgba(0, 0, 0, 0.52),
+    0 16px 28px rgba(0, 0, 0, 0.22);
+  isolation: isolate;
+}
+
+.mnx-radar-visual::before,
+.mnx-radar-visual::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: #dfff42;
+  box-shadow:
+    0 0 8px #dfff42,
+    0 0 18px rgba(155, 255, 42, 0.85);
+  animation: mnxRadarBlip 2.2s ease-in-out infinite;
+}
+
+.mnx-radar-visual::before {
+  left: 28%;
+  top: 32%;
+}
+
+.mnx-radar-visual::after {
+  right: 23%;
+  bottom: 30%;
+  animation-delay: 1.1s;
+}
+
+.mnx-radar-visual-image {
+  width: 132%;
+  height: 132%;
+  max-width: none;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  pointer-events: none;
+  user-select: none;
+  filter:
+    brightness(1.04)
+    saturate(1.08)
+    drop-shadow(0 0 12px rgba(153, 255, 74, 0.28));
+  animation: mnxRadarVisualPulse 2.8s ease-in-out infinite;
+}
+
+/* Evita que la regla general anterior vuelva a aplicar padding. */
+.mnx-radar-art > .mnx-radar-visual {
+  padding: 0;
+}
+
+@keyframes mnxRadarVisualPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    filter:
+      brightness(1)
+      saturate(1.04)
+      drop-shadow(0 0 8px rgba(153, 255, 74, 0.22));
+  }
+
+  50% {
+    transform: scale(1.018);
+    filter:
+      brightness(1.14)
+      saturate(1.18)
+      drop-shadow(0 0 18px rgba(153, 255, 74, 0.48));
+  }
+}
+
+@keyframes mnxRadarBlip {
+  0%,
+  100% {
+    opacity: 0.16;
+    transform: scale(0.65);
+  }
+
+  45% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+
+  70% {
+    opacity: 0.32;
+    transform: scale(0.85);
+  }
+}
+
+@media (max-width: 760px) {
+  .mnx-radar-visual {
+    inset: 14px 14px 147px;
+  }
+
+  .mnx-radar-visual-image {
+    width: 126%;
+    height: 126%;
+  }
+}
+
+@media (max-width: 520px) {
+  .mnx-radar-visual {
+    inset: 12px 12px 151px;
+    border-radius: 15px;
+  }
+
+  .mnx-radar-visual-image {
+    width: 122%;
+    height: 122%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mnx-radar-visual-image,
+  .mnx-radar-visual::before,
+  .mnx-radar-visual::after {
+    animation: none !important;
+  }
+}

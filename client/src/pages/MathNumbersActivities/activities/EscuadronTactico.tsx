@@ -24,7 +24,7 @@ import {
 
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
-import escuadronScene from "../../../assets/escuadron-tactico.png";
+import escuadronAnimado from "../../../assets/mathnumbers/08-escuadron-tactico/escuadron.webp";
 import bytePista from "../../../assets/mathnumbers/byte_pista.png";
 
 import { clearAuthSession } from "../../../utils/authSession";
@@ -46,6 +46,9 @@ import {
 
 const escuadronRoute =
   "/actividades/mathnumbers/escuadron-tactico";
+
+const espejosBovedaRoute =
+  "/actividades/mathnumbers/espejos-boveda";
 
 type OperationKey =
   | "parentheses"
@@ -154,6 +157,7 @@ const arraysAreEqual = (
 ) =>
   first.length === second.length &&
   first.every((value, index) => value === second[index]);
+
 
 function SequenceChallenge({
   number,
@@ -821,10 +825,14 @@ export function EscuadronTactico() {
 
         <section className="mnx-escuadron-activity-grid">
           <article className="mnx-escuadron-art">
-            <img
-              src={escuadronScene}
-              alt="Trampa láser del Escuadrón Táctico"
-            />
+            <div className="mnx-escuadron-visual">
+              <img
+                className="mnx-escuadron-visual-image"
+                src={escuadronAnimado}
+                alt="Trampa láser del Escuadrón Táctico"
+                draggable={false}
+              />
+            </div>
 
             <div className="mnx-escuadron-system-status">
               <span />
@@ -1071,7 +1079,7 @@ export function EscuadronTactico() {
       {resultModalOpen && (
         <ResultModal
           kind={resultModalKind}
-          nextRoute={activityListRoute}
+          nextRoute={espejosBovedaRoute}
           retryRoute={escuadronRoute}
           onClose={() => setResultModalOpen(false)}
           onRetry={repetirActividad}

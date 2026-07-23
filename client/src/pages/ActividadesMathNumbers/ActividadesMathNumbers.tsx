@@ -15,9 +15,10 @@ import actividad3 from "../../assets/Actividad-3-MathNumbers.png";
 
 /* Nueva imagen guardada directamente dentro de src/assets */
 import escuadronTactico from "../../assets/escuadron-tactico.png";
+import espejosBoveda from "../../assets/espejo.png";
 
 import actividad5 from "../../assets/Actividad-5-MathNumbers.png";
-import actividad6 from "../../assets/Actividad-6-MathNumbers.png";
+import puentePrioridades from "../../assets/puente-prioridades.png";
 import actividad7 from "../../assets/Actividad-7-MathNumbers.png";
 import actividad8 from "../../assets/Actividad-8-MathNumbers.png";
 import actividad9 from "../../assets/Actividad-9-MathNumbers.png";
@@ -114,22 +115,22 @@ function ActividadesMathNumbers() {
         slug: "escuadron-tactico",
       },
       {
-        img: actividad5,
-        titulo: "5. Espejos de la Bóveda",
+        img: espejosBoveda,
+        titulo: "5. Los Espejos de la Bóveda",
         texto:
           "Identifica propiedades conmutativas y asociativas.",
         nivel: "Fácil",
         tiempo: "8 min",
-        slug: "",
+        slug: "espejos-boveda",
       },
       {
-        img: actividad6,
-        titulo: "6. Simulador de Códigos",
+        img: puentePrioridades,
+        titulo: "6. El Puente de Prioridades",
         texto:
-          "Representa algebraicamente una sucesión sencilla.",
+          "Activa el puente resolviendo operaciones en el orden correcto.",
         nivel: "Medio",
-        tiempo: "14 min",
-        slug: "",
+        tiempo: "12 min",
+        slug: "puente-prioridades",
       },
       {
         img: actividad7,

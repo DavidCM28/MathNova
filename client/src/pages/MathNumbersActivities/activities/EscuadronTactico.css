@@ -1682,3 +1682,132 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* =========================================================
+   CORRECCIÓN FINAL · ELIMINAR ESPACIOS VACÍOS
+   La altura del Reto 3 ya no estira la pista ni la evidencia.
+   ========================================================= */
+
+.mnx-escuadron-hint-card {
+  min-height: 0;
+  height: auto;
+  align-self: start;
+  align-items: center;
+}
+
+.mnx-escuadron-hint-card img {
+  align-self: center;
+}
+
+.mnx-escuadron-actions {
+  align-self: start;
+  height: auto;
+}
+
+.mnx-escuadron-evidence-card {
+  flex: 0 0 auto;
+  min-height: 0;
+  height: auto;
+}
+
+/* Mantiene compactos los bloques también en laptop y tableta. */
+@media (max-width: 1260px) {
+  .mnx-escuadron-hint-card,
+  .mnx-escuadron-actions,
+  .mnx-escuadron-evidence-card {
+    align-self: start;
+    height: auto;
+  }
+
+  .mnx-escuadron-evidence-card {
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 980px) {
+  .mnx-escuadron-actions {
+    align-self: stretch;
+  }
+}
+
+
+/* =========================================================
+   ESCUADRON.WEBP · VISUALIZACIÓN DIRECTA
+   No se procesa con canvas porque las piezas internas también
+   son oscuras y se confundían con el fondo.
+   ========================================================= */
+
+.mnx-escuadron-art {
+  background:
+    radial-gradient(
+      circle at 50% 30%,
+      rgba(99, 219, 99, 0.12),
+      transparent 44%
+    ),
+    linear-gradient(
+      180deg,
+      #082315 0%,
+      #04120a 100%
+    );
+}
+
+.mnx-escuadron-art::after {
+  display: none;
+}
+
+.mnx-escuadron-visual {
+  position: absolute;
+  inset: 12px 12px 154px;
+  z-index: 1;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(99, 219, 99, 0.3);
+  border-radius: 18px;
+  background: #07150c;
+  box-shadow:
+    inset 0 0 28px rgba(0, 0, 0, 0.28),
+    0 14px 24px rgba(0, 0, 0, 0.16);
+}
+
+.mnx-escuadron-visual-image {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  pointer-events: none;
+  user-select: none;
+  filter:
+    saturate(1.06)
+    contrast(1.03)
+    brightness(1.02);
+}
+
+/*
+ * Sobrescribe la regla general ".mnx-escuadron-art > img",
+ * porque ahora la imagen está dentro del contenedor visual.
+ */
+.mnx-escuadron-art > .mnx-escuadron-visual {
+  min-height: 0;
+}
+
+@media (max-width: 1260px) {
+  .mnx-escuadron-visual {
+    inset: 12px 12px 154px;
+  }
+}
+
+@media (max-width: 980px) {
+  .mnx-escuadron-visual {
+    inset: 11px 11px 148px;
+  }
+}
+
+@media (max-width: 540px) {
+  .mnx-escuadron-visual {
+    inset: 9px 9px 143px;
+    border-radius: 15px;
+  }
+}

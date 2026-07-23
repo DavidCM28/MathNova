@@ -4,6 +4,7 @@ import audioConsejoSumaAscensor from "../../../assets/mathnumbers/03-ascensor-bu
 import audioPistaByteAscensor from "../../../assets/mathnumbers/03-ascensor-bunker/pista_byte_ascensor.mp3";
 import bytePista from "../../../assets/mathnumbers/byte_pista.png";
 import videoByteAscensor from "../../../assets/mathnumbers/03-ascensor-bunker/byte_hablando_ascensor.mp4";
+import ascensorAnimado from "../../../assets/mathnumbers/03-ascensor-bunker/ascensor.webp";
 
 import { useEffect, useRef, useState } from "react";
 import type { DragEvent } from "react";
@@ -43,8 +44,8 @@ import { useToast } from "../hooks/useToast";
 import {
   guardarProgresoUsuarioActual,
 } from "../../../services/progresoService";
+
 import {
-  ascensorElevator,
   cofreGuide,
   cofreHeroTalking,
   cofreHeroTalkingIdle,
@@ -1198,10 +1199,24 @@ export function AscensorBunker() {
 
         <section className="mnx-ascensor-activity-grid">
           <article className="mnx-ascensor-art">
-            <img
-              src={ascensorElevator}
-              alt="Ascensor del Búnker"
-            />
+            <div className="mnx-ascensor-visual">
+              <img
+                className="mnx-ascensor-visual-image"
+                src={ascensorAnimado}
+                alt="Ascensor del Búnker en funcionamiento"
+                draggable={false}
+              />
+
+              <span
+                className="mnx-ascensor-status-light mnx-ascensor-status-light-one"
+                aria-hidden="true"
+              />
+
+              <span
+                className="mnx-ascensor-status-light mnx-ascensor-status-light-two"
+                aria-hidden="true"
+              />
+            </div>
 
             <div className="mnx-ascensor-mission">
               <FiTarget />

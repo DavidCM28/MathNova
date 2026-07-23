@@ -5,6 +5,8 @@ import { CofreBienvenida } from "./activities/CofreBienvenida";
 import { RadarSupervivencia } from "./activities/RadarSupervivencia";
 import { AscensorBunker } from "./activities/AscensorBunker";
 import { EscuadronTactico } from "./activities/EscuadronTactico";
+import { EspejosBoveda } from "./activities/EspejosBoveda";
+import { PuentePrioridades } from "./activities/PuentePrioridades";
 
 import { ResultScreen } from "./components/ResultScreen";
 
@@ -25,6 +27,14 @@ function MathNumbersActivityRouter() {
 
   if (activitySlug === "escuadron-tactico") {
     return <EscuadronTactico />;
+  }
+
+  if (activitySlug === "espejos-boveda") {
+    return <EspejosBoveda />;
+  }
+
+  if (activitySlug === "puente-prioridades") {
+    return <PuentePrioridades />;
   }
 
   if (activitySlug === "actividad-completada") {
