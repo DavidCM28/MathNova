@@ -532,11 +532,87 @@ body,
 }
 
 .mnx-espejos-speech p {
-  margin: 0;
+  min-height: 54px;
+  margin: 8px 0 0;
   color: #33475f;
   font-size: 12.5px;
   line-height: 1.45;
   font-weight: 750;
+}
+
+.mnx-espejos-audio-controls {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.mnx-espejos-audio-controls button {
+  width: 35px;
+  height: 35px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #18ba5e, #078b42);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(19, 168, 78, 0.2);
+  transition:
+    transform var(--mn-transition),
+    opacity var(--mn-transition),
+    filter var(--mn-transition);
+}
+
+.mnx-espejos-audio-controls button:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.05);
+  filter: brightness(1.06);
+}
+
+.mnx-espejos-audio-controls button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mnx-espejos-audio-status {
+  min-height: 34px;
+  padding: 0 11px;
+  border-radius: 999px;
+  color: var(--mn-muted);
+  background: #edf4ef;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 850;
+}
+
+.mnx-espejos-audio-status svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+}
+
+.mnx-espejos-audio-status.is-playing {
+  color: var(--mn-primary-dark);
+  background: #ddf7e4;
+  animation: mnx-espejos-audio-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes mnx-espejos-audio-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(19, 168, 78, 0.15);
+  }
+
+  50% {
+    box-shadow: 0 0 0 7px rgba(19, 168, 78, 0);
+  }
 }
 
 .mnx-espejos-hero-stage {
@@ -1021,6 +1097,18 @@ body,
   height: 130px;
   object-fit: contain;
   filter: drop-shadow(0 12px 12px rgba(20, 72, 44, 0.14));
+  animation: mnx-espejos-reminder-float 3s ease-in-out infinite;
+}
+
+@keyframes mnx-espejos-reminder-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-6px) rotate(1deg);
+  }
 }
 
 .mnx-espejos-reminder-card h3 {
@@ -1037,6 +1125,69 @@ body,
   font-size: 10.5px;
   line-height: 1.4;
   font-weight: 700;
+}
+
+.mnx-espejos-reminder-audio-controls {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mnx-espejos-reminder-audio-controls button {
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #18ba5e, #078b42);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 7px 14px rgba(19, 168, 78, 0.18);
+  transition:
+    transform var(--mn-transition),
+    opacity var(--mn-transition);
+}
+
+.mnx-espejos-reminder-audio-controls
+  button:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.04);
+}
+
+.mnx-espejos-reminder-audio-controls button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mnx-espejos-reminder-audio-status {
+  min-height: 30px;
+  padding: 0 9px;
+  border-radius: 999px;
+  color: var(--mn-muted);
+  background: #edf4ef;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 850;
+}
+
+.mnx-espejos-reminder-audio-status svg {
+  width: 13px;
+  height: 13px;
+}
+
+.mnx-espejos-reminder-audio-status.is-playing {
+  color: var(--mn-primary-dark);
+  background: #ddf7e4;
+  animation: mnx-espejos-audio-pulse 1.2s ease-in-out infinite;
 }
 
 .mnx-espejos-hint-button {
@@ -1563,6 +1714,15 @@ body,
     display: none;
   }
 
+  .mnx-espejos-audio-controls {
+    justify-content: center;
+  }
+
+  .mnx-espejos-audio-status {
+    flex: 1 1 150px;
+    justify-content: center;
+  }
+
   .mnx-espejos-hero-stage {
     margin: 0 auto;
   }
@@ -1654,6 +1814,15 @@ body,
 
   .mnx-espejos-reminder-character {
     margin-inline: auto;
+  }
+
+  .mnx-espejos-reminder-audio-controls {
+    justify-content: center;
+  }
+
+  .mnx-espejos-reminder-audio-status {
+    flex-basis: 100%;
+    justify-content: center;
   }
 
   .mnx-espejos-help-label {
@@ -1871,5 +2040,726 @@ body,
 
   .mnx-espejos-page .mnx-espejos-sidebar-open {
     left: 0;
+  }
+}
+
+
+/* =====================================================================
+   ESPEJOS.WEBP · ANIMACIÓN DE LA BÓVEDA
+   Ruta:
+   src/assets/mathnumbers/09-espejos/espejos.webp
+   ===================================================================== */
+
+.mnx-espejos-cofre-layout .mnx-espejos-scene-visual {
+  position: absolute;
+  inset: 18px 18px 154px;
+  width: auto;
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(91, 255, 167, 0.24);
+  border-radius: 20px;
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(47, 218, 119, 0.12),
+      transparent 58%
+    ),
+    linear-gradient(
+      180deg,
+      #0a3124 0%,
+      #051d15 100%
+    );
+  box-shadow:
+    inset 0 0 28px rgba(0, 0, 0, 0.28),
+    0 16px 24px rgba(0, 0, 0, 0.16);
+}
+
+.mnx-espejos-cofre-layout .mnx-espejos-scene-visual img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 18px;
+  pointer-events: none;
+  user-select: none;
+  filter:
+    saturate(1.06)
+    contrast(1.03)
+    brightness(1.02)
+    drop-shadow(0 18px 20px rgba(0, 0, 0, 0.22));
+}
+
+@media (max-width: 980px) {
+  .mnx-espejos-cofre-layout .mnx-espejos-scene-visual {
+    inset: 14px 14px 145px;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-espejos-cofre-layout .mnx-espejos-scene-visual {
+    inset: 12px 12px 140px;
+    border-radius: 17px;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-scene-visual img {
+    border-radius: 15px;
+  }
+}
+
+
+/* =====================================================================
+   ACOMODO COMPACTO · TARJETA DE LOS ESPEJOS
+   Reduce la altura del bloque izquierdo y elimina el espacio verde
+   sobrante alrededor de la animación.
+   ===================================================================== */
+
+.mnx-espejos-cofre-layout .mnx-espejos-header {
+  margin-bottom: 16px;
+}
+
+.mnx-espejos-cofre-layout .mnx-espejos-activity-grid {
+  gap: 16px 18px;
+  align-items: start;
+}
+
+@media (min-width: 981px) {
+  .mnx-espejos-cofre-layout .mnx-espejos-activity-grid {
+    grid-template-columns:
+      minmax(320px, 390px)
+      minmax(0, 1fr);
+
+    grid-template-areas:
+      "art guide"
+      "reminder questions"
+      ". actions";
+
+    grid-template-rows:
+      auto
+      auto
+      auto;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-art {
+    grid-area: art;
+    width: 100%;
+    height: 500px;
+    min-height: 500px;
+    padding: 0;
+    align-self: start;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-scene-visual {
+    top: 16px;
+    right: 16px;
+    bottom: auto;
+    left: 16px;
+    height: 316px;
+    min-height: 0;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-scene-visual img {
+    width: 112%;
+    height: 112%;
+    max-width: none;
+    max-height: none;
+    object-fit: contain;
+    object-position: center;
+    transform: scale(1.02);
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-mission {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    min-height: 130px;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-guide-card {
+    grid-area: guide;
+    width: 100%;
+    margin: 0;
+    align-self: start;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-questions {
+    grid-area: questions;
+    width: 100%;
+    margin: 0;
+    align-self: start;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-reminder-card {
+    grid-area: reminder;
+    width: 100%;
+    min-height: 170px;
+    height: auto;
+    margin: 0;
+    padding: 15px;
+    align-self: start;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-actions {
+    grid-area: actions;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    align-self: start;
+    justify-content: flex-start;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-evidence-card {
+    flex: 0 0 auto;
+    min-height: 0;
+    height: auto;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-check-button {
+    margin: 0;
+    align-self: start;
+  }
+}
+
+@media (min-width: 1181px) {
+  .mnx-espejos-cofre-layout .mnx-espejos-questions {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-explanation-card {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 1180px) and (min-width: 981px) {
+  .mnx-espejos-cofre-layout .mnx-espejos-activity-grid {
+    grid-template-columns:
+      minmax(290px, 340px)
+      minmax(0, 1fr);
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-art {
+    height: 480px;
+    min-height: 480px;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-scene-visual {
+    height: 296px;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-questions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 980px) {
+  .mnx-espejos-cofre-layout .mnx-espejos-activity-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "art"
+      "guide"
+      "questions"
+      "reminder"
+      "actions";
+    gap: 16px;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-art {
+    width: min(100%, 620px);
+    height: 510px;
+    min-height: 510px;
+    margin-inline: auto;
+    padding: 0;
+    align-self: start;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-scene-visual {
+    top: 14px;
+    right: 14px;
+    bottom: auto;
+    left: 14px;
+    height: 326px;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-reminder-card,
+  .mnx-espejos-cofre-layout .mnx-espejos-actions {
+    width: 100%;
+    height: auto;
+    margin: 0;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-espejos-cofre-layout .mnx-espejos-art {
+    height: 460px;
+    min-height: 460px;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-scene-visual {
+    height: 280px;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-mission {
+    min-height: 128px;
+  }
+}
+
+@media (max-width: 460px) {
+  .mnx-espejos-cofre-layout .mnx-espejos-art {
+    height: 430px;
+    min-height: 430px;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-scene-visual {
+    height: 254px;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-mission {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    min-height: 124px;
+  }
+}
+
+
+/* =====================================================================
+   DISEÑO FINAL · MISMA ORGANIZACIÓN DEL PUENTE DE PRIORIDADES
+   Izquierda: animación de la bóveda + Consejo de Suma.
+   Derecha: guía visual + retos + acciones.
+   ===================================================================== */
+
+.mnx-espejos-cofre-layout .mnx-espejos-activity-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns:
+    minmax(320px, 390px)
+    minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.mnx-espejos-left-column,
+.mnx-espejos-right-column {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.mnx-espejos-left-column {
+  grid-column: 1;
+}
+
+.mnx-espejos-right-column {
+  grid-column: 2;
+}
+
+.mnx-espejos-left-column > *,
+.mnx-espejos-right-column > * {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  grid-area: auto;
+}
+
+/* Tarjeta visual compacta, igual a la del Puente. */
+
+.mnx-espejos-cofre-layout .mnx-espejos-art {
+  width: 100%;
+  height: 510px;
+  min-height: 510px;
+  padding: 0;
+  align-self: start;
+}
+
+.mnx-espejos-cofre-layout .mnx-espejos-scene-visual {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  bottom: auto;
+  left: 18px;
+  width: auto;
+  height: 320px;
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+}
+
+.mnx-espejos-cofre-layout .mnx-espejos-scene-visual img {
+  width: 112%;
+  height: 112%;
+  max-width: none;
+  max-height: none;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 18px;
+  transform: scale(1.02);
+}
+
+.mnx-espejos-cofre-layout .mnx-espejos-mission {
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  min-height: 128px;
+}
+
+/* Guía y retos compactos, con proporciones del Puente. */
+
+.mnx-espejos-cofre-layout .mnx-espejos-guide-card {
+  padding: 19px 22px;
+  align-self: start;
+}
+
+.mnx-espejos-cofre-layout .mnx-espejos-section-heading > span {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 14px;
+  font-size: 20px;
+}
+
+.mnx-espejos-cofre-layout .mnx-espejos-guide-grid {
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.mnx-espejos-cofre-layout
+  .mnx-espejos-guide-grid
+  article {
+  min-height: 126px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.mnx-espejos-cofre-layout .mnx-espejos-questions {
+  width: 100%;
+  gap: 14px;
+}
+
+.mnx-espejos-cofre-layout .mnx-espejos-question-card {
+  min-height: 0;
+  height: auto;
+  padding: 15px 16px 16px;
+  border-radius: 20px;
+}
+
+.mnx-espejos-cofre-layout .mnx-espejos-question-title {
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.mnx-espejos-cofre-layout
+  .mnx-espejos-question-title
+  > span {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.mnx-espejos-cofre-layout
+  .mnx-espejos-question-title
+  h2 {
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.mnx-espejos-cofre-layout .mnx-espejos-options {
+  gap: 10px;
+}
+
+.mnx-espejos-cofre-layout
+  .mnx-espejos-options
+  button {
+  min-height: 58px;
+  border-radius: 15px;
+}
+
+.mnx-espejos-cofre-layout
+  .mnx-espejos-explanation-card {
+  width: 100%;
+  padding: 16px;
+  border-radius: 20px;
+}
+
+/* Consejo de Suma ordenado como el diseño de referencia. */
+
+.mnx-espejos-cofre-layout .mnx-espejos-reminder-card {
+  min-height: 174px;
+  height: auto;
+  padding: 18px 20px;
+  grid-template-columns:
+    108px minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  align-self: start;
+}
+
+.mnx-espejos-cofre-layout
+  .mnx-espejos-reminder-character {
+  width: 104px;
+  height: 136px;
+  align-self: center;
+  justify-self: center;
+}
+
+.mnx-espejos-reminder-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.mnx-espejos-cofre-layout
+  .mnx-espejos-reminder-card
+  h3 {
+  width: 100%;
+  margin: 7px 0 6px;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.mnx-espejos-cofre-layout
+  .mnx-espejos-reminder-card
+  p {
+  width: 100%;
+  max-width: 390px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.mnx-espejos-cofre-layout
+  .mnx-espejos-reminder-audio-controls {
+  width: 100%;
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns:
+    repeat(3, 36px);
+  justify-content: start;
+  gap: 8px;
+}
+
+.mnx-espejos-cofre-layout
+  .mnx-espejos-reminder-audio-controls
+  button {
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  border-radius: 11px;
+}
+
+.mnx-espejos-cofre-layout
+  .mnx-espejos-reminder-audio-status {
+  grid-column: 1 / -1;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 32px;
+  justify-content: flex-start;
+  padding-inline: 10px;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* Acciones inmediatamente debajo de los retos. */
+
+.mnx-espejos-cofre-layout .mnx-espejos-actions {
+  width: 100%;
+  height: auto;
+  align-self: start;
+  justify-content: flex-start;
+}
+
+.mnx-espejos-cofre-layout
+  .mnx-espejos-evidence-card {
+  flex: 0 0 auto;
+  min-height: 0;
+  height: auto;
+}
+
+.mnx-espejos-cofre-layout
+  .mnx-espejos-check-button {
+  min-height: 64px;
+  align-self: start;
+}
+
+/* Escritorio amplio: los dos retos quedan lado a lado. */
+
+@media (min-width: 1181px) {
+  .mnx-espejos-cofre-layout .mnx-espejos-questions {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  .mnx-espejos-cofre-layout
+    .mnx-espejos-explanation-card {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Laptop. */
+
+@media (max-width: 1450px) and (min-width: 981px) {
+  .mnx-espejos-cofre-layout
+    .mnx-espejos-activity-grid {
+    grid-template-columns:
+      minmax(290px, 340px)
+      minmax(0, 1fr);
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-art {
+    height: 500px;
+    min-height: 500px;
+  }
+
+  .mnx-espejos-cofre-layout
+    .mnx-espejos-scene-visual {
+    height: 310px;
+  }
+}
+
+@media (max-width: 1180px) and (min-width: 981px) {
+  .mnx-espejos-cofre-layout .mnx-espejos-questions {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-espejos-cofre-layout
+    .mnx-espejos-reminder-card {
+    grid-template-columns:
+      96px minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .mnx-espejos-cofre-layout
+    .mnx-espejos-reminder-character {
+    width: 92px;
+    height: 124px;
+  }
+}
+
+/* Tableta y celular: orden natural de lectura. */
+
+@media (max-width: 980px) {
+  .mnx-espejos-cofre-layout
+    .mnx-espejos-activity-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .mnx-espejos-left-column,
+  .mnx-espejos-right-column {
+    display: contents;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-art {
+    order: 1;
+    width: min(100%, 620px);
+    height: 520px;
+    min-height: 520px;
+    margin-inline: auto;
+  }
+
+  .mnx-espejos-cofre-layout
+    .mnx-espejos-guide-card {
+    order: 2;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-questions {
+    order: 3;
+  }
+
+  .mnx-espejos-cofre-layout
+    .mnx-espejos-reminder-card {
+    order: 4;
+  }
+
+  .mnx-espejos-cofre-layout .mnx-espejos-actions {
+    order: 5;
+  }
+
+  .mnx-espejos-cofre-layout
+    .mnx-espejos-scene-visual {
+    top: 14px;
+    right: 14px;
+    left: 14px;
+    height: 330px;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-espejos-cofre-layout .mnx-espejos-art {
+    height: 470px;
+    min-height: 470px;
+  }
+
+  .mnx-espejos-cofre-layout
+    .mnx-espejos-scene-visual {
+    height: 285px;
+  }
+
+  .mnx-espejos-cofre-layout
+    .mnx-espejos-guide-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-espejos-cofre-layout
+    .mnx-espejos-reminder-card {
+    grid-template-columns:
+      88px minmax(0, 1fr);
+    padding: 16px;
+  }
+
+  .mnx-espejos-cofre-layout
+    .mnx-espejos-reminder-character {
+    width: 84px;
+    height: 112px;
+  }
+}
+
+@media (max-width: 460px) {
+  .mnx-espejos-cofre-layout .mnx-espejos-art {
+    height: 440px;
+    min-height: 440px;
+  }
+
+  .mnx-espejos-cofre-layout
+    .mnx-espejos-scene-visual {
+    height: 260px;
+  }
+
+  .mnx-espejos-cofre-layout
+    .mnx-espejos-reminder-card {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .mnx-espejos-reminder-copy {
+    align-items: center;
+  }
+
+  .mnx-espejos-cofre-layout
+    .mnx-espejos-reminder-audio-controls {
+    width: fit-content;
+    justify-content: center;
+  }
+
+  .mnx-espejos-cofre-layout
+    .mnx-espejos-reminder-audio-status {
+    justify-self: center;
+    justify-content: center;
   }
 }

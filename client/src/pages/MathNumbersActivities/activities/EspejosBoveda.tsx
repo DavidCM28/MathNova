@@ -1,6 +1,6 @@
 import "./EspejosBoveda.css";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -14,18 +14,25 @@ import {
   FiInfo,
   FiLogOut,
   FiMessageSquare,
+  FiPause,
+  FiPlay,
   FiRotateCcw,
   FiSave,
   FiTarget,
   FiUser,
+  FiVolume2,
   FiX,
   FiZap,
 } from "react-icons/fi";
 
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
-import espejoScene from "../../../assets/espejo.png";
+import espejosAnimado from "../../../assets/mathnumbers/09-espejos/espejos.webp";
 import bytePista from "../../../assets/mathnumbers/byte_pista.png";
+import audioConsejoSumaEspejos from "../../../assets/mathnumbers/09-espejos/consejo_suma_espejos.mp3";
+import audioIntroEspejos from "../../../assets/mathnumbers/09-espejos/intro_espejos.mp3";
+import comandanteSumaHablando from "../../../assets/mathnumbers/09-espejos/comandante_suma_hablando.webp";
+import comandanteSumaIdle from "../../../assets/mathnumbers/09-espejos/comandante_suma_idle.png";
 
 import { clearAuthSession } from "../../../utils/authSession";
 import { guardarProgresoActividad } from "../../../services/progresoService";
@@ -37,13 +44,12 @@ import { useToast } from "../hooks/useToast";
 import type { ResultKind } from "../types";
 
 import {
-  cofreGuide,
-  cofreHeroTalkingIdle,
   logo,
   menuHamburguesa,
   zorritoConsejo,
 } from "../mathNumbersAssets";
 
+type AudioStatus = "idle" | "playing" | "paused" | "ended";
 type QuestionKey = "q1" | "q2";
 type AnswerValue = "a" | "b";
 
@@ -57,6 +63,21 @@ const espejosRoute =
 
 const puentePrioridadesRoute =
   "/actividades/mathnumbers/puente-prioridades";
+
+const INTRO_AUDIO_SRC = audioIntroEspejos;
+const GUIDE_AUDIO_SRC = audioConsejoSumaEspejos;
+
+const INTRO_INITIAL_TEXT =
+  "Presiona reproducir para escuchar la introducción del Comandante Suma.";
+
+const INTRO_FULL_TEXT =
+  "La luz de la bóveda se refleja en múltiples direcciones creando expresiones idénticas pero disfrazadas.";
+
+const GUIDE_INITIAL_TEXT =
+  "Presiona reproducir para escuchar el consejo del Comandante Suma.";
+
+const GUIDE_FULL_TEXT =
+  "Simplifica primero cada lado del espejo por separado antes de asegurar que son exactamente iguales.";
 
 function HelpModal({
   onClose,
@@ -180,6 +201,12 @@ export function EspejosBoveda() {
   const [helpOpen, setHelpOpen] =
     useState(false);
 
+  const [introAudioStatus, setIntroAudioStatus] =
+    useState<AudioStatus>("idle");
+
+  const [guideAudioStatus, setGuideAudioStatus] =
+    useState<AudioStatus>("idle");
+
   const [answers, setAnswers] = useState<
     Partial<Record<QuestionKey, AnswerValue>>
   >({});
@@ -197,6 +224,12 @@ export function EspejosBoveda() {
 
   const [resultModalKind, setResultModalKind] =
     useState<ResultKind>("completed");
+
+  const introAudioRef =
+    useRef<HTMLAudioElement | null>(null);
+
+  const guideAudioRef =
+    useRef<HTMLAudioElement | null>(null);
 
   const progress =
     Object.keys(answers).length;
@@ -222,12 +255,208 @@ export function EspejosBoveda() {
     resultModalOpen,
   ]);
 
+  useEffect(() => {
+    return () => {
+      const introAudio =
+        introAudioRef.current;
+
+      const guideAudio =
+        guideAudioRef.current;
+
+      if (introAudio) {
+        introAudio.pause();
+        introAudio.currentTime = 0;
+      }
+
+      if (guideAudio) {
+        guideAudio.pause();
+        guideAudio.currentTime = 0;
+      }
+    };
+  }, []);
+
+  const reproducirIntroduccion = async () => {
+    const audio = introAudioRef.current;
+    const guideAudio = guideAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    if (guideAudio && !guideAudio.paused) {
+      guideAudio.pause();
+      setGuideAudioStatus("paused");
+    }
+
+    if (audio.ended) {
+      audio.currentTime = 0;
+    }
+
+    try {
+      await audio.play();
+      setIntroAudioStatus("playing");
+    } catch (error) {
+      setIntroAudioStatus("paused");
+
+      console.error(
+        "No se pudo reproducir la introducción de Los Espejos de la Bóveda:",
+        error,
+      );
+    }
+  };
+
+  const pausarIntroduccion = () => {
+    const audio = introAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    audio.pause();
+    setIntroAudioStatus("paused");
+  };
+
+  const repetirIntroduccion = async () => {
+    const audio = introAudioRef.current;
+    const guideAudio = guideAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    if (guideAudio && !guideAudio.paused) {
+      guideAudio.pause();
+      setGuideAudioStatus("paused");
+    }
+
+    audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setIntroAudioStatus("playing");
+    } catch (error) {
+      setIntroAudioStatus("paused");
+
+      console.error(
+        "No se pudo repetir la introducción de Los Espejos de la Bóveda:",
+        error,
+      );
+    }
+  };
+
+  const reproducirConsejo = async () => {
+    const audio = guideAudioRef.current;
+    const introAudio = introAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    if (introAudio && !introAudio.paused) {
+      introAudio.pause();
+      setIntroAudioStatus("paused");
+    }
+
+    if (audio.ended) {
+      audio.currentTime = 0;
+    }
+
+    try {
+      await audio.play();
+      setGuideAudioStatus("playing");
+    } catch (error) {
+      setGuideAudioStatus("paused");
+
+      console.error(
+        "No se pudo reproducir el Consejo de Suma de Los Espejos de la Bóveda:",
+        error,
+      );
+    }
+  };
+
+  const pausarConsejo = () => {
+    const audio = guideAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    audio.pause();
+    setGuideAudioStatus("paused");
+  };
+
+  const repetirConsejo = async () => {
+    const audio = guideAudioRef.current;
+    const introAudio = introAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    if (introAudio && !introAudio.paused) {
+      introAudio.pause();
+      setIntroAudioStatus("paused");
+    }
+
+    audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setGuideAudioStatus("playing");
+    } catch (error) {
+      setGuideAudioStatus("paused");
+
+      console.error(
+        "No se pudo repetir el Consejo de Suma de Los Espejos de la Bóveda:",
+        error,
+      );
+    }
+  };
+
+  const detenerAudios = () => {
+    const introAudio = introAudioRef.current;
+    const guideAudio = guideAudioRef.current;
+
+    if (introAudio) {
+      introAudio.pause();
+      introAudio.currentTime = 0;
+    }
+
+    if (guideAudio) {
+      guideAudio.pause();
+      guideAudio.currentTime = 0;
+    }
+
+    setIntroAudioStatus("idle");
+    setGuideAudioStatus("idle");
+  };
+
+  const introStatusText =
+    introAudioStatus === "playing"
+      ? "Suma está hablando"
+      : introAudioStatus === "paused"
+        ? "Audio en pausa"
+        : introAudioStatus === "ended"
+          ? "Introducción completada"
+          : "Listo para escuchar";
+
+  const guideStatusText =
+    guideAudioStatus === "playing"
+      ? "Suma está hablando"
+      : guideAudioStatus === "paused"
+        ? "Audio en pausa"
+        : guideAudioStatus === "ended"
+          ? "Consejo completado"
+          : "Listo para escuchar";
+
   const irARuta = (route: string) => {
+    detenerAudios();
     setMenuOpen(false);
     navigate(route);
   };
 
   const cerrarSesion = () => {
+    detenerAudios();
     clearAuthSession();
 
     navigate("/login", {
@@ -274,6 +503,7 @@ export function EspejosBoveda() {
   };
 
   const repetirActividad = () => {
+    detenerAudios();
     limpiarActividad();
     setResultModalOpen(false);
     setResultModalKind("completed");
@@ -703,328 +933,467 @@ export function EspejosBoveda() {
                   Comandante Suma explica
                 </span>
 
-                <h2>
-                  ¡Observa los reflejos!
-                </h2>
-
-                <p>
-                  Une las expresiones que representan el
-                  mismo valor. Puede cambiar el orden o
-                  la agrupación, pero no el resultado.
+                <p aria-live="polite">
+                  {introAudioStatus === "idle"
+                    ? INTRO_INITIAL_TEXT
+                    : INTRO_FULL_TEXT}
                 </p>
+
+                <div className="mnx-espejos-audio-controls">
+                  <audio
+                    ref={introAudioRef}
+                    src={INTRO_AUDIO_SRC}
+                    preload="metadata"
+                    onPlay={() =>
+                      setIntroAudioStatus("playing")
+                    }
+                    onPause={() => {
+                      if (!introAudioRef.current?.ended) {
+                        setIntroAudioStatus("paused");
+                      }
+                    }}
+                    onEnded={() =>
+                      setIntroAudioStatus("ended")
+                    }
+                  />
+
+                  <button
+                    type="button"
+                    onClick={reproducirIntroduccion}
+                    disabled={
+                      introAudioStatus === "playing"
+                    }
+                    aria-label="Reproducir introducción del Comandante Suma"
+                  >
+                    <FiPlay />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={pausarIntroduccion}
+                    disabled={
+                      introAudioStatus !== "playing"
+                    }
+                    aria-label="Pausar introducción del Comandante Suma"
+                  >
+                    <FiPause />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={repetirIntroduccion}
+                    aria-label="Repetir introducción del Comandante Suma"
+                  >
+                    <FiRotateCcw />
+                  </button>
+
+                  <span
+                    className={`mnx-espejos-audio-status ${
+                      introAudioStatus === "playing"
+                        ? "is-playing"
+                        : ""
+                    }`}
+                  >
+                    <FiVolume2 />
+                    {introStatusText}
+                  </span>
+                </div>
               </article>
 
               <div className="mnx-espejos-hero-stage">
                 <img
-                  src={cofreHeroTalkingIdle}
-                  alt="Comandante Suma"
+                  key={
+                    introAudioStatus === "playing"
+                      ? "espejos-suma-hablando"
+                      : "espejos-suma-idle"
+                  }
+                  src={
+                    introAudioStatus === "playing"
+                      ? comandanteSumaHablando
+                      : comandanteSumaIdle
+                  }
+                  alt={
+                    introAudioStatus === "playing"
+                      ? "Comandante Suma explicando la misión"
+                      : "Comandante Suma listo para explicar"
+                  }
                   className="mnx-espejos-intro-character"
+                  draggable={false}
                 />
               </div>
             </div>
           </header>
 
           <section className="mnx-espejos-activity-grid">
-            <article className="mnx-espejos-art">
-              <div className="mnx-espejos-scene-visual">
-                <img
-                  src={espejoScene}
-                  alt="Los Espejos de la Bóveda"
-                  draggable={false}
-                />
-              </div>
+            <div className="mnx-espejos-left-column">
+              <article className="mnx-espejos-art">
+                            <div className="mnx-espejos-scene-visual">
+                              <img
+                                src={espejosAnimado}
+                                alt="Los Espejos de la Bóveda"
+                                draggable={false}
+                              />
+                            </div>
 
-              <div className="mnx-espejos-mission">
-                <FiZap />
+                            <div className="mnx-espejos-mission">
+                              <FiZap />
 
-                <div>
-                  <strong>
-                    Energía de la bóveda
-                  </strong>
+                              <div>
+                                <strong>
+                                  Energía de la bóveda
+                                </strong>
 
-                  <div className="mnx-espejos-energy-track">
-                    <b
-                      style={{
-                        width: `${energy}%`,
-                      }}
-                    />
-                  </div>
+                                <div className="mnx-espejos-energy-track">
+                                  <b
+                                    style={{
+                                      width: `${energy}%`,
+                                    }}
+                                  />
+                                </div>
 
-                  <p>
-                    {energy}% cargado · cada reflejo agrega 50%.
-                  </p>
-                </div>
-              </div>
-            </article>
+                                <p>
+                                  {energy}% cargado · cada reflejo agrega 50%.
+                                </p>
+                              </div>
+                            </div>
+                          </article>
 
-            <section className="mnx-espejos-guide-card">
-              <div className="mnx-espejos-section-heading">
-                <span>↔</span>
+              <section className="mnx-espejos-reminder-card">
+                            <img
+                              key={
+                                guideAudioStatus === "playing"
+                                  ? "espejos-consejo-hablando"
+                                  : "espejos-consejo-idle"
+                              }
+                              src={
+                                guideAudioStatus === "playing"
+                                  ? comandanteSumaHablando
+                                  : comandanteSumaIdle
+                              }
+                              alt={
+                                guideAudioStatus === "playing"
+                                  ? "Comandante Suma dando el consejo"
+                                  : "Comandante Suma listo para dar el consejo"
+                              }
+                              className="mnx-espejos-reminder-character"
+                              draggable={false}
+                            />
 
-                <div>
-                  <strong>
-                    Guía visual rápida
-                  </strong>
+                            <div className="mnx-espejos-reminder-copy">
+                              <span className="mnx-espejos-help-label">
+                                Consejo de Suma
+                              </span>
 
-                  <p>
-                    La expresión cambia, pero el valor se mantiene.
-                  </p>
-                </div>
-              </div>
+                              <h3>
+                                Comprueba cada reflejo
+                              </h3>
 
-              <div className="mnx-espejos-guide-grid">
-                <article>
-                  <p>
-                    <strong>
-                      Conmutativa
-                    </strong>
-                    : cambia el orden.
-                  </p>
+                              <p aria-live="polite">
+                                {guideAudioStatus === "idle"
+                                  ? GUIDE_INITIAL_TEXT
+                                  : GUIDE_FULL_TEXT}
+                              </p>
 
-                  <div className="mnx-espejos-demo-row">
-                    <b>4 + 7</b>
-                    <em>↔</em>
-                    <b>7 + 4</b>
-                  </div>
-                </article>
+                              <div className="mnx-espejos-reminder-audio-controls">
+                                <audio
+                                  ref={guideAudioRef}
+                                  src={GUIDE_AUDIO_SRC}
+                                  preload="metadata"
+                                  onPlay={() =>
+                                    setGuideAudioStatus("playing")
+                                  }
+                                  onPause={() => {
+                                    if (!guideAudioRef.current?.ended) {
+                                      setGuideAudioStatus("paused");
+                                    }
+                                  }}
+                                  onEnded={() =>
+                                    setGuideAudioStatus("ended")
+                                  }
+                                />
 
-                <article>
-                  <p>
-                    <strong>
-                      Asociativa
-                    </strong>
-                    : cambia la agrupación.
-                  </p>
+                                <button
+                                  type="button"
+                                  onClick={reproducirConsejo}
+                                  disabled={
+                                    guideAudioStatus === "playing"
+                                  }
+                                  aria-label="Reproducir Consejo de Suma"
+                                >
+                                  <FiPlay />
+                                </button>
 
-                  <div className="mnx-espejos-demo-row">
-                    <b>
-                      (2 + 3) + 1
-                    </b>
-                    <em>↔</em>
-                    <b>
-                      2 + (3 + 1)
-                    </b>
-                  </div>
-                </article>
-              </div>
-            </section>
+                                <button
+                                  type="button"
+                                  onClick={pausarConsejo}
+                                  disabled={
+                                    guideAudioStatus !== "playing"
+                                  }
+                                  aria-label="Pausar Consejo de Suma"
+                                >
+                                  <FiPause />
+                                </button>
 
-            <section className="mnx-espejos-questions">
-              <article className="mnx-espejos-question-card">
-                <div className="mnx-espejos-question-title">
-                  <span>1</span>
+                                <button
+                                  type="button"
+                                  onClick={repetirConsejo}
+                                  aria-label="Repetir Consejo de Suma"
+                                >
+                                  <FiRotateCcw />
+                                </button>
 
-                  <h2>
-                    ¿Cuál es el reflejo equivalente de 4 + 7?
-                  </h2>
-                </div>
+                                <span
+                                  className={`mnx-espejos-reminder-audio-status ${
+                                    guideAudioStatus === "playing"
+                                      ? "is-playing"
+                                      : ""
+                                  }`}
+                                >
+                                  <FiVolume2 />
+                                  {guideStatusText}
+                                </span>
+                              </div>
 
-                <div className="mnx-espejos-options">
-                  <button
-                    type="button"
-                    className={answerClass(
-                      "q1",
-                      "a",
-                    )}
-                    onClick={() =>
-                      selectAnswer(
-                        "q1",
-                        "a",
-                      )
-                    }
-                  >
-                    <span>A</span>
-                    <strong>7 − 4</strong>
-                    <i>
-                      <FiCheck />
-                    </i>
-                  </button>
+                
+                            </div>
+                          </section>
+            </div>
 
-                  <button
-                    type="button"
-                    className={answerClass(
-                      "q1",
-                      "b",
-                    )}
-                    onClick={() =>
-                      selectAnswer(
-                        "q1",
-                        "b",
-                      )
-                    }
-                  >
-                    <span>B</span>
-                    <strong>7 + 4</strong>
-                    <i>
-                      <FiCheck />
-                    </i>
-                  </button>
-                </div>
-              </article>
+            <div className="mnx-espejos-right-column">
+              <section className="mnx-espejos-guide-card">
+                            <div className="mnx-espejos-section-heading">
+                              <span>↔</span>
 
-              <article className="mnx-espejos-question-card">
-                <div className="mnx-espejos-question-title">
-                  <span>2</span>
+                              <div>
+                                <strong>
+                                  Guía visual rápida
+                                </strong>
 
-                  <h2>
-                    ¿Cuál es el reflejo equivalente de (2 + 3) + 1?
-                  </h2>
-                </div>
+                                <p>
+                                  La expresión cambia, pero el valor se mantiene.
+                                </p>
+                              </div>
+                            </div>
 
-                <div className="mnx-espejos-options">
-                  <button
-                    type="button"
-                    className={answerClass(
-                      "q2",
-                      "a",
-                    )}
-                    onClick={() =>
-                      selectAnswer(
-                        "q2",
-                        "a",
-                      )
-                    }
-                  >
-                    <span>A</span>
-                    <strong>
-                      2 + (3 − 1)
-                    </strong>
-                    <i>
-                      <FiCheck />
-                    </i>
-                  </button>
+                            <div className="mnx-espejos-guide-grid">
+                              <article>
+                                <p>
+                                  <strong>
+                                    Conmutativa
+                                  </strong>
+                                  : cambia el orden.
+                                </p>
 
-                  <button
-                    type="button"
-                    className={answerClass(
-                      "q2",
-                      "b",
-                    )}
-                    onClick={() =>
-                      selectAnswer(
-                        "q2",
-                        "b",
-                      )
-                    }
-                  >
-                    <span>B</span>
-                    <strong>
-                      2 + (3 + 1)
-                    </strong>
-                    <i>
-                      <FiCheck />
-                    </i>
-                  </button>
-                </div>
-              </article>
+                                <div className="mnx-espejos-demo-row">
+                                  <b>4 + 7</b>
+                                  <em>↔</em>
+                                  <b>7 + 4</b>
+                                </div>
+                              </article>
 
-              <article className="mnx-espejos-explanation-card">
-                <div className="mnx-espejos-question-title">
-                  <span>3</span>
+                              <article>
+                                <p>
+                                  <strong>
+                                    Asociativa
+                                  </strong>
+                                  : cambia la agrupación.
+                                </p>
 
-                  <h2>
-                    ¿Qué cambió y qué se mantuvo igual?
-                  </h2>
-                </div>
+                                <div className="mnx-espejos-demo-row">
+                                  <b>
+                                    (2 + 3) + 1
+                                  </b>
+                                  <em>↔</em>
+                                  <b>
+                                    2 + (3 + 1)
+                                  </b>
+                                </div>
+                              </article>
+                            </div>
+                          </section>
 
-                <label
-                  className="mnx-espejos-answer-box"
-                  htmlFor="espejos-explanation"
-                >
-                  <textarea
-                    id="espejos-explanation"
-                    maxLength={300}
-                    value={explanation}
-                    onChange={(event) =>
-                      setExplanation(
-                        event.target.value,
-                      )
-                    }
-                    placeholder="Escribe tu explicación aquí..."
-                  />
+              <section className="mnx-espejos-questions">
+                            <article className="mnx-espejos-question-card">
+                              <div className="mnx-espejos-question-title">
+                                <span>1</span>
 
-                  <span>
-                    {explanation.length} / 300
-                  </span>
-                </label>
+                                <h2>
+                                  ¿Cuál es el reflejo equivalente de 4 + 7?
+                                </h2>
+                              </div>
 
-                <button
-                  type="button"
-                  className="mnx-espejos-save-btn"
-                  onClick={
-                    guardarExplicacion
-                  }
-                >
-                  <FiSave />
-                  Guardar explicación
-                </button>
-              </article>
-            </section>
+                              <div className="mnx-espejos-options">
+                                <button
+                                  type="button"
+                                  className={answerClass(
+                                    "q1",
+                                    "a",
+                                  )}
+                                  onClick={() =>
+                                    selectAnswer(
+                                      "q1",
+                                      "a",
+                                    )
+                                  }
+                                >
+                                  <span>A</span>
+                                  <strong>7 − 4</strong>
+                                  <i>
+                                    <FiCheck />
+                                  </i>
+                                </button>
 
-            <section className="mnx-espejos-reminder-card">
-              <img
-                src={cofreGuide}
-                alt="Comandante Suma dando una pista"
-                className="mnx-espejos-reminder-character"
-              />
+                                <button
+                                  type="button"
+                                  className={answerClass(
+                                    "q1",
+                                    "b",
+                                  )}
+                                  onClick={() =>
+                                    selectAnswer(
+                                      "q1",
+                                      "b",
+                                    )
+                                  }
+                                >
+                                  <span>B</span>
+                                  <strong>7 + 4</strong>
+                                  <i>
+                                    <FiCheck />
+                                  </i>
+                                </button>
+                              </div>
+                            </article>
 
-              <div>
-                <span className="mnx-espejos-help-label">
-                  Consejo de Suma
-                </span>
+                            <article className="mnx-espejos-question-card">
+                              <div className="mnx-espejos-question-title">
+                                <span>2</span>
 
-                <h3>
-                  Busca el mismo valor
-                </h3>
+                                <h2>
+                                  ¿Cuál es el reflejo equivalente de (2 + 3) + 1?
+                                </h2>
+                              </div>
 
-                <p>
-                  Cambiar el orden o la agrupación no
-                  debe modificar el resultado. Compara
-                  ambas expresiones antes de elegir.
-                </p>
+                              <div className="mnx-espejos-options">
+                                <button
+                                  type="button"
+                                  className={answerClass(
+                                    "q2",
+                                    "a",
+                                  )}
+                                  onClick={() =>
+                                    selectAnswer(
+                                      "q2",
+                                      "a",
+                                    )
+                                  }
+                                >
+                                  <span>A</span>
+                                  <strong>
+                                    2 + (3 − 1)
+                                  </strong>
+                                  <i>
+                                    <FiCheck />
+                                  </i>
+                                </button>
 
-                <button
-                  type="button"
-                  className="mnx-espejos-hint-button"
-                  onClick={() =>
-                    setHelpOpen(true)
-                  }
-                >
-                  <FiHelpCircle />
-                  Ver pista completa
-                </button>
-              </div>
-            </section>
+                                <button
+                                  type="button"
+                                  className={answerClass(
+                                    "q2",
+                                    "b",
+                                  )}
+                                  onClick={() =>
+                                    selectAnswer(
+                                      "q2",
+                                      "b",
+                                    )
+                                  }
+                                >
+                                  <span>B</span>
+                                  <strong>
+                                    2 + (3 + 1)
+                                  </strong>
+                                  <i>
+                                    <FiCheck />
+                                  </i>
+                                </button>
+                              </div>
+                            </article>
 
-            <aside className="mnx-espejos-actions">
-              {activityResolved && (
-                <article className="mnx-espejos-evidence-card">
-                  <FiInfo />
+                            <article className="mnx-espejos-explanation-card">
+                              <div className="mnx-espejos-question-title">
+                                <span>3</span>
 
-                  <div>
-                    <strong>
-                      Evidencia guardada
-                    </strong>
+                                <h2>
+                                  ¿Qué cambió y qué se mantuvo igual?
+                                </h2>
+                              </div>
 
-                    <p>
-                      La actividad fue resuelta correctamente y tus respuestas quedarán disponibles en Retroalimentación.
-                    </p>
-                  </div>
-                </article>
-              )}
+                              <label
+                                className="mnx-espejos-answer-box"
+                                htmlFor="espejos-explanation"
+                              >
+                                <textarea
+                                  id="espejos-explanation"
+                                  maxLength={300}
+                                  value={explanation}
+                                  onChange={(event) =>
+                                    setExplanation(
+                                      event.target.value,
+                                    )
+                                  }
+                                  placeholder="Escribe tu explicación aquí..."
+                                />
 
-              <button
-                type="button"
-                className="mnx-espejos-check-button"
-                onClick={comprobar}
-              >
-                <FiCheckCircle />
-                Comprobar equivalencias
-                <span>
-                  {progress}/2 listas
-                </span>
-              </button>
-            </aside>
+                                <span>
+                                  {explanation.length} / 300
+                                </span>
+                              </label>
+
+                              <button
+                                type="button"
+                                className="mnx-espejos-save-btn"
+                                onClick={
+                                  guardarExplicacion
+                                }
+                              >
+                                <FiSave />
+                                Guardar explicación
+                              </button>
+                            </article>
+                          </section>
+
+              <aside className="mnx-espejos-actions">
+                            {activityResolved && (
+                              <article className="mnx-espejos-evidence-card">
+                                <FiInfo />
+
+                                <div>
+                                  <strong>
+                                    Evidencia guardada
+                                  </strong>
+
+                                  <p>
+                                    La actividad fue resuelta correctamente y tus respuestas quedarán disponibles en Retroalimentación.
+                                  </p>
+                                </div>
+                              </article>
+                            )}
+
+                            <button
+                              type="button"
+                              className="mnx-espejos-check-button"
+                              onClick={comprobar}
+                            >
+                              <FiCheckCircle />
+                              Comprobar equivalencias
+                              <span>
+                                {progress}/2 listas
+                              </span>
+                            </button>
+                          </aside>
+            </div>
           </section>
 
           <section className="mnx-espejos-stats">
