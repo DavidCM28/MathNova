@@ -90,22 +90,22 @@ import videoProfesor from "../../assets/mathGeometry/actividad5/instrucciones_pr
 import videoByte from "../../assets/mathGeometry/actividad5/byte_aciertos_y_pistas_act_5_MathGeometry.mp4";
 import videoSombra from "../../assets/mathGeometry/actividad5/act_4_sombra_error_MathGeometry_.mp4";
 
+/* AUDIOS NUEVOS DE BIENVENIDA E INSTRUCCIONES DE LA ACTIVIDAD 5 */
+import audioNovaIntroduccion from "../../assets/mathGeometry/actividad5/act5_bienvenida_nova_MathGeometry.mp3";
+import audioProfesorAstro from "../../assets/mathGeometry/actividad5/act5_instrucciones_profe_MathGeometry.mp3";
+import audioPistaNova from "../../assets/mathGeometry/actividad5/act5_nova_Pista_1_Observa_los_extremos_MathGeometry.mp3";
+import audioPistaProfesor from "../../assets/mathGeometry/actividad5/act5_profe_astro_Pista_2_Compara_los_dos_lados_MathGeometry.mp3";
+import audioPistaByte from "../../assets/mathGeometry/actividad5/act5_byte_Pista_3_Segmento_inclinado_MathGeometry.mp3";
+import audioSombraError from "../../assets/mathGeometry/actividad5/act5_cuando_se_equivoca_sombra_del_error_MathGeometry.mp3";
+import audioNovaCierre from "../../assets/mathGeometry/actividad5/act5_nova_cierre_MathGeometry.mp3";
+
 /*
-  AUDIOS DE ACTIVIDAD 5
-  Por ahora se dejan vacíos para que el componente compile aunque todavía no
-  hayas agregado los MP3. Cuando tengas los audios, impórtalos aquí y sustituye
-  cada cadena vacía por la variable correspondiente.
+  Audios de bienvenida, explicación, pistas, error y cierre ya integrados.
+  Las felicitaciones flotantes permanecen desactivadas temporalmente.
 */
-const audioNovaIntroduccion = "";
-const audioProfesorAstro = "";
-const audioPistaNova = "";
-const audioPistaProfesor = "";
-const audioPistaByte = "";
 const audioByteAcierto = "";
 const audioProfesorAcierto = "";
 const audioNovaAcierto = "";
-const audioSombraError = "";
-const audioNovaCierre = "";
 
 const RETOS: Reto[] = [
   {
@@ -113,8 +113,8 @@ const RETOS: Reto[] = [
     imagen: reto1,
     pregunta: "Selecciona el punto que está justo en la mitad del segmento.",
     opciones: [
-      { id: "A", texto: "Punto A" },
       { id: "B", texto: "Punto B" },
+      { id: "A", texto: "Punto A" },
       { id: "C", texto: "Punto C" },
     ],
     correcta: "B",
@@ -126,9 +126,9 @@ const RETOS: Reto[] = [
     opciones: [
       { id: "A", texto: "Punto 1" },
       { id: "B", texto: "Punto 2" },
-      { id: "C", texto: "Punto 3" },
       { id: "D", texto: "Punto 4" },
       { id: "E", texto: "Punto 5" },
+      { id: "C", texto: "Punto 3" },
     ],
     correcta: "C",
   },
@@ -139,8 +139,8 @@ const RETOS: Reto[] = [
       "Observa el soporte vertical y elige la figura que está en el punto medio.",
     opciones: [
       { id: "A", texto: "Estrella" },
-      { id: "B", texto: "Triángulo" },
       { id: "C", texto: "Círculo" },
+      { id: "B", texto: "Triángulo" },
     ],
     correcta: "B",
   },
@@ -150,10 +150,10 @@ const RETOS: Reto[] = [
     pregunta:
       "Selecciona el punto que queda más cerca de la mitad del puente inclinado.",
     opciones: [
-      { id: "A", texto: "Punto P" },
-      { id: "B", texto: "Punto Q" },
       { id: "C", texto: "Punto R" },
+      { id: "A", texto: "Punto P" },
       { id: "D", texto: "Punto S" },
+      { id: "B", texto: "Punto Q" },
     ],
     correcta: "C",
   },
@@ -163,8 +163,8 @@ const RETOS: Reto[] = [
     pregunta: "Encuentra el punto medio del puente del gran barranco.",
     opciones: [
       { id: "A", texto: "Punto B" },
-      { id: "B", texto: "Punto C" },
       { id: "C", texto: "Punto D" },
+      { id: "B", texto: "Punto C" },
       { id: "D", texto: "Punto E" },
     ],
     correcta: "C",
@@ -176,10 +176,10 @@ const RETOS: Reto[] = [
       "Selecciona la figura que está exactamente en la mitad del último puente.",
     opciones: [
       { id: "A", texto: "Rombo" },
-      { id: "B", texto: "Círculo" },
       { id: "C", texto: "Cuadrado" },
-      { id: "D", texto: "Estrella" },
       { id: "E", texto: "Corazón" },
+      { id: "B", texto: "Círculo" },
+      { id: "D", texto: "Estrella" },
     ],
     correcta: "C",
   },
@@ -187,48 +187,51 @@ const RETOS: Reto[] = [
 
 const GUION_NOVA_INTRODUCCION = [
   "¡Hola, explorador de MathNova!",
-  "Hoy entraremos al Taller del Ingeniero para construir puentes seguros.",
-  "Observa los extremos de cada segmento y compara los espacios.",
-  "Tu misión es elegir el punto que se encuentra exactamente en la mitad.",
-  "¡Prepara tu mirada de ingeniero y comencemos!",
+  "Hoy entraremos al Taller del Ingeniero.",
+  "Necesitamos construir varios puentes para avanzar por el camino.",
+  "Observa cada segmento y elige el punto que está justo en la mitad.",
+  "¡Vamos a comenzar la misión!",
 ];
 
 const GUION_PROFESOR_ASTRO = [
-  "El punto medio divide un segmento en dos partes iguales.",
-  "Observa la distancia desde cada extremo hasta los puntos marcados.",
-  "El punto correcto debe dejar el mismo espacio a la izquierda y a la derecha.",
-  "No necesitas medir; solo compara visualmente con atención.",
+  "Un segmento es una línea que tiene dos extremos.",
+  "El punto medio está exactamente entre esos dos extremos.",
+  "Tu tarea será observar el segmento y elegir el punto que lo divide en dos partes iguales.",
+  "Fíjate si queda el mismo espacio a la izquierda y a la derecha.",
+  "Cuando elijas tu respuesta, comprobaremos si el soporte quedó justo en el centro del puente.",
 ];
 
 const TEXTO_INICIAL_NOVA =
   "Presiona reproducir para escuchar la introducción de Nova.";
-const TEXTO_FINAL_NOVA = "¡Comencemos a construir!";
+const TEXTO_FINAL_NOVA = "¡Vamos a comenzar la misión!";
 const TEXTO_INICIAL_PROFESOR =
-  "Presiona reproducir para escuchar las instrucciones del Profesor Astro.";
+  "Presiona reproducir para escuchar la explicación del Profesor Astro.";
 const TEXTO_FINAL_PROFESOR =
-  "Compara visualmente los espacios antes de responder.";
+  "Comprobaremos si el soporte quedó justo en el centro del puente.";
 
 const GUION_SOMBRA_ERROR = [
   "Casi lo logras.",
-  "Observa nuevamente los dos extremos del segmento.",
-  "El punto medio debe dejar dos partes del mismo tamaño.",
-  "Compara los espacios e inténtalo otra vez.",
+  "Observa otra vez los dos extremos del segmento.",
+  "Compara el espacio que queda a cada lado del punto.",
+  "Recuerda: el punto medio debe estar justo en el centro.",
+  "¡Inténtalo una vez más!",
 ];
 
 const TEXTO_INICIAL_SOMBRA =
   "Presiona reproducir para escuchar el mensaje de Sombra.";
-const TEXTO_FINAL_SOMBRA = "Inténtalo de nuevo.";
+const TEXTO_FINAL_SOMBRA = "¡Inténtalo una vez más!";
 
 const GUION_NOVA_CIERRE = [
-  "¡Puentes completados!",
-  "Construiste todos los puentes identificando correctamente sus puntos medios.",
-  "Aprendiste que el punto medio divide un segmento en dos partes iguales.",
-  "¡Excelente trabajo, ingeniero de MathNova!",
+  "¡Misión completada!",
+  "Construiste los puentes del Taller del Ingeniero.",
+  "Hoy aprendiste que el punto medio divide un segmento en dos partes iguales.",
+  "Cada puente completado quedó registrado como evidencia de tu avance.",
+  "¡Muy buen trabajo, ingeniero de MathNova!",
 ];
 
 const TEXTO_INICIAL_COMPLETADO =
   "Presiona reproducir para escuchar el mensaje final de Nova.";
-const TEXTO_FINAL_COMPLETADO = "¡Excelente trabajo, ingeniero!";
+const TEXTO_FINAL_COMPLETADO = "¡Muy buen trabajo, ingeniero de MathNova!";
 
 const PISTAS_ACT5: Record<
   PistaAct5Id,
@@ -244,38 +247,44 @@ const PISTAS_ACT5: Record<
 > = {
   frente: {
     id: "frente",
-    titulo: "Pista: observa los extremos",
-    subtitulo: "Comienza desde ambos lados",
+    titulo: "Pista 1: Extremos",
+    subtitulo: "Pista espacial",
     personaje: "Nova",
     audio: audioPistaNova,
     video: videoNova,
     guion: [
-      "Mira primero los dos extremos del segmento.",
-      "Después busca el punto que queda equilibrado entre ambos.",
+      "Pista espacial:",
+      "Mira dónde comienza y dónde termina el segmento.",
+      "Después busca el punto que queda justo entre los dos extremos.",
+      "¡Ese puede ser el centro del puente!",
     ],
   },
   linea: {
     id: "linea",
-    titulo: "Pista: compara los espacios",
-    subtitulo: "Busca dos partes iguales",
+    titulo: "Pista 2: Dos Lados",
+    subtitulo: "Pista de ingeniero",
     personaje: "Profesor Astro",
     audio: audioPistaProfesor,
     video: videoProfesor,
     guion: [
-      "Compara el espacio que queda a cada lado del punto.",
-      "Si ambos espacios parecen iguales, encontraste el punto medio.",
+      "Pista de ingeniero:",
+      "Imagina que el punto divide el puente en dos partes.",
+      "Elige el punto donde ambos lados se vean del mismo tamaño.",
+      "Si las dos partes son iguales, encontraste el punto medio.",
     ],
   },
   letras: {
     id: "letras",
-    titulo: "Pista: no elijas por orden",
-    subtitulo: "Observa la posición real",
+    titulo: "Pista 3: Inclinado",
+    subtitulo: "Pista de análisis",
     personaje: "Byte",
     audio: audioPistaByte,
     video: videoByte,
     guion: [
-      "No elijas una letra solamente porque aparece en el centro de la lista.",
-      "La respuesta depende de la posición del punto dentro del segmento.",
+      "Pista de análisis:",
+      "Aunque el segmento esté inclinado, el punto medio sigue estando en la mitad.",
+      "No importa si va horizontal, vertical o diagonal.",
+      "Observa los extremos y busca el centro.",
     ],
   },
 };
@@ -1806,7 +1815,7 @@ function Actividad5MathGeometry() {
           }}
         >
           <section
-            className={`act5geo-character-modal act5geo-modal-sin-contenido ${
+            className={`act5geo-character-modal ${
               modalReproduciendo ? "act5geo-profe-modal-playing" : ""
             } ${modal === "byte" ? "act5geo-hints-modal" : ""}`}
             role="dialog"
@@ -2104,7 +2113,7 @@ function Actividad5MathGeometry() {
       {modal === "completado" && (
         <div className="act5geo-modal-overlay">
           <section
-            className="act5geo-complete-modal act5geo-modal-sin-contenido"
+            className="act5geo-complete-modal"
             role="dialog"
             aria-modal="true"
             aria-label="Actividad completada"

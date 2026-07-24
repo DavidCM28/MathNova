@@ -9774,3 +9774,49 @@ body:has(.act6geo-modal-overlay) {
     font-size: 11.5px !important;
   }
 }
+
+/* =========================================================
+   ACTIVIDAD 6 — TEXTOS Y AUDIOS COMPLETOS
+   Mantiene el diseño existente y permite ver todos los textos.
+   ========================================================= */
+
+.act6geo-modal-script-panel,
+.act6geo-complete-transcript {
+  overflow: hidden !important;
+}
+
+.act6geo-modal-script-lines,
+.act6geo-complete-transcript .act6geo-modal-script-lines {
+  width: 100% !important;
+  height: calc(100% - 58px) !important;
+  margin-top: 14px !important;
+  padding-right: 7px !important;
+  display: block !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: thin;
+}
+
+.act6geo-modal-script-lines p,
+.act6geo-complete-transcript .act6geo-modal-script-lines p {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 0 10px !important;
+  white-space: normal !important;
+  overflow: visible !important;
+}
+
+.act6geo-modal-script-lines p > span,
+.act6geo-complete-transcript .act6geo-modal-script-lines p > span {
+  display: block !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+
+.act6geo-complete-transcript-inline .act6geo-modal-script-lines {
+  height: calc(100% - 52px) !important;
+}

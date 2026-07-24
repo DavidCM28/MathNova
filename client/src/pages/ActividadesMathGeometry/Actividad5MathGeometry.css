@@ -9774,3 +9774,191 @@ body:has(.act5geo-modal-overlay) {
     font-size: 11.5px !important;
   }
 }
+
+/* =========================================================
+   CORRECCIÓN DEFINITIVA — TEXTO COMPLETO DEL PROFESOR ASTRO
+   Este bloque debe permanecer AL FINAL del archivo.
+   Permite mostrar las 5 frases completas sin recortar la última.
+   ========================================================= */
+
+.act5geo-character-modal .act5geo-modal-script-panel {
+  height: 520px !important;
+  max-height: 520px !important;
+  padding: 22px 22px 18px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-gutter: stable;
+}
+
+.act5geo-character-modal .act5geo-modal-script-lines {
+  width: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 4px 4px 18px 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  overflow: visible !important;
+}
+
+.act5geo-character-modal .act5geo-modal-script-lines p {
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 10px 12px 12px !important;
+  border-radius: 14px !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  word-break: normal !important;
+}
+
+.act5geo-character-modal .act5geo-modal-script-lines p span {
+  display: block !important;
+  width: 100% !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  line-height: 1.28 !important;
+}
+
+/* Barra de desplazamiento discreta para resoluciones pequeñas. */
+.act5geo-character-modal .act5geo-modal-script-panel::-webkit-scrollbar {
+  width: 7px;
+}
+
+.act5geo-character-modal .act5geo-modal-script-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.act5geo-character-modal .act5geo-modal-script-panel::-webkit-scrollbar-thumb {
+  background: rgba(0, 88, 255, 0.2);
+  border-radius: 999px;
+}
+
+/* En pantallas medianas, el panel crece y sigue permitiendo scroll. */
+@media (max-width: 1100px) {
+  .act5geo-character-modal .act5geo-modal-script-panel {
+    height: 300px !important;
+    max-height: 300px !important;
+  }
+}
+
+/* En móviles se conserva todo el contenido visible mediante scroll interno. */
+@media (max-width: 760px) {
+  .act5geo-character-modal .act5geo-modal-script-panel {
+    height: 280px !important;
+    max-height: 280px !important;
+  }
+
+  .act5geo-character-modal .act5geo-modal-script-lines p {
+    padding: 9px 10px 11px !important;
+  }
+}
+
+/* =========================================================
+   ACTIVIDAD 5 — AUDIOS Y TEXTOS COMPLETOS
+   PISTAS, SOMBRA Y MISIÓN COMPLETADA
+   Este bloque debe permanecer al final.
+   ========================================================= */
+
+/* Todos los paneles de transcripción muestran el contenido completo. */
+.act5geo-character-modal .act5geo-modal-script-panel,
+.act5geo-complete-modal .act5geo-complete-transcript {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-gutter: stable;
+}
+
+.act5geo-character-modal .act5geo-modal-script-lines,
+.act5geo-complete-modal .act5geo-modal-script-lines {
+  height: auto !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 9px !important;
+  overflow: visible !important;
+  padding-bottom: 18px !important;
+}
+
+.act5geo-character-modal .act5geo-modal-script-lines p,
+.act5geo-complete-modal .act5geo-modal-script-lines p {
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 9px 11px 11px !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+.act5geo-character-modal .act5geo-modal-script-lines p span,
+.act5geo-complete-modal .act5geo-modal-script-lines p span {
+  display: block !important;
+  width: 100% !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  line-height: 1.28 !important;
+}
+
+/* El modal de misión completada ya tiene contenido y controles activos. */
+.act5geo-complete-modal .act5geo-complete-cloud p,
+.act5geo-complete-modal .act5geo-complete-transcript h3,
+.act5geo-complete-modal
+  .act5geo-complete-transcript
+  .act5geo-modal-script-lines {
+  display: block !important;
+}
+
+.act5geo-complete-modal .act5geo-complete-controls {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Ajuste para las pistas con cuatro frases. */
+.act5geo-hints-modal .act5geo-modal-script-panel {
+  height: 520px !important;
+  max-height: 520px !important;
+}
+
+/* Scroll visual discreto. */
+.act5geo-modal-script-panel::-webkit-scrollbar,
+.act5geo-complete-transcript::-webkit-scrollbar {
+  width: 7px;
+}
+
+.act5geo-modal-script-panel::-webkit-scrollbar-track,
+.act5geo-complete-transcript::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.act5geo-modal-script-panel::-webkit-scrollbar-thumb,
+.act5geo-complete-transcript::-webkit-scrollbar-thumb {
+  background: rgba(0, 88, 255, 0.22);
+  border-radius: 999px;
+}
+
+@media (max-width: 1100px) {
+  .act5geo-hints-modal .act5geo-modal-script-panel,
+  .act5geo-character-modal .act5geo-modal-script-panel {
+    height: 300px !important;
+    max-height: 300px !important;
+  }
+
+  .act5geo-complete-modal .act5geo-complete-transcript {
+    max-height: 280px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .act5geo-hints-modal .act5geo-modal-script-panel,
+  .act5geo-character-modal .act5geo-modal-script-panel {
+    height: 280px !important;
+    max-height: 280px !important;
+  }
+
+  .act5geo-complete-modal .act5geo-complete-transcript {
+    max-height: 300px !important;
+  }
+}
