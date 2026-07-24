@@ -532,11 +532,87 @@ body,
 }
 
 .mnx-puente-speech p {
-  margin: 0;
+  min-height: 54px;
+  margin: 8px 0 0;
   color: #33475f;
   font-size: 12.5px;
   line-height: 1.45;
   font-weight: 750;
+}
+
+.mnx-puente-audio-controls {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.mnx-puente-audio-controls button {
+  width: 35px;
+  height: 35px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #18ba5e, #078b42);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(19, 168, 78, 0.2);
+  transition:
+    transform var(--mn-transition),
+    opacity var(--mn-transition),
+    filter var(--mn-transition);
+}
+
+.mnx-puente-audio-controls button:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.05);
+  filter: brightness(1.06);
+}
+
+.mnx-puente-audio-controls button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mnx-puente-audio-status {
+  min-height: 34px;
+  padding: 0 11px;
+  border-radius: 999px;
+  color: var(--mn-muted);
+  background: #edf4ef;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 850;
+}
+
+.mnx-puente-audio-status svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+}
+
+.mnx-puente-audio-status.is-playing {
+  color: var(--mn-primary-dark);
+  background: #ddf7e4;
+  animation: mnx-puente-audio-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes mnx-puente-audio-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(19, 168, 78, 0.15);
+  }
+
+  50% {
+    box-shadow: 0 0 0 7px rgba(19, 168, 78, 0);
+  }
 }
 
 .mnx-puente-hero-stage {
@@ -1021,6 +1097,18 @@ body,
   height: 130px;
   object-fit: contain;
   filter: drop-shadow(0 12px 12px rgba(20, 72, 44, 0.14));
+  animation: mnx-puente-reminder-float 3s ease-in-out infinite;
+}
+
+@keyframes mnx-puente-reminder-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-6px) rotate(1deg);
+  }
 }
 
 .mnx-puente-reminder-card h3 {
@@ -1037,6 +1125,69 @@ body,
   font-size: 10.5px;
   line-height: 1.4;
   font-weight: 700;
+}
+
+.mnx-puente-reminder-audio-controls {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mnx-puente-reminder-audio-controls button {
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #18ba5e, #078b42);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 7px 14px rgba(19, 168, 78, 0.18);
+  transition:
+    transform var(--mn-transition),
+    opacity var(--mn-transition);
+}
+
+.mnx-puente-reminder-audio-controls
+  button:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.04);
+}
+
+.mnx-puente-reminder-audio-controls button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mnx-puente-reminder-audio-status {
+  min-height: 30px;
+  padding: 0 9px;
+  border-radius: 999px;
+  color: var(--mn-muted);
+  background: #edf4ef;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 850;
+}
+
+.mnx-puente-reminder-audio-status svg {
+  width: 13px;
+  height: 13px;
+}
+
+.mnx-puente-reminder-audio-status.is-playing {
+  color: var(--mn-primary-dark);
+  background: #ddf7e4;
+  animation: mnx-puente-audio-pulse 1.2s ease-in-out infinite;
 }
 
 .mnx-puente-hint-button {
@@ -1563,6 +1714,15 @@ body,
     display: none;
   }
 
+  .mnx-puente-audio-controls {
+    justify-content: center;
+  }
+
+  .mnx-puente-audio-status {
+    flex: 1 1 150px;
+    justify-content: center;
+  }
+
   .mnx-puente-hero-stage {
     margin: 0 auto;
   }
@@ -1654,6 +1814,15 @@ body,
 
   .mnx-puente-reminder-character {
     margin-inline: auto;
+  }
+
+  .mnx-puente-reminder-audio-controls {
+    justify-content: center;
+  }
+
+  .mnx-puente-reminder-audio-status {
+    flex-basis: 100%;
+    justify-content: center;
   }
 
   .mnx-puente-help-label {
@@ -2574,5 +2743,274 @@ body,
   .mnx-puente-cofre-layout .mnx-puente-scene-visual img {
     width: 108%;
     height: 108%;
+  }
+}
+
+/* =====================================================================
+   AJUSTE FINAL · CONSEJO DE SUMA ORDENADO Y SIN BOTÓN DE PISTA
+   ===================================================================== */
+
+.mnx-puente-cofre-layout .mnx-puente-reminder-card {
+  min-height: 174px;
+  padding: 18px 20px;
+  grid-template-columns: 108px minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-reminder-character {
+  width: 104px;
+  height: 136px;
+  align-self: center;
+  justify-self: center;
+}
+
+.mnx-puente-reminder-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-reminder-card h3 {
+  width: 100%;
+  margin: 7px 0 6px;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-reminder-card p {
+  width: 100%;
+  max-width: 390px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-reminder-audio-controls {
+  width: 100%;
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, 36px) minmax(132px, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.mnx-puente-cofre-layout
+  .mnx-puente-reminder-audio-controls
+  button {
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  border-radius: 11px;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-reminder-audio-status {
+  width: 100%;
+  min-width: 0;
+  min-height: 34px;
+  justify-content: center;
+  padding-inline: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 9.5px;
+}
+
+/* Ya no se utiliza el botón de pista dentro del consejo. */
+.mnx-puente-cofre-layout .mnx-puente-hint-button {
+  display: none;
+}
+
+@media (max-width: 1180px) {
+  .mnx-puente-cofre-layout .mnx-puente-reminder-card {
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-character {
+    width: 92px;
+    height: 124px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-audio-controls {
+    grid-template-columns: repeat(3, 34px);
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-audio-status {
+    grid-column: 1 / -1;
+    width: fit-content;
+    max-width: 100%;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-puente-cofre-layout .mnx-puente-reminder-card {
+    grid-template-columns: 88px minmax(0, 1fr);
+    padding: 16px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-character {
+    width: 84px;
+    height: 112px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-card h3 {
+    font-size: 14px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-card p {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 460px) {
+  .mnx-puente-cofre-layout .mnx-puente-reminder-card {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .mnx-puente-reminder-copy {
+    align-items: center;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-card p {
+    max-width: 330px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-audio-controls {
+    width: fit-content;
+    grid-template-columns: repeat(3, 36px);
+    justify-content: center;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-audio-status {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+}
+
+
+/* =====================================================================
+   CORRECCIÓN DE DISTRIBUCIÓN · SIN ESPACIOS VACÍOS ENTRE BLOQUES
+   La columna izquierda ahora contiene la imagen y el Consejo de Suma.
+   La derecha contiene guía, retos y el botón de comprobación.
+   ===================================================================== */
+
+.mnx-puente-cofre-layout .mnx-puente-activity-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 390px) minmax(0, 1fr);
+  grid-template-areas: none;
+  gap: 18px;
+  align-items: start;
+}
+
+.mnx-puente-left-column,
+.mnx-puente-right-column {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.mnx-puente-left-column {
+  grid-column: 1;
+}
+
+.mnx-puente-right-column {
+  grid-column: 2;
+}
+
+.mnx-puente-left-column > *,
+.mnx-puente-right-column > * {
+  width: 100%;
+  grid-area: auto;
+  margin: 0;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-art {
+  align-self: start;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-reminder-card {
+  align-self: start;
+  margin-top: 0;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-actions {
+  align-self: start;
+  margin-top: 0;
+}
+
+/* El estado del audio baja a una segunda fila y ya no se recorta. */
+.mnx-puente-cofre-layout .mnx-puente-reminder-audio-controls {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 36px);
+  justify-content: start;
+  gap: 8px;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-reminder-audio-status {
+  grid-column: 1 / -1;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 32px;
+  justify-content: flex-start;
+  padding-inline: 10px;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* Laptop */
+@media (max-width: 1450px) and (min-width: 981px) {
+  .mnx-puente-cofre-layout .mnx-puente-activity-grid {
+    grid-template-columns: minmax(290px, 340px) minmax(0, 1fr);
+  }
+}
+
+/* Tableta y celular: recupera el orden natural de lectura. */
+@media (max-width: 980px) {
+  .mnx-puente-cofre-layout .mnx-puente-activity-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .mnx-puente-left-column,
+  .mnx-puente-right-column {
+    display: contents;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-art {
+    order: 1;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-guide-card {
+    order: 2;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-questions {
+    order: 3;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-card {
+    order: 4;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-actions {
+    order: 5;
+  }
+}
+
+@media (max-width: 460px) {
+  .mnx-puente-cofre-layout .mnx-puente-reminder-audio-controls {
+    justify-content: center;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-audio-status {
+    justify-self: center;
+    justify-content: center;
   }
 }

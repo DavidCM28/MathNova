@@ -485,11 +485,89 @@
   font-weight: 950;
 }
 
-.mnx-escuadron-speech span {
+.mnx-escuadron-speech > p {
+  min-height: 54px;
+  margin: 0;
   color: #2e4059;
   font-size: 12.5px;
   line-height: 1.45;
   font-weight: 750;
+}
+
+.mnx-escuadron-audio-controls {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.mnx-escuadron-audio-controls button {
+  width: 35px;
+  height: 35px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #1fbd59, #087c35);
+  display: grid;
+  place-items: center;
+  font: inherit;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(17, 156, 67, 0.2);
+  transition:
+    transform var(--escuadron-transition),
+    opacity var(--escuadron-transition),
+    filter var(--escuadron-transition);
+}
+
+.mnx-escuadron-audio-controls button:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.05);
+  filter: brightness(1.06);
+}
+
+.mnx-escuadron-audio-controls button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mnx-escuadron-audio-status {
+  min-height: 34px;
+  padding: 0 11px;
+  border-radius: 999px;
+  color: var(--escuadron-muted);
+  background: #edf4ef;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 850;
+}
+
+.mnx-escuadron-audio-status svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+}
+
+.mnx-escuadron-audio-status.is-playing {
+  color: var(--escuadron-green-dark);
+  background: #ddf7e4;
+  animation: mnxEscuadronAudioPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes mnxEscuadronAudioPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(17, 156, 67, 0.15);
+  }
+
+  50% {
+    box-shadow: 0 0 0 7px rgba(17, 156, 67, 0);
+  }
 }
 
 .mnx-escuadron-hero-robot {
@@ -499,6 +577,18 @@
   position: relative;
   z-index: 2;
   filter: drop-shadow(0 16px 14px rgba(20, 63, 39, 0.18));
+  animation: mnxEscuadronHeroFloat 3s ease-in-out infinite;
+}
+
+@keyframes mnxEscuadronHeroFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-7px) rotate(1deg);
+  }
 }
 
 /* DISTRIBUCIÓN */
@@ -964,6 +1054,18 @@
   object-fit: contain;
   align-self: end;
   filter: drop-shadow(0 11px 11px rgba(17, 74, 43, 0.14));
+  animation: mnxEscuadronGuideFloat 3s ease-in-out infinite;
+}
+
+@keyframes mnxEscuadronGuideFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-6px) rotate(1deg);
+  }
 }
 
 .mnx-escuadron-hint-card span {
@@ -980,7 +1082,77 @@
   font-weight: 750;
 }
 
-.mnx-escuadron-hint-card button {
+.mnx-escuadron-guide-audio-controls {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mnx-escuadron-hint-card
+  .mnx-escuadron-guide-audio-controls
+  button {
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #20bd59, #087c35);
+  display: grid;
+  place-items: center;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 7px 14px rgba(17, 156, 67, 0.18);
+  transition:
+    transform var(--escuadron-transition),
+    opacity var(--escuadron-transition);
+}
+
+.mnx-escuadron-hint-card
+  .mnx-escuadron-guide-audio-controls
+  button:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.04);
+}
+
+.mnx-escuadron-hint-card
+  .mnx-escuadron-guide-audio-controls
+  button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mnx-escuadron-guide-audio-status {
+  min-height: 30px;
+  padding: 0 9px;
+  border-radius: 999px;
+  color: var(--escuadron-muted);
+  background: #edf4ef;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 850;
+}
+
+.mnx-escuadron-guide-audio-status svg {
+  width: 13px;
+  height: 13px;
+}
+
+.mnx-escuadron-guide-audio-status.is-playing {
+  color: var(--escuadron-green-dark);
+  background: #ddf7e4;
+  animation: mnxEscuadronAudioPulse 1.2s ease-in-out infinite;
+}
+
+.mnx-escuadron-hint-card
+  .mnx-escuadron-help-full-button {
   min-height: 38px;
   padding: 0 12px;
   border: 0;
@@ -1524,6 +1696,15 @@
     padding: 17px;
   }
 
+  .mnx-escuadron-audio-controls {
+    gap: 6px;
+  }
+
+  .mnx-escuadron-audio-status {
+    flex: 1 1 145px;
+    justify-content: center;
+  }
+
   .mnx-escuadron-guide-steps {
     grid-template-columns: 1fr;
   }
@@ -1607,6 +1788,19 @@
     display: none;
   }
 
+  .mnx-escuadron-speech > p {
+    min-height: 0;
+    text-align: center;
+  }
+
+  .mnx-escuadron-audio-controls {
+    justify-content: center;
+  }
+
+  .mnx-escuadron-audio-status {
+    flex-basis: 100%;
+  }
+
   .mnx-escuadron-hero-robot {
     width: 108px;
     height: 112px;
@@ -1653,6 +1847,15 @@
   .mnx-escuadron-hint-card img {
     justify-self: center;
     align-self: center;
+  }
+
+  .mnx-escuadron-guide-audio-controls {
+    justify-content: center;
+  }
+
+  .mnx-escuadron-guide-audio-status {
+    flex-basis: 100%;
+    justify-content: center;
   }
 
   .mnx-escuadron-logout-float {
