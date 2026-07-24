@@ -9820,3 +9820,71 @@ body:has(.act6geo-modal-overlay) {
 .act6geo-complete-transcript-inline .act6geo-modal-script-lines {
   height: calc(100% - 52px) !important;
 }
+
+/* =========================================================
+   ACTIVIDAD 6 — BOTÓN VOLVER A INTENTARLO EN MODAL DE ERROR
+   Igual al estilo utilizado en las demás actividades.
+   ========================================================= */
+
+.act6geo-modal-controls .act6geo-try-again-btn {
+  flex: 1 0 100% !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  min-height: 58px !important;
+  margin-top: 4px !important;
+  padding: 0 24px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, #6f45ff 0%, #7c50ff 100%) !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.15px !important;
+  cursor: pointer !important;
+  box-shadow:
+    0 15px 30px rgba(111, 69, 255, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    filter 0.22s ease !important;
+}
+
+.act6geo-modal-controls .act6geo-try-again-btn svg {
+  flex: 0 0 auto !important;
+  font-size: 18px !important;
+  color: #ffffff !important;
+}
+
+.act6geo-modal-controls .act6geo-try-again-btn:hover {
+  transform: translateY(-3px) scale(1.01) !important;
+  filter: brightness(1.05) !important;
+  box-shadow:
+    0 19px 34px rgba(111, 69, 255, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+}
+
+.act6geo-modal-controls .act6geo-try-again-btn:active {
+  transform: translateY(-1px) scale(0.995) !important;
+}
+
+@media (max-width: 760px) {
+  .act6geo-modal-controls .act6geo-try-again-btn {
+    min-height: 54px !important;
+    padding: 0 18px !important;
+    font-size: 14px !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .act6geo-modal-controls .act6geo-try-again-btn {
+    width: 100% !important;
+    min-width: 100% !important;
+    min-height: 52px !important;
+  }
+}

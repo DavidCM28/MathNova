@@ -23103,3 +23103,215 @@ body:has(.act3geo-complete-modal-overlay) {
     padding: 8px !important;
   }
 }
+
+/* =========================================================
+   AJUSTE FINAL: PAUSAR, SALIR Y ESTADÍSTICAS SIN INTENTOS
+   ========================================================= */
+
+/* Reactiva los controles superiores que antes estaban ocultos. */
+.act3geo-actions-top {
+  display: flex !important;
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  width: auto !important;
+  z-index: 40 !important;
+}
+
+.act3geo-actions-top button {
+  min-width: 92px !important;
+  height: 38px !important;
+  padding: 0 14px !important;
+  border: none !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  color: #061331 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.1) !important;
+}
+
+.act3geo-actions-top button:hover {
+  transform: translateY(-3px) !important;
+  background: #eef5ff !important;
+  color: #0058ff !important;
+}
+
+/* Reserva espacio para los controles sin afectar el banner. */
+.act3geo-topbar {
+  position: relative !important;
+  padding-right: 215px !important;
+}
+
+/* Al quitar Intentos quedan cinco indicadores: 2 + 2 + 1 ancho. */
+.act3geo-side-stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.act3geo-side-stats article:last-child {
+  grid-column: span 2 !important;
+  border-right: none !important;
+}
+
+@media (max-width: 1199px) {
+  .act3geo-topbar {
+    padding-right: 0 !important;
+  }
+
+  .act3geo-actions-top {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    margin-top: 14px !important;
+    justify-content: flex-start !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .act3geo-actions-top {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .act3geo-actions-top button {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .act3geo-actions-top {
+    grid-template-columns: 1fr !important;
+  }
+
+  .act3geo-side-stats {
+    grid-template-columns: 1fr !important;
+  }
+
+  .act3geo-side-stats article:last-child {
+    grid-column: auto !important;
+  }
+}
+
+/* =========================================================
+   ACTIVIDAD 3 — BOTONES SUPERIORES PAUSAR Y SALIR
+   Se agrega al final para recuperar los dos botones sin
+   modificar el resto del diseño de la actividad.
+   ========================================================= */
+
+.act3geo-topbar {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  padding-right: 0 !important;
+  position: relative !important;
+}
+
+.act3geo-actions-top {
+  display: flex !important;
+  position: absolute !important;
+  top: -4px !important;
+  right: 10px !important;
+  z-index: 30 !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+
+.act3geo-actions-top button {
+  width: auto !important;
+  min-width: 104px !important;
+  height: 42px !important;
+  padding: 0 15px !important;
+  border: 0 !important;
+  border-radius: 11px !important;
+  background: #ffffff !important;
+  color: #061331 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  font-size: 12.5px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  cursor: pointer !important;
+  box-shadow: 0 9px 20px rgba(15, 23, 42, 0.11) !important;
+  transition:
+    transform 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease,
+    box-shadow 0.22s ease !important;
+}
+
+.act3geo-actions-top button svg {
+  flex: 0 0 auto !important;
+  font-size: 17px !important;
+}
+
+.act3geo-actions-top button:hover {
+  transform: translateY(-3px) !important;
+  background: #0058ff !important;
+  color: #ffffff !important;
+  box-shadow: 0 14px 25px rgba(0, 88, 255, 0.2) !important;
+}
+
+/* Deja espacio para los botones en escritorio sin afectar el banner. */
+@media (min-width: 1200px) {
+  .act3geo-title-area {
+    padding-right: 240px !important;
+  }
+}
+
+/* Laptop y tablet: botones debajo del texto para evitar empalmes. */
+@media (max-width: 1199px) {
+  .act3geo-topbar {
+    grid-template-columns: 1fr !important;
+  }
+
+  .act3geo-title-area {
+    padding-right: 0 !important;
+  }
+
+  .act3geo-actions-top {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    width: fit-content !important;
+    margin-top: 12px !important;
+  }
+}
+
+/* Celular: ambos botones se acomodan en una fila. */
+@media (max-width: 767px) {
+  .act3geo-actions-top {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .act3geo-actions-top button {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 46px !important;
+  }
+}
+
+/* Celular muy pequeño: siguen visibles y no se cortan. */
+@media (max-width: 390px) {
+  .act3geo-actions-top {
+    grid-template-columns: 1fr !important;
+  }
+
+  .act3geo-actions-top button {
+    height: 44px !important;
+  }
+}

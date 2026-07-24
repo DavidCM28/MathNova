@@ -658,7 +658,6 @@ function Actividad3MathGeometry() {
   const [seleccion, setSeleccion] = useState<AnguloId | "">("");
   const [estadoRespuesta, setEstadoRespuesta] =
     useState<EstadoRespuesta>("pendiente");
-  const [intentosReto, setIntentosReto] = useState(1);
   const [erroresTotales, setErroresTotales] = useState(0);
   const [modalCompletado, setModalCompletado] = useState(false);
   const [textoCierre, setTextoCierre] = useState("");
@@ -1559,7 +1558,6 @@ function Actividad3MathGeometry() {
     setRetoActual((prev) => prev + 1);
     setSeleccion("");
     setEstadoRespuesta("pendiente");
-    setIntentosReto(1);
   };
 
   const comprobarRespuesta = () => {
@@ -1588,7 +1586,6 @@ function Actividad3MathGeometry() {
     }
 
     setErroresTotales((prev) => prev + 1);
-    setIntentosReto((prev) => Math.min(prev + 1, 3));
     setEstadoRespuesta("incorrecto");
     abrirModalSombra();
   };
@@ -1663,7 +1660,6 @@ function Actividad3MathGeometry() {
     setRetoActual(0);
     setSeleccion("");
     setEstadoRespuesta("pendiente");
-    setIntentosReto(1);
     setErroresTotales(0);
     detenerCierre();
     setModalCompletado(false);
@@ -1673,6 +1669,14 @@ function Actividad3MathGeometry() {
   const cerrarModalCompletado = () => {
     detenerCierre();
     setModalCompletado(false);
+  };
+
+  const pausarActividad = () => {
+    pausarExplicacion();
+    pausarPista();
+    pausarProfe();
+    pausarSombra();
+    pausarCierre();
   };
 
   return (
@@ -1800,7 +1804,6 @@ function Actividad3MathGeometry() {
               <div className="act3geo-pills">
                 <span>▣ Introducción</span>
                 <span>◉ 8–12 min</span>
-                <span>★ 3 intentos</span>
               </div>
 
               <h1>Actividad 3 Detectores de Giro</h1>
@@ -1809,6 +1812,21 @@ function Actividad3MathGeometry() {
                 Observa la apertura de la puerta y selecciona si el ángulo es
                 agudo, recto u obtuso.
               </p>
+            </div>
+
+            <div className="act3geo-actions-top">
+              <button type="button" onClick={pausarActividad}>
+                <FiPause />
+                Pausar
+              </button>
+
+              <button
+                type="button"
+                onClick={() => irARuta("/actividades/geometria")}
+              >
+                <FiLogOut />
+                Salir
+              </button>
             </div>
           </header>
 
@@ -2101,14 +2119,6 @@ function Actividad3MathGeometry() {
                     <strong>
                       {retosCompletados}/{RETOS.length}
                     </strong>
-                  </div>
-                </article>
-
-                <article>
-                  <FiTarget />
-                  <div>
-                    <span>Intentos</span>
-                    <strong>{intentosReto}/3</strong>
                   </div>
                 </article>
 

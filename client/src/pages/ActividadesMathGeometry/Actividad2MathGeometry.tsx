@@ -408,7 +408,7 @@ function Actividad2MathGeometry() {
     null,
   );
   const [revisado, setRevisado] = useState(false);
-  const [intentosAct2, setIntentosAct2] = useState(0);
+  const [erroresAct2, setErroresAct2] = useState(0);
   const [estadoPuenteAct2, setEstadoPuenteAct2] =
     useState<EstadoPuenteAct2>("reposo");
   const [piezaRotaVisibleAct2, setPiezaRotaVisibleAct2] = useState(false);
@@ -1598,7 +1598,7 @@ function Actividad2MathGeometry() {
   const reiniciarActividadAct2 = () => {
     cerrarSombraAct2();
     cerrarCompletadoAct2();
-    reiniciarEstadoInicialAct2();
+    reiniciarEstadoInicialAct2(true);
   };
 
   const volverAActividadesAct2 = () => {
@@ -1711,13 +1711,17 @@ function Actividad2MathGeometry() {
     setEstadoBienvenidaNova("inicio");
   };
 
-  const reiniciarEstadoInicialAct2 = () => {
+  const reiniciarEstadoInicialAct2 = (reiniciarErrores = false) => {
     limpiarControlPausaPuenteAct2();
     detenerVideoPuenteAct2();
     setSegmentoSeleccionado(null);
     setSegmentoColocado(null);
     setRevisado(false);
-    setIntentosAct2(0);
+
+    if (reiniciarErrores) {
+      setErroresAct2(0);
+    }
+
     setEstadoPuenteAct2("reposo");
     reiniciarBienvenidaNovaAct2();
   };
@@ -1953,7 +1957,11 @@ function Actividad2MathGeometry() {
     setSegmentoColocado(id);
     setPiezaRotaVisibleAct2(false);
     setRevisado(false);
-    setIntentosAct2((intentosActuales) => Math.min(intentosActuales + 1, 3));
+
+    if (!esCorrecta) {
+      setErroresAct2((erroresActuales) => erroresActuales + 1);
+    }
+
     setEstadoPuenteAct2(esCorrecta ? "corriendo-correcto" : "corriendo-error");
 
     if (video) {
@@ -2180,7 +2188,7 @@ function Actividad2MathGeometry() {
               <div className="act2geo-pills">
                 <span>Introductorio</span>
                 <span>8–12 min</span>
-                <span>3 intentos</span>
+                <span>Conteo de errores</span>
               </div>
             </div>
 
@@ -2540,8 +2548,8 @@ function Actividad2MathGeometry() {
             <article>
               <FiTarget />
               <div>
-                <span>Intentos</span>
-                <strong>{intentosAct2}/3</strong>
+                <span>Errores</span>
+                <strong>{erroresAct2}</strong>
               </div>
             </article>
 
@@ -2911,7 +2919,7 @@ function Actividad2MathGeometry() {
                 <button
                   type="button"
                   className="act2geo-sombra-try-btn"
-                  onClick={reiniciarActividadAct2}
+                  onClick={cerrarSombraYReiniciarAct2}
                 >
                   Volver a intentarlo
                 </button>

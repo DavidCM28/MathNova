@@ -569,7 +569,7 @@ function Actividad6MathGeometry() {
   const [retoActual, setRetoActual] = useState(0);
   const [seleccion, setSeleccion] = useState<OpcionId | null>(null);
   const [revision, setRevision] = useState<EstadoRevision>("pendiente");
-  const [intentos, setIntentos] = useState(0);
+  const [errores, setErrores] = useState(0);
   const [completados, setCompletados] = useState(0);
   const [modal, setModal] = useState<ModalId>(null);
   const [pausado, setPausado] = useState(false);
@@ -1175,8 +1175,6 @@ function Actividad6MathGeometry() {
   const comprobar = () => {
     if (!seleccion || pausado || aciertoEspecial !== null) return;
 
-    setIntentos((valor) => valor + 1);
-
     if (seleccion === reto.correcta) {
       setRevision("correcto");
 
@@ -1189,6 +1187,7 @@ function Actividad6MathGeometry() {
       return;
     }
 
+    setErrores((valor) => valor + 1);
     setRevision("incorrecto");
     setModal("sombra");
   };
@@ -1214,7 +1213,7 @@ function Actividad6MathGeometry() {
     setRetoActual(0);
     setSeleccion(null);
     setRevision("pendiente");
-    setIntentos(0);
+    setErrores(0);
     setCompletados(0);
     setSegundos(0);
     setModal(null);
@@ -1264,6 +1263,23 @@ function Actividad6MathGeometry() {
     setAciertoEspecial(null);
     setAciertoEspecialReproduciendo(false);
     setReinicioAciertoEspecial((valor) => valor + 1);
+  };
+
+  const volverAIntentarlo = () => {
+    audioSombraRef.current?.pause();
+
+    if (audioSombraRef.current) {
+      audioSombraRef.current.currentTime = 0;
+    }
+
+    setModalReproduciendo(false);
+    setModal(null);
+    setSeleccion(null);
+    setRevision("pendiente");
+    setTextoSombra(TEXTO_INICIAL_SOMBRA);
+    setIndiceSombraActivo(-1);
+    setProgresoSombraActivo(0);
+    setReinicioModal((valor) => valor + 1);
   };
 
   const videoModal =
@@ -1424,7 +1440,7 @@ function Actividad6MathGeometry() {
                   <FiClock /> 8–12 min
                 </span>
                 <span>
-                  <FiRotateCcw /> 3 intentos
+                  <FiTarget /> Conteo de errores
                 </span>
               </div>
             </div>
@@ -1711,8 +1727,8 @@ function Actividad6MathGeometry() {
             <article>
               <FiTarget />
               <div>
-                <span>Intentos</span>
-                <strong>{intentos}/3</strong>
+                <span>Errores</span>
+                <strong>{errores}</strong>
               </div>
             </article>
 
@@ -1892,14 +1908,6 @@ function Actividad6MathGeometry() {
                   setTextoSombra(GUION_SOMBRA_ERROR.join(" "));
                   setIndiceSombraActivo(GUION_SOMBRA_ERROR.length - 1);
                   setProgresoSombraActivo(100);
-                  window.setTimeout(() => {
-                    setModal(null);
-                    setSeleccion(null);
-                    setRevision("pendiente");
-                    setTextoSombra(TEXTO_INICIAL_SOMBRA);
-                    setIndiceSombraActivo(-1);
-                    setProgresoSombraActivo(0);
-                  }, 450);
                 }}
               />
             )}
@@ -2000,6 +2008,17 @@ function Actividad6MathGeometry() {
                 >
                   <FiRotateCcw /> Reiniciar
                 </button>
+
+                {modal === "sombra" && (
+                  <button
+                    type="button"
+                    className="act6geo-try-again-btn"
+                    onClick={volverAIntentarlo}
+                  >
+                    <FiRotateCcw />
+                    Volver a intentarlo
+                  </button>
+                )}
               </div>
             </div>
 
