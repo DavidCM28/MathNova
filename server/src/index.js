@@ -16,7 +16,7 @@ const hologramaRoutes = require("./routes/hologramaRoutes").default;
 const progresoGeneralRoutes = require("./routes/progresoGeneralRoutes").default;
 const docenteAlumnosRoutes = require("./routes/docenteAlumnos.routes");
 const docenteDashboardRoutes = require("./routes/docenteDashboard.routes");
-const docenteCalificacionesRoutes = require("./routes/docenteCalificaciones.routes");
+const docenteCalificacionesRoutes = require("./routes/docenteCalificaciones.routes").default;
 
 const app = express();
 const PORT = process.env.PORT || 3001;
