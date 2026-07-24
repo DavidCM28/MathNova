@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CalificacionesDocente.css";
 
@@ -19,10 +19,7 @@ import {
   FiLogOut,
   FiHelpCircle,
   FiSettings,
-  FiBookOpen,
-  FiCalendar,
   FiSearch,
-  FiPlus,
   FiUserCheck,
   FiCheckCircle,
   FiAlertCircle,
@@ -31,9 +28,136 @@ import {
   FiChevronRight,
 } from "react-icons/fi";
 
+type Grupo = {
+  id_grupo: number;
+  nombre_grupo: string;
+  total_alumnos?: number;
+};
+
+type AlumnoCalificacion = {
+  id: number;
+  nombre: string;
+  correo?: string;
+  usuario?: string | null;
+  iniciales: string;
+  color: string;
+  id_grupo: number | null;
+  grupo: string;
+  ultimo_modulo: string;
+  actividades_intentadas: number;
+  actividades_completadas: number;
+  promedio: number | null;
+  estrellas: number;
+  estado: string;
+  estado_clase: "excelente" | "bien" | "pendiente" | "alerta";
+};
+
+type PromedioActividad = {
+  actividad_titulo: string;
+  promedio: number;
+  completadas: number;
+};
+
+type ResumenCalificaciones = {
+  total_alumnos: number;
+  alumnos_con_progreso: number;
+  alumnos_sin_progreso: number;
+  promedio_general: number | null;
+  mejor_promedio: number | null;
+  mejor_alumno: string | null;
+};
+
+type CalificacionesData = {
+  grupos: Grupo[];
+  alumnos: AlumnoCalificacion[];
+  promedio_por_actividad: PromedioActividad[];
+  top_alumnos: AlumnoCalificacion[];
+  resumen: ResumenCalificaciones;
+};
+
+type CalificacionesResponse = {
+  ok: boolean;
+  mensaje?: string;
+} & CalificacionesData;
+
+const API_CALIFICACIONES_DOCENTE =
+  "http://localhost:3001/api/docente/calificaciones";
+
+const datosIniciales: CalificacionesData = {
+  grupos: [],
+  alumnos: [],
+  promedio_por_actividad: [],
+  top_alumnos: [],
+  resumen: {
+    total_alumnos: 0,
+    alumnos_con_progreso: 0,
+    alumnos_sin_progreso: 0,
+    promedio_general: null,
+    mejor_promedio: null,
+    mejor_alumno: null,
+  },
+};
+
+function obtenerToken() {
+  return (
+    localStorage.getItem("token") ||
+    localStorage.getItem("mathnova_token") ||
+    sessionStorage.getItem("token") ||
+    sessionStorage.getItem("mathnova_token")
+  );
+}
+
+async function leerRespuesta<T>(response: Response): Promise<T> {
+  const texto = await response.text();
+
+  try {
+    return texto ? JSON.parse(texto) : ({} as T);
+  } catch {
+    throw new Error(
+      "El backend no devolvió JSON. Revisa que la ruta /api/docente/calificaciones esté registrada.",
+    );
+  }
+}
+
+function normalizarTexto(texto: string) {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function formatearPromedio(valor: number | null | undefined) {
+  if (valor === null || valor === undefined || Number.isNaN(Number(valor))) {
+    return "—";
+  }
+
+  return Number(valor).toFixed(1);
+}
+
+function clasePromedio(promedio: number | null) {
+  if (promedio === null) return "empty";
+  if (promedio >= 8.5) return "good";
+  if (promedio >= 7) return "medium";
+  return "bad";
+}
+
+function obtenerIconoEstado(estado: string) {
+  const estadoNormalizado = estado.toLowerCase();
+
+  if (estadoNormalizado.includes("excelente")) return <FiAward />;
+  if (estadoNormalizado.includes("bien")) return <FiCheckCircle />;
+
+  return <FiAlertCircle />;
+}
+
+function limitarPagina(pagina: number, totalPaginas: number) {
+  if (pagina < 1) return 1;
+  if (pagina > totalPaginas) return totalPaginas;
+  return pagina;
+}
+
 function CalificacionesDocente() {
   const [menuOpen, setMenuOpen] = useState(false);
-
   const [gruposOpen, setGruposOpen] = useState(() => {
     return localStorage.getItem("docente-grupos-open") !== "false";
   });
@@ -43,8 +167,15 @@ function CalificacionesDocente() {
   });
 
   const [selectedMenu, setSelectedMenu] = useState("calificaciones");
+  const [datos, setDatos] = useState<CalificacionesData>(datosIniciales);
+  const [grupoSeleccionado, setGrupoSeleccionado] = useState("todos");
+  const [busqueda, setBusqueda] = useState("");
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState("");
+  const [paginaActual, setPaginaActual] = useState(1);
 
   const navigate = useNavigate();
+  const alumnosPorPagina = 8;
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "auto";
@@ -71,104 +202,96 @@ function CalificacionesDocente() {
     navigate(ruta);
   };
 
-  const alumnos = [
-    {
-      numero: "1",
-      iniciales: "MF",
-      nombre: "Mariana Fuentes Ruiz",
-      color: "blue",
-      actividad1: "9.2",
-      actividad2: "9.5",
-      actividad3: "9.8",
-      actividad4: "9.5",
-      promedio: "9.5",
-      estado: "excelente",
-    },
-    {
-      numero: "2",
-      iniciales: "SJ",
-      nombre: "Santiago Jiménez López",
-      color: "purple",
-      actividad1: "8.5",
-      actividad2: "8.8",
-      actividad3: "8.0",
-      actividad4: "9.0",
-      promedio: "8.6",
-      estado: "bien",
-    },
-    {
-      numero: "3",
-      iniciales: "SA",
-      nombre: "Ana Sofía García",
-      color: "orange",
-      actividad1: "8.0",
-      actividad2: "9.0",
-      actividad3: "7.5",
-      actividad4: "8.8",
-      promedio: "8.3",
-      estado: "bien",
-    },
-    {
-      numero: "4",
-      iniciales: "DG",
-      nombre: "Diego Hernández",
-      color: "gray",
-      actividad1: "7.0",
-      actividad2: "8.0",
-      actividad3: "6.5",
-      actividad4: "8.0",
-      promedio: "7.4",
-      estado: "pendiente",
-    },
-    {
-      numero: "5",
-      iniciales: "LM",
-      nombre: "Lucía Medina",
-      color: "silver",
-      actividad1: "7.5",
-      actividad2: "7.0",
-      actividad3: "7.0",
-      actividad4: "7.5",
-      promedio: "7.3",
-      estado: "pendiente",
-    },
-    {
-      numero: "6",
-      iniciales: "CT",
-      nombre: "Carla Torres",
-      color: "green",
-      actividad1: "8.8",
-      actividad2: "9.0",
-      actividad3: "9.0",
-      actividad4: "9.2",
-      promedio: "9.0",
-      estado: "bien",
-    },
-    {
-      numero: "7",
-      iniciales: "OL",
-      nombre: "Óscar López",
-      color: "yellow",
-      actividad1: "6.0",
-      actividad2: "6.5",
-      actividad3: "6.0",
-      actividad4: "6.8",
-      promedio: "6.3",
-      estado: "alerta",
-    },
-    {
-      numero: "8",
-      iniciales: "VS",
-      nombre: "Valeria Sánchez",
-      color: "violet",
-      actividad1: "7.8",
-      actividad2: "8.2",
-      actividad3: "7.5",
-      actividad4: "8.0",
-      promedio: "7.9",
-      estado: "pendiente",
-    },
-  ];
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function cargarCalificaciones() {
+      try {
+        setCargando(true);
+        setError("");
+
+        const params = new URLSearchParams();
+
+        if (grupoSeleccionado !== "todos") {
+          params.set("grupo", grupoSeleccionado);
+        }
+
+        const token = obtenerToken();
+        const response = await fetch(
+          params.toString()
+            ? `${API_CALIFICACIONES_DOCENTE}?${params.toString()}`
+            : API_CALIFICACIONES_DOCENTE,
+          {
+            signal: controller.signal,
+            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+          },
+        );
+
+        const data = await leerRespuesta<CalificacionesResponse>(response);
+
+        if (!response.ok || data.ok === false) {
+          throw new Error(
+            data.mensaje || "No se pudieron cargar las calificaciones.",
+          );
+        }
+
+        setDatos({
+          grupos: data.grupos || [],
+          alumnos: data.alumnos || [],
+          promedio_por_actividad: data.promedio_por_actividad || [],
+          top_alumnos: data.top_alumnos || [],
+          resumen: data.resumen || datosIniciales.resumen,
+        });
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          return;
+        }
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : "No se pudieron cargar las calificaciones.",
+        );
+        setDatos(datosIniciales);
+      } finally {
+        setCargando(false);
+      }
+    }
+
+    cargarCalificaciones();
+
+    return () => controller.abort();
+  }, [grupoSeleccionado]);
+
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [grupoSeleccionado, busqueda]);
+
+  const alumnosFiltrados = useMemo(() => {
+    const texto = normalizarTexto(busqueda.trim());
+
+    if (!texto) return datos.alumnos;
+
+    return datos.alumnos.filter((alumno) => {
+      return [alumno.nombre, alumno.correo || "", alumno.usuario || ""]
+        .map(normalizarTexto)
+        .some((valor) => valor.includes(texto));
+    });
+  }, [datos.alumnos, busqueda]);
+
+  const totalPaginas = Math.max(
+    1,
+    Math.ceil(alumnosFiltrados.length / alumnosPorPagina),
+  );
+
+  const paginaSegura = limitarPagina(paginaActual, totalPaginas);
+  const indiceInicial = (paginaSegura - 1) * alumnosPorPagina;
+  const indiceFinal = indiceInicial + alumnosPorPagina;
+  const alumnosPagina = alumnosFiltrados.slice(indiceInicial, indiceFinal);
+
+  const rangoInicial =
+    alumnosFiltrados.length === 0 ? 0 : indiceInicial + 1;
+  const rangoFinal = Math.min(indiceFinal, alumnosFiltrados.length);
 
   return (
     <main className="docente-page">
@@ -312,6 +435,7 @@ function CalificacionesDocente() {
               <FiUserCheck />
               <span>Gestión de docentes</span>
             </button>
+
             <button
               type="button"
               className={`docente-menu-item ${
@@ -360,8 +484,8 @@ function CalificacionesDocente() {
           <div className="calif-hero-text">
             <h1>Calificaciones</h1>
             <p>
-              Revisa, registra y da seguimiento al rendimiento de tus alumnos en
-              sus actividades.
+              Consulta los resultados que MathNova calcula automáticamente cuando
+              tus alumnos completan sus actividades.
             </p>
           </div>
 
@@ -372,50 +496,45 @@ function CalificacionesDocente() {
           />
         </section>
 
-        <section className="calif-filters">
-          <button type="button" className="calif-filter-card">
+        <section className="calif-filters calif-filters-connected">
+          <label className="calif-filter-card calif-filter-select-card">
             <FiUsers />
             <div>
               <small>Grupo</small>
-              <strong>2°A - Secundaria</strong>
+              <select
+                className="calif-filter-select"
+                value={grupoSeleccionado}
+                onChange={(event) => setGrupoSeleccionado(event.target.value)}
+              >
+                <option value="todos">Todos los grupos</option>
+                {datos.grupos.map((grupo) => (
+                  <option key={grupo.id_grupo} value={grupo.id_grupo}>
+                    {grupo.nombre_grupo}
+                  </option>
+                ))}
+              </select>
             </div>
             <FiChevronDown className="filter-chevron" />
-          </button>
-
-          <button type="button" className="calif-filter-card">
-            <FiBookOpen />
-            <div>
-              <small>Módulo</small>
-              <strong>Álgebra</strong>
-            </div>
-            <FiChevronDown className="filter-chevron" />
-          </button>
-
-          <button type="button" className="calif-filter-card">
-            <FiCalendar />
-            <div>
-              <small>Periodo</small>
-              <strong>Mayo - Junio 2024</strong>
-            </div>
-            <FiChevronDown className="filter-chevron" />
-          </button>
+          </label>
 
           <label className="calif-search">
             <FiSearch />
-            <input type="text" placeholder="Buscar alumno..." />
+            <input
+              type="text"
+              placeholder="Buscar alumno..."
+              value={busqueda}
+              onChange={(event) => setBusqueda(event.target.value)}
+            />
           </label>
-
-          <button type="button" className="calif-register-btn">
-            <FiPlus />
-            Registrar calificación
-          </button>
         </section>
+
+        {error && <div className="calif-error-card">{error}</div>}
 
         <section className="calif-stats-row">
           <article className="calif-stat-card green">
             <div>
-              <h3>Promedio del grupo</h3>
-              <strong>8.2</strong>
+              <h3>Promedio general</h3>
+              <strong>{formatearPromedio(datos.resumen.promedio_general)}</strong>
             </div>
 
             <span className="calif-stat-icon">
@@ -425,9 +544,10 @@ function CalificacionesDocente() {
 
           <article className="calif-stat-card blue">
             <div>
-              <h3>Alumnos aprobados</h3>
+              <h3>Con progreso</h3>
               <strong>
-                26 <small>86.7%</small>
+                {datos.resumen.alumnos_con_progreso}
+                <small>alumnos</small>
               </strong>
             </div>
 
@@ -438,9 +558,10 @@ function CalificacionesDocente() {
 
           <article className="calif-stat-card orange">
             <div>
-              <h3>Actividades pendientes</h3>
+              <h3>Sin progreso</h3>
               <strong>
-                8 <small>por revisar</small>
+                {datos.resumen.alumnos_sin_progreso}
+                <small>alumnos</small>
               </strong>
             </div>
 
@@ -453,7 +574,8 @@ function CalificacionesDocente() {
             <div>
               <h3>Mejor promedio</h3>
               <strong>
-                9.5 <small>Mariana</small>
+                {formatearPromedio(datos.resumen.mejor_promedio)}
+                <small>{datos.resumen.mejor_alumno || "Sin datos"}</small>
               </strong>
             </div>
 
@@ -469,78 +591,92 @@ function CalificacionesDocente() {
               <div className="calif-table-row calif-table-head">
                 <span>#</span>
                 <span>Alumno</span>
-                <span>
-                  Actividad 1 <small>25%</small>
-                </span>
-                <span>
-                  Actividad 2 <small>25%</small>
-                </span>
-                <span>
-                  Actividad 3 <small>25%</small>
-                </span>
-                <span>
-                  Actividad 4 <small>25%</small>
-                </span>
-                <span>
-                  Promedio <small>100%</small>
-                </span>
-                <span></span>
+                <span>Grupo</span>
+                <span>Completadas</span>
+                <span>Intentadas</span>
+                <span>Promedio</span>
+                <span>Estrellas</span>
+                <span>Estado</span>
               </div>
 
-              {alumnos.map((alumno) => (
-                <div className="calif-table-row" key={alumno.numero}>
-                  <span className="calif-number">{alumno.numero}</span>
-
-                  <span className="calif-student">
-                    <b className={`calif-student-avatar ${alumno.color}`}>
-                      {alumno.iniciales}
-                    </b>
-                    {alumno.nombre}
-                  </span>
-
-                  <span>{alumno.actividad1}</span>
-                  <span>{alumno.actividad2}</span>
-                  <span>{alumno.actividad3}</span>
-                  <span>{alumno.actividad4}</span>
-
-                  <span>
-                    <b
-                      className={`calif-average ${
-                        Number(alumno.promedio) >= 8.5
-                          ? "good"
-                          : Number(alumno.promedio) >= 7
-                            ? "medium"
-                            : "bad"
-                      }`}
-                    >
-                      {alumno.promedio}
-                    </b>
-                  </span>
-
-                  <span className={`calif-status ${alumno.estado}`}>
-                    {alumno.estado === "excelente" && <FiAward />}
-                    {alumno.estado === "bien" && <FiCheckCircle />}
-                    {alumno.estado === "pendiente" && <FiAlertCircle />}
-                    {alumno.estado === "alerta" && <FiAlertCircle />}
+              {cargando ? (
+                <div className="calif-table-row calif-empty-row">
+                  <span className="calif-empty-message">
+                    Cargando calificaciones...
                   </span>
                 </div>
-              ))}
+              ) : alumnosPagina.length === 0 ? (
+                <div className="calif-table-row calif-empty-row">
+                  <span className="calif-empty-message">
+                    No se encontraron alumnos con esos filtros.
+                  </span>
+                </div>
+              ) : (
+                alumnosPagina.map((alumno, index) => (
+                  <div className="calif-table-row" key={alumno.id}>
+                    <span className="calif-number">
+                      {indiceInicial + index + 1}
+                    </span>
+
+                    <span className="calif-student">
+                      <b className={`calif-student-avatar ${alumno.color}`}>
+                        {alumno.iniciales}
+                      </b>
+                      <span className="calif-student-name-wrap">
+                        <strong>{alumno.nombre}</strong>
+                        <small>{alumno.ultimo_modulo}</small>
+                      </span>
+                    </span>
+
+                    <span>{alumno.grupo}</span>
+                    <span>{alumno.actividades_completadas}</span>
+                    <span>{alumno.actividades_intentadas}</span>
+
+                    <span>
+                      <b
+                        className={`calif-average ${clasePromedio(
+                          alumno.promedio,
+                        )}`}
+                      >
+                        {formatearPromedio(alumno.promedio)}
+                      </b>
+                    </span>
+
+                    <span>{alumno.estrellas}</span>
+
+                    <span
+                      className={`calif-status ${alumno.estado_clase}`}
+                      title={alumno.estado}
+                    >
+                      {obtenerIconoEstado(alumno.estado)}
+                    </span>
+                  </div>
+                ))
+              )}
             </div>
 
             <div className="calif-table-footer">
-              <p>Mostrando 1 a 8 de 30 alumnos</p>
+              <p>
+                Mostrando {rangoInicial} a {rangoFinal} de {" "}
+                {alumnosFiltrados.length} alumnos
+              </p>
 
               <div className="calif-pagination">
-                <button type="button">
+                <button
+                  type="button"
+                  onClick={() => setPaginaActual((pagina) => pagina - 1)}
+                  disabled={paginaSegura === 1}
+                >
                   <FiChevronLeft />
                 </button>
                 <button type="button" className="active-page">
-                  1
+                  {paginaSegura}
                 </button>
-                <button type="button">2</button>
-                <button type="button">3</button>
-                <button type="button">4</button>
-                <button type="button">
+                <button
+                  type="button"
+                  onClick={() => setPaginaActual((pagina) => pagina + 1)}
+                  disabled={paginaSegura === totalPaginas}
+                >
                   <FiChevronRight />
                 </button>
               </div>
@@ -551,49 +687,56 @@ function CalificacionesDocente() {
             <article className="calif-chart-card">
               <h2>Promedio por actividad</h2>
 
-              <div className="calif-bar-chart">
-                <div className="calif-bar-item">
-                  <strong>8.1</strong>
-                  <span className="calif-bar blue-bar"></span>
-                  <small>Act. 1</small>
-                </div>
+              {datos.promedio_por_actividad.length === 0 ? (
+                <p className="calif-side-empty">
+                  Todavía no hay actividades completadas.
+                </p>
+              ) : (
+                <div className="calif-bar-chart">
+                  {datos.promedio_por_actividad.map((actividad, index) => {
+                    const colores = [
+                      "blue-bar",
+                      "green-bar",
+                      "orange-bar",
+                      "purple-bar",
+                    ];
 
-                <div className="calif-bar-item">
-                  <strong>8.4</strong>
-                  <span className="calif-bar green-bar"></span>
-                  <small>Act. 2</small>
+                    return (
+                      <div
+                        className="calif-bar-item"
+                        key={actividad.actividad_titulo}
+                      >
+                        <strong>{formatearPromedio(actividad.promedio)}</strong>
+                        <span
+                          className={`calif-bar ${colores[index % colores.length]}`}
+                          style={{
+                            height: `${Math.max(18, actividad.promedio * 12)}px`,
+                          }}
+                        ></span>
+                        <small>{actividad.actividad_titulo}</small>
+                      </div>
+                    );
+                  })}
                 </div>
-
-                <div className="calif-bar-item">
-                  <strong>7.8</strong>
-                  <span className="calif-bar orange-bar"></span>
-                  <small>Act. 3</small>
-                </div>
-
-                <div className="calif-bar-item">
-                  <strong>8.3</strong>
-                  <span className="calif-bar purple-bar"></span>
-                  <small>Act. 4</small>
-                </div>
-              </div>
+              )}
             </article>
 
             <article className="calif-top-card">
               <h2>Top 5 del grupo</h2>
 
-              {[
-                ["1", "Mariana Fuentes Ruiz", "9.5"],
-                ["2", "Carla Torres", "9.0"],
-                ["3", "Santiago Jiménez López", "8.6"],
-                ["4", "Ana Sofía García", "8.3"],
-                ["5", "Valeria Sánchez", "7.9"],
-              ].map((item, index) => (
-                <div className="top-row" key={index}>
-                  <span className={`top-rank top-${index + 1}`}>{item[0]}</span>
-                  <p>{item[1]}</p>
-                  <b>{item[2]}</b>
-                </div>
-              ))}
+              {datos.top_alumnos.length === 0 ? (
+                <p className="calif-side-empty">Sin datos todavía</p>
+              ) : (
+                datos.top_alumnos.map((alumno, index) => (
+                  <div className="top-row" key={alumno.id}>
+                    <span className={`top-rank top-${index + 1}`}>
+                      {index + 1}
+                    </span>
+                    <p>{alumno.nombre}</p>
+                    <b>{formatearPromedio(alumno.promedio)}</b>
+                  </div>
+                ))
+              )}
             </article>
           </aside>
         </section>
