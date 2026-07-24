@@ -1348,3 +1348,105 @@
     transform: translateX(0) scale(1);
   }
 }
+
+/* ========================= */
+/* CONEXIÓN A DATOS REALES */
+/* ========================= */
+
+.calif-filters.calif-filters-connected {
+  grid-template-columns: minmax(230px, 320px) minmax(260px, 1fr);
+}
+
+.calif-filter-select-card {
+  position: relative;
+}
+
+.calif-filter-select {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #111827;
+  font-size: 13px;
+  font-weight: 900;
+  margin-top: 3px;
+  appearance: none;
+  cursor: pointer;
+}
+
+.calif-filter-select-card .filter-chevron {
+  pointer-events: none;
+}
+
+.calif-error-card {
+  margin-top: 16px;
+  border: 1px solid #fecaca;
+  background: #fff1f2;
+  color: #dc2626;
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.calif-empty-row {
+  min-height: 70px;
+}
+
+.calif-empty-message {
+  grid-column: 1 / -1;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.calif-student-name-wrap {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.calif-student-name-wrap strong,
+.calif-student-name-wrap small {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calif-student-name-wrap small {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.calif-average.empty {
+  background: #e5edf7;
+  color: #64748b;
+}
+
+.calif-side-empty {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.calif-pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.calif-pagination button:disabled:hover {
+  background: #ffffff;
+  color: #111827;
+  border-color: #dce7f7;
+}
+
+@media (max-width: 900px) {
+  .calif-filters.calif-filters-connected {
+    grid-template-columns: 1fr;
+  }
+}

@@ -13,17 +13,24 @@ import {
   FiInfo,
   FiLogOut,
   FiMessageSquare,
+  FiPause,
+  FiPlay,
   FiRotateCcw,
   FiSave,
   FiShield,
   FiTarget,
   FiUser,
+  FiVolume2,
   FiX,
   FiZap,
 } from "react-icons/fi";
 
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
+import audioConsejoSumaEscuadron from "../../../assets/mathnumbers/08-escuadron-tactico/consejo_suma_escuadron.mp3";
+import audioIntroEscuadron from "../../../assets/mathnumbers/08-escuadron-tactico/intro_escuadron.mp3";
+import comandanteSumaHablando from "../../../assets/mathnumbers/08-escuadron-tactico/comandante_suma_hablando.webp";
+import comandanteSumaIdle from "../../../assets/mathnumbers/08-escuadron-tactico/comandante_suma_idle.png";
 import escuadronAnimado from "../../../assets/mathnumbers/08-escuadron-tactico/escuadron.webp";
 import bytePista from "../../../assets/mathnumbers/byte_pista.png";
 
@@ -37,8 +44,6 @@ import { Toast } from "../components/Toast";
 import { useToast } from "../hooks/useToast";
 
 import {
-  cofreGuide,
-  cofreHeroTalkingIdle,
   logo,
   menuHamburguesa,
   zorritoConsejo,
@@ -49,6 +54,36 @@ const escuadronRoute =
 
 const espejosBovedaRoute =
   "/actividades/mathnumbers/espejos-boveda";
+
+const INTRO_AUDIO_SRC = audioIntroEscuadron;
+
+const INTRO_INITIAL_TEXT =
+  "Presiona reproducir para escuchar la instrucción del Comandante Suma.";
+
+const INTRO_CAPTIONS = [
+  {
+    start: 0,
+    text: "Misión crítica, explorador:",
+  },
+  {
+    start: 2.6,
+    text:
+      "Hay cables cruzados en el panel, y un error en la secuencia hará detonar la alarma.",
+  },
+] as const;
+
+const INTRO_FULL_TEXT =
+  "Misión crítica, explorador: Hay cables cruzados en el panel, y un error en la secuencia hará detonar la alarma.";
+
+const GUIDE_AUDIO_SRC = audioConsejoSumaEscuadron;
+
+const GUIDE_INITIAL_TEXT =
+  "Presiona reproducir para escuchar el consejo del Comandante Suma.";
+
+const GUIDE_FULL_TEXT =
+  "Anota paso a paso cada operación resuelta en un papel para mantener el control táctico del circuito.";
+
+type AudioStatus = "idle" | "playing" | "paused" | "ended";
 
 type OperationKey =
   | "parentheses"
@@ -350,6 +385,13 @@ export function EscuadronTactico() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [introAudioStatus, setIntroAudioStatus] =
+    useState<AudioStatus>("idle");
+  const [introCaption, setIntroCaption] = useState(
+    INTRO_INITIAL_TEXT,
+  );
+  const [guideAudioStatus, setGuideAudioStatus] =
+    useState<AudioStatus>("idle");
   const [resultModalOpen, setResultModalOpen] =
     useState(false);
 
@@ -372,6 +414,8 @@ export function EscuadronTactico() {
   const [guardandoProgreso, setGuardandoProgreso] =
     useState(false);
 
+  const introAudioRef = useRef<HTMLAudioElement | null>(null);
+  const guideAudioRef = useRef<HTMLAudioElement | null>(null);
   const inicioActividadRef = useRef<number>(Date.now());
   const guardandoRef = useRef(false);
   const resultTimeoutRef = useRef<number | null>(null);
@@ -395,6 +439,19 @@ export function EscuadronTactico() {
       if (resultTimeoutRef.current !== null) {
         window.clearTimeout(resultTimeoutRef.current);
       }
+
+      const introAudio = introAudioRef.current;
+      const guideAudio = guideAudioRef.current;
+
+      if (introAudio) {
+        introAudio.pause();
+        introAudio.currentTime = 0;
+      }
+
+      if (guideAudio) {
+        guideAudio.pause();
+        guideAudio.currentTime = 0;
+      }
     };
   }, []);
 
@@ -406,12 +463,206 @@ export function EscuadronTactico() {
     [challengeOne, challengeTwo, challengeThree],
   );
 
+  const actualizarTextoIntroduccion = () => {
+    const audio = introAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    const currentTime = audio.currentTime;
+
+    const currentCaption = [...INTRO_CAPTIONS]
+      .reverse()
+      .find((caption) => currentTime >= caption.start);
+
+    setIntroCaption(
+      currentCaption?.text ?? INTRO_CAPTIONS[0].text,
+    );
+  };
+
+  const reproducirIntroduccion = async () => {
+    const audio = introAudioRef.current;
+    const guideAudio = guideAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    if (guideAudio && !guideAudio.paused) {
+      guideAudio.pause();
+      setGuideAudioStatus("paused");
+    }
+
+    if (audio.ended) {
+      audio.currentTime = 0;
+    }
+
+    actualizarTextoIntroduccion();
+
+    try {
+      await audio.play();
+      setIntroAudioStatus("playing");
+    } catch (error) {
+      setIntroAudioStatus("paused");
+      console.error(
+        "No se pudo reproducir la introducción de Escuadrón Táctico:",
+        error,
+      );
+    }
+  };
+
+  const pausarIntroduccion = () => {
+    const audio = introAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    audio.pause();
+    setIntroAudioStatus("paused");
+  };
+
+  const repetirIntroduccion = async () => {
+    const audio = introAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    audio.currentTime = 0;
+    setIntroCaption(INTRO_CAPTIONS[0].text);
+
+    try {
+      await audio.play();
+      setIntroAudioStatus("playing");
+    } catch (error) {
+      setIntroAudioStatus("paused");
+      console.error(
+        "No se pudo repetir la introducción de Escuadrón Táctico:",
+        error,
+      );
+    }
+  };
+
+  const detenerIntroduccion = () => {
+    const audio = introAudioRef.current;
+
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    setIntroAudioStatus("idle");
+    setIntroCaption(INTRO_INITIAL_TEXT);
+  };
+
+  const introStatusText =
+    introAudioStatus === "playing"
+      ? "Suma está hablando"
+      : introAudioStatus === "paused"
+        ? "Audio en pausa"
+        : introAudioStatus === "ended"
+          ? "Instrucción completada"
+          : "Listo para escuchar";
+
+  const reproducirConsejo = async () => {
+    const audio = guideAudioRef.current;
+    const introAudio = introAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    if (introAudio && !introAudio.paused) {
+      introAudio.pause();
+      setIntroAudioStatus("paused");
+    }
+
+    if (audio.ended) {
+      audio.currentTime = 0;
+    }
+
+    try {
+      await audio.play();
+      setGuideAudioStatus("playing");
+    } catch (error) {
+      setGuideAudioStatus("paused");
+      console.error(
+        "No se pudo reproducir el Consejo de Suma:",
+        error,
+      );
+    }
+  };
+
+  const pausarConsejo = () => {
+    const audio = guideAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    audio.pause();
+    setGuideAudioStatus("paused");
+  };
+
+  const repetirConsejo = async () => {
+    const audio = guideAudioRef.current;
+    const introAudio = introAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    if (introAudio && !introAudio.paused) {
+      introAudio.pause();
+      setIntroAudioStatus("paused");
+    }
+
+    audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setGuideAudioStatus("playing");
+    } catch (error) {
+      setGuideAudioStatus("paused");
+      console.error(
+        "No se pudo repetir el Consejo de Suma:",
+        error,
+      );
+    }
+  };
+
+  const detenerConsejo = () => {
+    const audio = guideAudioRef.current;
+
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    setGuideAudioStatus("idle");
+  };
+
+  const guideStatusText =
+    guideAudioStatus === "playing"
+      ? "Suma está hablando"
+      : guideAudioStatus === "paused"
+        ? "Audio en pausa"
+        : guideAudioStatus === "ended"
+          ? "Consejo completado"
+          : "Listo para escuchar";
+
   const irARuta = (route: string) => {
+    detenerIntroduccion();
+    detenerConsejo();
     setMenuOpen(false);
     navigate(route);
   };
 
   const cerrarSesion = () => {
+    detenerIntroduccion();
+    detenerConsejo();
     clearAuthSession();
     navigate("/login", { replace: true });
   };
@@ -807,18 +1058,93 @@ export function EscuadronTactico() {
 
           <div className="mnx-escuadron-welcome-wrap">
             <article className="mnx-escuadron-speech">
-              <strong>¡Alerta táctica!</strong>
-              <span>
-                Corta los cables en el orden correcto.
-                Primero resuelve la operación con mayor
-                prioridad.
-              </span>
+              <strong>Comandante Suma explica</strong>
+
+              <p aria-live="polite">
+                {introAudioStatus === "ended"
+                  ? INTRO_FULL_TEXT
+                  : introCaption}
+              </p>
+
+              <div className="mnx-escuadron-audio-controls">
+                <audio
+                  ref={introAudioRef}
+                  src={INTRO_AUDIO_SRC}
+                  preload="metadata"
+                  onPlay={() => {
+                    setIntroAudioStatus("playing");
+                    actualizarTextoIntroduccion();
+                  }}
+                  onTimeUpdate={actualizarTextoIntroduccion}
+                  onSeeking={actualizarTextoIntroduccion}
+                  onPause={() => {
+                    if (!introAudioRef.current?.ended) {
+                      setIntroAudioStatus("paused");
+                    }
+                  }}
+                  onEnded={() => {
+                    setIntroAudioStatus("ended");
+                    setIntroCaption(INTRO_FULL_TEXT);
+                  }}
+                />
+
+                <button
+                  type="button"
+                  onClick={reproducirIntroduccion}
+                  disabled={introAudioStatus === "playing"}
+                  aria-label="Reproducir introducción del Comandante Suma"
+                >
+                  <FiPlay />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={pausarIntroduccion}
+                  disabled={introAudioStatus !== "playing"}
+                  aria-label="Pausar introducción del Comandante Suma"
+                >
+                  <FiPause />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={repetirIntroduccion}
+                  aria-label="Repetir introducción del Comandante Suma"
+                >
+                  <FiRotateCcw />
+                </button>
+
+                <span
+                  className={`mnx-escuadron-audio-status ${
+                    introAudioStatus === "playing"
+                      ? "is-playing"
+                      : ""
+                  }`}
+                >
+                  <FiVolume2 />
+                  {introStatusText}
+                </span>
+              </div>
             </article>
 
             <img
+              key={
+                introAudioStatus === "playing"
+                  ? "suma-hablando"
+                  : "suma-idle"
+              }
               className="mnx-escuadron-hero-robot"
-              src={cofreHeroTalkingIdle}
-              alt="Comandante Suma"
+              src={
+                introAudioStatus === "playing"
+                  ? comandanteSumaHablando
+                  : comandanteSumaIdle
+              }
+              alt={
+                introAudioStatus === "playing"
+                  ? "Comandante Suma explicando la misión"
+                  : "Comandante Suma listo para explicar"
+              }
+              draggable={false}
             />
           </div>
         </header>
@@ -941,20 +1267,92 @@ export function EscuadronTactico() {
 
           <section className="mnx-escuadron-hint-card">
             <img
-              src={cofreGuide}
-              alt="Comandante Suma dando una pista"
+              key={
+                guideAudioStatus === "playing"
+                  ? "consejo-suma-hablando"
+                  : "consejo-suma-idle"
+              }
+              src={
+                guideAudioStatus === "playing"
+                  ? comandanteSumaHablando
+                  : comandanteSumaIdle
+              }
+              alt={
+                guideAudioStatus === "playing"
+                  ? "Comandante Suma dando el consejo"
+                  : "Comandante Suma listo para dar el consejo"
+              }
+              draggable={false}
             />
 
             <div>
-              <span>Pista general</span>
-              <p>
-                Primero resuelve lo que está dentro de
-                paréntesis; después multiplicaciones o
-                divisiones; al final sumas o restas.
+              <span>Consejo de Suma</span>
+
+              <p aria-live="polite">
+                {guideAudioStatus === "idle"
+                  ? GUIDE_INITIAL_TEXT
+                  : GUIDE_FULL_TEXT}
               </p>
+
+              <div className="mnx-escuadron-guide-audio-controls">
+                <audio
+                  ref={guideAudioRef}
+                  src={GUIDE_AUDIO_SRC}
+                  preload="metadata"
+                  onPlay={() =>
+                    setGuideAudioStatus("playing")
+                  }
+                  onPause={() => {
+                    if (!guideAudioRef.current?.ended) {
+                      setGuideAudioStatus("paused");
+                    }
+                  }}
+                  onEnded={() =>
+                    setGuideAudioStatus("ended")
+                  }
+                />
+
+                <button
+                  type="button"
+                  onClick={reproducirConsejo}
+                  disabled={guideAudioStatus === "playing"}
+                  aria-label="Reproducir Consejo de Suma"
+                >
+                  <FiPlay />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={pausarConsejo}
+                  disabled={guideAudioStatus !== "playing"}
+                  aria-label="Pausar Consejo de Suma"
+                >
+                  <FiPause />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={repetirConsejo}
+                  aria-label="Repetir Consejo de Suma"
+                >
+                  <FiRotateCcw />
+                </button>
+
+                <span
+                  className={`mnx-escuadron-guide-audio-status ${
+                    guideAudioStatus === "playing"
+                      ? "is-playing"
+                      : ""
+                  }`}
+                >
+                  <FiVolume2 />
+                  {guideStatusText}
+                </span>
+              </div>
 
               <button
                 type="button"
+                className="mnx-escuadron-help-full-button"
                 onClick={() => setHelpOpen(true)}
               >
                 <FiHelpCircle />
