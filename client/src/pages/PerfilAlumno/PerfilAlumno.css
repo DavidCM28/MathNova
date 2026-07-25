@@ -760,15 +760,10 @@
 
   /* IMAGEN DEL ZORRITO */
   .perfil-menu-fox {
-    width: 300px !important; /* AQUI CAMBIAS EL TAMAÑO */
+    width: 150px;
     height: auto;
 
-    max-width: none !important;
-
     position: relative;
-
-    top: -40px; /* SUBE O BAJA */
-    left: 0px; /* IZQUIERDA / DERECHA */
 
     z-index: 10;
 
@@ -786,24 +781,21 @@
   /* TABLET */
   @media (max-width: 1200px) {
     .perfil-menu-fox {
-      width: 320px !important;
-      top: -30px;
+      width: 150px;
     }
   }
 
   /* MOVIL */
   @media (max-width: 850px) {
     .perfil-menu-fox {
-      width: 250px !important;
-      top: -15px;
+      width: 130px;
     }
   }
 
   /* MOVIL PEQUEÑO */
   @media (max-width: 480px) {
     .perfil-menu-fox {
-      width: 200px !important;
-      top: -10px;
+      width: 110px;
     }
   }
 
@@ -835,39 +827,25 @@
     width: 155px;
     height: 155px;
   }
-
-  .perfil-menu-fox {
-    width: 160px;
-  }
 }
 
-/* FORZAR ZORRITO GRANDE EN PERFIL */
-.sidebar .perfil-menu-fox-box {
-  width: 300px !important;
-  max-width: none !important;
-  margin-top: auto !important;
-  margin-left: -15px !important;
-  padding: 0 !important;
-
-  display: flex !important;
-  justify-content: center !important;
-  align-items: flex-end !important;
-
-  overflow: visible !important;
+/* ZORRITO PERFIL — TAMAÑO AJUSTADO (solo dentro del perfil, no toca .sidebar global) */
+.perfil-layout .perfil-menu-fox-box {
+  width: 100%;
+  margin-top: auto;
+  padding: 12px 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  overflow: visible;
 }
 
-.sidebar .perfil-menu-fox-box img.perfil-menu-fox {
-  width: 300px !important;
-  min-width: 230px !important;
-  max-width: none !important;
-  height: auto !important;
-
-  position: relative !important;
-  top: -140px !important;
-  left: 200 !important;
-
-  object-fit: contain !important;
-  display: block !important;
+.perfil-layout .perfil-menu-fox-box img.perfil-menu-fox {
+  width: 150px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
 }
 
 .dashboard-footer {
@@ -945,4 +923,305 @@
   font-size: 13px;
   font-weight: 700;
   line-height: 1.35;
+}
+/* =====================================================================
+   AJUSTE DE DISTRIBUCIÓN · PERFIL DEL ALUMNO
+   Evita tarjetas apretadas y desbordamiento horizontal en desktop.
+   ===================================================================== */
+
+.perfil-layout,
+.perfil-layout * {
+  box-sizing: border-box;
+}
+
+.perfil-layout {
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.perfil-content {
+  width: 100%;
+  min-width: 0;
+  max-width: 1740px;
+  margin: 0 auto;
+  padding: 36px clamp(22px, 2.4vw, 46px) 38px;
+}
+
+.perfil-top-grid,
+.perfil-middle-grid,
+.perfil-bottom-grid {
+  width: 100%;
+  min-width: 0;
+}
+
+.perfil-top-grid > *,
+.perfil-middle-grid > *,
+.perfil-bottom-grid > * {
+  min-width: 0;
+}
+
+/* Cabecera principal más equilibrada */
+.perfil-top-grid {
+  grid-template-columns:
+    minmax(560px, 2fr)
+    repeat(3, minmax(180px, 0.72fr));
+  gap: 18px;
+  align-items: stretch;
+}
+
+.perfil-main-card {
+  min-width: 0;
+  min-height: 220px;
+  padding: 24px 28px;
+  grid-template-columns:
+    142px
+    minmax(210px, 1fr)
+    1px
+    minmax(165px, 0.68fr);
+  gap: 22px;
+}
+
+.alex-img {
+  width: 140px;
+  height: 140px;
+}
+
+.perfil-name {
+  min-width: 0;
+}
+
+.perfil-name h2 {
+  font-size: clamp(34px, 2.7vw, 44px);
+  overflow-wrap: anywhere;
+}
+
+.perfil-divider {
+  height: 132px;
+}
+
+.estrellas-box {
+  min-width: 0;
+}
+
+.mini-card {
+  min-width: 0;
+  min-height: 220px;
+  padding: 24px 20px;
+}
+
+.mini-card h3 {
+  max-width: none;
+  padding-right: 8px;
+  font-size: clamp(19px, 1.45vw, 24px);
+  overflow-wrap: anywhere;
+}
+
+.mini-card strong,
+.blue-mini strong,
+.purple-mini strong {
+  max-width: 100%;
+  font-size: clamp(38px, 3vw, 54px);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.card-icon,
+.mini-card svg {
+  right: 18px;
+  bottom: 18px;
+  width: 64px;
+  height: 64px;
+  font-size: 64px;
+}
+
+/* Sección central con mejor respiración */
+.perfil-middle-grid {
+  grid-template-columns:
+    minmax(280px, 0.82fr)
+    minmax(420px, 1.32fr)
+    minmax(520px, 1.55fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+.perfil-panel {
+  min-width: 0;
+  padding: 26px 30px;
+  overflow: hidden;
+}
+
+.perfil-panel h2 {
+  font-size: clamp(21px, 1.6vw, 27px);
+  line-height: 1.25;
+}
+
+.dato-row {
+  grid-template-columns: 24px minmax(110px, 1fr) minmax(90px, 0.9fr);
+}
+
+.dato-row span,
+.dato-row strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.mundos-list {
+  justify-content: space-evenly;
+  gap: 18px;
+}
+
+.mundo-item {
+  flex: 1 1 120px;
+  min-width: 0;
+}
+
+.insignias-list {
+  grid-template-columns: repeat(4, minmax(110px, 1fr));
+  gap: 16px;
+}
+
+.insignia-item {
+  min-width: 0;
+  padding: 12px 8px;
+}
+
+.insignia-item strong,
+.insignia-item span {
+  overflow-wrap: anywhere;
+}
+
+/* Evita que los hover provoquen recortes laterales */
+.perfil-main-card:hover,
+.mini-card:hover,
+.perfil-panel:hover {
+  transform: translateY(-5px);
+}
+
+/* Laptop y escritorio mediano */
+@media (max-width: 1600px) {
+  .perfil-content {
+    padding-inline: 28px;
+  }
+
+  .perfil-top-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .perfil-main-card {
+    grid-column: 1 / -1;
+    grid-template-columns:
+      150px
+      minmax(260px, 1fr)
+      1px
+      minmax(190px, 0.55fr);
+  }
+
+  .mini-card {
+    min-height: 190px;
+  }
+
+  .perfil-middle-grid {
+    grid-template-columns:
+      minmax(280px, 0.82fr)
+      minmax(0, 1.45fr);
+  }
+
+  .insignias-panel {
+    grid-column: 1 / -1;
+  }
+
+  .insignias-list {
+    grid-template-columns: repeat(4, minmax(130px, 1fr));
+  }
+}
+
+/* Tablet horizontal */
+@media (max-width: 1180px) {
+  .perfil-content {
+    padding: 30px 22px 32px;
+  }
+
+  .perfil-top-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .perfil-main-card {
+    grid-column: 1 / -1;
+    grid-template-columns: 132px minmax(0, 1fr) 1px minmax(165px, 0.6fr);
+  }
+
+  .mini-card:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .perfil-middle-grid,
+  .perfil-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .insignias-panel {
+    grid-column: auto;
+  }
+}
+
+/* Móvil */
+@media (max-width: 850px) {
+  .perfil-content {
+    padding: 110px 16px 28px;
+  }
+
+  .perfil-top-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .perfil-main-card,
+  .mini-card:last-child {
+    grid-column: auto;
+  }
+
+  .perfil-main-card {
+    display: flex;
+    min-height: 0;
+    padding: 24px 20px;
+  }
+
+  .mini-card {
+    min-height: 165px;
+  }
+
+  .insignias-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mundos-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .perfil-content {
+    padding-inline: 12px;
+  }
+
+  .perfil-panel,
+  .perfil-main-card,
+  .mini-card {
+    border-radius: 16px;
+  }
+
+  .insignias-list,
+  .mundos-list {
+    grid-template-columns: 1fr;
+  }
+}
+@media (min-width: 851px) {
+  .perfil-layout .sidebar {
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+  }
 }

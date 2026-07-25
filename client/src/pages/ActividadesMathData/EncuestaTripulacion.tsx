@@ -437,60 +437,49 @@ export default function EncuestaTripulacion() {
   // ==========================================
 
   if (resultado === "exito") return (
-    <div className="res-page res-exito-page">
-      <div className="res-confetti" aria-hidden="true">
-        {Array.from({ length: 22 }).map((_, i) => (
-          <span key={i} className={`res-confetti-dot res-confetti-dot-${i % 6}`} />
-        ))}
-      </div>
-
-      <header className="res-header">
-        <img src={logo} alt="MathNova" className="res-logo" />
-        <button className="res-inicio-btn" onClick={() => navigate("/actividades-math-data")}>
-          Inicio
-        </button>
-      </header>
-
-      <div className="res-hero">
-        <div className="res-hero-left">
-          <div className="res-titulo-row">
-            <div className="res-icono-check">✔</div>
-            <div>
-              <h1 className="res-titulo">¡Actividad completada!</h1>
-              <p className="res-subtitulo">
-                Has terminado con éxito la misión de{" "}
-                <span className="res-mathnova-color">MathData</span>.
-              </p>
-            </div>
-          </div>
-
-          <div className="res-mensaje-box res-mensaje-verde">
-            <div className="res-icono-estrella-circle">
-              <img src={estrellaMision} alt="estrella" />
-            </div>
-            <div>
-              <strong>¡Excelente trabajo, piloto!</strong>
-              <p>
-                Contaste los votos correctamente y descubriste qué módulo
-                ganó la encuesta. Sigue así y conquista la siguiente misión.
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            className="rmp-bait-mensaje-trigger"
-            onClick={() => setMostrarBaitExito(true)}
-            aria-label="Abrir mensaje de Bait"
-          >
-            <span className="rmp-bait-mensaje-dot" />
-            <FiMessageSquare />
-            Bait tiene un mensaje para ti
-          </button>
+    <div className="res-modal-overlay">
+      <div className="res-modal-card res-modal-exito res-modal-wide">
+        <div className="res-confetti" aria-hidden="true">
+          {Array.from({ length: 16 }).map((_, i) => (
+            <span key={i} className={`res-confetti-dot res-confetti-dot-${i % 6}`} />
+          ))}
         </div>
-      </div>
 
-      <div className="res-bottom">
+        <div className="res-titulo-row">
+          <div className="res-icono-check">✔</div>
+          <div>
+            <h1 className="res-titulo">¡Actividad completada!</h1>
+            <p className="res-subtitulo">
+              Has terminado con éxito la misión de{" "}
+              <span className="res-mathnova-color">MathData</span>.
+            </p>
+          </div>
+        </div>
+
+        <div className="res-mensaje-box res-mensaje-verde">
+          <div className="res-icono-estrella-circle">
+            <img src={estrellaMision} alt="estrella" />
+          </div>
+          <div>
+            <strong>¡Excelente trabajo, piloto!</strong>
+            <p>
+              Contaste los votos correctamente y descubriste qué módulo
+              ganó la encuesta. Sigue así y conquista la siguiente misión.
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="rmp-bait-mensaje-trigger res-modal-villano-trigger"
+          onClick={() => setMostrarBaitExito(true)}
+          aria-label="Abrir mensaje de Bait"
+        >
+          <span className="rmp-bait-mensaje-dot" />
+          <FiMessageSquare />
+          Bait tiene un mensaje para ti
+        </button>
+
         <div className="res-villano-exito-group">
           <img
             src={villanoTrofeoCompleto}
@@ -499,89 +488,69 @@ export default function EncuestaTripulacion() {
           />
         </div>
 
-        <div className="res-bottom-left">
-          <div className="res-resumen-card">
-            <div className="res-resumen-header">
-              <FiBarChart2 />
-              <span>Resumen de la actividad</span>
-            </div>
-            <div className="res-resumen-stats">
-              <div className="res-stat">
-                <img src={iconoAciertos} alt="" className="res-stat-img" />
-                <strong className="res-stat-num-verde">3/3</strong>
-                <small>Respuestas correctas</small>
-                <em>¡Perfecto!</em>
+        <div className="res-modal-body">
+          <div className="res-modal-left">
+            <div className="res-resumen-card">
+              <div className="res-resumen-header">
+                <FiBarChart2 />
+                <span>Resumen de la actividad</span>
               </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoTiempo} alt="" className="res-stat-img" />
-                <strong>—</strong>
-                <small>Tiempo</small>
-                <em>min</em>
-              </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoPrecision} alt="" className="res-stat-img" />
-                <strong className="res-stat-num-verde">100%</strong>
-                <small>Precisión</small>
-                <em>¡Impecable!</em>
-              </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoRecompensa} alt="" className="res-stat-img" />
-                <strong className="res-pts-naranja">+50 pts</strong>
-                <small>Recompensa</small>
-                <em>Puntos ganados</em>
-              </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoInsignia} alt="" className="res-stat-img" />
-                <strong>Misión<br />cumplida</strong>
-                <small>Insignia obtenida</small>
-                <em>¡Felicidades!</em>
-              </div>
-            </div>
-          </div>
-
-          <div className="res-progreso-card">
-            <img src={iconoProgreso} alt="" className="res-progreso-img" />
-            <div className="res-progreso-info">
-              <small>Tu progreso en el tema:</small>
-              <strong>Encuestas y Frecuencias</strong>
-              <div className="res-barra-wrap">
-                <div className="res-barra-fill res-barra-verde" style={{ width: "85%" }}>
-                  <span className="res-barra-pct">85%</span>
+              <div className="res-resumen-stats">
+                <div className="res-stat">
+                  <img src={iconoAciertos} alt="" className="res-stat-img" />
+                  <strong className="res-stat-num-verde">3/3</strong>
+                  <small>Respuestas correctas</small>
+                  <em>¡Perfecto!</em>
                 </div>
-                <small>¡Vas muy bien! 15% para completar este tema.</small>
-              </div>
-            </div>
-            <div className="res-hito-box">
-              <img src={estrellaMision} alt="" className="res-hito-estrella" />
-              <div>
-                <small>Siguiente hito</small>
-                <strong className="res-hito-pct">90%</strong>
-                <small>Gran Analista</small>
+                <div className="res-stat-sep" />
+                <div className="res-stat">
+                  <img src={iconoTiempo} alt="" className="res-stat-img" />
+                  <strong>—</strong>
+                  <small>Tiempo</small>
+                  <em>min</em>
+                </div>
+                <div className="res-stat-sep" />
+                <div className="res-stat">
+                  <img src={iconoPrecision} alt="" className="res-stat-img" />
+                  <strong className="res-stat-num-verde">100%</strong>
+                  <small>Precisión</small>
+                  <em>¡Impecable!</em>
+                </div>
+                <div className="res-stat-sep" />
+                <div className="res-stat">
+                  <img src={iconoRecompensa} alt="" className="res-stat-img" />
+                  <strong className="res-pts-naranja">+50 pts</strong>
+                  <small>Recompensa</small>
+                  <em>Puntos ganados</em>
+                </div>
+                <div className="res-stat-sep" />
+                <div className="res-stat">
+                  <img src={iconoInsignia} alt="" className="res-stat-img" />
+                  <strong>Misión<br />cumplida</strong>
+                  <small>Insignia obtenida</small>
+                  <em>¡Felicidades!</em>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="res-bottom-right">
-          <button
-            className="res-btn res-btn-azul"
-            onClick={() => navigate("/actividades-math-data")}
-          >
-            Siguiente actividad
-          </button>
-          <button className="res-btn res-btn-outline" onClick={handleReiniciarActividad}>
-            Repetir actividad
-          </button>
-          <button
-            className="res-btn res-btn-outline"
-            onClick={() => navigate("/actividades-math-data")}
-          >
-            Volver a actividades
-          </button>
+          <div className="res-modal-right">
+            <button
+              className="res-btn res-btn-azul"
+              onClick={() => navigate("/actividades-math-data")}
+            >
+              Siguiente actividad
+            </button>
+            <button className="res-btn res-btn-outline" onClick={handleReiniciarActividad}>
+              Repetir actividad
+            </button>
+            <button
+              className="res-btn res-btn-outline"
+              onClick={() => navigate("/actividades-math-data")}
+            >
+              Volver a actividades
+            </button>
+          </div>
         </div>
       </div>
 
@@ -603,133 +572,106 @@ export default function EncuestaTripulacion() {
   // ==========================================
 
   if (resultado === "fallo") return (
-    <div className="res-page res-fallo-page">
-      <header className="res-header">
-        <img src={logo} alt="MathNova" className="res-logo" />
-        <button className="res-inicio-btn" onClick={() => navigate("/actividades-math-data")}>
-          Inicio
-        </button>
-      </header>
+    <div className="res-modal-overlay">
+      <div className="res-modal-card res-modal-fallo res-modal-wide">
+        <div className="res-titulo-row">
+          <div className="res-icono-retry">&#x1F504;</div>
+          <div>
+            <h1 className="res-titulo">¡Vuelve a intentarlo!</h1>
+            <p className="res-subtitulo">
+              Aún no completas con éxito la misión de{" "}
+              <span className="res-mathnova-color">MathData</span>.
+            </p>
+          </div>
+        </div>
 
-      <div className="res-body">
-        <div className="res-hero-personajes">
+        <div className="res-mensaje-box res-mensaje-azul">
+          <div className="res-icono-datos">📊</div>
+          <div>
+            <strong>¡No te rindas, piloto!</strong>
+            <p>
+              Cuenta de nuevo los palitos de cada módulo con cuidado, y
+              revisa cuál de los tres obtuvo más votos antes de enviar tu
+              reporte al Centro de Mando.
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="rmp-bait-mensaje-trigger res-modal-villano-trigger"
+          onClick={() => setMostrarBaitFallo(true)}
+          aria-label="Abrir mensaje de Bait"
+        >
+          <span className="rmp-bait-mensaje-dot" />
+          <FiMessageSquare />
+          Bait tiene un mensaje para ti
+        </button>
+
+        <div className="res-villano-fallo-group">
           <img src={villanoIntentar} alt="Villano retando" className="res-villano-img" />
         </div>
 
-        <div className="res-left">
-          <div className="res-titulo-row">
-            <div className="res-icono-retry">&#x1F504;</div>
-            <div>
-              <h1 className="res-titulo">¡Vuelve a intentarlo!</h1>
-              <p className="res-subtitulo">
-                Aún no completas con éxito la misión de{" "}
-                <span className="res-mathnova-color">MathData</span>.
-              </p>
-            </div>
-          </div>
-
-          <div className="res-mensaje-box res-mensaje-azul">
-            <div className="res-icono-datos">📊</div>
-            <div>
-              <strong>¡No te rindas, piloto!</strong>
-              <p>
-                Cuenta de nuevo los palitos de cada módulo con cuidado, y
-                revisa cuál de los tres obtuvo más votos antes de enviar tu
-                reporte al Centro de Mando.
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            className="rmp-bait-mensaje-trigger"
-            onClick={() => setMostrarBaitFallo(true)}
-            aria-label="Abrir mensaje de Bait"
-          >
-            <span className="rmp-bait-mensaje-dot" />
-            <FiMessageSquare />
-            Bait tiene un mensaje para ti
-          </button>
-
-          <div className="res-resumen-card">
-            <div className="res-resumen-header">
-              <FiBarChart2 />
-              <span>Resumen de la actividad</span>
-            </div>
-            <div className="res-resumen-stats">
-              <div className="res-stat">
-                <img src={iconoAciertos} alt="" className="res-stat-img" />
-                <strong>0/3</strong>
-                <small>Respuestas correctas</small>
-                <em>¡Sigue así!</em>
+        <div className="res-modal-body">
+          <div className="res-modal-left">
+            <div className="res-resumen-card">
+              <div className="res-resumen-header">
+                <FiBarChart2 />
+                <span>Resumen de la actividad</span>
               </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoTiempo} alt="" className="res-stat-img" />
-                <strong>—</strong>
-                <small>Tiempo</small>
-                <em>min</em>
-              </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoPrecision} alt="" className="res-stat-img" />
-                <strong>0%</strong>
-                <small>Precisión</small>
-                <em>Puedes mejorar</em>
-              </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoRecompensa} alt="" className="res-stat-img" />
-                <strong className="res-pts-azul">+10 pts</strong>
-                <small>Recompensa</small>
-                <em>Puntos ganados</em>
-              </div>
-              <div className="res-stat-sep" />
-              <div className="res-stat">
-                <img src={iconoInsignia} alt="" className="res-stat-img" />
-                <strong>Sigue intentando</strong>
-                <small>Insignia obtenida</small>
-                <em>¡No te rindas!</em>
-              </div>
-            </div>
-          </div>
-
-          <div className="res-progreso-card">
-            <img src={iconoProgreso} alt="" className="res-progreso-img" />
-            <div className="res-progreso-info">
-              <small>Tu progreso en el tema:</small>
-              <strong>Encuestas y Frecuencias</strong>
-              <div className="res-barra-wrap">
-                <div className="res-barra-fill res-barra-azul" style={{ width: "70%" }}>
-                  <span className="res-barra-pct">70%</span>
+              <div className="res-resumen-stats">
+                <div className="res-stat">
+                  <img src={iconoAciertos} alt="" className="res-stat-img" />
+                  <strong>0/3</strong>
+                  <small>Respuestas correctas</small>
+                  <em>¡Sigue así!</em>
                 </div>
-                <small>¡Vas avanzando! Sigue practicando para completar este tema.</small>
-              </div>
-            </div>
-            <div className="res-hito-box">
-              <img src={estrellaMision} alt="" className="res-hito-estrella" />
-              <div>
-                <strong>Siguiente hito</strong>
-                <em>80%</em>
-                <small>Gran Analista</small>
+                <div className="res-stat-sep" />
+                <div className="res-stat">
+                  <img src={iconoTiempo} alt="" className="res-stat-img" />
+                  <strong>—</strong>
+                  <small>Tiempo</small>
+                  <em>min</em>
+                </div>
+                <div className="res-stat-sep" />
+                <div className="res-stat">
+                  <img src={iconoPrecision} alt="" className="res-stat-img" />
+                  <strong>0%</strong>
+                  <small>Precisión</small>
+                  <em>Puedes mejorar</em>
+                </div>
+                <div className="res-stat-sep" />
+                <div className="res-stat">
+                  <img src={iconoRecompensa} alt="" className="res-stat-img" />
+                  <strong className="res-pts-azul">+10 pts</strong>
+                  <small>Recompensa</small>
+                  <em>Puntos ganados</em>
+                </div>
+                <div className="res-stat-sep" />
+                <div className="res-stat">
+                  <img src={iconoInsignia} alt="" className="res-stat-img" />
+                  <strong>Sigue intentando</strong>
+                  <small>Insignia obtenida</small>
+                  <em>¡No te rindas!</em>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="res-acciones">
-          <button className="res-btn res-btn-azul" onClick={handleReiniciarActividad}>
-            Intentar de nuevo
-          </button>
-          <button className="res-btn res-btn-outline" onClick={() => setMostrarPistaBait(true)}>
-            Ver pista
-          </button>
-          <button
-            className="res-btn res-btn-outline"
-            onClick={() => navigate("/actividades-math-data")}
-          >
-            {"<-"} Volver a actividades
-          </button>
+          <div className="res-modal-right">
+            <button className="res-btn res-btn-azul" onClick={handleReiniciarActividad}>
+              Intentar de nuevo
+            </button>
+            <button className="res-btn res-btn-outline" onClick={() => setMostrarPistaBait(true)}>
+              Ver pista
+            </button>
+            <button
+              className="res-btn res-btn-outline"
+              onClick={() => navigate("/actividades-math-data")}
+            >
+              {"<-"} Volver a actividades
+            </button>
+          </div>
         </div>
       </div>
 

@@ -31,6 +31,7 @@ import GeneradorEnergiaInversa from "./pages/ActividadesMathData/GeneradorEnergi
 import RampasDeLanzamiento from "./pages/ActividadesMathData/RampasDeLanzamiento";
 import EncuestaTripulacion from "./pages/ActividadesMathData/EncuestaTripulacion";
 import HologramaReportes from "./pages/ActividadesMathData/HologramaReportes";
+import SensorFrecuencias from "./pages/ActividadesMathData/SensorFrecuencias";
 
 import ActividadesMathNumbers from "./pages/ActividadesMathNumbers/ActividadesMathNumbers";
 import MathNumbersActivityRouter from "./pages/MathNumbersActivities/MathNumbersActivityRouter";
@@ -202,14 +203,23 @@ function App() {
             </RequireAuth>
           }
         />
-        <Route
-          path="/actividades-math-data/holograma-reportes"
-          element={
-            <RequireAuth>
-              <HologramaReportes />
-            </RequireAuth>
-          }
-        />
+<Route
+  path="/actividades-math-data/holograma-reportes"
+  element={
+    <RequireAuth>
+      <HologramaReportes />
+    </RequireAuth>
+  }
+/>
+
+<Route
+  path="/actividades-math-data/sensor-frecuencias"
+  element={
+    <RequireAuth>
+      <SensorFrecuencias />
+    </RequireAuth>
+  }
+/>
         <Route
           path="/retroalimentacion"
           element={
