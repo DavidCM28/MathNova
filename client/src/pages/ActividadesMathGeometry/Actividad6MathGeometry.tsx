@@ -2269,10 +2269,10 @@ function Actividad6MathGeometry() {
               <div className="act6geo-complete-actions">
                 <button
                   type="button"
-                  onClick={() => irARuta("/actividades/geometria")}
+                  onClick={() => irARuta("/actividades/geometria/actividad-7")}
                 >
                   <FiArrowRight />
-                  Continuar explorando
+                  Siguiente actividad
                 </button>
 
                 <button type="button" onClick={reiniciar}>

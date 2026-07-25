@@ -14033,3 +14033,417 @@ body:has(.act1geo-byte-modal-overlay) {
     padding-bottom: 12px;
   }
 }
+
+/* =========================================================
+   CORRECCIÓN SEGURA — MENÚ Y PAUSA GENERAL
+   Se agrega al final para no mover el diseño original.
+   ========================================================= */
+
+/* La barra de progreso semanal permanece naranja. */
+.act1geo-side-progress b {
+  width: 60% !important;
+  background: #ff9f00 !important;
+}
+
+/* El overlay se limita al tablero y no altera el resto de la página. */
+.act1geo-board {
+  position: relative !important;
+}
+
+.act1geo-activity-pause-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  border-radius: inherit;
+  background: rgba(6, 19, 49, 0.76);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  text-align: center;
+  backdrop-filter: blur(5px);
+  animation: act1geoPauseOverlayIn 0.2s ease both;
+}
+
+.act1geo-activity-pause-overlay svg {
+  font-size: 52px;
+}
+
+.act1geo-activity-pause-overlay strong {
+  font-size: 23px;
+  line-height: 1.1;
+  font-weight: 950;
+}
+
+.act1geo-activity-pause-overlay span {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.act1geo-option-card:disabled,
+.act1geo-check-btn:disabled {
+  cursor: not-allowed !important;
+}
+
+@keyframes act1geoPauseOverlayIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* =========================================================
+   AJUSTE FINAL DEL MENÚ — TAMAÑO MEDIO SIN MOVERLO
+   ---------------------------------------------------------
+   No cambia la posición, ancho, padding ni separación del menú.
+   Solo aumenta ligeramente letras e iconos.
+   La barra de progreso permanece naranja.
+   ========================================================= */
+
+@media (min-width: 992px) {
+  .act1geo-menu-item {
+    font-size: 17px !important;
+  }
+
+  .act1geo-menu-item svg {
+    font-size: 29px !important;
+  }
+
+  .act1geo-side-week-head strong {
+    font-size: 13.5px !important;
+  }
+
+  .act1geo-side-week-head span {
+    font-size: 12.5px !important;
+  }
+
+  .act1geo-side-progress span {
+    font-size: 25px !important;
+  }
+
+  .act1geo-side-progress strong {
+    font-size: 12.5px !important;
+  }
+
+  .act1geo-side-progress div {
+    background: #ffe5b4 !important;
+  }
+
+  .act1geo-side-progress b {
+    width: 60% !important;
+    background: #ff9f00 !important;
+  }
+}
+
+/* =========================================================
+   MENÚ FINAL IGUAL AL DE LA ACTIVIDAD 6
+   ---------------------------------------------------------
+   Este bloque tiene prioridad sobre ajustes anteriores.
+   No modifica el contenido principal ni los modales.
+   La barra de progreso semanal permanece naranja.
+   ========================================================= */
+
+@media (min-width: 1200px) {
+  .act1geo-page {
+    padding-left: 305px !important;
+  }
+
+  .act1geo-sidebar {
+    position: fixed !important;
+    inset: 0 auto 0 0 !important;
+    z-index: 90 !important;
+    width: 305px !important;
+    min-width: 305px !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    padding: 38px 28px 22px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    background: #ffffff !important;
+    border-radius: 0 34px 34px 0 !important;
+    box-shadow: 12px 0 32px rgba(15, 23, 42, 0.08) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .act1geo-sidebar-logo {
+    width: 205px !important;
+    max-width: 100% !important;
+    margin-bottom: 34px !important;
+    flex: 0 0 auto !important;
+  }
+
+  .act1geo-sidebar-menu {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 18px !important;
+    flex: 0 0 auto !important;
+  }
+
+  .act1geo-menu-item {
+    width: 100% !important;
+    min-height: 60px !important;
+    padding: 0 20px !important;
+    border: 0 !important;
+    border-radius: 14px !important;
+    background: transparent !important;
+    color: #111827 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 20px !important;
+    text-align: left !important;
+    font-size: 16px !important;
+    font-weight: 900 !important;
+    cursor: pointer !important;
+  }
+
+  .act1geo-menu-item span {
+    line-height: 1.18 !important;
+  }
+
+  .act1geo-menu-item svg {
+    flex: 0 0 auto !important;
+    font-size: 28px !important;
+  }
+
+  .act1geo-menu-item:hover {
+    background: #eef5ff !important;
+    color: #111827 !important;
+    transform: translateX(7px) scale(1.02) !important;
+    box-shadow: 0 8px 18px rgba(0, 88, 255, 0.12) !important;
+  }
+
+  .act1geo-menu-item.act1geo-active {
+    background: #0058ff !important;
+    color: #ffffff !important;
+    box-shadow: 0 12px 24px rgba(0, 88, 255, 0.22) !important;
+  }
+
+  .act1geo-sidebar-progress-area {
+    width: 100% !important;
+    margin-top: auto !important;
+    padding-top: 24px !important;
+    flex: 0 0 auto !important;
+  }
+
+  .act1geo-side-week-card {
+    width: 100% !important;
+    min-height: 98px !important;
+    padding: 16px 15px !important;
+    border: 1px solid #e7edf8 !important;
+    border-radius: 16px !important;
+    background: #ffffff !important;
+    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.09) !important;
+  }
+
+  .act1geo-side-week-head {
+    margin-bottom: 13px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+
+  .act1geo-side-week-head strong,
+  .act1geo-side-week-head span {
+    color: #061331 !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    white-space: nowrap !important;
+  }
+
+  .act1geo-side-progress {
+    display: grid !important;
+    grid-template-columns: 22px minmax(60px, 1fr) 42px !important;
+    align-items: center !important;
+    gap: 9px !important;
+  }
+
+  .act1geo-side-progress > span {
+    color: #ffb703 !important;
+    font-size: 24px !important;
+    line-height: 1 !important;
+  }
+
+  .act1geo-side-progress div {
+    width: 100% !important;
+    height: 12px !important;
+    border-radius: 999px !important;
+    background: #ffe5b4 !important;
+    overflow: hidden !important;
+  }
+
+  .act1geo-side-progress b {
+    display: block !important;
+    width: 60% !important;
+    height: 100% !important;
+    border-radius: inherit !important;
+    background: #ff9f00 !important;
+  }
+
+  .act1geo-side-progress strong {
+    color: #061331 !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+  }
+}
+
+/* LAPTOP CHICA: mismas medidas responsivas que la Actividad 6 */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .act1geo-page {
+    padding-left: 270px !important;
+  }
+
+  .act1geo-sidebar {
+    width: 270px !important;
+    min-width: 270px !important;
+    padding: 32px 22px 22px !important;
+  }
+
+  .act1geo-sidebar-logo {
+    width: 178px !important;
+    margin-bottom: 28px !important;
+  }
+
+  .act1geo-sidebar-menu {
+    gap: 15px !important;
+  }
+
+  .act1geo-menu-item {
+    min-height: 56px !important;
+    padding: 0 13px !important;
+    gap: 15px !important;
+    font-size: 14px !important;
+  }
+
+  .act1geo-menu-item svg {
+    font-size: 24px !important;
+  }
+
+  .act1geo-sidebar-progress-area {
+    margin-top: auto !important;
+    padding-top: 24px !important;
+  }
+
+  .act1geo-side-progress {
+    grid-template-columns: 22px minmax(60px, 1fr) 42px !important;
+  }
+
+  .act1geo-side-progress b {
+    background: #ff9f00 !important;
+  }
+}
+
+/* TABLET: mismo menú deslizable que la Actividad 6 */
+@media (max-width: 991px) {
+  .act1geo-page {
+    padding-left: 0 !important;
+  }
+
+  .act1geo-sidebar {
+    left: -320px !important;
+    width: 285px !important;
+    min-width: 285px !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    padding: 45px 24px 28px !important;
+    border-radius: 0 28px 28px 0 !important;
+    transition: left 0.3s ease !important;
+  }
+
+  .act1geo-sidebar.act1geo-sidebar-open {
+    left: 0 !important;
+  }
+
+  .act1geo-sidebar-logo {
+    width: 165px !important;
+    margin-bottom: 28px !important;
+  }
+
+  .act1geo-sidebar-menu {
+    gap: 14px !important;
+  }
+
+  .act1geo-menu-item {
+    min-height: 56px !important;
+    padding: 0 13px !important;
+    gap: 15px !important;
+    font-size: 14px !important;
+  }
+
+  .act1geo-menu-item svg {
+    font-size: 24px !important;
+  }
+
+  .act1geo-sidebar-progress-area {
+    margin-top: auto !important;
+    padding-top: 24px !important;
+  }
+
+  .act1geo-side-progress b {
+    background: #ff9f00 !important;
+  }
+}
+
+/* CELULAR: conserva la adaptación original sin agrandar el menú */
+@media (max-width: 575px) {
+  .act1geo-sidebar {
+    left: -300px !important;
+    width: 275px !important;
+    min-width: 275px !important;
+    padding: 38px 22px 24px !important;
+  }
+
+  .act1geo-sidebar.act1geo-sidebar-open {
+    left: 0 !important;
+  }
+
+  .act1geo-sidebar-logo {
+    width: 150px !important;
+    margin-bottom: 24px !important;
+  }
+
+  .act1geo-sidebar-menu {
+    gap: 13px !important;
+  }
+
+  .act1geo-menu-item {
+    min-height: 54px !important;
+    padding: 0 13px !important;
+    gap: 15px !important;
+    font-size: 13.5px !important;
+  }
+
+  .act1geo-menu-item svg {
+    font-size: 24px !important;
+  }
+
+  .act1geo-side-progress b {
+    background: #ff9f00 !important;
+  }
+}
+
+/* =========================================================
+   AJUSTE FINAL: BOTÓN COMPROBAR ALINEADO CON LA CARD IZQUIERDA
+   =========================================================
+   Este ajuste únicamente baja el botón "Comprobar" en escritorio
+   para que quede alineado con la parte inferior de la card principal.
+   No modifica los demás elementos ni el diseño responsivo.
+   ========================================================= */
+
+@media (min-width: 1501px) {
+  .act1geo-right-panel {
+    align-self: stretch;
+  }
+
+  .act1geo-check-btn {
+    margin-top: auto;
+  }
+}

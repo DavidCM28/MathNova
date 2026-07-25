@@ -1963,8 +1963,8 @@ body {
   overflow-wrap: anywhere;
 }
 
-/* Las actividades 5 y 6 quedan debajo de las primeras cuatro,
-   alineadas desde la izquierda y dentro del mismo panel. */
+/* Las actividades 5, 6, 7 y 8 quedan debajo de las primeras cuatro,
+   alineadas dentro del mismo panel y en una fila de cuatro tarjetas. */
 .geomx-topic-two-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -1974,18 +1974,10 @@ body {
 }
 
 .geomx-card-5 .geomx-activity-image img,
-.geomx-card-6 .geomx-activity-image img {
+.geomx-card-6 .geomx-activity-image img,
+.geomx-card-7 .geomx-activity-image img,
+.geomx-card-8 .geomx-activity-image img {
   object-position: center center;
-}
-
-@media (min-width: 1200px) {
-  .geomx-topic-two-grid .geomx-activity-card:nth-child(1) {
-    grid-column: 1;
-  }
-
-  .geomx-topic-two-grid .geomx-activity-card:nth-child(2) {
-    grid-column: 2;
-  }
 }
 
 @media (max-width: 1199px) {

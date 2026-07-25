@@ -23315,3 +23315,645 @@ body:has(.act3geo-complete-modal-overlay) {
     height: 44px !important;
   }
 }
+
+/* =========================================================
+   MENÚ FINAL ACTIVIDAD 3 — BASADO EN ACTIVIDAD 6
+   La barra de progreso permanece naranja.
+   ========================================================= */
+
+.act3geo-page {
+  padding-left: 305px !important;
+}
+
+.act3geo-hamburger-btn {
+  display: none !important;
+}
+
+.act3geo-sidebar {
+  position: fixed !important;
+  inset: 0 auto 0 0 !important;
+  z-index: 90 !important;
+  width: 305px !important;
+  min-width: 305px !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  padding: 38px 28px 22px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  background: #ffffff !important;
+  border-radius: 0 34px 34px 0 !important;
+  box-shadow: 12px 0 32px rgba(15, 23, 42, 0.08) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.act3geo-sidebar::-webkit-scrollbar {
+  width: 0 !important;
+}
+
+.act3geo-sidebar-logo {
+  width: 205px !important;
+  max-width: 100% !important;
+  margin-bottom: 34px !important;
+  flex: 0 0 auto !important;
+}
+
+.act3geo-sidebar-menu {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 18px !important;
+  flex: 0 0 auto !important;
+}
+
+.act3geo-menu-item {
+  width: 100% !important;
+  min-height: 60px !important;
+  padding: 0 20px !important;
+  border: 0 !important;
+  border-radius: 14px !important;
+  background: transparent !important;
+  color: #111827 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 20px !important;
+  text-align: left !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  cursor: pointer !important;
+  transition: 0.25s ease !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.act3geo-menu-item span {
+  line-height: 1.18 !important;
+}
+
+.act3geo-menu-item svg {
+  flex: 0 0 auto !important;
+  font-size: 28px !important;
+  transition: transform 0.25s ease !important;
+}
+
+.act3geo-menu-item:hover {
+  background: #eef5ff !important;
+  color: #111827 !important;
+  transform: translateX(7px) scale(1.02) !important;
+  box-shadow: 0 8px 18px rgba(0, 88, 255, 0.12) !important;
+}
+
+.act3geo-menu-item:hover svg {
+  transform: scale(1.15) rotate(-4deg) !important;
+}
+
+.act3geo-menu-item.act3geo-active,
+.act3geo-menu-item.act3geo-active:hover {
+  background: #0058ff !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 24px rgba(0, 88, 255, 0.22) !important;
+}
+
+.act3geo-sidebar-progress-area {
+  width: 100% !important;
+  margin-top: 28px !important;
+  padding-top: 0 !important;
+  flex: 0 0 auto !important;
+}
+
+.act3geo-side-week-card {
+  width: 100% !important;
+  min-height: 98px !important;
+  padding: 16px 15px !important;
+  border: 1px solid #e7edf8 !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.09) !important;
+}
+
+.act3geo-side-week-head {
+  margin-bottom: 13px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+}
+
+.act3geo-side-week-head strong,
+.act3geo-side-week-head span {
+  color: #061331 !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  white-space: nowrap !important;
+}
+
+.act3geo-side-progress {
+  display: grid !important;
+  grid-template-columns: 22px minmax(60px, 1fr) 42px !important;
+  align-items: center !important;
+  gap: 9px !important;
+}
+
+.act3geo-side-progress > span {
+  color: #ffb703 !important;
+  font-size: 24px !important;
+  line-height: 1 !important;
+}
+
+.act3geo-side-progress div {
+  width: 100% !important;
+  height: 12px !important;
+  border-radius: 999px !important;
+  background: #ffe5b4 !important;
+  overflow: hidden !important;
+}
+
+.act3geo-side-progress b {
+  display: block !important;
+  width: 60% !important;
+  height: 100% !important;
+  border-radius: inherit !important;
+  background: #ff9f00 !important;
+}
+
+.act3geo-side-progress strong {
+  color: #061331 !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+}
+
+/* =========================================================
+   PAUSA GENERAL
+   ========================================================= */
+
+.act3geo-door-stage {
+  position: relative;
+}
+
+.act3geo-pause-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  border-radius: 32px;
+  background: rgba(6, 19, 49, 0.76);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  text-align: center;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.act3geo-pause-layer svg {
+  font-size: 50px;
+}
+
+.act3geo-pause-layer strong {
+  font-size: 20px;
+  font-weight: 950;
+}
+
+.act3geo-pause-layer span {
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.act3geo-option:disabled,
+.act3geo-check-btn:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.58;
+  transform: none !important;
+}
+
+.act3geo-activity-paused .act3geo-open-pistas-card,
+.act3geo-activity-paused .act3geo-profe-card {
+  cursor: not-allowed !important;
+}
+
+@media (max-width: 1199px) and (min-width: 992px) {
+  .act3geo-page {
+    padding-left: 270px !important;
+  }
+
+  .act3geo-sidebar {
+    width: 270px !important;
+    min-width: 270px !important;
+    padding: 32px 22px 22px !important;
+  }
+
+  .act3geo-sidebar-logo {
+    width: 178px !important;
+    margin-bottom: 28px !important;
+  }
+
+  .act3geo-sidebar-menu {
+    gap: 15px !important;
+  }
+
+  .act3geo-menu-item {
+    min-height: 56px !important;
+    padding: 0 13px !important;
+    gap: 15px !important;
+    font-size: 14px !important;
+  }
+
+  .act3geo-menu-item svg {
+    font-size: 24px !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .act3geo-page {
+    padding-left: 0 !important;
+  }
+
+  .act3geo-hamburger-btn {
+    display: flex !important;
+    position: fixed !important;
+    top: 24px !important;
+    left: 22px !important;
+    z-index: 120 !important;
+    width: 76px !important;
+    height: 76px !important;
+    border: 0 !important;
+    border-radius: 22px !important;
+    background: #ffffff !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 10px 24px rgba(0, 88, 255, 0.2) !important;
+    cursor: pointer !important;
+  }
+
+  .act3geo-hamburger-btn.act3geo-hamburger-open {
+    display: none !important;
+  }
+
+  .act3geo-hamburger-btn img {
+    width: 52px !important;
+    height: 52px !important;
+    object-fit: contain !important;
+  }
+
+  .act3geo-sidebar {
+    inset: 0 auto 0 0 !important;
+    left: -320px !important;
+    width: 285px !important;
+    min-width: 285px !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    padding: 38px 28px 22px !important;
+    border-radius: 0 34px 34px 0 !important;
+    transition: left 0.3s ease !important;
+  }
+
+  .act3geo-sidebar.act3geo-sidebar-open {
+    left: 0 !important;
+  }
+
+  .act3geo-menu-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 100 !important;
+    display: block !important;
+    border: 0 !important;
+    background: rgba(0, 0, 0, 0.28) !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .act3geo-hamburger-btn {
+    top: 18px !important;
+    left: 16px !important;
+    width: 66px !important;
+    height: 66px !important;
+    border-radius: 18px !important;
+  }
+
+  .act3geo-hamburger-btn img {
+    width: 46px !important;
+    height: 46px !important;
+  }
+
+  .act3geo-sidebar {
+    left: -300px !important;
+    width: 275px !important;
+    min-width: 275px !important;
+    padding: 38px 22px 24px !important;
+  }
+
+  .act3geo-sidebar.act3geo-sidebar-open {
+    left: 0 !important;
+  }
+
+  .act3geo-sidebar-logo {
+    width: 150px !important;
+    margin-bottom: 24px !important;
+  }
+
+  .act3geo-sidebar-menu {
+    gap: 13px !important;
+  }
+
+  .act3geo-menu-item {
+    min-height: 54px !important;
+    padding: 0 13px !important;
+    gap: 15px !important;
+    font-size: 13.5px !important;
+  }
+
+  .act3geo-pause-layer strong {
+    font-size: 17px;
+  }
+
+  .act3geo-pause-layer svg {
+    font-size: 42px;
+  }
+}
+
+/* =========================================================
+   MEJORA FINAL — RESUMEN DE ACTIVIDAD
+   Corrige el bloque de Retos, Tiempo, XP, Cristales y Errores.
+   Solo modifica este resumen; no altera retos, modales ni lógica.
+   ========================================================= */
+
+.act3geo-side-stats {
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 12px !important;
+  border-radius: 22px !important;
+  background: rgba(255, 255, 255, 0.78) !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-auto-rows: minmax(84px, auto) !important;
+  align-content: start !important;
+  gap: 10px !important;
+  overflow: visible !important;
+  box-shadow:
+    0 16px 32px rgba(15, 23, 42, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.act3geo-side-stats article,
+.act3geo-side-stats article:nth-child(2n),
+.act3geo-side-stats article:nth-child(4n),
+.act3geo-side-stats article:last-child {
+  min-width: 0 !important;
+  min-height: 84px !important;
+  padding: 14px 13px !important;
+  border: 1px solid #e9eff8 !important;
+  border-radius: 17px !important;
+  background: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 11px !important;
+  overflow: hidden !important;
+  box-shadow:
+    0 9px 18px rgba(15, 23, 42, 0.055),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease !important;
+}
+
+.act3geo-side-stats article:hover {
+  transform: translateY(-3px) !important;
+  border-color: #cddcff !important;
+  box-shadow: 0 14px 24px rgba(0, 88, 255, 0.11) !important;
+}
+
+.act3geo-side-stats article:last-child {
+  grid-column: 1 / -1 !important;
+  min-height: 76px !important;
+  justify-content: center !important;
+  background: linear-gradient(
+    135deg,
+    #f8fbff 0%,
+    #ffffff 58%,
+    #fff8ec 100%
+  ) !important;
+}
+
+.act3geo-side-stats article > div {
+  min-width: 0 !important;
+}
+
+.act3geo-side-stats svg,
+.act3geo-side-stats .act3geo-star,
+.act3geo-side-stats .act3geo-gem {
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  border-radius: 13px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 8px !important;
+  font-size: 22px !important;
+  line-height: 1 !important;
+  flex: 0 0 auto !important;
+  text-shadow: none !important;
+}
+
+.act3geo-side-stats article:nth-child(1) svg {
+  color: #0058ff !important;
+  background: #eaf2ff !important;
+}
+
+.act3geo-side-stats article:nth-child(2) svg {
+  color: #0aa85a !important;
+  background: #eafaf1 !important;
+}
+
+.act3geo-side-stats article:nth-child(3) .act3geo-star {
+  color: #ff9f00 !important;
+  background: #fff4d8 !important;
+}
+
+.act3geo-side-stats article:nth-child(4) .act3geo-gem {
+  color: #a83ff0 !important;
+  background: #f6eaff !important;
+}
+
+.act3geo-side-stats article:nth-child(5) svg {
+  color: #e24b4b !important;
+  background: #fff0f0 !important;
+}
+
+.act3geo-side-stats
+  span:not(.act3geo-star):not(.act3geo-coin):not(.act3geo-gem) {
+  margin: 0 0 4px !important;
+  color: #667085 !important;
+  font-size: 10.5px !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.15px !important;
+}
+
+.act3geo-side-stats strong {
+  display: block !important;
+  margin: 0 !important;
+  color: #061331 !important;
+  font-size: 19px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  white-space: nowrap !important;
+}
+
+/* Laptop chica: el resumen ocupa una tarjeta completa y ordenada */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .act3geo-side-stats {
+    min-height: 0 !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-auto-rows: minmax(80px, auto) !important;
+  }
+
+  .act3geo-side-stats article,
+  .act3geo-side-stats article:nth-child(2n),
+  .act3geo-side-stats article:last-child {
+    min-height: 80px !important;
+  }
+}
+
+/* Tablet: cinco indicadores distribuidos sin huecos */
+@media (min-width: 768px) and (max-width: 991px) {
+  .act3geo-side-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .act3geo-side-stats article:last-child {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+/* Celular grande */
+@media (min-width: 576px) and (max-width: 767px) {
+  .act3geo-side-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    padding: 10px !important;
+    gap: 9px !important;
+  }
+
+  .act3geo-side-stats article,
+  .act3geo-side-stats article:nth-child(2n),
+  .act3geo-side-stats article:last-child {
+    min-height: 76px !important;
+    padding: 12px !important;
+  }
+}
+
+/* Celular chico: una columna compacta */
+@media (max-width: 575px) {
+  .act3geo-side-stats {
+    grid-template-columns: 1fr !important;
+    grid-auto-rows: auto !important;
+    padding: 10px !important;
+    gap: 9px !important;
+  }
+
+  .act3geo-side-stats article,
+  .act3geo-side-stats article:nth-child(2n),
+  .act3geo-side-stats article:nth-child(4n),
+  .act3geo-side-stats article:last-child {
+    grid-column: auto !important;
+    min-height: 70px !important;
+    padding: 11px 13px !important;
+    justify-content: flex-start !important;
+  }
+
+  .act3geo-side-stats svg,
+  .act3geo-side-stats .act3geo-star,
+  .act3geo-side-stats .act3geo-gem {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    font-size: 20px !important;
+  }
+
+  .act3geo-side-stats strong {
+    font-size: 18px !important;
+  }
+}
+
+/* =========================================================
+   CORRECCIÓN FINAL — QUITAR ESPACIO BLANCO DE ESTADÍSTICAS
+   =========================================================
+   El panel de Retos, Tiempo, XP, Cristales y Errores ahora
+   toma únicamente la altura de sus tarjetas.
+   No modifica la lógica ni el resto del diseño.
+   ========================================================= */
+
+.act3geo-right-panel {
+  height: auto !important;
+  min-height: 0 !important;
+  grid-template-rows: auto auto auto !important;
+  align-content: start !important;
+  align-self: start !important;
+}
+
+.act3geo-side-stats {
+  height: auto !important;
+  min-height: 0 !important;
+  align-self: start !important;
+  align-content: start !important;
+  grid-auto-rows: auto !important;
+  overflow: visible !important;
+}
+
+.act3geo-side-stats article,
+.act3geo-side-stats article:nth-child(2n),
+.act3geo-side-stats article:nth-child(4n),
+.act3geo-side-stats article:last-child {
+  height: auto !important;
+  min-height: 84px !important;
+}
+
+.act3geo-side-stats article:last-child {
+  min-height: 86px !important;
+}
+
+/* Laptop grande */
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .act3geo-right-panel {
+    grid-template-rows: auto auto auto !important;
+  }
+
+  .act3geo-side-stats {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+}
+
+/* Laptop chica, tablet y celulares */
+@media (max-width: 1199px) {
+  .act3geo-right-panel {
+    height: auto !important;
+    min-height: 0 !important;
+    grid-template-rows: auto !important;
+    align-content: start !important;
+  }
+
+  .act3geo-side-stats {
+    height: auto !important;
+    min-height: 0 !important;
+    align-self: start !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .act3geo-side-stats article,
+  .act3geo-side-stats article:nth-child(2n),
+  .act3geo-side-stats article:nth-child(4n),
+  .act3geo-side-stats article:last-child {
+    min-height: 70px !important;
+  }
+}

@@ -10902,3 +10902,370 @@ video {
     height: 124px !important;
   }
 }
+
+/* =========================================================
+   MENÚ Y PAUSA GENERAL - ACTIVIDAD 2
+   El diseño del menú conserva los colores propios de la Actividad 2.
+   La barra de progreso continúa en color naranja.
+   ========================================================= */
+
+.act2geo-challenge-card {
+  position: relative;
+}
+
+.act2geo-activity-pause-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  border-radius: inherit;
+  background: rgba(6, 19, 49, 0.78);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.act2geo-activity-pause-overlay svg {
+  font-size: 52px;
+}
+
+.act2geo-activity-pause-overlay strong {
+  font-size: 21px;
+  font-weight: 900;
+}
+
+.act2geo-activity-pause-overlay span {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.act2geo-activity-paused .act2geo-option-card,
+.act2geo-activity-paused .act2geo-profesor-card,
+.act2geo-activity-paused .act2geo-open-pistas-card,
+.act2geo-activity-paused .act2geo-check-btn {
+  cursor: not-allowed;
+}
+
+/* Se conserva explícitamente la barra naranja original de la Actividad 2. */
+.act2geo-side-progress b {
+  background: #ff9f00;
+}
+
+@media (max-width: 575px) {
+  .act2geo-activity-pause-overlay strong {
+    font-size: 18px;
+  }
+
+  .act2geo-activity-pause-overlay svg {
+    font-size: 44px;
+  }
+}
+
+/* =========================================================
+   MENÚ FINAL ACTIVIDAD 2 — COPIA VISUAL EXACTA DE ACTIVIDAD 6
+   Solo se conserva naranja la barra de progreso.
+   ========================================================= */
+
+.act2geo-page {
+  padding-left: 305px !important;
+}
+
+.act2geo-hamburger-btn {
+  display: none !important;
+}
+
+.act2geo-sidebar {
+  position: fixed !important;
+  inset: 0 auto 0 0 !important;
+  z-index: 90 !important;
+  width: 305px !important;
+  min-width: 305px !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  padding: 38px 28px 22px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  background: #ffffff !important;
+  border-radius: 0 34px 34px 0 !important;
+  box-shadow: 12px 0 32px rgba(15, 23, 42, 0.08) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.act2geo-sidebar::-webkit-scrollbar {
+  width: 0 !important;
+}
+
+.act2geo-sidebar-logo {
+  width: 205px !important;
+  max-width: 100% !important;
+  margin-bottom: 34px !important;
+  flex: 0 0 auto !important;
+}
+
+.act2geo-sidebar-menu {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 18px !important;
+  flex: 0 0 auto !important;
+}
+
+.act2geo-menu-item {
+  width: 100% !important;
+  min-height: 60px !important;
+  padding: 0 20px !important;
+  border: 0 !important;
+  border-radius: 14px !important;
+  background: transparent !important;
+  color: #111827 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 20px !important;
+  text-align: left !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  cursor: pointer !important;
+  transition: 0.25s ease !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.act2geo-menu-item span {
+  line-height: 1.18 !important;
+}
+
+.act2geo-menu-item svg {
+  flex: 0 0 auto !important;
+  font-size: 28px !important;
+  transition: transform 0.25s ease !important;
+}
+
+.act2geo-menu-item:hover {
+  background: #eef5ff !important;
+  color: #111827 !important;
+  transform: translateX(7px) scale(1.02) !important;
+  box-shadow: 0 8px 18px rgba(0, 88, 255, 0.12) !important;
+}
+
+.act2geo-menu-item:hover svg {
+  transform: scale(1.15) rotate(-4deg) !important;
+}
+
+.act2geo-menu-item.act2geo-active,
+.act2geo-menu-item.act2geo-active:hover {
+  background: #0058ff !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 24px rgba(0, 88, 255, 0.22) !important;
+}
+
+.act2geo-sidebar-progress-area {
+  width: 100% !important;
+  margin-top: 28px !important;
+  padding-top: 0 !important;
+  flex: 0 0 auto !important;
+}
+
+.act2geo-side-week-card {
+  width: 100% !important;
+  min-height: 98px !important;
+  padding: 16px 15px !important;
+  border: 1px solid #e7edf8 !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.09) !important;
+}
+
+.act2geo-side-week-head {
+  margin-bottom: 13px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+}
+
+.act2geo-side-week-head strong,
+.act2geo-side-week-head span {
+  color: #061331 !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  white-space: nowrap !important;
+}
+
+.act2geo-side-progress {
+  display: grid !important;
+  grid-template-columns: 22px minmax(60px, 1fr) 42px !important;
+  align-items: center !important;
+  gap: 9px !important;
+}
+
+.act2geo-side-progress > span {
+  color: #ffb703 !important;
+  font-size: 24px !important;
+  line-height: 1 !important;
+}
+
+.act2geo-side-progress div {
+  width: 100% !important;
+  height: 12px !important;
+  border-radius: 999px !important;
+  background: #ffe5b4 !important;
+  overflow: hidden !important;
+}
+
+.act2geo-side-progress b {
+  display: block !important;
+  width: 60% !important;
+  height: 100% !important;
+  border-radius: inherit !important;
+  background: #ff9f00 !important;
+}
+
+.act2geo-side-progress strong {
+  color: #061331 !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+}
+
+@media (max-width: 1199px) and (min-width: 992px) {
+  .act2geo-page {
+    padding-left: 270px !important;
+  }
+
+  .act2geo-sidebar {
+    width: 270px !important;
+    min-width: 270px !important;
+    padding: 32px 22px 22px !important;
+  }
+
+  .act2geo-sidebar-logo {
+    width: 178px !important;
+    margin-bottom: 28px !important;
+  }
+
+  .act2geo-sidebar-menu {
+    gap: 15px !important;
+  }
+
+  .act2geo-menu-item {
+    min-height: 56px !important;
+    padding: 0 13px !important;
+    gap: 15px !important;
+    font-size: 14px !important;
+  }
+
+  .act2geo-menu-item svg {
+    font-size: 24px !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .act2geo-page {
+    padding-left: 0 !important;
+  }
+
+  .act2geo-hamburger-btn {
+    display: flex !important;
+    position: fixed !important;
+    top: 24px !important;
+    left: 22px !important;
+    z-index: 120 !important;
+    width: 76px !important;
+    height: 76px !important;
+    border: 0 !important;
+    border-radius: 22px !important;
+    background: #ffffff !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 10px 24px rgba(0, 88, 255, 0.2) !important;
+    cursor: pointer !important;
+  }
+
+  .act2geo-hamburger-btn.act2geo-hamburger-open {
+    display: none !important;
+  }
+
+  .act2geo-hamburger-btn img {
+    width: 52px !important;
+    height: 52px !important;
+    object-fit: contain !important;
+  }
+
+  .act2geo-sidebar {
+    inset: 0 auto 0 0 !important;
+    left: -320px !important;
+    width: 285px !important;
+    min-width: 285px !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    padding: 38px 28px 22px !important;
+    border-radius: 0 34px 34px 0 !important;
+    transition: left 0.3s ease !important;
+  }
+
+  .act2geo-sidebar.act2geo-sidebar-open {
+    left: 0 !important;
+  }
+
+  .act2geo-menu-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 100 !important;
+    border: 0 !important;
+    background: rgba(0, 0, 0, 0.28) !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .act2geo-hamburger-btn {
+    top: 18px !important;
+    left: 16px !important;
+    width: 66px !important;
+    height: 66px !important;
+    border-radius: 18px !important;
+  }
+
+  .act2geo-hamburger-btn img {
+    width: 46px !important;
+    height: 46px !important;
+  }
+
+  .act2geo-sidebar {
+    left: -300px !important;
+    width: 275px !important;
+    min-width: 275px !important;
+    padding: 38px 22px 24px !important;
+  }
+
+  .act2geo-sidebar.act2geo-sidebar-open {
+    left: 0 !important;
+  }
+
+  .act2geo-sidebar-logo {
+    width: 150px !important;
+    margin-bottom: 24px !important;
+  }
+
+  .act2geo-sidebar-menu {
+    gap: 13px !important;
+  }
+
+  .act2geo-menu-item {
+    min-height: 54px !important;
+    padding: 0 13px !important;
+    gap: 15px !important;
+    font-size: 13.5px !important;
+  }
+
+  .act2geo-menu-item svg {
+    font-size: 24px !important;
+  }
+}

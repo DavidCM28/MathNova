@@ -12,23 +12,23 @@ import {
   isGuestSession,
 } from "../../utils/authSession";
 
-import "./Actividad5MathGeometry.css";
+import "./Actividad8MathGeometry.css";
 
 import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 
-import heroBanner from "../../assets/mathGeometry/actividad5/banner_act5_MathGeometry.png";
-import reto1 from "../../assets/mathGeometry/actividad5/reto1_primer_soporte_de_puente_MathGeometry.png";
-import reto2 from "../../assets/mathGeometry/actividad5/reto2_segundo_soporte_de_puente_MathGeometry.png";
-import reto3 from "../../assets/mathGeometry/actividad5/reto3_soporte_de_la_torre_MathGeometry.png";
-import reto4 from "../../assets/mathGeometry/actividad5/reto4_puente_de_la_pendiente_MathGeometry.png";
-import reto5 from "../../assets/mathGeometry/actividad5/reto5_puente_del_gran_barranco_MathGeometry.png";
-import reto6 from "../../assets/mathGeometry/actividad5/reto6_ultimo_puente_MathGeometry.png";
+import heroBanner from "../../assets/mathGeometry/actividad8/banner_act8_MathGeometry.png";
+import reto1 from "../../assets/mathGeometry/actividad8/reto1_act8_MathGeometry.png";
+import reto2 from "../../assets/mathGeometry/actividad8/reto2_act8_MathGeometry.png";
+import reto3 from "../../assets/mathGeometry/actividad8/reto3_act8_MathGeometry.png";
+import reto4 from "../../assets/mathGeometry/actividad8/reto4_act8_MathGeometry.png";
+import reto5 from "../../assets/mathGeometry/actividad8/reto5_act8_MathGeometry.png";
+import reto6 from "../../assets/mathGeometry/actividad8/reto6_act8_MathGeometry.png";
 
-import byteImagen from "../../assets/mathGeometry/actividad5/byte-act5-mathgeometry.png";
-import profesorConsejoImagen from "../../assets/mathGeometry/actividad5/profesor_dando_consejo_actividad_5.png";
-import sombraErrorImagen from "../../assets/mathGeometry/actividad5/sombra-error_act5.png";
-import bannerCompletado from "../../assets/mathGeometry/actividad5/actividad_completada_5_banner_MathGeometry.png";
+import byteImagen from "../../assets/mathGeometry/actividad8/byte-act8-mathgeometry.png";
+import profesorConsejoImagen from "../../assets/mathGeometry/actividad8/profesor_dando_consejo_actividad_8.png";
+import sombraErrorImagen from "../../assets/mathGeometry/actividad8/sombra-error_act8.png";
+import bannerCompletado from "../../assets/mathGeometry/actividad8/actividad_completada_8_banner_MathGeometry.png";
 
 import {
   FiArrowRight,
@@ -54,12 +54,12 @@ import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 type OpcionId = "A" | "B" | "C" | "D" | "E";
 type EstadoRevision = "pendiente" | "correcto" | "incorrecto";
 type ModalId = "profesor" | "byte" | "sombra" | "completado" | null;
-type PistaAct5Id = "frente" | "linea" | "letras";
-type PersonajePistaAct5 = "Nova" | "Profesor Astro" | "Byte";
-type PersonajeAciertoAct5 = "Byte" | "Nova" | "Profesor Astro";
+type PistaAct8Id = "frente" | "linea" | "letras";
+type PersonajePistaAct8 = "Nova" | "Profesor Astro" | "Byte";
+type PersonajeAciertoAct8 = "Byte" | "Nova" | "Profesor Astro";
 
-type AciertoEspecialAct5 = {
-  personaje: PersonajeAciertoAct5;
+type AciertoEspecialAct8 = {
+  personaje: PersonajeAciertoAct8;
   audio: string;
   video: string;
   titulo: string;
@@ -85,24 +85,25 @@ type Reto = {
   correcta: OpcionId;
 };
 
-import videoNova from "../../assets/mathGeometry/actividad5/nova_explicando_act_5_MathGeometry.mp4";
-import videoProfesor from "../../assets/mathGeometry/actividad5/instrucciones_profe_astro_act_5_MathGeometry.mp4";
-import videoByte from "../../assets/mathGeometry/actividad5/byte_aciertos_y_pistas_act_5_MathGeometry.mp4";
-import videoSombra from "../../assets/mathGeometry/actividad5/act_4_sombra_error_MathGeometry_.mp4";
+import videoNova from "../../assets/mathGeometry/actividad8/nova_explicando_act_8_MathGeometry.mp4";
+import videoProfesor from "../../assets/mathGeometry/actividad8/instrucciones_profe_astro_act_8_MathGeometry.mp4";
+import videoByte from "../../assets/mathGeometry/actividad8/byte_aciertos_y_pistas_act_8_MathGeometry.mp4";
+import videoSombra from "../../assets/mathGeometry/actividad8/act_8_sombra_error_MathGeometry_.mp4";
 
-/* AUDIOS NUEVOS DE BIENVENIDA E INSTRUCCIONES DE LA ACTIVIDAD 5 */
-import audioNovaIntroduccion from "../../assets/mathGeometry/actividad5/act5_bienvenida_nova_MathGeometry.mp3";
-import audioProfesorAstro from "../../assets/mathGeometry/actividad5/act5_instrucciones_profe_MathGeometry.mp3";
-import audioPistaNova from "../../assets/mathGeometry/actividad5/act5_nova_Pista_1_Observa_los_extremos_MathGeometry.mp3";
-import audioPistaProfesor from "../../assets/mathGeometry/actividad5/act5_profe_astro_Pista_2_Compara_los_dos_lados_MathGeometry.mp3";
-import audioPistaByte from "../../assets/mathGeometry/actividad5/act5_byte_Pista_3_Segmento_inclinado_MathGeometry.mp3";
-import audioSombraError from "../../assets/mathGeometry/actividad5/act5_cuando_se_equivoca_sombra_del_error_MathGeometry.mp3";
-import audioNovaCierre from "../../assets/mathGeometry/actividad5/act5_nova_cierre_MathGeometry.mp3";
+/* ================================================================
+   AUDIOS DE LA ACTIVIDAD 8
+   ---------------------------------------------------------------
+   Los modales quedaron preparados y sin audios.
+   Cuando tengas los MP3, impórtalos aquí y reemplaza las cadenas vacías.
+   ================================================================ */
+const audioNovaIntroduccion = "";
+const audioProfesorAstro = "";
+const audioPistaNova = "";
+const audioPistaProfesor = "";
+const audioPistaByte = "";
+const audioSombraError = "";
+const audioNovaCierre = "";
 
-/*
-  Audios de bienvenida, explicación, pistas, error y cierre ya integrados.
-  Las felicitaciones flotantes permanecen desactivadas temporalmente.
-*/
 const audioByteAcierto = "";
 const audioProfesorAcierto = "";
 const audioNovaAcierto = "";
@@ -111,135 +112,105 @@ const RETOS: Reto[] = [
   {
     id: 1,
     imagen: reto1,
-    pregunta: "Selecciona el punto que está justo en la mitad del segmento.",
+    pregunta: "Selecciona las diagonales correctas del cuadrilátero.",
     opciones: [
-      { id: "B", texto: "Punto B" },
-      { id: "A", texto: "Punto A" },
-      { id: "C", texto: "Punto C" },
+      { id: "C", texto: "AB y CD" },
+      { id: "A", texto: "AC y BD" },
+      { id: "D", texto: "AD y BC" },
+      { id: "B", texto: "AB y BC" },
     ],
-    correcta: "B",
+    correcta: "A",
   },
   {
     id: 2,
     imagen: reto2,
-    pregunta: "¿Qué número está exactamente en el punto medio del segmento?",
+    pregunta: "Identifica las diagonales que unen vértices opuestos.",
     opciones: [
-      { id: "A", texto: "Punto 1" },
-      { id: "B", texto: "Punto 2" },
-      { id: "D", texto: "Punto 4" },
-      { id: "E", texto: "Punto 5" },
-      { id: "C", texto: "Punto 3" },
+      { id: "B", texto: "EF y GH" },
+      { id: "D", texto: "EH y FG" },
+      { id: "A", texto: "EG y FH" },
+      { id: "C", texto: "EF y FG" },
     ],
-    correcta: "C",
+    correcta: "A",
   },
   {
     id: 3,
     imagen: reto3,
-    pregunta:
-      "Observa el soporte vertical y elige la figura que está en el punto medio.",
+    pregunta: "Encuentra las dos diagonales del cuadrilátero.",
     opciones: [
-      { id: "A", texto: "Estrella" },
-      { id: "C", texto: "Círculo" },
-      { id: "B", texto: "Triángulo" },
+      { id: "D", texto: "IJ y KL" },
+      { id: "B", texto: "IL y JK" },
+      { id: "C", texto: "IK y JL" },
+      { id: "A", texto: "IJ y JK" },
     ],
-    correcta: "B",
+    correcta: "C",
   },
   {
     id: 4,
     imagen: reto4,
-    pregunta:
-      "Selecciona el punto que queda más cerca de la mitad del puente inclinado.",
+    pregunta: "Marca las líneas que van de un vértice al opuesto.",
     opciones: [
-      { id: "C", texto: "Punto R" },
-      { id: "A", texto: "Punto P" },
-      { id: "D", texto: "Punto S" },
-      { id: "B", texto: "Punto Q" },
+      { id: "A", texto: "MN y PO" },
+      { id: "C", texto: "MP y NO" },
+      { id: "B", texto: "MO y NP" },
+      { id: "D", texto: "MN y NO" },
     ],
-    correcta: "C",
+    correcta: "B",
   },
   {
     id: 5,
     imagen: reto5,
-    pregunta: "Encuentra el punto medio del puente del gran barranco.",
+    pregunta: "Ubica las diagonales internas correctas.",
     opciones: [
-      { id: "A", texto: "Punto B" },
-      { id: "C", texto: "Punto D" },
-      { id: "B", texto: "Punto C" },
-      { id: "D", texto: "Punto E" },
+      { id: "C", texto: "QR y TS" },
+      { id: "A", texto: "QS y RT" },
+      { id: "D", texto: "QT y RS" },
+      { id: "B", texto: "QR y RS" },
     ],
-    correcta: "C",
+    correcta: "A",
   },
   {
     id: 6,
     imagen: reto6,
-    pregunta:
-      "Selecciona la figura que está exactamente en la mitad del último puente.",
+    pregunta: "Selecciona el par de diagonales del cuadrilátero.",
     opciones: [
-      { id: "A", texto: "Rombo" },
-      { id: "C", texto: "Cuadrado" },
-      { id: "E", texto: "Corazón" },
-      { id: "B", texto: "Círculo" },
-      { id: "D", texto: "Estrella" },
+      { id: "B", texto: "UX y VW" },
+      { id: "D", texto: "UV y XW" },
+      { id: "C", texto: "UW y XV" },
+      { id: "A", texto: "UV y VW" },
     ],
     correcta: "C",
   },
 ];
 
-const GUION_NOVA_INTRODUCCION = [
-  "¡Hola, explorador de MathNova!",
-  "Hoy entraremos al Taller del Ingeniero.",
-  "Necesitamos construir varios puentes para avanzar por el camino.",
-  "Observa cada segmento y elige el punto que está justo en la mitad.",
-  "¡Vamos a comenzar la misión!",
-];
-
-const GUION_PROFESOR_ASTRO = [
-  "Un segmento es una línea que tiene dos extremos.",
-  "El punto medio está exactamente entre esos dos extremos.",
-  "Tu tarea será observar el segmento y elegir el punto que lo divide en dos partes iguales.",
-  "Fíjate si queda el mismo espacio a la izquierda y a la derecha.",
-  "Cuando elijas tu respuesta, comprobaremos si el soporte quedó justo en el centro del puente.",
-];
+const GUION_NOVA_INTRODUCCION = [""];
+const GUION_PROFESOR_ASTRO = [""];
+const GUION_SOMBRA_ERROR = [""];
+const GUION_NOVA_CIERRE = [""];
 
 const TEXTO_INICIAL_NOVA =
-  "Presiona reproducir para escuchar la introducción de Nova.";
-const TEXTO_FINAL_NOVA = "¡Vamos a comenzar la misión!";
-const TEXTO_INICIAL_PROFESOR =
-  "Presiona reproducir para escuchar la explicación del Profesor Astro.";
-const TEXTO_FINAL_PROFESOR =
-  "Comprobaremos si el soporte quedó justo en el centro del puente.";
+  "Aquí podrás agregar después el texto y audio de introducción de Nova.";
+const TEXTO_FINAL_NOVA = "";
 
-const GUION_SOMBRA_ERROR = [
-  "Casi lo logras.",
-  "Observa otra vez los dos extremos del segmento.",
-  "Compara el espacio que queda a cada lado del punto.",
-  "Recuerda: el punto medio debe estar justo en el centro.",
-  "¡Inténtalo una vez más!",
-];
+const TEXTO_INICIAL_PROFESOR =
+  "Aquí podrás agregar después las instrucciones del Profesor Astro.";
+const TEXTO_FINAL_PROFESOR = "";
 
 const TEXTO_INICIAL_SOMBRA =
-  "Presiona reproducir para escuchar el mensaje de Sombra.";
-const TEXTO_FINAL_SOMBRA = "¡Inténtalo una vez más!";
-
-const GUION_NOVA_CIERRE = [
-  "¡Misión completada!",
-  "Construiste los puentes del Taller del Ingeniero.",
-  "Hoy aprendiste que el punto medio divide un segmento en dos partes iguales.",
-  "Cada puente completado quedó registrado como evidencia de tu avance.",
-  "¡Muy buen trabajo, ingeniero de MathNova!",
-];
+  "Aquí podrás agregar después el mensaje de error de Sombra.";
+const TEXTO_FINAL_SOMBRA = "";
 
 const TEXTO_INICIAL_COMPLETADO =
-  "Presiona reproducir para escuchar el mensaje final de Nova.";
-const TEXTO_FINAL_COMPLETADO = "¡Muy buen trabajo, ingeniero de MathNova!";
+  "Aquí podrás agregar después el mensaje final de Nova.";
+const TEXTO_FINAL_COMPLETADO = "";
 
-const PISTAS_ACT5: Record<
-  PistaAct5Id,
+const PISTAS_ACT8: Record<
+  PistaAct8Id,
   {
-    id: PistaAct5Id;
+    id: PistaAct8Id;
     titulo: string;
     subtitulo: string;
-    personaje: PersonajePistaAct5;
+    personaje: PersonajePistaAct8;
     audio: string;
     video: string;
     guion: string[];
@@ -247,49 +218,34 @@ const PISTAS_ACT5: Record<
 > = {
   frente: {
     id: "frente",
-    titulo: "Pista 1: Extremos",
-    subtitulo: "Pista espacial",
+    titulo: "Pista 1",
+    subtitulo: "Texto pendiente",
     personaje: "Nova",
     audio: audioPistaNova,
     video: videoNova,
-    guion: [
-      "Pista espacial:",
-      "Mira dónde comienza y dónde termina el segmento.",
-      "Después busca el punto que queda justo entre los dos extremos.",
-      "¡Ese puede ser el centro del puente!",
-    ],
+    guion: [""],
   },
   linea: {
     id: "linea",
-    titulo: "Pista 2: Dos Lados",
-    subtitulo: "Pista de ingeniero",
+    titulo: "Pista 2",
+    subtitulo: "Texto pendiente",
     personaje: "Profesor Astro",
     audio: audioPistaProfesor,
     video: videoProfesor,
-    guion: [
-      "Pista de ingeniero:",
-      "Imagina que el punto divide el puente en dos partes.",
-      "Elige el punto donde ambos lados se vean del mismo tamaño.",
-      "Si las dos partes son iguales, encontraste el punto medio.",
-    ],
+    guion: [""],
   },
   letras: {
     id: "letras",
-    titulo: "Pista 3: Inclinado",
-    subtitulo: "Pista de análisis",
+    titulo: "Pista 3",
+    subtitulo: "Texto pendiente",
     personaje: "Byte",
     audio: audioPistaByte,
     video: videoByte,
-    guion: [
-      "Pista de análisis:",
-      "Aunque el segmento esté inclinado, el punto medio sigue estando en la mitad.",
-      "No importa si va horizontal, vertical o diagonal.",
-      "Observa los extremos y busca el centro.",
-    ],
+    guion: [""],
   },
 };
 
-const ORDEN_PISTAS_ACT5: PistaAct5Id[] = ["frente", "linea", "letras"];
+const ORDEN_PISTAS_ACT8: PistaAct8Id[] = ["frente", "linea", "letras"];
 const TEXTO_INICIAL_PISTA = "Elige una de las tres pistas para escucharla.";
 
 /*
@@ -297,7 +253,7 @@ const TEXTO_INICIAL_PISTA = "Elige una de las tres pistas para escucharla.";
   Así, al acertar, el botón "Siguiente" se habilita inmediatamente y
   permite avanzar sin esperar una animación o audio que todavía no existe.
 */
-const ACIERTOS_ESPECIALES_ACT5: Partial<Record<number, AciertoEspecialAct5>> =
+const ACIERTOS_ESPECIALES_ACT8: Partial<Record<number, AciertoEspecialAct8>> =
   {};
 
 function obtenerTextoSincronizado(
@@ -539,11 +495,11 @@ function VideoCanvasTransparente({
   }, [restartSignal]);
 
   return (
-    <div className={`act5geo-transparent-video ${className}`}>
+    <div className={`act8geo-transparent-video ${className}`}>
       <video
         ref={videoRef}
         src={src}
-        className="act5geo-source-video"
+        className="act8geo-source-video"
         muted
         playsInline
         aria-label={label}
@@ -551,18 +507,18 @@ function VideoCanvasTransparente({
       />
       <canvas
         ref={canvasRef}
-        className={`${canvasClassName} ${videoListo ? "act5geo-canvas-visible" : ""}`}
+        className={`${canvasClassName} ${videoListo ? "act8geo-canvas-visible" : ""}`}
         aria-label={label}
       />
 
       {!videoListo && !videoError && (
-        <div className="act5geo-video-loading" aria-hidden="true">
+        <div className="act8geo-video-loading" aria-hidden="true">
           <span />
         </div>
       )}
 
       {videoError && (
-        <div className="act5geo-video-error">
+        <div className="act8geo-video-error">
           No se pudo cargar la animación.
         </div>
       )}
@@ -570,7 +526,7 @@ function VideoCanvasTransparente({
   );
 }
 
-function Actividad5MathGeometry() {
+function Actividad8MathGeometry() {
   const navigate = useNavigate();
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -606,7 +562,7 @@ function Actividad5MathGeometry() {
 
   /* Pistas de Nova, Profesor Astro y Byte. */
   const [pistaSeleccionada, setPistaSeleccionada] =
-    useState<PistaAct5Id>("frente");
+    useState<PistaAct8Id>("frente");
   const [textoPista, setTextoPista] = useState(TEXTO_INICIAL_PISTA);
   const [indicePistaActivo, setIndicePistaActivo] = useState(-1);
   const [progresoPistaActivo, setProgresoPistaActivo] = useState(0);
@@ -624,7 +580,7 @@ function Actividad5MathGeometry() {
 
   /* Tres felicitaciones automáticas: Byte, Nova y Profesor Astro. */
   const [aciertoEspecial, setAciertoEspecial] =
-    useState<AciertoEspecialAct5 | null>(null);
+    useState<AciertoEspecialAct8 | null>(null);
   const [aciertoEspecialReproduciendo, setAciertoEspecialReproduciendo] =
     useState(false);
   const [reinicioAciertoEspecial, setReinicioAciertoEspecial] = useState(0);
@@ -633,7 +589,7 @@ function Actividad5MathGeometry() {
   const retoAciertoEspecialRef = useRef<number | null>(null);
 
   const reto = RETOS[retoActual];
-  const pistaActiva = PISTAS_ACT5[pistaSeleccionada];
+  const pistaActiva = PISTAS_ACT8[pistaSeleccionada];
   const progreso = Math.round((completados / RETOS.length) * 100);
 
   const tiempo = useMemo(() => {
@@ -755,12 +711,12 @@ function Actividad5MathGeometry() {
     const body = document.body;
     const html = document.documentElement;
 
-    body.classList.toggle("act5geo-body-locked", bloquear);
-    html.classList.toggle("act5geo-html-locked", bloquear);
+    body.classList.toggle("act8geo-body-locked", bloquear);
+    html.classList.toggle("act8geo-html-locked", bloquear);
 
     return () => {
-      body.classList.remove("act5geo-body-locked");
-      html.classList.remove("act5geo-html-locked");
+      body.classList.remove("act8geo-body-locked");
+      html.classList.remove("act8geo-html-locked");
     };
   }, [menuOpen, modal]);
 
@@ -849,7 +805,7 @@ function Actividad5MathGeometry() {
     setProgresoProfesorActivo(estado.progresoLinea);
   };
 
-  const seleccionarPista = (id: PistaAct5Id) => {
+  const seleccionarPista = (id: PistaAct8Id) => {
     audioPistaRef.current?.pause();
     if (audioPistaRef.current) audioPistaRef.current.currentTime = 0;
     setPistaSeleccionada(id);
@@ -1090,7 +1046,7 @@ function Actividad5MathGeometry() {
   };
 
   const iniciarAciertoEspecial = (
-    configuracion: AciertoEspecialAct5,
+    configuracion: AciertoEspecialAct8,
     indiceReto: number,
   ) => {
     retoAciertoEspecialRef.current = indiceReto;
@@ -1186,7 +1142,7 @@ function Actividad5MathGeometry() {
     if (seleccion === reto.correcta) {
       setRevision("correcto");
 
-      const configuracionAcierto = ACIERTOS_ESPECIALES_ACT5[retoActual];
+      const configuracionAcierto = ACIERTOS_ESPECIALES_ACT8[retoActual];
 
       if (configuracionAcierto) {
         iniciarAciertoEspecial(configuracionAcierto, retoActual);
@@ -1305,11 +1261,11 @@ function Actividad5MathGeometry() {
         : "Mensaje de Sombra";
 
   return (
-    <main className="act5geo-page">
+    <main className="act8geo-page">
       <button
         type="button"
-        className={`act5geo-hamburger-btn ${
-          menuOpen ? "act5geo-hamburger-open" : ""
+        className={`act8geo-hamburger-btn ${
+          menuOpen ? "act8geo-hamburger-open" : ""
         }`}
         onClick={() => setMenuOpen((valor) => !valor)}
         aria-label="Abrir menú"
@@ -1320,21 +1276,21 @@ function Actividad5MathGeometry() {
       {menuOpen && (
         <button
           type="button"
-          className="act5geo-menu-overlay"
+          className="act8geo-menu-overlay"
           onClick={() => setMenuOpen(false)}
           aria-label="Cerrar menú"
         />
       )}
 
       <aside
-        className={`act5geo-sidebar ${menuOpen ? "act5geo-sidebar-open" : ""}`}
+        className={`act8geo-sidebar ${menuOpen ? "act8geo-sidebar-open" : ""}`}
       >
-        <img src={logo} alt="MathNova" className="act5geo-sidebar-logo" />
+        <img src={logo} alt="MathNova" className="act8geo-sidebar-logo" />
 
-        <nav className="act5geo-sidebar-menu">
+        <nav className="act8geo-sidebar-menu">
           <button
             type="button"
-            className="act5geo-menu-item"
+            className="act8geo-menu-item"
             onClick={() => irARuta(obtenerDashboardPrincipal())}
           >
             <FiGrid />
@@ -1343,7 +1299,7 @@ function Actividad5MathGeometry() {
 
           <button
             type="button"
-            className="act5geo-menu-item act5geo-active"
+            className="act8geo-menu-item act8geo-active"
             onClick={() => irARuta("/seleccion-mundos")}
           >
             <GiRingedPlanet />
@@ -1352,7 +1308,7 @@ function Actividad5MathGeometry() {
 
           <button
             type="button"
-            className="act5geo-menu-item"
+            className="act8geo-menu-item"
             onClick={() => irARuta("/retroalimentacion")}
           >
             <FiMessageSquare />
@@ -1361,7 +1317,7 @@ function Actividad5MathGeometry() {
 
           <button
             type="button"
-            className="act5geo-menu-item"
+            className="act8geo-menu-item"
             onClick={() => irARuta("/recompensas")}
           >
             <GiTrophyCup />
@@ -1370,7 +1326,7 @@ function Actividad5MathGeometry() {
 
           <button
             type="button"
-            className="act5geo-menu-item"
+            className="act8geo-menu-item"
             onClick={() => irARuta("/perfil-alumno")}
           >
             <FiUser />
@@ -1379,7 +1335,7 @@ function Actividad5MathGeometry() {
 
           <button
             type="button"
-            className="act5geo-menu-item"
+            className="act8geo-menu-item"
             onClick={() => irARuta("/estadisticas")}
           >
             <FiBarChart2 />
@@ -1387,14 +1343,14 @@ function Actividad5MathGeometry() {
           </button>
         </nav>
 
-        <div className="act5geo-sidebar-progress-area">
-          <article className="act5geo-side-week-card">
-            <div className="act5geo-side-week-head">
+        <div className="act8geo-sidebar-progress-area">
+          <article className="act8geo-side-week-card">
+            <div className="act8geo-side-week-head">
               <strong>Progreso semanal</strong>
               <span>Nivel 3</span>
             </div>
 
-            <div className="act5geo-side-progress">
+            <div className="act8geo-side-progress">
               <span>★</span>
               <div>
                 <b style={{ width: "60%" }} />
@@ -1405,15 +1361,15 @@ function Actividad5MathGeometry() {
         </div>
       </aside>
 
-      <section className="act5geo-content">
+      <section className="act8geo-content">
         <img
           src={heroBanner}
-          alt="Banner Actividad 5: El Taller del Ingeniero"
-          className="act5geo-bg"
+          alt="Banner Actividad 8: El Centro de Control"
+          className="act8geo-bg"
         />
 
-        <section className="act5geo-main">
-          <div className="act5geo-breadcrumb">
+        <section className="act8geo-main">
+          <div className="act8geo-breadcrumb">
             <button type="button" onClick={() => irARuta("/seleccion-mundos")}>
               Mundos
             </button>
@@ -1429,20 +1385,20 @@ function Actividad5MathGeometry() {
 
             <span>›</span>
 
-            <button type="button" className="act5geo-breadcrumb-current">
-              Act 5
+            <button type="button" className="act8geo-breadcrumb-current">
+              Act 6
             </button>
           </div>
 
-          <header className="act5geo-topbar">
-            <div className="act5geo-title-area">
-              <h1>Actividad 5: El Taller del Ingeniero</h1>
-              <p className="act5geo-subtitle">
-                Observa cada segmento y selecciona el punto que está exactamente
-                en la mitad para construir el puente correctamente.
+          <header className="act8geo-topbar">
+            <div className="act8geo-title-area">
+              <h1>Actividad 8: El Centro de Control</h1>
+              <p className="act8geo-subtitle">
+                Observa cada ángulo y selecciona la línea que lo divide en dos
+                partes iguales para activar el escudo.
               </p>
 
-              <div className="act5geo-pills">
+              <div className="act8geo-pills">
                 <span>▣ Introducción</span>
                 <span>
                   <FiClock /> 8–12 min
@@ -1453,7 +1409,7 @@ function Actividad5MathGeometry() {
               </div>
             </div>
 
-            <div className="act5geo-actions-top">
+            <div className="act8geo-actions-top">
               <button
                 type="button"
                 onClick={() => setPausado((valor) => !valor)}
@@ -1473,15 +1429,15 @@ function Actividad5MathGeometry() {
           </header>
 
           <section
-            className={`act5geo-intro-row ${
-              novaReproduciendo && !pausado ? "act5geo-intro-playing" : ""
+            className={`act8geo-intro-row ${
+              novaReproduciendo && !pausado ? "act8geo-intro-playing" : ""
             }`}
           >
-            <div className="act5geo-nova-stage">
+            <div className="act8geo-nova-stage">
               <VideoCanvasTransparente
                 src={videoNova}
-                className="act5geo-nova-transparent-wrap"
-                canvasClassName="act5geo-nova-canvas"
+                className="act8geo-nova-transparent-wrap"
+                canvasClassName="act8geo-nova-canvas"
                 width={360}
                 height={640}
                 playing={novaReproduciendo && !pausado && modal === null}
@@ -1506,26 +1462,26 @@ function Actividad5MathGeometry() {
               }}
             />
 
-            <div className="act5geo-speech-cloud">
-              <div className="act5geo-speech-main">
-                <span className="act5geo-cloud-label">
+            <div className="act8geo-speech-cloud">
+              <div className="act8geo-speech-main">
+                <span className="act8geo-cloud-label">
                   Introducción de Nova
                 </span>
                 <p>
                   {textoNova}
                   {novaReproduciendo && (
                     <span
-                      className="act5geo-typing-cursor"
+                      className="act8geo-typing-cursor"
                       aria-hidden="true"
                     />
                   )}
                 </p>
               </div>
 
-              <div className="act5geo-nova-mini-controls">
+              <div className="act8geo-nova-mini-controls">
                 <button
                   type="button"
-                  className="act5geo-nova-control-btn act5geo-nova-control-play"
+                  className="act8geo-nova-control-btn act8geo-nova-control-play"
                   onClick={reproducirNova}
                   disabled={pausado || modal !== null}
                   title="Reproducir animación de Nova"
@@ -1536,7 +1492,7 @@ function Actividad5MathGeometry() {
 
                 <button
                   type="button"
-                  className="act5geo-nova-control-btn"
+                  className="act8geo-nova-control-btn"
                   onClick={pausarNova}
                   disabled={!novaReproduciendo}
                   title="Pausar animación de Nova"
@@ -1547,7 +1503,7 @@ function Actividad5MathGeometry() {
 
                 <button
                   type="button"
-                  className="act5geo-nova-control-btn act5geo-nova-control-repeat"
+                  className="act8geo-nova-control-btn act8geo-nova-control-repeat"
                   onClick={reiniciarIntroduccionNova}
                   disabled={pausado || modal !== null}
                   title="Reiniciar animación de Nova"
@@ -1559,22 +1515,22 @@ function Actividad5MathGeometry() {
             </div>
           </section>
 
-          <div className="act5geo-layout">
-            <section className="act5geo-game-card">
-              <div className="act5geo-challenge-head">
+          <div className="act8geo-layout">
+            <section className="act8geo-game-card">
+              <div className="act8geo-challenge-head">
                 <span>
                   <FiFlag /> Reto {retoActual + 1} de {RETOS.length}
                 </span>
               </div>
 
-              <div className="act5geo-laser-frame">
+              <div className="act8geo-laser-frame">
                 <img
                   src={reto.imagen}
-                  alt={`Reto ${reto.id}: identifica el punto medio del puente`}
+                  alt={`Reto ${reto.id}: identifica las diagonales del cuadrilátero`}
                 />
 
                 {pausado && (
-                  <div className="act5geo-pause-layer">
+                  <div className="act8geo-pause-layer">
                     <FiPause />
                     <strong>Actividad pausada</strong>
                   </div>
@@ -1584,10 +1540,10 @@ function Actividad5MathGeometry() {
               <h2>{reto.pregunta}</h2>
 
               <div
-                className="act5geo-options"
+                className="act8geo-options"
                 style={
                   {
-                    "--act5geo-option-count": reto.opciones.length,
+                    "--act8geo-option-count": reto.opciones.length,
                   } as CSSProperties
                 }
               >
@@ -1601,10 +1557,10 @@ function Actividad5MathGeometry() {
                       type="button"
                       key={opcion.id}
                       className={[
-                        "act5geo-option",
-                        `act5geo-option-color-${index + 1}`,
-                        seleccionada ? "act5geo-option-selected" : "",
-                        correcta ? "act5geo-option-correct" : "",
+                        "act8geo-option",
+                        `act8geo-option-color-${index + 1}`,
+                        seleccionada ? "act8geo-option-selected" : "",
+                        correcta ? "act8geo-option-correct" : "",
                       ]
                         .filter(Boolean)
                         .join(" ")}
@@ -1618,10 +1574,10 @@ function Actividad5MathGeometry() {
                 })}
               </div>
 
-              <div className="act5geo-game-actions">
+              <div className="act8geo-game-actions">
                 <button
                   type="button"
-                  className="act5geo-check-btn"
+                  className="act8geo-check-btn"
                   onClick={comprobar}
                   disabled={
                     !seleccion ||
@@ -1636,7 +1592,7 @@ function Actividad5MathGeometry() {
 
                 <button
                   type="button"
-                  className="act5geo-next-btn"
+                  className="act8geo-next-btn"
                   onClick={siguiente}
                   disabled={revision !== "correcto" || aciertoEspecial !== null}
                 >
@@ -1646,35 +1602,35 @@ function Actividad5MathGeometry() {
               </div>
             </section>
 
-            <aside className="act5geo-right-panel">
+            <aside className="act8geo-right-panel">
               <button
                 type="button"
-                className="act5geo-guide-card act5geo-profe-card"
+                className="act8geo-guide-card act8geo-profe-card"
                 onClick={() => setModal("profesor")}
               >
                 <img
                   src={profesorConsejoImagen}
                   alt="Profesor Astro dando un consejo"
-                  className="act5geo-guide-static-image"
+                  className="act8geo-guide-static-image"
                 />
                 <div>
                   <h3>💡 Consejo del Profesor Astro</h3>
                   <p>
                     Observa la distancia del punto a ambos extremos: si es
-                    igual, encontraste el punto medio.
+                    igual, encontraste la bisectriz.
                   </p>
-                  <span className="act5geo-guide-cta">
+                  <span className="act8geo-guide-cta">
                     <FiVolume2 />
                     Ver explicación
                   </span>
                 </div>
               </button>
 
-              <article className="act5geo-guide-card act5geo-sombra-card act5geo-sombra-static-card">
+              <article className="act8geo-guide-card act8geo-sombra-card act8geo-sombra-static-card">
                 <img
                   src={sombraErrorImagen}
                   alt="Sombra dando un aviso"
-                  className="act5geo-guide-static-image"
+                  className="act8geo-guide-static-image"
                 />
                 <div>
                   <h3>✦ ¡Aviso de Sombra!</h3>
@@ -1687,44 +1643,45 @@ function Actividad5MathGeometry() {
 
               <button
                 type="button"
-                className="act5geo-guide-card act5geo-byte-card"
+                className="act8geo-guide-card act8geo-byte-card"
                 onClick={() => setModal("byte")}
               >
                 <img
                   src={byteImagen}
                   alt="Byte"
-                  className="act5geo-guide-static-image"
+                  className="act8geo-guide-static-image"
                 />
                 <div>
                   <h3>Pista de Byte</h3>
                   <p>
-                    Abre una pista para identificar el punto medio del reto
+                    Abre una pista para identificar la bisectriz del reto
                     actual.
                   </p>
-                  <span className="act5geo-guide-cta act5geo-guide-cta-byte">
+                  <span className="act8geo-guide-cta act8geo-guide-cta-byte">
                     <FiHelpCircle />
                     Ver pista
                   </span>
                 </div>
               </button>
 
-              <article className="act5geo-progress-card">
-                <strong>Progreso de la actividad</strong>
+              <article className="act8geo-progress-card">
+                <strong>Diagonales correctas</strong>
                 <div>
                   <b style={{ width: `${progreso}%` }} />
                 </div>
                 <span>
-                  {progreso}% ({completados}/{RETOS.length})
+                  {completados}/{RETOS.length} · Tiempo {tiempo}
                 </span>
               </article>
             </aside>
           </div>
 
-          <section className="act5geo-bottom-stats">
+          {/* Barra inferior de resultados, adaptada de la Actividad 5. */}
+          <section className="act8geo-bottom-stats">
             <article>
               <FiFlag />
               <div>
-                <span>Puentes completados</span>
+                <span>Retos completados</span>
                 <strong>
                   {completados}/{RETOS.length}
                 </strong>
@@ -1747,8 +1704,8 @@ function Actividad5MathGeometry() {
               </div>
             </article>
 
-            <article className="act5geo-xp-card">
-              <span className="act5geo-star">★</span>
+            <article className="act8geo-xp-card">
+              <span className="act8geo-star">★</span>
               <div>
                 <span>XP</span>
                 <strong>{completados * 40}</strong>
@@ -1757,8 +1714,8 @@ function Actividad5MathGeometry() {
           </section>
         </section>
 
-        <footer className="act5geo-footer">
-          <div className="act5geo-footer-icons">
+        <footer className="act8geo-footer">
+          <div className="act8geo-footer-icons">
             <button type="button" onClick={() => navigate("/login")}>
               <FiLogOut />
             </button>
@@ -1778,18 +1735,18 @@ function Actividad5MathGeometry() {
 
       {aciertoEspecial && (
         <aside
-          className={`act5geo-success-toast act5geo-success-${aciertoEspecial.clase}`}
+          className={`act8geo-success-toast act8geo-success-${aciertoEspecial.clase}`}
           role="status"
           aria-live="assertive"
           aria-label={`Respuesta correcta. Habla ${aciertoEspecial.personaje}`}
         >
-          <div className="act5geo-success-aura" aria-hidden="true" />
+          <div className="act8geo-success-aura" aria-hidden="true" />
 
-          <div className="act5geo-success-character">
+          <div className="act8geo-success-character">
             <VideoCanvasTransparente
               src={aciertoEspecial.video}
-              className="act5geo-success-video-wrap"
-              canvasClassName="act5geo-success-canvas"
+              className="act8geo-success-video-wrap"
+              canvasClassName="act8geo-success-canvas"
               width={360}
               height={640}
               playing={aciertoEspecialReproduciendo}
@@ -1800,8 +1757,8 @@ function Actividad5MathGeometry() {
             />
           </div>
 
-          <div className="act5geo-success-message">
-            <span className="act5geo-success-badge">
+          <div className="act8geo-success-message">
+            <span className="act8geo-success-badge">
               <FiCheck />
               {aciertoEspecial.personaje}
             </span>
@@ -1810,7 +1767,7 @@ function Actividad5MathGeometry() {
             <p>{aciertoEspecial.mensaje}</p>
             <small>{aciertoEspecial.cierre}</small>
 
-            <div className="act5geo-success-progress" aria-hidden="true">
+            <div className="act8geo-success-progress" aria-hidden="true">
               <span />
             </div>
           </div>
@@ -1819,7 +1776,7 @@ function Actividad5MathGeometry() {
 
       {modal && modal !== "completado" && (
         <div
-          className="act5geo-modal-overlay"
+          className="act8geo-modal-overlay"
           role="presentation"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
@@ -1831,16 +1788,16 @@ function Actividad5MathGeometry() {
           }}
         >
           <section
-            className={`act5geo-character-modal ${
-              modalReproduciendo ? "act5geo-profe-modal-playing" : ""
-            } ${modal === "byte" ? "act5geo-hints-modal" : ""}`}
+            className={`act8geo-character-modal ${
+              modalReproduciendo ? "act8geo-profe-modal-playing" : ""
+            } ${modal === "byte" ? "act8geo-hints-modal" : ""}`}
             role="dialog"
             aria-modal="true"
             aria-label={tituloModal}
           >
             <button
               type="button"
-              className="act5geo-modal-close"
+              className="act8geo-modal-close"
               onClick={() => {
                 pausarProfesor();
                 pausarPista();
@@ -1852,11 +1809,11 @@ function Actividad5MathGeometry() {
               <FiX />
             </button>
 
-            <div className="act5geo-modal-character">
+            <div className="act8geo-modal-character">
               <VideoCanvasTransparente
                 src={videoModal}
-                className="act5geo-modal-video-wrap"
-                canvasClassName="act5geo-modal-canvas"
+                className="act8geo-modal-video-wrap"
+                canvasClassName="act8geo-modal-canvas"
                 width={360}
                 height={640}
                 playing={modalReproduciendo}
@@ -1919,8 +1876,8 @@ function Actividad5MathGeometry() {
               />
             )}
 
-            <div className="act5geo-modal-content">
-              <span className="act5geo-modal-badge">
+            <div className="act8geo-modal-content">
+              <span className="act8geo-modal-badge">
                 <FiVolume2 />
                 {modal === "profesor"
                   ? "Profesor Astro"
@@ -1933,18 +1890,18 @@ function Actividad5MathGeometry() {
 
               {modal === "byte" && (
                 <div
-                  className="act5geo-hint-selector"
+                  className="act8geo-hint-selector"
                   aria-label="Seleccionar pista"
                 >
-                  {ORDEN_PISTAS_ACT5.map((id, indice) => {
-                    const pista = PISTAS_ACT5[id];
+                  {ORDEN_PISTAS_ACT8.map((id, indice) => {
+                    const pista = PISTAS_ACT8[id];
                     return (
                       <button
                         key={id}
                         type="button"
                         className={
                           id === pistaSeleccionada
-                            ? "act5geo-hint-tab-active"
+                            ? "act8geo-hint-tab-active"
                             : ""
                         }
                         onClick={() => seleccionarPista(id)}
@@ -1958,7 +1915,7 @@ function Actividad5MathGeometry() {
                 </div>
               )}
 
-              <div className="act5geo-modal-cloud">
+              <div className="act8geo-modal-cloud">
                 <p>
                   {modal === "profesor"
                     ? textoProfesor
@@ -1967,17 +1924,17 @@ function Actividad5MathGeometry() {
                       : textoSombra}
                   {modalReproduciendo && (
                     <span
-                      className="act5geo-typing-cursor"
+                      className="act8geo-typing-cursor"
                       aria-hidden="true"
                     />
                   )}
                 </p>
               </div>
 
-              <div className="act5geo-modal-controls">
+              <div className="act8geo-modal-controls">
                 <button
                   type="button"
-                  className="act5geo-modal-play"
+                  className="act8geo-modal-play"
                   onClick={
                     modal === "profesor"
                       ? reproducirProfesor
@@ -2019,7 +1976,7 @@ function Actividad5MathGeometry() {
                 {modal === "sombra" && (
                   <button
                     type="button"
-                    className="act5geo-try-again-btn"
+                    className="act8geo-try-again-btn"
                     onClick={volverAIntentarlo}
                   >
                     <FiRotateCcw />
@@ -2029,7 +1986,7 @@ function Actividad5MathGeometry() {
               </div>
             </div>
 
-            <aside className="act5geo-modal-script-panel">
+            <aside className="act8geo-modal-script-panel">
               <h3>
                 {modal === "byte"
                   ? "Texto de la pista"
@@ -2039,20 +1996,20 @@ function Actividad5MathGeometry() {
               </h3>
 
               {modal === "profesor" && (
-                <div className="act5geo-modal-script-lines">
+                <div className="act8geo-modal-script-lines">
                   {GUION_PROFESOR_ASTRO.map((linea, indice) => (
                     <p
                       key={linea}
                       className={
                         indice === indiceProfesorActivo
-                          ? "act5geo-modal-script-line-active"
+                          ? "act8geo-modal-script-line-active"
                           : indice < indiceProfesorActivo
-                            ? "act5geo-modal-script-line-complete"
+                            ? "act8geo-modal-script-line-complete"
                             : ""
                       }
                       style={
                         {
-                          "--act5geo-line-progress":
+                          "--act8geo-line-progress":
                             indice < indiceProfesorActivo
                               ? 1
                               : indice === indiceProfesorActivo
@@ -2068,20 +2025,20 @@ function Actividad5MathGeometry() {
               )}
 
               {modal === "byte" && (
-                <div className="act5geo-modal-script-lines act5geo-hint-script-lines">
+                <div className="act8geo-modal-script-lines act8geo-hint-script-lines">
                   {pistaActiva.guion.map((linea, indice) => (
                     <p
                       key={`${pistaActiva.id}-${linea}`}
                       className={
                         indice === indicePistaActivo
-                          ? "act5geo-modal-script-line-active"
+                          ? "act8geo-modal-script-line-active"
                           : indice < indicePistaActivo
-                            ? "act5geo-modal-script-line-complete"
+                            ? "act8geo-modal-script-line-complete"
                             : ""
                       }
                       style={
                         {
-                          "--act5geo-line-progress":
+                          "--act8geo-line-progress":
                             indice < indicePistaActivo
                               ? 1
                               : indice === indicePistaActivo
@@ -2097,20 +2054,20 @@ function Actividad5MathGeometry() {
               )}
 
               {modal === "sombra" && (
-                <div className="act5geo-modal-script-lines act5geo-sombra-script-lines">
+                <div className="act8geo-modal-script-lines act8geo-sombra-script-lines">
                   {GUION_SOMBRA_ERROR.map((linea, indice) => (
                     <p
                       key={linea}
                       className={
                         indice === indiceSombraActivo
-                          ? "act5geo-modal-script-line-active"
+                          ? "act8geo-modal-script-line-active"
                           : indice < indiceSombraActivo
-                            ? "act5geo-modal-script-line-complete"
+                            ? "act8geo-modal-script-line-complete"
                             : ""
                       }
                       style={
                         {
-                          "--act5geo-line-progress":
+                          "--act8geo-line-progress":
                             indice < indiceSombraActivo
                               ? 1
                               : indice === indiceSombraActivo
@@ -2130,16 +2087,16 @@ function Actividad5MathGeometry() {
       )}
 
       {modal === "completado" && (
-        <div className="act5geo-modal-overlay">
+        <div className="act8geo-modal-overlay">
           <section
-            className="act5geo-complete-modal"
+            className="act8geo-complete-modal"
             role="dialog"
             aria-modal="true"
             aria-label="Actividad completada"
           >
             <button
               type="button"
-              className="act5geo-modal-close"
+              className="act8geo-modal-close"
               onClick={() => {
                 pausarCompletado();
                 setModal(null);
@@ -2149,18 +2106,18 @@ function Actividad5MathGeometry() {
               <FiX />
             </button>
 
-            <div className="act5geo-complete-hero">
+            <div className="act8geo-complete-hero">
               <img
                 src={bannerCompletado}
                 alt=""
-                className="act5geo-complete-decoration"
+                className="act8geo-complete-decoration"
                 aria-hidden="true"
               />
 
               <VideoCanvasTransparente
                 src={videoNova}
-                className="act5geo-complete-video-wrap"
-                canvasClassName="act5geo-complete-nova-canvas"
+                className="act8geo-complete-video-wrap"
+                canvasClassName="act8geo-complete-nova-canvas"
                 width={360}
                 height={640}
                 playing={completadoReproduciendo}
@@ -2184,26 +2141,26 @@ function Actividad5MathGeometry() {
               }}
             />
 
-            <div className="act5geo-complete-content">
-              <span>🏆 Taller completado</span>
-              <h2>¡Puentes completados!</h2>
+            <div className="act8geo-complete-content">
+              <span>🏆 Centro de Control activado</span>
+              <h2>¡Centro de Control activado!</h2>
 
-              <div className="act5geo-complete-cloud">
+              <div className="act8geo-complete-cloud">
                 <p>
                   {textoCompletado}
                   {completadoReproduciendo && (
                     <span
-                      className="act5geo-typing-cursor"
+                      className="act8geo-typing-cursor"
                       aria-hidden="true"
                     />
                   )}
                 </p>
               </div>
 
-              <div className="act5geo-complete-controls">
+              <div className="act8geo-complete-controls">
                 <button
                   type="button"
-                  className="act5geo-complete-play"
+                  className="act8geo-complete-play"
                   onClick={reproducirCompletado}
                 >
                   <FiPlay /> Reproducir
@@ -2222,10 +2179,10 @@ function Actividad5MathGeometry() {
                 </button>
               </div>
 
-              <div className="act5geo-complete-summary">
+              <div className="act8geo-complete-summary">
                 <article>
                   <FiCheck />
-                  <span>Puentes</span>
+                  <span>Retos</span>
                   <strong>6/6</strong>
                 </article>
                 <article>
@@ -2234,31 +2191,31 @@ function Actividad5MathGeometry() {
                   <strong>100%</strong>
                 </article>
                 <article>
-                  <span className="act5geo-summary-star">★</span>
+                  <span className="act8geo-summary-star">★</span>
                   <span>Recompensa</span>
                   <strong>+240 XP</strong>
                 </article>
               </div>
             </div>
 
-            <aside className="act5geo-complete-side">
-              <div className="act5geo-complete-transcript act5geo-complete-transcript-inline">
+            <aside className="act8geo-complete-side">
+              <div className="act8geo-complete-transcript act8geo-complete-transcript-inline">
                 <h3>Texto de Nova</h3>
 
-                <div className="act5geo-modal-script-lines">
+                <div className="act8geo-modal-script-lines">
                   {GUION_NOVA_CIERRE.map((linea, indice) => (
                     <p
                       key={linea}
                       className={
                         indice === indiceCompletadoActivo
-                          ? "act5geo-modal-script-line-active"
+                          ? "act8geo-modal-script-line-active"
                           : indice < indiceCompletadoActivo
-                            ? "act5geo-modal-script-line-complete"
+                            ? "act8geo-modal-script-line-complete"
                             : ""
                       }
                       style={
                         {
-                          "--act5geo-line-progress":
+                          "--act8geo-line-progress":
                             indice < indiceCompletadoActivo
                               ? 1
                               : indice === indiceCompletadoActivo
@@ -2273,13 +2230,13 @@ function Actividad5MathGeometry() {
                 </div>
               </div>
 
-              <div className="act5geo-complete-actions">
+              <div className="act8geo-complete-actions">
                 <button
                   type="button"
-                  onClick={() => irARuta("/actividades/geometria/actividad-6")}
+                  onClick={() => irARuta("/actividades/geometria")}
                 >
                   <FiArrowRight />
-                  Siguiente actividad
+                  Continuar explorando
                 </button>
 
                 <button type="button" onClick={reiniciar}>
@@ -2303,4 +2260,4 @@ function Actividad5MathGeometry() {
   );
 }
 
-export default Actividad5MathGeometry;
+export default Actividad8MathGeometry;

@@ -2267,7 +2267,7 @@ function Actividad4MathGeometry() {
               <div className="act4geo-complete-actions">
                 <button
                   type="button"
-                  onClick={() => irARuta("/actividades/geometria")}
+                  onClick={() => irARuta("/actividades/geometria/actividad-5")}
                 >
                   <FiArrowRight />
                   Siguiente actividad

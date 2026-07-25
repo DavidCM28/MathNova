@@ -23,6 +23,8 @@ import Actividad3MathGeometry from "./pages/ActividadesMathGeometry/Actividad3Ma
 import Actividad4MathGeometry from "./pages/ActividadesMathGeometry/Actividad4MathGeometry";
 import Actividad5MathGeometry from "./pages/ActividadesMathGeometry/Actividad5MathGeometry";
 import Actividad6MathGeometry from "./pages/ActividadesMathGeometry/Actividad6MathGeometry";
+import Actividad7MathGeometry from "./pages/ActividadesMathGeometry/Actividad7MathGeometry";
+import Actividad8MathGeometry from "./pages/ActividadesMathGeometry/Actividad8MathGeometry";
 
 import ActividadesMathData from "./pages/ActividadesMathData/ActividadesMathData";
 import GeneradorEnergiaInversa from "./pages/ActividadesMathData/GeneradorEnergiaInversa";
@@ -281,6 +283,24 @@ function App() {
           element={
             <RequireAuth rolesPermitidos={["estudiante"]}>
               <Actividad6MathGeometry />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/actividades/geometria/actividad-7"
+          element={
+            <RequireAuth rolesPermitidos={["estudiante"]}>
+              <Actividad7MathGeometry />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/actividades/geometria/actividad-8"
+          element={
+            <RequireAuth rolesPermitidos={["estudiante"]}>
+              <Actividad8MathGeometry />
             </RequireAuth>
           }
         />

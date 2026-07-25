@@ -518,6 +518,7 @@ function obtenerEstadoGuionSombra(tiempo: number, duracionAudio: number) {
 }
 function Actividad1MathGeometry() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [actividadPausada, setActividadPausada] = useState(false);
   const [textoBienvenida, setTextoBienvenida] = useState("");
   const [estadoExplicacion, setEstadoExplicacion] =
     useState<EstadoExplicacion>("inicio");
@@ -1270,6 +1271,53 @@ function Actividad1MathGeometry() {
     };
   }, [modalCompletadoOpen, autoPlayCompletado]);
 
+  const pausarTodoElContenido = () => {
+    audioNovaRef.current?.pause();
+    videoNovaRef.current?.pause();
+
+    audioProfeRef.current?.pause();
+    videoProfeRef.current?.pause();
+
+    audioByteRef.current?.pause();
+    videoByteRef.current?.pause();
+
+    audioSombraRef.current?.pause();
+    videoSombraRef.current?.pause();
+
+    audioCompletadoRef.current?.pause();
+    videoCompletadoRef.current?.pause();
+
+    if (estadoExplicacion === "reproduciendo") {
+      setEstadoExplicacion("pausado");
+    }
+
+    if (estadoProfe === "reproduciendo") {
+      setEstadoProfe("pausado");
+    }
+
+    if (estadoByte === "reproduciendo") {
+      setEstadoByte("pausado");
+    }
+
+    if (estadoSombra === "reproduciendo") {
+      setEstadoSombra("pausado");
+    }
+
+    if (estadoCompletado === "reproduciendo") {
+      setEstadoCompletado("pausado");
+    }
+  };
+
+  const alternarPausaActividad = () => {
+    if (actividadPausada) {
+      setActividadPausada(false);
+      return;
+    }
+
+    pausarTodoElContenido();
+    setActividadPausada(true);
+  };
+
   const pausarExplicacion = () => {
     const audio = audioNovaRef.current;
     const video = videoNovaRef.current;
@@ -1283,6 +1331,7 @@ function Actividad1MathGeometry() {
   };
 
   const iniciarExplicacion = async () => {
+    if (actividadPausada) return;
     const audio = audioNovaRef.current;
     const video = videoNovaRef.current;
 
@@ -1309,6 +1358,7 @@ function Actividad1MathGeometry() {
   };
 
   const repetirExplicacion = async () => {
+    if (actividadPausada) return;
     const audio = audioNovaRef.current;
     const video = videoNovaRef.current;
 
@@ -1357,6 +1407,7 @@ function Actividad1MathGeometry() {
   };
 
   const iniciarProfeAstro = async () => {
+    if (actividadPausada) return;
     if (!modalProfeOpen) {
       abrirConsejoProfe(true);
       return;
@@ -1390,6 +1441,7 @@ function Actividad1MathGeometry() {
   };
 
   const repetirProfeAstro = async () => {
+    if (actividadPausada) return;
     if (!modalProfeOpen) {
       abrirConsejoProfe(true);
       return;
@@ -1489,6 +1541,7 @@ function Actividad1MathGeometry() {
   };
 
   const iniciarByte = async () => {
+    if (actividadPausada) return;
     if (!modalByteOpen) {
       abrirPistasByte();
       return;
@@ -1537,6 +1590,7 @@ function Actividad1MathGeometry() {
   };
 
   const repetirByte = async () => {
+    if (actividadPausada) return;
     if (!modalByteOpen) {
       abrirPistasByte();
       return;
@@ -1642,6 +1696,7 @@ function Actividad1MathGeometry() {
   };
 
   const iniciarSombra = async () => {
+    if (actividadPausada) return;
     if (!modalSombraOpen) {
       abrirSombra(true);
       return;
@@ -1675,6 +1730,7 @@ function Actividad1MathGeometry() {
   };
 
   const repetirSombra = async () => {
+    if (actividadPausada) return;
     const audio = audioSombraRef.current;
     const video = videoSombraRef.current;
 
@@ -1751,6 +1807,7 @@ function Actividad1MathGeometry() {
   };
 
   const iniciarCompletado = async () => {
+    if (actividadPausada) return;
     if (!modalCompletadoOpen) {
       abrirCompletado(true);
       return;
@@ -1784,6 +1841,7 @@ function Actividad1MathGeometry() {
   };
 
   const repetirCompletado = async () => {
+    if (actividadPausada) return;
     const audio = audioCompletadoRef.current;
     const video = videoCompletadoRef.current;
 
@@ -2014,7 +2072,9 @@ function Actividad1MathGeometry() {
   };
 
   return (
-    <main className="act1geo-page">
+    <main
+      className={`act1geo-page ${actividadPausada ? "act1geo-paused" : ""}`}
+    >
       <button
         type="button"
         className={`act1geo-hamburger-btn ${
@@ -2104,7 +2164,7 @@ function Actividad1MathGeometry() {
               <span>★</span>
 
               <div>
-                <b></b>
+                <b style={{ width: "60%" }}></b>
               </div>
 
               <strong>60%</strong>
@@ -2155,9 +2215,9 @@ function Actividad1MathGeometry() {
             </div>
 
             <div className="act1geo-actions-top">
-              <button type="button" onClick={pausarExplicacion}>
-                <FiPause />
-                Pausa
+              <button type="button" onClick={alternarPausaActividad}>
+                {actividadPausada ? <FiPlay /> : <FiPause />}
+                {actividadPausada ? "Continuar" : "Pausar"}
               </button>
 
               <button
@@ -2255,6 +2315,14 @@ function Actividad1MathGeometry() {
 
           <section className="act1geo-layout">
             <article className="act1geo-board">
+              {actividadPausada && (
+                <div className="act1geo-activity-pause-overlay">
+                  <FiPause />
+                  <strong>Actividad pausada</strong>
+                  <span>Presiona Continuar para seguir.</span>
+                </div>
+              )}
+
               <h2>Observa cada figura y elige su nombre correcto</h2>
 
               <div className="act1geo-rows">
@@ -2279,7 +2347,9 @@ function Actividad1MathGeometry() {
                             } ${
                               seleccionada && correcta ? "act1geo-correct" : ""
                             }`}
+                            disabled={actividadPausada}
                             onClick={() => {
+                              if (actividadPausada) return;
                               setEstadoRevision("pendiente");
                               setSelecciones((prev) => ({
                                 ...prev,
@@ -2446,6 +2516,7 @@ function Actividad1MathGeometry() {
                 type="button"
                 className="act1geo-check-btn"
                 onClick={comprobarActividad}
+                disabled={actividadPausada}
               >
                 {todoCorrecto ? "Verificar misión" : "Comprobar"}
               </button>
