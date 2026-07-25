@@ -1,6 +1,6 @@
 import "./EscuadronTactico.css";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -13,22 +13,29 @@ import {
   FiInfo,
   FiLogOut,
   FiMessageSquare,
+  FiPause,
+  FiPlay,
   FiRotateCcw,
   FiSave,
   FiShield,
   FiTarget,
   FiUser,
+  FiVolume2,
   FiX,
   FiZap,
 } from "react-icons/fi";
 
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
-import escuadronScene from "../../../assets/escuadron-tactico.png";
+import audioConsejoSumaEscuadron from "../../../assets/mathnumbers/08-escuadron-tactico/consejo_suma_escuadron.mp3";
+import audioIntroEscuadron from "../../../assets/mathnumbers/08-escuadron-tactico/intro_escuadron.mp3";
+import comandanteSumaHablando from "../../../assets/mathnumbers/08-escuadron-tactico/comandante_suma_hablando.webp";
+import comandanteSumaIdle from "../../../assets/mathnumbers/08-escuadron-tactico/comandante_suma_idle.png";
+import escuadronAnimado from "../../../assets/mathnumbers/08-escuadron-tactico/escuadron.webp";
 import bytePista from "../../../assets/mathnumbers/byte_pista.png";
 
 import { clearAuthSession } from "../../../utils/authSession";
-import { guardarProgresoActividad } from "../../../services/progresoService";
+import { guardarProgresoUsuarioActual } from "../../../services/progresoService";
 
 import { activityListRoute } from "../constants";
 import { ResultModal } from "../components/ResultModal";
@@ -37,8 +44,6 @@ import { Toast } from "../components/Toast";
 import { useToast } from "../hooks/useToast";
 
 import {
-  cofreGuide,
-  cofreHeroTalkingIdle,
   logo,
   menuHamburguesa,
   zorritoConsejo,
@@ -46,6 +51,39 @@ import {
 
 const escuadronRoute =
   "/actividades/mathnumbers/escuadron-tactico";
+
+const espejosBovedaRoute =
+  "/actividades/mathnumbers/espejos-boveda";
+
+const INTRO_AUDIO_SRC = audioIntroEscuadron;
+
+const INTRO_INITIAL_TEXT =
+  "Presiona reproducir para escuchar la instrucción del Comandante Suma.";
+
+const INTRO_CAPTIONS = [
+  {
+    start: 0,
+    text: "Misión crítica, explorador:",
+  },
+  {
+    start: 2.6,
+    text:
+      "Hay cables cruzados en el panel, y un error en la secuencia hará detonar la alarma.",
+  },
+] as const;
+
+const INTRO_FULL_TEXT =
+  "Misión crítica, explorador: Hay cables cruzados en el panel, y un error en la secuencia hará detonar la alarma.";
+
+const GUIDE_AUDIO_SRC = audioConsejoSumaEscuadron;
+
+const GUIDE_INITIAL_TEXT =
+  "Presiona reproducir para escuchar el consejo del Comandante Suma.";
+
+const GUIDE_FULL_TEXT =
+  "Anota paso a paso cada operación resuelta en un papel para mantener el control táctico del circuito.";
+
+type AudioStatus = "idle" | "playing" | "paused" | "ended";
 
 type OperationKey =
   | "parentheses"
@@ -90,6 +128,11 @@ const operationSymbols: Record<OperationKey, string> = {
 
 const challengeOneOptions: OperationOption[] = [
   {
+    key: "addition",
+    symbol: "+",
+    name: "Suma",
+  },
+  {
     key: "parentheses",
     symbol: "( )",
     name: "Paréntesis",
@@ -99,23 +142,18 @@ const challengeOneOptions: OperationOption[] = [
     symbol: "×",
     name: "Multiplicación",
   },
-  {
-    key: "addition",
-    symbol: "+",
-    name: "Suma",
-  },
 ];
 
 const challengeTwoOptions: OperationOption[] = [
   {
-    key: "division",
-    symbol: "÷",
-    name: "División",
-  },
-  {
     key: "subtraction",
     symbol: "−",
     name: "Resta",
+  },
+  {
+    key: "division",
+    symbol: "÷",
+    name: "División",
   },
 ];
 
@@ -154,6 +192,7 @@ const arraysAreEqual = (
 ) =>
   first.length === second.length &&
   first.every((value, index) => value === second[index]);
+
 
 function SequenceChallenge({
   number,
@@ -346,6 +385,13 @@ export function EscuadronTactico() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [introAudioStatus, setIntroAudioStatus] =
+    useState<AudioStatus>("idle");
+  const [introCaption, setIntroCaption] = useState(
+    INTRO_INITIAL_TEXT,
+  );
+  const [guideAudioStatus, setGuideAudioStatus] =
+    useState<AudioStatus>("idle");
   const [resultModalOpen, setResultModalOpen] =
     useState(false);
 
@@ -365,6 +411,14 @@ export function EscuadronTactico() {
   >([]);
 
   const [explanation, setExplanation] = useState("");
+  const [guardandoProgreso, setGuardandoProgreso] =
+    useState(false);
+
+  const introAudioRef = useRef<HTMLAudioElement | null>(null);
+  const guideAudioRef = useRef<HTMLAudioElement | null>(null);
+  const inicioActividadRef = useRef<number>(Date.now());
+  const guardandoRef = useRef(false);
+  const resultTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (helpOpen) {
@@ -380,6 +434,27 @@ export function EscuadronTactico() {
     };
   }, [menuOpen, helpOpen]);
 
+  useEffect(() => {
+    return () => {
+      if (resultTimeoutRef.current !== null) {
+        window.clearTimeout(resultTimeoutRef.current);
+      }
+
+      const introAudio = introAudioRef.current;
+      const guideAudio = guideAudioRef.current;
+
+      if (introAudio) {
+        introAudio.pause();
+        introAudio.currentTime = 0;
+      }
+
+      if (guideAudio) {
+        guideAudio.pause();
+        guideAudio.currentTime = 0;
+      }
+    };
+  }, []);
+
   const selectedOperations = useMemo(
     () =>
       challengeOne.length +
@@ -388,12 +463,206 @@ export function EscuadronTactico() {
     [challengeOne, challengeTwo, challengeThree],
   );
 
+  const actualizarTextoIntroduccion = () => {
+    const audio = introAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    const currentTime = audio.currentTime;
+
+    const currentCaption = [...INTRO_CAPTIONS]
+      .reverse()
+      .find((caption) => currentTime >= caption.start);
+
+    setIntroCaption(
+      currentCaption?.text ?? INTRO_CAPTIONS[0].text,
+    );
+  };
+
+  const reproducirIntroduccion = async () => {
+    const audio = introAudioRef.current;
+    const guideAudio = guideAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    if (guideAudio && !guideAudio.paused) {
+      guideAudio.pause();
+      setGuideAudioStatus("paused");
+    }
+
+    if (audio.ended) {
+      audio.currentTime = 0;
+    }
+
+    actualizarTextoIntroduccion();
+
+    try {
+      await audio.play();
+      setIntroAudioStatus("playing");
+    } catch (error) {
+      setIntroAudioStatus("paused");
+      console.error(
+        "No se pudo reproducir la introducción de Escuadrón Táctico:",
+        error,
+      );
+    }
+  };
+
+  const pausarIntroduccion = () => {
+    const audio = introAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    audio.pause();
+    setIntroAudioStatus("paused");
+  };
+
+  const repetirIntroduccion = async () => {
+    const audio = introAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    audio.currentTime = 0;
+    setIntroCaption(INTRO_CAPTIONS[0].text);
+
+    try {
+      await audio.play();
+      setIntroAudioStatus("playing");
+    } catch (error) {
+      setIntroAudioStatus("paused");
+      console.error(
+        "No se pudo repetir la introducción de Escuadrón Táctico:",
+        error,
+      );
+    }
+  };
+
+  const detenerIntroduccion = () => {
+    const audio = introAudioRef.current;
+
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    setIntroAudioStatus("idle");
+    setIntroCaption(INTRO_INITIAL_TEXT);
+  };
+
+  const introStatusText =
+    introAudioStatus === "playing"
+      ? "Suma está hablando"
+      : introAudioStatus === "paused"
+        ? "Audio en pausa"
+        : introAudioStatus === "ended"
+          ? "Instrucción completada"
+          : "Listo para escuchar";
+
+  const reproducirConsejo = async () => {
+    const audio = guideAudioRef.current;
+    const introAudio = introAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    if (introAudio && !introAudio.paused) {
+      introAudio.pause();
+      setIntroAudioStatus("paused");
+    }
+
+    if (audio.ended) {
+      audio.currentTime = 0;
+    }
+
+    try {
+      await audio.play();
+      setGuideAudioStatus("playing");
+    } catch (error) {
+      setGuideAudioStatus("paused");
+      console.error(
+        "No se pudo reproducir el Consejo de Suma:",
+        error,
+      );
+    }
+  };
+
+  const pausarConsejo = () => {
+    const audio = guideAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    audio.pause();
+    setGuideAudioStatus("paused");
+  };
+
+  const repetirConsejo = async () => {
+    const audio = guideAudioRef.current;
+    const introAudio = introAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    if (introAudio && !introAudio.paused) {
+      introAudio.pause();
+      setIntroAudioStatus("paused");
+    }
+
+    audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setGuideAudioStatus("playing");
+    } catch (error) {
+      setGuideAudioStatus("paused");
+      console.error(
+        "No se pudo repetir el Consejo de Suma:",
+        error,
+      );
+    }
+  };
+
+  const detenerConsejo = () => {
+    const audio = guideAudioRef.current;
+
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    setGuideAudioStatus("idle");
+  };
+
+  const guideStatusText =
+    guideAudioStatus === "playing"
+      ? "Suma está hablando"
+      : guideAudioStatus === "paused"
+        ? "Audio en pausa"
+        : guideAudioStatus === "ended"
+          ? "Consejo completado"
+          : "Listo para escuchar";
+
   const irARuta = (route: string) => {
+    detenerIntroduccion();
+    detenerConsejo();
     setMenuOpen(false);
     navigate(route);
   };
 
   const cerrarSesion = () => {
+    detenerIntroduccion();
+    detenerConsejo();
     clearAuthSession();
     navigate("/login", { replace: true });
   };
@@ -435,12 +704,39 @@ export function EscuadronTactico() {
     showToast("Explicación guardada correctamente.");
   };
 
+  const limpiarTemporizadorResultado = () => {
+    if (resultTimeoutRef.current !== null) {
+      window.clearTimeout(resultTimeoutRef.current);
+      resultTimeoutRef.current = null;
+    }
+  };
+
+  const abrirModalResultado = (
+    kind: ResultKind,
+    delay = 900,
+  ) => {
+    limpiarTemporizadorResultado();
+
+    resultTimeoutRef.current = window.setTimeout(() => {
+      setResultModalKind(kind);
+      setResultModalOpen(true);
+      resultTimeoutRef.current = null;
+    }, delay);
+  };
+
   const repetirActividad = () => {
+    limpiarTemporizadorResultado();
+
+    guardandoRef.current = false;
+    setGuardandoProgreso(false);
     setResultModalOpen(false);
+    setResultModalKind("completed");
     setChallengeOne([]);
     setChallengeTwo([]);
     setChallengeThree([]);
     setExplanation("");
+
+    inicioActividadRef.current = Date.now();
 
     window.scrollTo({
       top: 0,
@@ -453,6 +749,10 @@ export function EscuadronTactico() {
   };
 
   const verificar = async () => {
+    if (guardandoRef.current) {
+      return;
+    }
+
     if (
       challengeOne.length < correctChallengeOne.length ||
       challengeTwo.length < correctChallengeTwo.length ||
@@ -486,128 +786,96 @@ export function EscuadronTactico() {
       Number(challengeThreeCorrect);
 
     const completed = totalCorrect === 3;
-    const stars = completed
-      ? 3
-      : totalCorrect === 2
-        ? 2
-        : totalCorrect === 1
-          ? 1
-          : 0;
 
-    let userId = 17;
+    const tiempoSegundos = Math.max(
+      1,
+      Math.floor(
+        (Date.now() - inicioActividadRef.current) / 1000,
+      ),
+    );
+
+    guardandoRef.current = true;
+    setGuardandoProgreso(true);
 
     try {
-      const sessionString =
-        localStorage.getItem("auth_session");
+      const resultado =
+        await guardarProgresoUsuarioActual({
+          mundo: "MathNumbers",
+          tema: "Tema 3: Jerarquía y propiedades",
+          actividad_codigo:
+            "mathnumbers-escuadron-tactico",
+          actividad_titulo:
+            "Escuadrón Táctico: Desactivación",
+          aciertos: totalCorrect,
+          total_preguntas: 3,
+          tiempo_segundos: tiempoSegundos,
+          xp_base: 45,
+          completada: completed,
+          respuestas: {
+            reto_1: challengeOne,
+            reto_2: challengeTwo,
+            reto_3: challengeThree,
+            explicacion_texto: explanation.trim(),
+          },
+        });
 
-      if (sessionString) {
-        const session = JSON.parse(sessionString);
+      inicioActividadRef.current = Date.now();
 
-        if (session?.id_usuario) {
-          userId = Number(session.id_usuario);
-        }
-      }
-    } catch (error) {
-      console.error(
-        "No se pudo leer la sesión del alumno:",
-        error,
+      const progresoGuardado = resultado.progreso;
+      const estrellasGuardadas = Number(
+        progresoGuardado.estrellas_obtenidas ?? 0,
       );
-    }
+      const intentosGuardados = Number(
+        progresoGuardado.intentos ?? 1,
+      );
 
-    const payload = {
-      id_usuario: userId,
-      mundo: "mathnumbers",
-      tema: "Tema 3: Jerarquía y propiedades",
-      actividad_codigo: "escuadron-tactico",
-      actividad_titulo:
-        "Escuadrón Táctico: Desactivación",
-      aciertos: totalCorrect,
-      total_preguntas: 3,
-      precision: (totalCorrect / 3) * 100,
-      estrellas_obtenidas: stars,
-      xp_obtenido: totalCorrect * 15,
-      completada: completed,
-      tiempo_segundos: 0,
-      respuestas: {
-        reto_1: challengeOne,
-        reto_2: challengeTwo,
-        reto_3: challengeThree,
-        explicacion_texto: explanation,
-      },
-    };
-
-    try {
-      await guardarProgresoActividad(payload);
-
-      const progressKey =
-        `progreso_${userId}_escuadron-tactico`;
-
-      const previousProgressRaw =
-        localStorage.getItem(progressKey);
-
-      let previousStars = 0;
-
-      if (previousProgressRaw) {
-        const previousProgress =
-          JSON.parse(previousProgressRaw);
-
-        previousStars =
-          Number(
-            previousProgress?.estrellas_obtenidas,
-          ) || 0;
-      }
-
-      localStorage.setItem(
-        progressKey,
-        JSON.stringify({
-          estrellas_obtenidas: Math.max(
-            previousStars,
-            stars,
-          ),
-        }),
+      console.log(
+        "Progreso de Escuadrón Táctico guardado:",
+        progresoGuardado,
       );
 
       if (completed) {
         showToast(
-          previousStars > 0
-            ? `¡Trampa desactivada otra vez! Conservas tus ${Math.max(
-                previousStars,
-                stars,
-              )} estrellas.`
-            : "¡Trampa desactivada! Ganaste 3 estrellas.",
+          intentosGuardados > 1
+            ? `¡Trampa desactivada otra vez! Tu mejor resultado conserva ${estrellasGuardadas} ⭐.`
+            : `¡Trampa desactivada! Ganaste ${estrellasGuardadas} estrellas. ⭐`,
         );
 
-        window.setTimeout(() => {
-          setResultModalKind("completed");
-          setResultModalOpen(true);
-        }, 900);
-
+        abrirModalResultado("completed", 1000);
         return;
       }
 
       showToast(
         totalCorrect === 2
           ? "¡Casi lo logras! Revisa cuál operación tiene prioridad."
-          : "La secuencia aún no es correcta. Usa la ayuda de Byte.",
+          : totalCorrect === 1
+            ? "Una secuencia es correcta. Revisa las otras con la ayuda de Byte."
+            : "La secuencia aún no es correcta. Usa la ayuda de Byte.",
         true,
       );
 
-      window.setTimeout(() => {
-        setResultModalKind(
-          totalCorrect >= 2 ? "almost" : "retry",
-        );
-        setResultModalOpen(true);
-      }, 900);
+      abrirModalResultado(
+        totalCorrect >= 2 ? "almost" : "retry",
+        900,
+      );
     } catch (error) {
       console.error(
         "No se pudo guardar el progreso de Escuadrón Táctico:",
         error,
       );
 
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "No se pudo guardar el progreso.";
+
       showToast(
-        "No se pudo guardar el progreso. Revisa la conexión con el servidor.",
+        `Error de conexión: ${mensaje}`,
         true,
       );
+    } finally {
+      guardandoRef.current = false;
+      setGuardandoProgreso(false);
     }
   };
 
@@ -790,28 +1058,107 @@ export function EscuadronTactico() {
 
           <div className="mnx-escuadron-welcome-wrap">
             <article className="mnx-escuadron-speech">
-              <strong>¡Alerta táctica!</strong>
-              <span>
-                Corta los cables en el orden correcto.
-                Primero resuelve la operación con mayor
-                prioridad.
-              </span>
+              <strong>Comandante Suma explica</strong>
+
+              <p aria-live="polite">
+                {introAudioStatus === "ended"
+                  ? INTRO_FULL_TEXT
+                  : introCaption}
+              </p>
+
+              <div className="mnx-escuadron-audio-controls">
+                <audio
+                  ref={introAudioRef}
+                  src={INTRO_AUDIO_SRC}
+                  preload="metadata"
+                  onPlay={() => {
+                    setIntroAudioStatus("playing");
+                    actualizarTextoIntroduccion();
+                  }}
+                  onTimeUpdate={actualizarTextoIntroduccion}
+                  onSeeking={actualizarTextoIntroduccion}
+                  onPause={() => {
+                    if (!introAudioRef.current?.ended) {
+                      setIntroAudioStatus("paused");
+                    }
+                  }}
+                  onEnded={() => {
+                    setIntroAudioStatus("ended");
+                    setIntroCaption(INTRO_FULL_TEXT);
+                  }}
+                />
+
+                <button
+                  type="button"
+                  onClick={reproducirIntroduccion}
+                  disabled={introAudioStatus === "playing"}
+                  aria-label="Reproducir introducción del Comandante Suma"
+                >
+                  <FiPlay />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={pausarIntroduccion}
+                  disabled={introAudioStatus !== "playing"}
+                  aria-label="Pausar introducción del Comandante Suma"
+                >
+                  <FiPause />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={repetirIntroduccion}
+                  aria-label="Repetir introducción del Comandante Suma"
+                >
+                  <FiRotateCcw />
+                </button>
+
+                <span
+                  className={`mnx-escuadron-audio-status ${
+                    introAudioStatus === "playing"
+                      ? "is-playing"
+                      : ""
+                  }`}
+                >
+                  <FiVolume2 />
+                  {introStatusText}
+                </span>
+              </div>
             </article>
 
             <img
+              key={
+                introAudioStatus === "playing"
+                  ? "suma-hablando"
+                  : "suma-idle"
+              }
               className="mnx-escuadron-hero-robot"
-              src={cofreHeroTalkingIdle}
-              alt="Comandante Suma"
+              src={
+                introAudioStatus === "playing"
+                  ? comandanteSumaHablando
+                  : comandanteSumaIdle
+              }
+              alt={
+                introAudioStatus === "playing"
+                  ? "Comandante Suma explicando la misión"
+                  : "Comandante Suma listo para explicar"
+              }
+              draggable={false}
             />
           </div>
         </header>
 
         <section className="mnx-escuadron-activity-grid">
           <article className="mnx-escuadron-art">
-            <img
-              src={escuadronScene}
-              alt="Trampa láser del Escuadrón Táctico"
-            />
+            <div className="mnx-escuadron-visual">
+              <img
+                className="mnx-escuadron-visual-image"
+                src={escuadronAnimado}
+                alt="Trampa láser del Escuadrón Táctico"
+                draggable={false}
+              />
+            </div>
 
             <div className="mnx-escuadron-system-status">
               <span />
@@ -920,20 +1267,92 @@ export function EscuadronTactico() {
 
           <section className="mnx-escuadron-hint-card">
             <img
-              src={cofreGuide}
-              alt="Comandante Suma dando una pista"
+              key={
+                guideAudioStatus === "playing"
+                  ? "consejo-suma-hablando"
+                  : "consejo-suma-idle"
+              }
+              src={
+                guideAudioStatus === "playing"
+                  ? comandanteSumaHablando
+                  : comandanteSumaIdle
+              }
+              alt={
+                guideAudioStatus === "playing"
+                  ? "Comandante Suma dando el consejo"
+                  : "Comandante Suma listo para dar el consejo"
+              }
+              draggable={false}
             />
 
             <div>
-              <span>Pista general</span>
-              <p>
-                Primero resuelve lo que está dentro de
-                paréntesis; después multiplicaciones o
-                divisiones; al final sumas o restas.
+              <span>Consejo de Suma</span>
+
+              <p aria-live="polite">
+                {guideAudioStatus === "idle"
+                  ? GUIDE_INITIAL_TEXT
+                  : GUIDE_FULL_TEXT}
               </p>
+
+              <div className="mnx-escuadron-guide-audio-controls">
+                <audio
+                  ref={guideAudioRef}
+                  src={GUIDE_AUDIO_SRC}
+                  preload="metadata"
+                  onPlay={() =>
+                    setGuideAudioStatus("playing")
+                  }
+                  onPause={() => {
+                    if (!guideAudioRef.current?.ended) {
+                      setGuideAudioStatus("paused");
+                    }
+                  }}
+                  onEnded={() =>
+                    setGuideAudioStatus("ended")
+                  }
+                />
+
+                <button
+                  type="button"
+                  onClick={reproducirConsejo}
+                  disabled={guideAudioStatus === "playing"}
+                  aria-label="Reproducir Consejo de Suma"
+                >
+                  <FiPlay />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={pausarConsejo}
+                  disabled={guideAudioStatus !== "playing"}
+                  aria-label="Pausar Consejo de Suma"
+                >
+                  <FiPause />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={repetirConsejo}
+                  aria-label="Repetir Consejo de Suma"
+                >
+                  <FiRotateCcw />
+                </button>
+
+                <span
+                  className={`mnx-escuadron-guide-audio-status ${
+                    guideAudioStatus === "playing"
+                      ? "is-playing"
+                      : ""
+                  }`}
+                >
+                  <FiVolume2 />
+                  {guideStatusText}
+                </span>
+              </div>
 
               <button
                 type="button"
+                className="mnx-escuadron-help-full-button"
                 onClick={() => setHelpOpen(true)}
               >
                 <FiHelpCircle />
@@ -1003,9 +1422,13 @@ export function EscuadronTactico() {
               type="button"
               className="mnx-escuadron-check-btn"
               onClick={verificar}
+              disabled={guardandoProgreso}
+              aria-busy={guardandoProgreso}
             >
               <FiCheckCircle />
-              Comprobar secuencia
+              {guardandoProgreso
+                ? "Guardando progreso..."
+                : "Comprobar secuencia"}
             </button>
 
             <p className="mnx-escuadron-progress">
@@ -1054,7 +1477,7 @@ export function EscuadronTactico() {
       {resultModalOpen && (
         <ResultModal
           kind={resultModalKind}
-          nextRoute={activityListRoute}
+          nextRoute={espejosBovedaRoute}
           retryRoute={escuadronRoute}
           onClose={() => setResultModalOpen(false)}
           onRetry={repetirActividad}

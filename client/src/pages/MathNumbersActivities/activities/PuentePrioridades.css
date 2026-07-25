@@ -1,0 +1,3016 @@
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+.mnx-puente-page,
+.mnx-puente-page * {
+  box-sizing: border-box;
+}
+
+.mnx-puente-page {
+  --mn-primary: #13a84e;
+  --mn-primary-dark: #08753a;
+  --mn-primary-deep: #07532d;
+  --mn-primary-soft: #eaffef;
+  --mn-lime: #8de46f;
+  --mn-gold: #ffb703;
+  --mn-gold-dark: #f28b00;
+  --mn-blue: #2f80ed;
+  --mn-coral: #ef6a67;
+  --mn-ink: #07192b;
+  --mn-copy: #29374a;
+  --mn-muted: #6b7789;
+  --mn-white: #ffffff;
+  --mn-shadow-sm: 0 8px 20px rgba(19, 70, 45, 0.08);
+  --mn-shadow-md: 0 16px 34px rgba(19, 70, 45, 0.12);
+  --mn-shadow-lg: 0 24px 54px rgba(19, 70, 45, 0.16);
+  --mn-transition: 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  width: 100%;
+  min-height: 100vh;
+  padding-left: 286px;
+  overflow-x: hidden;
+  background: #effbe9;
+  color: var(--mn-ink);
+  font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+}
+
+.mnx-puente-page button,
+.mnx-puente-page textarea {
+  font: inherit;
+}
+
+.mnx-puente-page button:focus-visible {
+  outline: 4px solid rgba(255, 183, 3, 0.45);
+  outline-offset: 3px;
+}
+
+/* SIDEBAR */
+
+.mnx-puente-hamburger {
+  display: none;
+}
+
+.mnx-puente-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 286px;
+  min-width: 286px;
+  height: 100vh;
+  height: 100dvh;
+  padding: 30px 22px 22px;
+  border-radius: 0 34px 34px 0;
+  background: #ffffff;
+  box-shadow: 12px 0 34px rgba(19, 70, 45, 0.09);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 90;
+}
+
+.mnx-puente-sidebar::-webkit-scrollbar {
+  width: 0;
+}
+
+.mnx-puente-sidebar-logo {
+  width: 186px;
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 26px;
+  display: block;
+}
+
+.mnx-puente-sidebar-menu {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mnx-puente-menu-item {
+  width: 100%;
+  min-height: 56px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: #172334;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.18;
+  cursor: pointer;
+  transition:
+    transform var(--mn-transition),
+    background var(--mn-transition),
+    color var(--mn-transition),
+    box-shadow var(--mn-transition);
+}
+
+.mnx-puente-menu-item svg {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  stroke-width: 2.2px;
+}
+
+.mnx-puente-menu-item:hover {
+  background: #effaf2;
+  color: var(--mn-primary-dark);
+  transform: translateX(5px);
+  box-shadow: 0 8px 18px rgba(19, 168, 78, 0.11);
+}
+
+.mnx-puente-menu-active {
+  color: #ffffff;
+  background: linear-gradient(135deg, #17b657, #0a8f40);
+  box-shadow: 0 12px 24px rgba(19, 168, 78, 0.25);
+}
+
+.mnx-puente-menu-active:hover {
+  color: #ffffff;
+  background: linear-gradient(135deg, #19be5c, #087d39);
+}
+
+.mnx-puente-week-card {
+  width: 100%;
+  min-height: 128px;
+  margin-top: auto;
+  padding: 15px 14px 12px;
+  border: 1px solid #e1f1e4;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 88% 18%, rgba(141, 228, 111, 0.32), transparent 32%),
+    linear-gradient(145deg, #ffffff 0%, #f3fff4 100%);
+  box-shadow: var(--mn-shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.mnx-puente-week-copy {
+  position: relative;
+  z-index: 2;
+  padding-right: 58px;
+}
+
+.mnx-puente-week-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 13px;
+}
+
+.mnx-puente-week-head strong,
+.mnx-puente-week-head span {
+  color: var(--mn-ink);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.mnx-puente-week-progress {
+  display: grid;
+  grid-template-columns: 22px minmax(60px, 1fr) 38px;
+  align-items: center;
+  gap: 8px;
+}
+
+.mnx-puente-week-progress > span {
+  color: var(--mn-gold);
+  font-size: 23px;
+}
+
+.mnx-puente-week-progress > div {
+  height: 11px;
+  border-radius: 999px;
+  background: #ffe8ab;
+  overflow: hidden;
+}
+
+.mnx-puente-week-progress b {
+  display: block;
+  width: 60%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffb703, #ff8a00);
+}
+
+.mnx-puente-week-progress strong {
+  color: var(--mn-primary-dark);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.mnx-puente-sidebar-character {
+  position: absolute;
+  right: -4px;
+  bottom: -3px;
+  width: 72px;
+  height: 86px;
+  object-fit: contain;
+}
+
+/* FONDO */
+
+.mnx-puente-content {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 84% 4%, rgba(139, 228, 93, 0.34), transparent 22rem),
+    radial-gradient(circle at 28% 34%, rgba(58, 174, 103, 0.1), transparent 26rem),
+    linear-gradient(180deg, #eaf8ee 0%, #f5fbf7 52%, #edf8f1 100%);
+}
+
+.mnx-puente-decoration {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.mnx-puente-decoration-one {
+  top: -110px;
+  right: -125px;
+  width: 390px;
+  height: 390px;
+  border: 52px solid rgba(39, 176, 95, 0.08);
+  background: transparent;
+  box-shadow:
+    0 0 0 46px rgba(39, 176, 95, 0.04),
+    0 0 0 94px rgba(39, 176, 95, 0.025);
+}
+
+.mnx-puente-decoration-two {
+  left: 250px;
+  bottom: -125px;
+  width: 250px;
+  height: 250px;
+  background: rgba(255, 189, 50, 0.08);
+}
+
+.mnx-puente-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  color: rgba(255, 183, 3, 0.72);
+  font-size: 24px;
+}
+
+.mnx-puente-stars span {
+  position: absolute;
+  animation: mnx-puente-star-float 4.6s ease-in-out infinite;
+}
+
+.mnx-puente-stars span:nth-child(1) {
+  top: 90px;
+  left: 10%;
+}
+
+.mnx-puente-stars span:nth-child(2) {
+  top: 160px;
+  right: 12%;
+  animation-delay: 0.8s;
+}
+
+.mnx-puente-stars span:nth-child(3) {
+  top: 500px;
+  right: 5%;
+  animation-delay: 1.6s;
+}
+
+.mnx-puente-stars span:nth-child(4) {
+  top: 720px;
+  left: 7%;
+  animation-delay: 2.4s;
+}
+
+@keyframes mnx-puente-star-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    opacity: 0.55;
+  }
+
+  50% {
+    transform: translateY(-10px) rotate(10deg) scale(1.15);
+    opacity: 1;
+  }
+}
+
+.mnx-puente-main {
+  width: 100%;
+  max-width: 1480px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 26px clamp(22px, 2.1vw, 40px) 38px;
+  position: relative;
+  z-index: 5;
+}
+
+/* ACCIONES SUPERIORES */
+
+.mnx-puente-top-actions {
+  min-height: 44px;
+  margin-bottom: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 11px;
+}
+
+.mnx-puente-top-actions button {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid rgba(12, 171, 85, 0.2);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--mn-ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(20, 72, 44, 0.08);
+  transition: 0.2s ease;
+}
+
+.mnx-puente-top-actions button:hover {
+  transform: translateY(-3px);
+  color: var(--mn-primary-dark);
+  background: #ffffff;
+}
+
+/* ENCABEZADO */
+
+.mnx-puente-header {
+  margin-bottom: 22px;
+  padding: 25px 28px 23px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(360px, 0.75fr);
+  gap: 30px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(12, 171, 85, 0.17);
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at 91% 19%, rgba(255, 189, 50, 0.18), transparent 21%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(246, 255, 249, 0.94));
+  box-shadow: var(--mn-shadow-md);
+}
+
+.mnx-puente-header::before {
+  content: "";
+  position: absolute;
+  right: -90px;
+  top: -135px;
+  width: 310px;
+  height: 310px;
+  border-radius: 50%;
+  border: 40px solid rgba(12, 171, 85, 0.06);
+}
+
+.mnx-puente-header-copy,
+.mnx-puente-welcome {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+}
+
+.mnx-puente-breadcrumb {
+  width: fit-content;
+  margin-bottom: 13px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: var(--mn-primary-soft);
+  color: var(--mn-primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.mnx-puente-breadcrumb strong {
+  font-weight: 900;
+}
+
+.mnx-puente-title-row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.mnx-puente-title-icon {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 19px;
+  background: linear-gradient(145deg, #15bb5c, #078c43);
+  color: #ffffff;
+  font-size: 28px;
+  box-shadow: 0 13px 22px rgba(12, 171, 85, 0.25);
+}
+
+.mnx-puente-title-row h1 {
+  margin: 0;
+  color: var(--mn-ink);
+  font-size: clamp(31px, 3vw, 48px);
+  line-height: 1;
+  letter-spacing: -1.1px;
+  font-weight: 950;
+}
+
+.mnx-puente-header-copy > p {
+  max-width: 760px;
+  margin: 15px 0 14px;
+  color: #42536a;
+  font-size: 15px;
+  line-height: 1.52;
+  font-weight: 650;
+}
+
+.mnx-puente-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.mnx-puente-pills span {
+  min-height: 32px;
+  padding: 0 13px;
+  border: 1px solid rgba(12, 171, 85, 0.13);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--mn-primary-dark);
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.mnx-puente-pills span:nth-child(2) {
+  color: #2b6cb0;
+}
+
+.mnx-puente-pills span:nth-child(3) {
+  color: #7c4dff;
+}
+
+.mnx-puente-pills span:nth-child(4) {
+  color: #c66b00;
+  background: #fff7db;
+}
+
+.mnx-puente-welcome {
+  min-height: 165px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 132px;
+  align-items: center;
+  gap: 10px;
+}
+
+.mnx-puente-speech {
+  min-height: 136px;
+  padding: 19px 20px 17px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: 2px solid rgba(12, 171, 85, 0.2);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 14px 28px rgba(20, 72, 44, 0.1);
+}
+
+.mnx-puente-speech::after {
+  content: "";
+  position: absolute;
+  right: -15px;
+  top: 54px;
+  width: 27px;
+  height: 27px;
+  border-top: 2px solid rgba(12, 171, 85, 0.2);
+  border-right: 2px solid rgba(12, 171, 85, 0.2);
+  background: #ffffff;
+  transform: rotate(45deg);
+}
+
+.mnx-puente-speaker-label,
+.mnx-puente-help-label {
+  width: fit-content;
+  min-height: 26px;
+  padding: 0 11px;
+  border-radius: 999px;
+  background: #e5f7e7;
+  color: var(--mn-primary-dark);
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mnx-puente-speech h2 {
+  margin: 8px 0 4px;
+  color: var(--mn-ink);
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.mnx-puente-speech p {
+  min-height: 54px;
+  margin: 8px 0 0;
+  color: #33475f;
+  font-size: 12.5px;
+  line-height: 1.45;
+  font-weight: 750;
+}
+
+.mnx-puente-audio-controls {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.mnx-puente-audio-controls button {
+  width: 35px;
+  height: 35px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #18ba5e, #078b42);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(19, 168, 78, 0.2);
+  transition:
+    transform var(--mn-transition),
+    opacity var(--mn-transition),
+    filter var(--mn-transition);
+}
+
+.mnx-puente-audio-controls button:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.05);
+  filter: brightness(1.06);
+}
+
+.mnx-puente-audio-controls button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mnx-puente-audio-status {
+  min-height: 34px;
+  padding: 0 11px;
+  border-radius: 999px;
+  color: var(--mn-muted);
+  background: #edf4ef;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 850;
+}
+
+.mnx-puente-audio-status svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+}
+
+.mnx-puente-audio-status.is-playing {
+  color: var(--mn-primary-dark);
+  background: #ddf7e4;
+  animation: mnx-puente-audio-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes mnx-puente-audio-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(19, 168, 78, 0.15);
+  }
+
+  50% {
+    box-shadow: 0 0 0 7px rgba(19, 168, 78, 0);
+  }
+}
+
+.mnx-puente-hero-stage {
+  width: 132px;
+  height: 160px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.mnx-puente-intro-character {
+  width: 128px;
+  height: 158px;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 16px rgba(20, 72, 44, 0.18));
+  animation: mnx-puente-character-float 3s ease-in-out infinite;
+}
+
+@keyframes mnx-puente-character-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-7px) rotate(1deg);
+  }
+}
+
+/* TABLERO */
+
+.mnx-puente-activity-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(320px, 390px) minmax(0, 1fr);
+  grid-template-areas:
+    "art guide"
+    "art questions"
+    "reminder actions";
+  gap: 18px;
+  align-items: stretch;
+}
+
+.mnx-puente-art,
+.mnx-puente-guide-card,
+.mnx-puente-question-card,
+.mnx-puente-explanation-card,
+.mnx-puente-reminder-card,
+.mnx-puente-evidence-card {
+  border: 1px solid rgba(12, 171, 85, 0.15);
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: var(--mn-shadow-sm);
+}
+
+.mnx-puente-art {
+  grid-area: art;
+  min-height: 620px;
+  padding: 18px 18px 154px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(50, 226, 123, 0.2), transparent 36%),
+    linear-gradient(180deg, #0b3927 0%, #061d16 100%);
+  box-shadow: var(--mn-shadow-lg);
+}
+
+.mnx-puente-art::before {
+  content: "";
+  position: absolute;
+  inset: 15% 8% 26%;
+  border: 1px solid rgba(91, 255, 167, 0.24);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 28px rgba(78, 224, 138, 0.055),
+    0 0 0 58px rgba(86, 244, 151, 0.035);
+  animation: mnx-puente-pulse 3s ease-in-out infinite;
+}
+
+@keyframes mnx-puente-pulse {
+  0%,
+  100% {
+    transform: scale(0.96);
+    opacity: 0.62;
+  }
+
+  50% {
+    transform: scale(1.03);
+    opacity: 1;
+  }
+}
+
+.mnx-puente-scene-visual {
+  width: 100%;
+  min-height: 330px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.mnx-puente-scene-visual img {
+  width: 100%;
+  height: 100%;
+  max-width: 350px;
+  max-height: 390px;
+  object-fit: contain;
+  border-radius: 20px;
+  filter: drop-shadow(0 24px 22px rgba(0, 0, 0, 0.28));
+}
+
+.mnx-puente-mission {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  min-height: 126px;
+  padding: 16px 17px;
+  display: grid;
+  grid-template-columns: 45px 1fr;
+  gap: 13px;
+  align-items: center;
+  border: 1px solid rgba(255, 222, 91, 0.68);
+  border-radius: 20px;
+  color: #ffffff;
+  background: rgba(5, 54, 27, 0.92);
+  box-shadow: 0 18px 30px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(10px);
+  z-index: 4;
+}
+
+.mnx-puente-mission > svg {
+  width: 43px;
+  height: 43px;
+  padding: 9px;
+  border-radius: 15px;
+  color: #ffdd58;
+  background: rgba(255, 222, 91, 0.14);
+}
+
+.mnx-puente-mission strong {
+  display: block;
+  margin-bottom: 7px;
+  color: #fff08a;
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.mnx-puente-mission p {
+  margin: 7px 0 0;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.mnx-puente-energy-track {
+  width: 100%;
+  height: 13px;
+  margin: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+}
+
+.mnx-puente-energy-track b {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffbd32, #8fe45d, #22c96a);
+  transition: width 0.4s ease;
+}
+
+/* GUÍA */
+
+.mnx-puente-guide-card {
+  grid-area: guide;
+  min-width: 0;
+  padding: 19px 22px;
+  border-radius: 24px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(244, 254, 247, 0.96));
+}
+
+.mnx-puente-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.mnx-puente-section-heading > span {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 12px;
+  background: #ddf8e2;
+  color: var(--mn-primary-dark);
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+}
+
+.mnx-puente-section-heading strong {
+  display: block;
+  color: var(--mn-primary-deep);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.mnx-puente-section-heading p {
+  margin: 1px 0 0;
+  color: var(--mn-muted);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.mnx-puente-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.mnx-puente-guide-grid article {
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid #dfeae3;
+  border-radius: 17px;
+  background: #ffffff;
+  box-shadow: 0 8px 16px rgba(19, 70, 45, 0.06);
+}
+
+.mnx-puente-guide-grid p {
+  margin: 0 0 10px;
+  color: var(--mn-copy);
+  font-size: 11px;
+  line-height: 1.35;
+  font-weight: 700;
+  text-align: center;
+}
+
+.mnx-puente-demo-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.mnx-puente-demo-row b {
+  min-width: 105px;
+  min-height: 46px;
+  padding: 0 12px;
+  border: 2px solid #dfe9e2;
+  border-radius: 13px;
+  background: #fbfffc;
+  color: var(--mn-primary-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.mnx-puente-demo-row em {
+  color: var(--mn-gold-dark);
+  font-style: normal;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+/* RETOS */
+
+.mnx-puente-questions {
+  grid-area: questions;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.mnx-puente-question-card,
+.mnx-puente-explanation-card {
+  padding: 18px 20px 20px;
+  border-radius: 24px;
+}
+
+.mnx-puente-question-title {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 12px;
+}
+
+.mnx-puente-question-title > span {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #18ba5e, #079145);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  font-weight: 900;
+  box-shadow: 0 8px 14px rgba(19, 168, 78, 0.22);
+}
+
+.mnx-puente-question-title h2 {
+  margin: 0;
+  color: var(--mn-ink);
+  font-size: 16px;
+  line-height: 1.3;
+  font-weight: 800;
+}
+
+.mnx-puente-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(125px, 1fr));
+  gap: 11px;
+}
+
+.mnx-puente-options button {
+  min-width: 0;
+  min-height: 66px;
+  padding: 8px 38px 8px 12px;
+  border: 2px solid #e5eee6;
+  border-radius: 17px;
+  background: #ffffff;
+  color: var(--mn-ink);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 11px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform var(--mn-transition),
+    border-color var(--mn-transition),
+    background var(--mn-transition),
+    box-shadow var(--mn-transition);
+}
+
+.mnx-puente-options button:hover {
+  transform: translateY(-2px);
+  border-color: #81d695;
+  background: #fbfffb;
+  box-shadow: 0 10px 18px rgba(19, 168, 78, 0.11);
+}
+
+.mnx-puente-options button > span:first-child {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--mn-primary);
+  background: #ffffff;
+  color: var(--mn-primary-dark);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.mnx-puente-options button > strong {
+  min-width: 0;
+  color: var(--mn-ink);
+  font-size: 17px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.mnx-puente-options button > i {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 23px;
+  height: 23px;
+  border-radius: 50%;
+  background: var(--mn-primary);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  opacity: 0;
+  transform: translateY(-50%) scale(0.75);
+  transition: 0.2s ease;
+}
+
+.mnx-puente-options button > i svg {
+  width: 14px;
+  height: 14px;
+}
+
+.mnx-puente-option-selected {
+  border-color: var(--mn-primary) !important;
+  background: #eaffef !important;
+  box-shadow: 0 0 0 4px rgba(19, 168, 78, 0.1) !important;
+  transform: translateY(-2px) scale(1.012);
+}
+
+.mnx-puente-option-selected > i {
+  opacity: 1 !important;
+  transform: translateY(-50%) scale(1) !important;
+}
+
+.mnx-puente-explanation-card {
+  display: grid;
+  gap: 12px;
+}
+
+.mnx-puente-answer-box {
+  position: relative;
+  display: block;
+}
+
+.mnx-puente-answer-box textarea {
+  width: 100%;
+  min-height: 112px;
+  padding: 15px 15px 32px;
+  border: 2px solid #e5eee6;
+  border-radius: 17px;
+  background: #fbfffc;
+  color: var(--mn-ink);
+  resize: vertical;
+  outline: none;
+}
+
+.mnx-puente-answer-box textarea:focus {
+  border-color: var(--mn-primary);
+  box-shadow: 0 0 0 4px rgba(19, 168, 78, 0.1);
+}
+
+.mnx-puente-answer-box > span {
+  position: absolute;
+  right: 13px;
+  bottom: 10px;
+  color: var(--mn-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.mnx-puente-save-btn {
+  width: fit-content;
+  min-height: 40px;
+  padding: 0 13px;
+  border: 1px solid var(--mn-primary);
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--mn-primary-dark);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* CONSEJO Y ACCIONES */
+
+.mnx-puente-reminder-card {
+  grid-area: reminder;
+  min-height: 245px;
+  padding: 17px;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 85% 12%, rgba(143, 228, 93, 0.32), transparent 28%),
+    linear-gradient(145deg, #f5fff7 0%, #eaf9ef 100%);
+}
+
+.mnx-puente-reminder-character {
+  width: 94px;
+  height: 130px;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 12px rgba(20, 72, 44, 0.14));
+  animation: mnx-puente-reminder-float 3s ease-in-out infinite;
+}
+
+@keyframes mnx-puente-reminder-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-6px) rotate(1deg);
+  }
+}
+
+.mnx-puente-reminder-card h3 {
+  margin: 8px 0 5px;
+  color: var(--mn-ink);
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 950;
+}
+
+.mnx-puente-reminder-card p {
+  margin: 0;
+  color: #33475f;
+  font-size: 10.5px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.mnx-puente-reminder-audio-controls {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mnx-puente-reminder-audio-controls button {
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #18ba5e, #078b42);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 7px 14px rgba(19, 168, 78, 0.18);
+  transition:
+    transform var(--mn-transition),
+    opacity var(--mn-transition);
+}
+
+.mnx-puente-reminder-audio-controls
+  button:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.04);
+}
+
+.mnx-puente-reminder-audio-controls button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mnx-puente-reminder-audio-status {
+  min-height: 30px;
+  padding: 0 9px;
+  border-radius: 999px;
+  color: var(--mn-muted);
+  background: #edf4ef;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 850;
+}
+
+.mnx-puente-reminder-audio-status svg {
+  width: 13px;
+  height: 13px;
+}
+
+.mnx-puente-reminder-audio-status.is-playing {
+  color: var(--mn-primary-dark);
+  background: #ddf7e4;
+  animation: mnx-puente-audio-pulse 1.2s ease-in-out infinite;
+}
+
+.mnx-puente-hint-button {
+  min-height: 34px;
+  margin-top: 9px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 11px;
+  background: var(--mn-blue);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 9px 16px rgba(47, 128, 237, 0.2);
+}
+
+.mnx-puente-actions {
+  grid-area: actions;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mnx-puente-evidence-card {
+  flex: 1;
+  min-height: 150px;
+  padding: 14px;
+  border: 2px solid rgba(255, 183, 3, 0.18);
+  border-radius: 24px;
+  background: linear-gradient(145deg, #ffffff, #fff9e6);
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.mnx-puente-evidence-card > svg {
+  width: 40px;
+  height: 40px;
+  padding: 9px;
+  border-radius: 13px;
+  background: #fff1bb;
+  color: #c77800;
+}
+
+.mnx-puente-evidence-card strong {
+  display: block;
+  color: var(--mn-ink);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.mnx-puente-evidence-card p {
+  margin: 3px 0 0;
+  color: var(--mn-copy);
+  font-size: 10px;
+  line-height: 1.35;
+  font-weight: 650;
+}
+
+.mnx-puente-check-button {
+  width: 100%;
+  min-height: 70px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #22be5e 0%, #0b913f 100%);
+  color: #ffffff;
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow:
+    0 16px 28px rgba(19, 168, 78, 0.28),
+    inset 0 -5px 0 rgba(4, 86, 38, 0.22);
+  transition: 0.2s ease;
+}
+
+.mnx-puente-check-button:hover {
+  transform: translateY(-4px) scale(1.01);
+  filter: brightness(1.04);
+}
+
+.mnx-puente-check-button > svg {
+  width: 31px;
+  height: 31px;
+  padding: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+}
+
+.mnx-puente-check-button > span {
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.17);
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* ESTADÍSTICAS */
+
+.mnx-puente-stats {
+  width: 100%;
+  min-height: 88px;
+  margin-top: 14px;
+  border-radius: 22px;
+  background: #ffffff;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  overflow: hidden;
+  box-shadow: 0 14px 32px rgba(19, 70, 45, 0.12);
+}
+
+.mnx-puente-stats article {
+  min-width: 0;
+  padding: 13px;
+  border-right: 1px solid #e8f0e9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.mnx-puente-stats article:last-child {
+  border-right: 0;
+}
+
+.mnx-puente-stats article > svg {
+  color: var(--mn-primary);
+  font-size: 34px;
+  min-width: 34px;
+}
+
+.mnx-puente-stats span {
+  display: block;
+  color: var(--mn-muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.mnx-puente-stats strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--mn-ink);
+  font-size: 21px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.mnx-puente-xp-star {
+  color: var(--mn-gold) !important;
+  font-size: 42px !important;
+  line-height: 1;
+}
+
+/* AYUDA */
+
+.mnx-puente-help-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  padding: 24px;
+  background: rgba(4, 31, 17, 0.62);
+  display: grid;
+  place-items: center;
+  backdrop-filter: blur(6px);
+}
+
+.mnx-puente-help-modal {
+  position: relative;
+  width: min(860px, 96vw);
+  padding: 28px;
+  border: 2px solid rgba(45, 127, 240, 0.24);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 16% 12%, rgba(91, 181, 255, 0.25), transparent 31%),
+    linear-gradient(145deg, #ffffff, #edf6ff);
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 24px;
+  align-items: center;
+  box-shadow: 0 28px 80px rgba(17, 46, 79, 0.28);
+}
+
+.mnx-puente-help-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #33475f;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: var(--mn-shadow-sm);
+}
+
+.mnx-puente-help-media img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+}
+
+.mnx-puente-help-copy {
+  min-width: 0;
+}
+
+.mnx-puente-help-copy > span {
+  min-height: 27px;
+  padding: 0 11px;
+  border-radius: 999px;
+  background: #e5f1ff;
+  color: #2363bb;
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.mnx-puente-help-copy h2 {
+  margin: 10px 0 7px;
+  color: var(--mn-ink);
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.mnx-puente-help-copy > p {
+  margin: 0;
+  color: #3b4f68;
+  font-size: 13px;
+  line-height: 1.55;
+  font-weight: 700;
+}
+
+.mnx-puente-help-examples {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.mnx-puente-help-examples article {
+  padding: 14px;
+  border: 1px solid #dce9e0;
+  border-radius: 15px;
+  background: #f8fff9;
+  display: grid;
+  gap: 7px;
+}
+
+.mnx-puente-help-examples strong {
+  color: var(--mn-primary-dark);
+}
+
+.mnx-puente-help-understood {
+  min-height: 46px;
+  margin-top: 16px;
+  padding: 0 17px;
+  border: 0;
+  border-radius: 13px;
+  background: var(--mn-primary);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* CERRAR SESIÓN Y TOAST */
+
+.mnx-puente-logout {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  width: 52px;
+  height: 52px;
+  border: 0;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #ef4444;
+  display: grid;
+  place-items: center;
+  font-size: 23px;
+  cursor: pointer;
+  z-index: 70;
+  box-shadow: var(--mn-shadow-md);
+}
+
+.mnx-puente-page .mnx-toast {
+  position: fixed;
+  right: 26px;
+  bottom: 92px;
+  z-index: 200;
+  max-width: 410px;
+  padding: 15px 20px;
+  border-radius: 18px;
+  background: var(--mn-primary);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: var(--mn-shadow-lg);
+}
+
+.mnx-puente-page .mnx-toast-error {
+  background: var(--mn-coral);
+}
+
+.mnx-puente-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  background: rgba(4, 31, 17, 0.32);
+  backdrop-filter: blur(3px);
+}
+
+/* RESPONSIVE */
+
+@media (min-width: 1560px) {
+  .mnx-puente-questions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mnx-puente-explanation-card {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 1450px) {
+  .mnx-puente-main {
+    max-width: 1240px;
+    padding-inline: 26px;
+  }
+
+  .mnx-puente-header {
+    grid-template-columns: minmax(0, 1fr) minmax(330px, 440px);
+    gap: 22px;
+  }
+
+  .mnx-puente-activity-grid {
+    grid-template-columns: minmax(290px, 340px) minmax(0, 1fr);
+  }
+
+  .mnx-puente-art {
+    min-height: 590px;
+  }
+}
+
+@media (max-width: 1180px) {
+  .mnx-puente-page {
+    padding-left: 250px;
+  }
+
+  .mnx-puente-sidebar {
+    width: 250px;
+    min-width: 250px;
+    padding: 28px 18px 20px;
+  }
+
+  .mnx-puente-sidebar-logo {
+    width: 165px;
+  }
+
+  .mnx-puente-menu-item {
+    min-height: 52px;
+    padding: 0 13px;
+    font-size: 13px;
+    gap: 12px;
+  }
+
+  .mnx-puente-header {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-puente-welcome {
+    width: min(100%, 680px);
+  }
+}
+
+@media (max-width: 980px) {
+  .mnx-puente-page {
+    padding-left: 0;
+  }
+
+  .mnx-puente-hamburger {
+    display: flex;
+    position: fixed;
+    top: 18px;
+    left: 18px;
+    width: 60px;
+    height: 60px;
+    border: 0;
+    border-radius: 18px;
+    background: #ffffff;
+    z-index: 120;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--mn-shadow-md);
+    cursor: pointer;
+  }
+
+  .mnx-puente-hamburger img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+  }
+
+  .mnx-puente-hamburger-open {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .mnx-puente-sidebar {
+    left: -310px;
+    width: 280px;
+    min-width: 280px;
+    padding: 34px 22px 24px;
+    transition: left 0.3s ease;
+    z-index: 115;
+  }
+
+  .mnx-puente-sidebar-open {
+    left: 0;
+  }
+
+  .mnx-puente-main {
+    max-width: 900px;
+    padding: 98px 20px 26px;
+  }
+
+  .mnx-puente-header {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-puente-activity-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "art"
+      "guide"
+      "questions"
+      "reminder"
+      "actions";
+  }
+
+  .mnx-puente-art {
+    width: min(100%, 620px);
+    min-height: 560px;
+    margin-inline: auto;
+  }
+
+  .mnx-puente-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-puente-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mnx-puente-stats article:nth-child(2) {
+    border-right: 0;
+  }
+
+  .mnx-puente-stats article:nth-child(-n + 2) {
+    border-bottom: 1px solid #e8f0e9;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-puente-main {
+    width: 100%;
+    padding: 92px 14px 22px;
+  }
+
+  .mnx-puente-top-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mnx-puente-header {
+    padding: 20px 16px;
+    border-radius: 24px;
+  }
+
+  .mnx-puente-title-row {
+    align-items: flex-start;
+  }
+
+  .mnx-puente-title-icon {
+    width: 48px;
+    height: 48px;
+    flex-basis: 48px;
+  }
+
+  .mnx-puente-title-row h1 {
+    font-size: clamp(29px, 9vw, 38px);
+  }
+
+  .mnx-puente-pills {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mnx-puente-welcome {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-puente-speech::after {
+    display: none;
+  }
+
+  .mnx-puente-audio-controls {
+    justify-content: center;
+  }
+
+  .mnx-puente-audio-status {
+    flex: 1 1 150px;
+    justify-content: center;
+  }
+
+  .mnx-puente-hero-stage {
+    margin: 0 auto;
+  }
+
+  .mnx-puente-art {
+    min-height: 470px;
+    padding: 14px 14px 145px;
+  }
+
+  .mnx-puente-scene-visual {
+    min-height: 270px;
+  }
+
+  .mnx-puente-guide-grid,
+  .mnx-puente-options {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-puente-demo-row {
+    flex-direction: column;
+  }
+
+  .mnx-puente-demo-row em {
+    transform: rotate(90deg);
+  }
+
+  .mnx-puente-reminder-card {
+    grid-template-columns: 82px minmax(0, 1fr);
+  }
+
+  .mnx-puente-check-button {
+    grid-template-columns: 30px 1fr;
+    font-size: 14px;
+    padding: 0 16px;
+  }
+
+  .mnx-puente-check-button > span {
+    display: none;
+  }
+
+  .mnx-puente-help-modal {
+    grid-template-columns: 1fr;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+
+  .mnx-puente-help-media {
+    display: none;
+  }
+
+  .mnx-puente-help-examples {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-puente-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-puente-stats article {
+    border-right: 0;
+    border-bottom: 1px solid #e8f0e9;
+  }
+
+  .mnx-puente-stats article:last-child {
+    border-bottom: 0;
+  }
+
+  .mnx-puente-page .mnx-toast {
+    left: 14px;
+    right: 14px;
+    bottom: 76px;
+    max-width: none;
+  }
+}
+
+@media (max-width: 460px) {
+  .mnx-puente-pills {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-puente-art {
+    min-height: 430px;
+  }
+
+  .mnx-puente-reminder-card {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .mnx-puente-reminder-character {
+    margin-inline: auto;
+  }
+
+  .mnx-puente-reminder-audio-controls {
+    justify-content: center;
+  }
+
+  .mnx-puente-reminder-audio-status {
+    flex-basis: 100%;
+    justify-content: center;
+  }
+
+  .mnx-puente-help-label {
+    margin-inline: auto;
+  }
+}
+
+
+/* =====================================================================
+   CORRECCIÓN FINAL · SIDEBAR IGUAL AL COFRE DE BIENVENIDA
+   Estas reglas tienen mayor especificidad para evitar que otros estilos
+   del proyecto cambien el tamaño, espaciado o apariencia de la sidebar.
+   ===================================================================== */
+
+.mnx-puente-page.mnx-puente-cofre-layout {
+  padding-left: 286px;
+}
+
+.mnx-puente-page .mnx-puente-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 286px;
+  min-width: 286px;
+  height: 100vh;
+  height: 100dvh;
+  padding: 30px 22px 22px;
+  border-radius: 0 34px 34px 0;
+  background: #ffffff;
+  box-shadow: 12px 0 34px rgba(19, 70, 45, 0.09);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 90;
+}
+
+.mnx-puente-page .mnx-puente-sidebar-logo {
+  width: 186px;
+  max-width: 100%;
+  height: auto;
+  margin: 0 0 26px;
+  display: block;
+}
+
+.mnx-puente-page .mnx-puente-sidebar-menu {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mnx-puente-page .mnx-puente-menu-item {
+  width: 100%;
+  min-height: 56px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: #172334;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 15px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.18;
+  cursor: pointer;
+  box-shadow: none;
+  transform: none;
+}
+
+.mnx-puente-page .mnx-puente-menu-item svg {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  stroke-width: 2.2px;
+}
+
+.mnx-puente-page .mnx-puente-menu-item:hover {
+  background: #effaf2;
+  color: #08753a;
+  transform: translateX(5px);
+  box-shadow: 0 8px 18px rgba(19, 168, 78, 0.11);
+}
+
+.mnx-puente-page .mnx-puente-menu-active,
+.mnx-puente-page .mnx-puente-menu-active:hover {
+  color: #ffffff;
+  background: linear-gradient(135deg, #17b657, #0a8f40);
+  box-shadow: 0 12px 24px rgba(19, 168, 78, 0.25);
+}
+
+.mnx-puente-page .mnx-puente-week-card {
+  width: 100%;
+  min-height: 128px;
+  margin-top: auto;
+  padding: 15px 14px 12px;
+  border: 1px solid #e1f1e4;
+  border-radius: 20px;
+  background:
+    radial-gradient(
+      circle at 88% 18%,
+      rgba(141, 228, 111, 0.32),
+      transparent 32%
+    ),
+    linear-gradient(145deg, #ffffff 0%, #f3fff4 100%);
+  box-shadow: 0 16px 34px rgba(19, 70, 45, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+
+.mnx-puente-page .mnx-puente-week-copy {
+  position: relative;
+  z-index: 2;
+  padding-right: 58px;
+}
+
+.mnx-puente-page .mnx-puente-week-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 13px;
+}
+
+.mnx-puente-page .mnx-puente-week-head strong,
+.mnx-puente-page .mnx-puente-week-head span {
+  color: #07192b;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.mnx-puente-page .mnx-puente-week-progress {
+  display: grid;
+  grid-template-columns: 22px minmax(60px, 1fr) 38px;
+  align-items: center;
+  gap: 8px;
+}
+
+.mnx-puente-page .mnx-puente-week-progress > span {
+  color: #ffb703;
+  font-size: 23px;
+  line-height: 1;
+}
+
+.mnx-puente-page .mnx-puente-week-progress > div {
+  height: 11px;
+  border-radius: 999px;
+  background: #ffe8ab;
+  overflow: hidden;
+}
+
+.mnx-puente-page .mnx-puente-week-progress b {
+  display: block;
+  width: 60%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffb703, #ff8a00);
+}
+
+.mnx-puente-page .mnx-puente-week-progress strong {
+  color: #08753a;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.mnx-puente-page .mnx-puente-sidebar-character {
+  position: absolute;
+  right: -4px;
+  bottom: -3px;
+  width: 72px;
+  height: 86px;
+  object-fit: contain;
+}
+
+@media (max-width: 1200px) and (min-width: 981px) {
+  .mnx-puente-page.mnx-puente-cofre-layout {
+    padding-left: 250px;
+  }
+
+  .mnx-puente-page .mnx-puente-sidebar {
+    width: 250px;
+    min-width: 250px;
+    padding: 28px 18px 20px;
+  }
+
+  .mnx-puente-page .mnx-puente-sidebar-logo {
+    width: 165px;
+  }
+
+  .mnx-puente-page .mnx-puente-menu-item {
+    min-height: 52px;
+    padding: 0 13px;
+    font-size: 13px;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 980px) {
+  .mnx-puente-page.mnx-puente-cofre-layout {
+    padding-left: 0;
+  }
+
+  .mnx-puente-page .mnx-puente-sidebar {
+    left: -310px;
+    width: 280px;
+    min-width: 280px;
+    padding: 34px 22px 24px;
+    transition: left 0.3s ease;
+    z-index: 115;
+  }
+
+  .mnx-puente-page .mnx-puente-sidebar-open {
+    left: 0;
+  }
+}
+
+
+/* =========================================================
+   AJUSTES PROPIOS · PUENTE DE PRIORIDADES
+   ========================================================= */
+
+.mnx-puente-scene-visual img {
+  max-width: 360px;
+  max-height: 410px;
+  object-fit: contain;
+}
+
+.mnx-puente-priority-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mnx-puente-priority-grid .mnx-puente-demo-row b {
+  width: 100%;
+  min-width: 0;
+}
+
+.mnx-puente-operation {
+  min-height: 72px;
+  margin: 8px 0 13px;
+  border: 2px solid rgba(19, 168, 78, 0.14);
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg, #fbfffc, #eefcf2);
+  color: #07192b;
+  display: grid;
+  place-items: center;
+  font-size: clamp(25px, 2.4vw, 36px);
+  font-weight: 950;
+  letter-spacing: 0.5px;
+}
+
+.mnx-puente-result-field {
+  display: grid;
+  gap: 8px;
+}
+
+.mnx-puente-result-field > span {
+  color: #526074;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mnx-puente-result-field input {
+  width: 100%;
+  min-height: 62px;
+  padding: 10px 16px;
+  border: 2px solid #e5eee6;
+  border-radius: 17px;
+  background: #ffffff;
+  color: #07192b;
+  font: inherit;
+  font-size: 23px;
+  font-weight: 900;
+  text-align: center;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.mnx-puente-result-field input:focus {
+  border-color: #13a84e;
+  background: #fafffb;
+  box-shadow: 0 0 0 4px rgba(19, 168, 78, 0.1);
+}
+
+.mnx-puente-result-field input::placeholder {
+  color: #9aa7b6;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.mnx-puente-actions:not(:has(.mnx-puente-evidence-card)) {
+  justify-content: flex-end;
+}
+
+@media (max-width: 850px) {
+  .mnx-puente-priority-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =====================================================================
+   CORRECCIÓN VISUAL FINAL · MISMA ORGANIZACIÓN DEL COFRE DE BIENVENIDA
+   Mantiene todos los estilos independientes con el prefijo mnx-puente-.
+   ===================================================================== */
+
+.mnx-puente-page.mnx-puente-cofre-layout {
+  --mnx-puente-sidebar-width: 286px;
+  --mnx-puente-content-max: 1480px;
+  min-width: 0;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-content {
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-main {
+  width: 100%;
+  max-width: var(--mnx-puente-content-max);
+  margin-inline: auto;
+  padding-inline: clamp(22px, 2.1vw, 40px);
+}
+
+/*
+ * Dos columnas principales como en Cofre:
+ * izquierda = imagen de la misión;
+ * derecha = guía y retos.
+ */
+.mnx-puente-cofre-layout .mnx-puente-activity-grid {
+  width: 100%;
+  grid-template-columns: minmax(320px, 390px) minmax(0, 1fr);
+  grid-template-areas:
+    "art guide"
+    "art questions"
+    "reminder actions";
+  grid-auto-flow: row;
+  gap: 18px;
+  align-items: start;
+}
+
+/*
+ * La tarjeta izquierda ya no se estira con la altura de todos los retos.
+ * Esto elimina el espacio verde enorme que aparecía encima de la imagen.
+ */
+.mnx-puente-cofre-layout .mnx-puente-art {
+  width: 100%;
+  height: 620px;
+  min-height: 620px;
+  padding: 18px 18px 154px;
+  align-self: start;
+  display: block;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-scene-visual {
+  position: absolute;
+  inset: 18px 18px 154px;
+  width: auto;
+  min-height: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #08291f;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-scene-visual img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  border-radius: 20px;
+  object-fit: cover;
+  object-position: center;
+  filter: drop-shadow(0 20px 22px rgba(0, 0, 0, 0.24));
+}
+
+/* Guía visual más limpia y alineada como las tarjetas del Cofre. */
+.mnx-puente-cofre-layout .mnx-puente-guide-card {
+  width: 100%;
+  align-self: start;
+  padding: 19px 22px;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-section-heading > span {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 14px;
+  font-size: 20px;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-section-heading > span svg {
+  width: 21px;
+  height: 21px;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-priority-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-priority-grid article {
+  min-height: 122px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-priority-grid p {
+  min-height: 34px;
+  margin-bottom: 8px;
+  display: grid;
+  place-items: center;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-priority-grid .mnx-puente-demo-row b {
+  width: 100%;
+  min-width: 0;
+  min-height: 52px;
+  font-size: 18px;
+}
+
+/*
+ * En escritorio los dos ejercicios quedan lado a lado,
+ * igual que las preguntas del Cofre en pantallas amplias.
+ */
+@media (min-width: 1181px) {
+  .mnx-puente-cofre-layout .mnx-puente-questions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-question-card {
+    height: 100%;
+    min-height: 270px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-explanation-card {
+    grid-column: 1 / -1;
+  }
+}
+
+.mnx-puente-cofre-layout .mnx-puente-question-card,
+.mnx-puente-cofre-layout .mnx-puente-explanation-card {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-operation {
+  min-height: 82px;
+  margin: 10px 0 14px;
+  border-radius: 18px;
+  font-size: clamp(28px, 2.5vw, 38px);
+}
+
+.mnx-puente-cofre-layout .mnx-puente-result-field input {
+  min-height: 64px;
+  appearance: none;
+  -moz-appearance: textfield;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-result-field input::-webkit-outer-spin-button,
+.mnx-puente-cofre-layout .mnx-puente-result-field input::-webkit-inner-spin-button {
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* Consejo y acciones conservan el mismo tamaño y alineación del Cofre. */
+.mnx-puente-cofre-layout .mnx-puente-reminder-card,
+.mnx-puente-cofre-layout .mnx-puente-actions {
+  width: 100%;
+  align-self: stretch;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-actions {
+  justify-content: flex-end;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-check-button {
+  min-height: 70px;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-stats {
+  position: relative;
+  z-index: 8;
+  width: 100%;
+  margin-inline: 0;
+}
+
+/* Laptop con sidebar visible. */
+@media (max-width: 1450px) and (min-width: 981px) {
+  .mnx-puente-cofre-layout .mnx-puente-main {
+    max-width: 1240px;
+    padding-inline: 26px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-activity-grid {
+    grid-template-columns: minmax(290px, 340px) minmax(0, 1fr);
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-art {
+    height: 590px;
+    min-height: 590px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-priority-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Tableta: una sola columna, sin huecos. */
+@media (max-width: 980px) {
+  .mnx-puente-page.mnx-puente-cofre-layout {
+    --mnx-puente-sidebar-width: 0px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-main {
+    max-width: 900px;
+    margin-inline: auto;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-activity-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "art"
+      "guide"
+      "questions"
+      "reminder"
+      "actions";
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-art {
+    width: min(100%, 620px);
+    height: 560px;
+    min-height: 560px;
+    margin-inline: auto;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-questions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-puente-cofre-layout .mnx-puente-main {
+    width: 100%;
+    padding-inline: 14px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-art {
+    height: 500px;
+    min-height: 500px;
+    padding: 14px 14px 145px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-scene-visual {
+    inset: 14px 14px 145px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-priority-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 460px) {
+  .mnx-puente-cofre-layout .mnx-puente-art {
+    height: 450px;
+    min-height: 450px;
+  }
+}
+
+
+/* =====================================================================
+   AJUSTE FINAL DE TAMAÑOS · RETOS DEL PUENTE
+   Reduce las tarjetas, operaciones y campos para que coincidan con
+   las proporciones compactas del Cofre de Bienvenida.
+   ===================================================================== */
+
+.mnx-puente-cofre-layout .mnx-puente-questions {
+  gap: 14px;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-question-card {
+  min-height: 0;
+  height: auto;
+  padding: 15px 16px 16px;
+  border-radius: 20px;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-question-title {
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-question-title > span {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-question-title h2 {
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-operation {
+  min-height: 58px;
+  margin: 8px 0 11px;
+  padding: 8px 12px;
+  border-radius: 15px;
+  font-size: clamp(23px, 2vw, 30px);
+  letter-spacing: 0;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-result-field {
+  gap: 6px;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-result-field > span {
+  font-size: 10px;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-result-field input {
+  min-height: 52px;
+  padding: 8px 13px;
+  border-radius: 15px;
+  font-size: 18px;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-result-field input::placeholder {
+  font-size: 12px;
+}
+
+/* Evita que la regla anterior vuelva a forzar tarjetas altas. */
+@media (min-width: 1181px) {
+  .mnx-puente-cofre-layout .mnx-puente-question-card {
+    min-height: 0;
+    height: auto;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-puente-cofre-layout .mnx-puente-question-card {
+    padding: 14px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-question-title h2 {
+    font-size: 13px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-operation {
+    min-height: 54px;
+    font-size: 23px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-result-field input {
+    min-height: 50px;
+    font-size: 17px;
+  }
+}
+
+/* =====================================================================
+   CORRECCIÓN FINAL · ELIMINAR ESPACIOS VACÍOS DEL PUENTE
+   ===================================================================== */
+
+/*
+ * La tarjeta de la imagen vuelve a ocupar toda la altura de las dos
+ * primeras filas. Como la imagen usa object-fit: cover, ya no aparece
+ * el espacio verde vacío que existía antes.
+ */
+.mnx-puente-cofre-layout .mnx-puente-art {
+  height: auto;
+  min-height: 620px;
+  align-self: stretch;
+}
+
+/*
+ * El consejo y las acciones ya no se estiran ni colocan el botón
+ * hasta la parte inferior de la fila.
+ */
+.mnx-puente-cofre-layout .mnx-puente-reminder-card,
+.mnx-puente-cofre-layout .mnx-puente-actions {
+  height: auto;
+  min-height: 0;
+  align-self: start;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-actions,
+.mnx-puente-actions:not(:has(.mnx-puente-evidence-card)) {
+  justify-content: flex-start;
+}
+
+/* Consejo más compacto para evitar que la última fila sea demasiado alta. */
+.mnx-puente-cofre-layout .mnx-puente-reminder-card {
+  padding: 14px;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 11px;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-reminder-character {
+  width: 82px;
+  height: 104px;
+  align-self: center;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-reminder-card h3 {
+  margin: 6px 0 4px;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-hint-button {
+  margin-top: 7px;
+}
+
+/* El botón queda inmediatamente debajo de los retos. */
+.mnx-puente-cofre-layout .mnx-puente-check-button {
+  min-height: 64px;
+  align-self: start;
+}
+
+/* Cuando aparece la evidencia, tampoco se estira innecesariamente. */
+.mnx-puente-cofre-layout .mnx-puente-evidence-card {
+  flex: 0 0 auto;
+  height: auto;
+  min-height: 0;
+}
+
+/* Mantiene el comportamiento correcto en laptops. */
+@media (max-width: 1450px) and (min-width: 981px) {
+  .mnx-puente-cofre-layout .mnx-puente-art {
+    height: auto;
+    min-height: 590px;
+    align-self: stretch;
+  }
+}
+
+/* En una sola columna cada bloque conserva únicamente su altura real. */
+@media (max-width: 980px) {
+  .mnx-puente-cofre-layout .mnx-puente-art {
+    width: min(100%, 620px);
+    height: 560px;
+    min-height: 560px;
+    align-self: start;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-card,
+  .mnx-puente-cofre-layout .mnx-puente-actions {
+    width: 100%;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-puente-cofre-layout .mnx-puente-art {
+    height: 500px;
+    min-height: 500px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-card {
+    grid-template-columns: 76px minmax(0, 1fr);
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-character {
+    width: 76px;
+    height: 96px;
+  }
+}
+
+
+/* =====================================================================
+   PUENTE.WEBP · INTEGRACIÓN DIRECTA
+   Ruta:
+   src/assets/mathnumbers/10-prioridades/puente.webp
+
+   Se muestra directamente para conservar todos los detalles y fotogramas
+   del WebP sin borrar partes oscuras del puente.
+   ===================================================================== */
+
+.mnx-puente-cofre-layout .mnx-puente-scene-visual {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at 50% 38%,
+      rgba(57, 231, 133, 0.14),
+      transparent 50%
+    ),
+    linear-gradient(
+      180deg,
+      #0a3124 0%,
+      #051d15 100%
+    );
+}
+
+.mnx-puente-cofre-layout .mnx-puente-scene-visual img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 18px;
+  pointer-events: none;
+  user-select: none;
+  filter:
+    saturate(1.06)
+    contrast(1.03)
+    brightness(1.02)
+    drop-shadow(0 18px 20px rgba(0, 0, 0, 0.24));
+}
+
+@media (max-width: 700px) {
+  .mnx-puente-cofre-layout .mnx-puente-scene-visual img {
+    border-radius: 15px;
+  }
+}
+
+
+/* =====================================================================
+   AJUSTE VISUAL · TARJETA DEL PUENTE MÁS COMPACTA
+   Reduce el espacio oscuro sobrante y aumenta ligeramente el WebP.
+   ===================================================================== */
+
+@media (min-width: 981px) {
+  .mnx-puente-cofre-layout .mnx-puente-art {
+    height: 510px;
+    min-height: 510px;
+    align-self: start;
+    padding: 0;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-scene-visual {
+    top: 18px;
+    right: 18px;
+    bottom: auto;
+    left: 18px;
+    height: 320px;
+    min-height: 0;
+    border-radius: 20px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-scene-visual img {
+    width: 114%;
+    height: 114%;
+    max-width: none;
+    max-height: none;
+    object-fit: contain;
+    object-position: center;
+    transform: scale(1.03);
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-mission {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    min-height: 126px;
+  }
+}
+
+@media (max-width: 1450px) and (min-width: 981px) {
+  .mnx-puente-cofre-layout .mnx-puente-art {
+    height: 500px;
+    min-height: 500px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-scene-visual {
+    height: 310px;
+  }
+}
+
+@media (max-width: 980px) {
+  .mnx-puente-cofre-layout .mnx-puente-art {
+    height: 520px;
+    min-height: 520px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-scene-visual {
+    top: 14px;
+    right: 14px;
+    bottom: auto;
+    left: 14px;
+    height: 330px;
+    min-height: 0;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-scene-visual img {
+    width: 110%;
+    height: 110%;
+    max-width: none;
+    max-height: none;
+    object-fit: contain;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-puente-cofre-layout .mnx-puente-art {
+    height: 470px;
+    min-height: 470px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-scene-visual {
+    height: 285px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-scene-visual img {
+    width: 108%;
+    height: 108%;
+  }
+}
+
+/* =====================================================================
+   AJUSTE FINAL · CONSEJO DE SUMA ORDENADO Y SIN BOTÓN DE PISTA
+   ===================================================================== */
+
+.mnx-puente-cofre-layout .mnx-puente-reminder-card {
+  min-height: 174px;
+  padding: 18px 20px;
+  grid-template-columns: 108px minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-reminder-character {
+  width: 104px;
+  height: 136px;
+  align-self: center;
+  justify-self: center;
+}
+
+.mnx-puente-reminder-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-reminder-card h3 {
+  width: 100%;
+  margin: 7px 0 6px;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-reminder-card p {
+  width: 100%;
+  max-width: 390px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-reminder-audio-controls {
+  width: 100%;
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, 36px) minmax(132px, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.mnx-puente-cofre-layout
+  .mnx-puente-reminder-audio-controls
+  button {
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  border-radius: 11px;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-reminder-audio-status {
+  width: 100%;
+  min-width: 0;
+  min-height: 34px;
+  justify-content: center;
+  padding-inline: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 9.5px;
+}
+
+/* Ya no se utiliza el botón de pista dentro del consejo. */
+.mnx-puente-cofre-layout .mnx-puente-hint-button {
+  display: none;
+}
+
+@media (max-width: 1180px) {
+  .mnx-puente-cofre-layout .mnx-puente-reminder-card {
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-character {
+    width: 92px;
+    height: 124px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-audio-controls {
+    grid-template-columns: repeat(3, 34px);
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-audio-status {
+    grid-column: 1 / -1;
+    width: fit-content;
+    max-width: 100%;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-puente-cofre-layout .mnx-puente-reminder-card {
+    grid-template-columns: 88px minmax(0, 1fr);
+    padding: 16px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-character {
+    width: 84px;
+    height: 112px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-card h3 {
+    font-size: 14px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-card p {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 460px) {
+  .mnx-puente-cofre-layout .mnx-puente-reminder-card {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .mnx-puente-reminder-copy {
+    align-items: center;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-card p {
+    max-width: 330px;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-audio-controls {
+    width: fit-content;
+    grid-template-columns: repeat(3, 36px);
+    justify-content: center;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-audio-status {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+}
+
+
+/* =====================================================================
+   CORRECCIÓN DE DISTRIBUCIÓN · SIN ESPACIOS VACÍOS ENTRE BLOQUES
+   La columna izquierda ahora contiene la imagen y el Consejo de Suma.
+   La derecha contiene guía, retos y el botón de comprobación.
+   ===================================================================== */
+
+.mnx-puente-cofre-layout .mnx-puente-activity-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 390px) minmax(0, 1fr);
+  grid-template-areas: none;
+  gap: 18px;
+  align-items: start;
+}
+
+.mnx-puente-left-column,
+.mnx-puente-right-column {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.mnx-puente-left-column {
+  grid-column: 1;
+}
+
+.mnx-puente-right-column {
+  grid-column: 2;
+}
+
+.mnx-puente-left-column > *,
+.mnx-puente-right-column > * {
+  width: 100%;
+  grid-area: auto;
+  margin: 0;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-art {
+  align-self: start;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-reminder-card {
+  align-self: start;
+  margin-top: 0;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-actions {
+  align-self: start;
+  margin-top: 0;
+}
+
+/* El estado del audio baja a una segunda fila y ya no se recorta. */
+.mnx-puente-cofre-layout .mnx-puente-reminder-audio-controls {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 36px);
+  justify-content: start;
+  gap: 8px;
+}
+
+.mnx-puente-cofre-layout .mnx-puente-reminder-audio-status {
+  grid-column: 1 / -1;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 32px;
+  justify-content: flex-start;
+  padding-inline: 10px;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* Laptop */
+@media (max-width: 1450px) and (min-width: 981px) {
+  .mnx-puente-cofre-layout .mnx-puente-activity-grid {
+    grid-template-columns: minmax(290px, 340px) minmax(0, 1fr);
+  }
+}
+
+/* Tableta y celular: recupera el orden natural de lectura. */
+@media (max-width: 980px) {
+  .mnx-puente-cofre-layout .mnx-puente-activity-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .mnx-puente-left-column,
+  .mnx-puente-right-column {
+    display: contents;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-art {
+    order: 1;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-guide-card {
+    order: 2;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-questions {
+    order: 3;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-card {
+    order: 4;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-actions {
+    order: 5;
+  }
+}
+
+@media (max-width: 460px) {
+  .mnx-puente-cofre-layout .mnx-puente-reminder-audio-controls {
+    justify-content: center;
+  }
+
+  .mnx-puente-cofre-layout .mnx-puente-reminder-audio-status {
+    justify-self: center;
+    justify-content: center;
+  }
+}

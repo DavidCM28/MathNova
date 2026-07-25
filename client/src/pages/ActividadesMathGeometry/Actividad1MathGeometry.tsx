@@ -577,6 +577,8 @@ function Actividad1MathGeometry() {
     "pendiente" | "falta" | "correcto"
   >("pendiente");
 
+  const [errores, setErrores] = useState(0);
+
   const reinicioByteTimeoutRef = useRef<number | null>(null);
   const ultimoTextoByteRef = useRef("");
   const ultimoIndiceByteRef = useRef(-1);
@@ -1833,6 +1835,24 @@ function Actividad1MathGeometry() {
     setProgresoLineaCompletado(0);
   };
 
+  /*
+    Se usa únicamente desde el modal de error.
+    Reinicia las respuestas, pero CONSERVA el conteo de errores acumulado.
+  */
+  const volverAIntentarlo = () => {
+    cerrarSombra();
+    setSelecciones({
+      triangulo: "",
+      cuadrado: "",
+      rectangulo: "",
+    });
+    setEstadoRevision("pendiente");
+  };
+
+  /*
+    Se usa para repetir completamente la actividad después de completarla.
+    Aquí sí comienza una partida nueva y los errores regresan a cero.
+  */
   const reiniciarActividad = () => {
     cerrarCompletado();
     cerrarSombra();
@@ -1842,6 +1862,7 @@ function Actividad1MathGeometry() {
       rectangulo: "",
     });
     setEstadoRevision("pendiente");
+    setErrores(0);
   };
 
   const irASiguienteActividad = () => {
@@ -1866,6 +1887,7 @@ function Actividad1MathGeometry() {
     }
 
     setEstadoRevision("falta");
+    setErrores((cantidadActual) => cantidadActual + 1);
     abrirSombra(true);
   };
   const irARuta = (ruta: string) => {
@@ -2128,7 +2150,7 @@ function Actividad1MathGeometry() {
               <div className="act1geo-pills">
                 <span>Introducción</span>
                 <span>8–12 min</span>
-                <span>3 intentos</span>
+                <span>Conteo de errores</span>
               </div>
             </div>
 
@@ -2444,8 +2466,8 @@ function Actividad1MathGeometry() {
               <FiTarget />
 
               <div>
-                <span>Intentos</span>
-                <strong>1/3</strong>
+                <span>Errores</span>
+                <strong>{errores}</strong>
               </div>
             </article>
 
@@ -2825,7 +2847,7 @@ function Actividad1MathGeometry() {
                 <button
                   type="button"
                   className="act1geo-sombra-try-btn"
-                  onClick={reiniciarActividad}
+                  onClick={volverAIntentarlo}
                 >
                   Volver a intentarlo
                 </button>

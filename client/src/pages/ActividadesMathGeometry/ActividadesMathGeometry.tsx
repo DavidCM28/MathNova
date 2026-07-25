@@ -7,12 +7,13 @@ import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 
 import heroBanner from "../../assets/mathGeometry/actividades/hero-banner-mathGeometri.png";
 import profesor from "../../assets/mathGeometry/actividades/profesor-explicando.png";
-import byteRobot from "../../assets/mathGeometry/actividades/byte-sigue-explorando.png";
 
 import actividad1 from "../../assets/mathGeometry/actividades/actividad-1-mathgeometry.png";
 import actividad2 from "../../assets/mathGeometry/actividades/actividad-2-mathgeometry.png";
 import actividad3 from "../../assets/mathGeometry/actividades/actividad-3-mathgeometry.png";
 import actividad4 from "../../assets/mathGeometry/actividades/actividad-4-mathgeometry.png";
+import actividad5 from "../../assets/mathGeometry/actividades/actividad-5-mathgeometry.png";
+import actividad6 from "../../assets/mathGeometry/actividades/actividad-6-mathgeometry.png";
 
 import {
   FiGrid,
@@ -52,7 +53,7 @@ function ActividadesMathGeometry() {
     navigate(ruta);
   };
 
-  const actividades = [
+  const actividadesTema1 = [
     {
       img: actividad1,
       numero: "01",
@@ -93,6 +94,30 @@ function ActividadesMathGeometry() {
       tiempo: "12 min",
       estado: "Pendiente",
       ruta: "/actividades/geometria/actividad-4",
+    },
+  ];
+
+  const actividadesTema2 = [
+    {
+      img: actividad5,
+      numero: "05",
+      titulo: "El Taller del Ingeniero",
+      texto: "Encuentra el punto medio en segmentos de recta.",
+      nivel: "Fácil",
+      tiempo: "10 min",
+      estado: "Pendiente",
+      ruta: "/actividades/geometria/actividad-5",
+    },
+    {
+      img: actividad6,
+      numero: "06",
+      titulo: "El Escudo Perfecto",
+      texto:
+        "Selecciona la línea que divide mejor el ángulo en dos partes iguales.",
+      nivel: "Medio",
+      tiempo: "12 min",
+      estado: "Pendiente",
+      ruta: "/actividades/geometria/actividad-6",
     },
   ];
 
@@ -233,7 +258,7 @@ function ActividadesMathGeometry() {
             <article>
               <FiBookOpen />
               <div>
-                <strong>4</strong>
+                <strong>6</strong>
                 <span>Actividades</span>
               </div>
             </article>
@@ -241,8 +266,8 @@ function ActividadesMathGeometry() {
             <article>
               <FiTarget />
               <div>
-                <strong>1</strong>
-                <span>Tema principal</span>
+                <strong>2</strong>
+                <span>Temas principales</span>
               </div>
             </article>
 
@@ -256,76 +281,142 @@ function ActividadesMathGeometry() {
           </div>
 
           <section className="geomx-activities-panel">
-            <div className="geomx-section-heading">
-              <span>Tema 1</span>
+            <div className="geomx-topic-block geomx-topic-block-first">
+              <div className="geomx-section-heading">
+                <span>Tema 1</span>
 
-              <div>
-                <h2>Rectas y Ángulos</h2>
-                <p>
-                  Inicia con actividades cortas para reconocer puntos,
-                  segmentos, caminos y tipos de ángulos de forma visual.
-                </p>
+                <div>
+                  <h2>Rectas y Ángulos</h2>
+                  <p>
+                    Inicia con actividades cortas para reconocer puntos,
+                    segmentos, caminos y tipos de ángulos de forma visual.
+                  </p>
+                </div>
+              </div>
+
+              <div className="geomx-activities-zone">
+                <div className="geomx-activities-grid">
+                  {actividadesTema1.map((item, index) => (
+                    <article
+                      className={`geomx-activity-card geomx-card-${index + 1}`}
+                      key={item.titulo}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => irARuta(item.ruta)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          irARuta(item.ruta);
+                        }
+                      }}
+                    >
+                      <div className="geomx-activity-image">
+                        <img src={item.img} alt={item.titulo} />
+                        <span className="geomx-card-number">{item.numero}</span>
+                      </div>
+
+                      <div className="geomx-activity-info">
+                        <div className="geomx-card-tags">
+                          <span className="geomx-easy">{item.nivel}</span>
+                          <span className="geomx-state">{item.estado}</span>
+                        </div>
+
+                        <h3>{item.titulo}</h3>
+                        <p>{item.texto}</p>
+
+                        <div className="geomx-activity-bottom">
+                          <small>
+                            <FiClock />
+                            {item.tiempo}
+                          </small>
+
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              irARuta(item.ruta);
+                            }}
+                          >
+                            <FiPlayCircle />
+                            Iniciar
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div className="geomx-activities-zone">
-              <div className="geomx-activities-grid">
-                {actividades.map((item, index) => (
-                  <article
-                    className={`geomx-activity-card geomx-card-${index + 1}`}
-                    key={item.titulo}
-                  >
-                    <div className="geomx-activity-image">
-                      <img src={item.img} alt={item.titulo} />
-                      <span className="geomx-card-number">{item.numero}</span>
-                    </div>
+            <div className="geomx-topic-divider" aria-hidden="true" />
 
-                    <div className="geomx-activity-info">
-                      <div className="geomx-card-tags">
-                        <span className="geomx-easy">{item.nivel}</span>
-                        <span className="geomx-state">{item.estado}</span>
-                      </div>
+            <div className="geomx-topic-block geomx-topic-block-second">
+              <div className="geomx-section-heading">
+                <span>Tema 2</span>
 
-                      <h3>{item.titulo}</h3>
-
-                      <p>{item.texto}</p>
-
-                      <div className="geomx-activity-bottom">
-                        <small>
-                          <FiClock />
-                          {item.tiempo}
-                        </small>
-
-                        <button onClick={() => irARuta(item.ruta)}>
-                          <FiPlayCircle />
-                          Iniciar
-                        </button>
-                      </div>
-                    </div>
-                  </article>
-                ))}
+                <div>
+                  <h2>
+                    Construcción y propiedades de las figuras planas y cuerpos
+                  </h2>
+                  <p>
+                    Continúa con retos visuales para reconocer puntos medios y
+                    divisiones iguales en ángulos.
+                  </p>
+                </div>
               </div>
 
-              <article className="geomx-side-progress-card">
-                <div className="geomx-weekly-head">
-                  <strong>Progreso semanal</strong>
-                  <span>Nivel 3</span>
+              <div className="geomx-activities-zone">
+                <div className="geomx-activities-grid geomx-topic-two-grid">
+                  {actividadesTema2.map((item, index) => (
+                    <article
+                      className={`geomx-activity-card geomx-card-${index + 5}`}
+                      key={item.titulo}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => irARuta(item.ruta)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          irARuta(item.ruta);
+                        }
+                      }}
+                    >
+                      <div className="geomx-activity-image">
+                        <img src={item.img} alt={item.titulo} />
+                        <span className="geomx-card-number">{item.numero}</span>
+                      </div>
+
+                      <div className="geomx-activity-info">
+                        <div className="geomx-card-tags">
+                          <span className="geomx-easy">{item.nivel}</span>
+                          <span className="geomx-state">{item.estado}</span>
+                        </div>
+
+                        <h3>{item.titulo}</h3>
+                        <p>{item.texto}</p>
+
+                        <div className="geomx-activity-bottom">
+                          <small>
+                            <FiClock />
+                            {item.tiempo}
+                          </small>
+
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              irARuta(item.ruta);
+                            }}
+                          >
+                            <FiPlayCircle />
+                            Iniciar
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
                 </div>
-
-                <div className="geomx-star-progress">
-                  <span>☆</span>
-
-                  <strong>60%</strong>
-
-                  <div>
-                    <b></b>
-                  </div>
-                </div>
-
-                <img src={byteRobot} alt="Byte explorando" />
-
-                <small>¡Sigue explorando!</small>
-              </article>
+              </div>
             </div>
           </section>
         </section>

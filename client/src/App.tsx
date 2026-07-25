@@ -21,6 +21,8 @@ import Actividad1MathGeometry from "./pages/ActividadesMathGeometry/Actividad1Ma
 import Actividad2MathGeometry from "./pages/ActividadesMathGeometry/Actividad2MathGeometry";
 import Actividad3MathGeometry from "./pages/ActividadesMathGeometry/Actividad3MathGeometry";
 import Actividad4MathGeometry from "./pages/ActividadesMathGeometry/Actividad4MathGeometry";
+import Actividad5MathGeometry from "./pages/ActividadesMathGeometry/Actividad5MathGeometry";
+import Actividad6MathGeometry from "./pages/ActividadesMathGeometry/Actividad6MathGeometry";
 
 import ActividadesMathData from "./pages/ActividadesMathData/ActividadesMathData";
 import GeneradorEnergiaInversa from "./pages/ActividadesMathData/GeneradorEnergiaInversa";
@@ -38,6 +40,7 @@ import CrearGrupoDocente from "./pages/CrearGrupoDocente/CrearGrupoDocente";
 import AdministrarAlumnosDocente from "./pages/AdministrarAlumnosDocente/AdministrarAlumnosDocente";
 import ListaAlumnosDocente from "./pages/ListaAlumnosDocente/ListaAlumnosDocente";
 import CalificacionesDocente from "./pages/CalificacionesDocente/CalificacionesDocente";
+import GestionDocentes from "./pages/GestionDocentes/GestionDocentes";
 import ActividadesDocente from "./pages/ActividadesDocente/ActividadesDocente";
 import RetroalimentacionDocente from "./pages/RetroalimentacionDocente/RetroalimentacionDocente";
 import EvaluacionesDocente from "./pages/EvaluacionesDocente/EvaluacionesDocente";
@@ -198,10 +201,23 @@ function App() {
             </RequireAuth>
           }
         />
-        <Route path="/actividades-math-data/holograma-reportes" element={
-          <RequireAuth><HologramaReportes /></RequireAuth>} />
-        <Route path="/actividades-math-data/sensor-frecuencias" element={
-          <RequireAuth><SensorFrecuencias /></RequireAuth>} />
+<Route
+  path="/actividades-math-data/holograma-reportes"
+  element={
+    <RequireAuth>
+      <HologramaReportes />
+    </RequireAuth>
+  }
+/>
+
+<Route
+  path="/actividades-math-data/sensor-frecuencias"
+  element={
+    <RequireAuth>
+      <SensorFrecuencias />
+    </RequireAuth>
+  }
+/>
         <Route
           path="/retroalimentacion"
           element={
@@ -259,6 +275,24 @@ function App() {
         <Route
           path="/actividades/geometria/actividad-4"
           element={<Actividad4MathGeometry />}
+        />
+
+        <Route
+          path="/actividades/geometria/actividad-5"
+          element={
+            <RequireAuth rolesPermitidos={["estudiante"]}>
+              <Actividad5MathGeometry />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/actividades/geometria/actividad-6"
+          element={
+            <RequireAuth rolesPermitidos={["estudiante"]}>
+              <Actividad6MathGeometry />
+            </RequireAuth>
+          }
         />
 
         <Route
@@ -361,6 +395,14 @@ function App() {
           element={
             <RequireAuth rolesPermitidos={["docente"]}>
               <CalificacionesDocente />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/gestion-docentes"
+          element={
+            <RequireAuth rolesPermitidos={["docente"]}>
+              <GestionDocentes />
             </RequireAuth>
           }
         />

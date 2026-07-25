@@ -20,6 +20,7 @@ import {
   FiHelpCircle,
   FiSettings,
   FiSearch,
+  FiUserCheck,
   FiPlus,
   FiUser,
   FiCheckCircle,
@@ -240,6 +241,16 @@ function CrearGrupoDocente() {
 
             <div className="docente-menu-divider" />
 
+            <button
+              type="button"
+              className={`docente-menu-item ${
+                selectedMenu === "gestion-docentes" ? "active-soft" : ""
+              }`}
+              onClick={() => irARuta("/gestion-docentes")}
+            >
+              <FiUserCheck />
+              <span>Gestión de docentes</span>
+            </button>
             <button
               type="button"
               className={`docente-menu-item ${

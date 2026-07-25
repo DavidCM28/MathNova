@@ -1018,3 +1018,290 @@ body {
   color: #0058ff !important;
   opacity: 1 !important;
 }
+
+/* =====================================================================
+   AJUSTE VISUAL · SELECCIÓN DE MUNDOS MÁS AMPLIA Y ORDENADA
+   Mantiene la estructura y funcionalidad; solo corrige tamaños,
+   distribución, sidebar y espacios.
+   ===================================================================== */
+
+html body #root .mundos-page {
+  align-items: flex-start;
+}
+
+html body #root .mundos-page > .sidebar {
+  width: 250px !important;
+  min-width: 250px !important;
+  max-width: 250px !important;
+  min-height: 100vh !important;
+  padding: 26px 18px 20px !important;
+  border-radius: 0 28px 28px 0 !important;
+}
+
+html body #root .mundos-page > .sidebar .sidebar-logo {
+  width: 155px !important;
+  margin-bottom: 24px !important;
+}
+
+html body #root .mundos-page > .sidebar .sidebar-menu {
+  gap: 7px !important;
+}
+
+html body #root .mundos-page > .sidebar .menu-item,
+html body #root .mundos-page > .sidebar .menu-item.active {
+  min-height: 50px !important;
+  height: 50px !important;
+  padding: 0 14px !important;
+  gap: 11px !important;
+  border-radius: 13px !important;
+  font-size: 13px !important;
+}
+
+html body #root .mundos-page > .sidebar .menu-item svg {
+  font-size: 22px !important;
+}
+
+html body #root .mundos-page > .sidebar .mundos-sidebar-bottom {
+  margin-top: 16px !important;
+}
+
+html body #root .mundos-page > .sidebar .hello-box {
+  width: 100% !important;
+  min-height: 66px !important;
+  padding: 7px 11px 7px 7px !important;
+  margin-bottom: 12px !important;
+  border-radius: 18px !important;
+}
+
+html body #root .mundos-page > .sidebar .hello-box img {
+  width: 52px !important;
+  height: 52px !important;
+}
+
+html body #root .mundos-page > .sidebar .hello-box span {
+  font-size: 13px !important;
+}
+
+html body #root .mundos-page > .sidebar .mundos-sidebar-fox {
+  width: 125px !important;
+  max-width: 125px !important;
+}
+
+.mundos-hero {
+  min-height: 350px;
+  padding: 36px 36px 26px;
+  grid-template-columns: minmax(0, 1fr) 270px;
+  column-gap: 24px;
+}
+
+.mundos-title {
+  max-width: 720px;
+}
+
+.mundos-title h1 {
+  font-size: clamp(46px, 4.4vw, 70px);
+  line-height: 1;
+}
+
+.mundos-title p {
+  margin-top: 15px;
+  font-size: clamp(17px, 1.4vw, 21px);
+  max-width: 720px;
+}
+
+.mundos-hero-img {
+  right: -70px;
+  top: -35px;
+  width: min(560px, 39vw);
+  height: 410px;
+  opacity: 0.95;
+}
+
+.guest-world-alert {
+  width: min(720px, 100%);
+  margin-top: 20px;
+  padding: 14px 18px;
+  font-size: 14px;
+}
+
+.mundos-stars-card {
+  min-height: 145px;
+  margin-top: 105px;
+  padding: 18px 20px;
+  border-radius: 22px;
+}
+
+.mundos-stars-card h3 {
+  font-size: 19px;
+}
+
+.mundos-stars-row strong,
+.mundos-stars-row span {
+  font-size: 42px;
+}
+
+.mundos-stars-card p {
+  font-size: 13px;
+}
+
+.worlds-grid {
+  grid-template-columns: repeat(3, minmax(240px, 1fr));
+  gap: 22px;
+  padding: 0 36px 28px;
+}
+
+.world-card {
+  min-height: 370px;
+  padding: 18px;
+  border-radius: 24px;
+}
+
+.world-image {
+  height: 225px;
+  padding: 15px 12px 12px;
+  border-radius: 16px;
+}
+
+.world-image h2 {
+  margin-bottom: 6px;
+  font-size: clamp(22px, 1.7vw, 29px);
+}
+
+.world-image img {
+  width: min(215px, 88%);
+  height: 150px;
+}
+
+.world-progress {
+  width: 190px;
+  margin: 18px auto 16px;
+}
+
+.level-pill {
+  height: 48px;
+}
+
+.level-pill strong,
+.level-pill span {
+  font-size: 16px;
+}
+
+.world-card button {
+  min-height: 52px;
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+.reward-banner {
+  margin: 22px 36px 0;
+  min-height: 100px;
+  padding: 16px 26px;
+  border-radius: 22px;
+}
+
+.reward-banner > img:first-child {
+  width: 62px;
+  height: 62px;
+  margin-right: 20px;
+}
+
+.reward-banner h2 {
+  font-size: 25px;
+}
+
+.reward-banner p {
+  font-size: 16px;
+}
+
+.footer-fox {
+  right: 72px;
+  width: 135px;
+  height: 100px;
+}
+
+.mundos-footer {
+  margin: 0 36px;
+}
+
+@media (max-width: 1450px) and (min-width: 951px) {
+  html body #root .mundos-page > .sidebar {
+    width: 230px !important;
+    min-width: 230px !important;
+    max-width: 230px !important;
+  }
+
+  .mundos-hero {
+    grid-template-columns: minmax(0, 1fr) 240px;
+    padding-inline: 28px;
+  }
+
+  .worlds-grid {
+    grid-template-columns: repeat(2, minmax(280px, 1fr));
+    padding-inline: 28px;
+  }
+
+  .world-card {
+    max-width: none;
+  }
+
+  .reward-banner,
+  .mundos-footer {
+    margin-left: 28px;
+    margin-right: 28px;
+  }
+}
+
+@media (max-width: 950px) {
+  .mundos-hero {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .mundos-hero-img {
+    position: relative;
+    right: auto;
+    top: auto;
+    width: min(520px, 100%);
+    height: 280px;
+    margin: 12px auto 0;
+  }
+
+  .mundos-stars-card {
+    grid-column: 1;
+    grid-row: auto;
+    width: 100%;
+    max-width: none;
+    margin-top: 16px;
+  }
+
+  .worlds-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .world-card {
+    max-width: 720px;
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 850px) {
+  .mundos-hero {
+    padding: 100px 18px 22px;
+  }
+
+  .worlds-grid {
+    padding: 0 16px 24px;
+  }
+
+  .world-card {
+    padding: 16px;
+  }
+
+  .world-image {
+    height: 215px;
+  }
+
+  .reward-banner {
+    margin: 16px;
+  }
+}

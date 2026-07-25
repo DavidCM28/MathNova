@@ -8355,3 +8355,53 @@ body:has(.act4geo-modal-overlay) {
     --act4geo-complete-bg-bottom: -85px !important;
   }
 }
+
+/* =========================================================
+   ACTIVIDAD 4 — BOTÓN VOLVER A INTENTAR EN MODAL DE SOMBRA
+   ========================================================= */
+
+.act4geo-sombra-try-btn {
+  width: min(100%, 360px);
+  min-height: 54px;
+  margin-top: 18px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #8f2de2 0%, #6f23c9 100%);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-size: 14px;
+  font-weight: 950;
+  cursor: pointer;
+  box-shadow: 0 15px 28px rgba(126, 41, 207, 0.27);
+  transition:
+    transform 0.24s ease,
+    box-shadow 0.24s ease,
+    filter 0.24s ease;
+}
+
+.act4geo-sombra-try-btn svg {
+  flex: 0 0 auto;
+  font-size: 20px;
+}
+
+.act4geo-sombra-try-btn:hover {
+  transform: translateY(-4px) scale(1.02);
+  filter: brightness(1.06);
+  box-shadow: 0 19px 34px rgba(126, 41, 207, 0.34);
+}
+
+.act4geo-sombra-try-btn:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
+@media (max-width: 760px) {
+  .act4geo-sombra-try-btn {
+    width: 100%;
+    min-height: 52px;
+    margin-top: 16px;
+  }
+}

@@ -4,6 +4,7 @@ import audioConsejoSumaRadar from "../../../assets/mathnumbers/02-radar-superviv
 import audioPistaByteRadar from "../../../assets/mathnumbers/02-radar-supervivencia/pista_byte_radar.mp3";
 import bytePista from "../../../assets/mathnumbers/byte_pista.png";
 import videoByteRadar from "../../../assets/mathnumbers/02-radar-supervivencia/byte_hablando_radar.mp4";
+import radarAnimado from "../../../assets/mathnumbers/02-radar-supervivencia/carpeta_radar_animado.webp";
 
 import { useEffect, useRef, useState } from "react";
 import type { DragEvent } from "react";
@@ -41,14 +42,15 @@ import { Toast } from "../components/Toast";
 import { ResultModal } from "../components/ResultModal";
 import type { ResultKind } from "../types";
 import { useToast } from "../hooks/useToast";
-import { guardarProgresoActividad } from "../../../services/progresoService";
+import {
+  guardarProgresoUsuarioActual,
+} from "../../../services/progresoService";
 import {
   cofreGuide,
   cofreHeroTalking,
   cofreHeroTalkingIdle,
   logo,
   menuHamburguesa,
-  radarImage,
   zorritoConsejo,
 } from "../mathNumbersAssets";
 
@@ -742,6 +744,12 @@ export function RadarSupervivencia() {
   const [resultModalKind, setResultModalKind] =
     useState<ResultKind>("completed");
 
+  const [guardandoProgreso, setGuardandoProgreso] =
+    useState(false);
+
+  const inicioActividadRef = useRef<number>(Date.now());
+  const modalTimerRef = useRef<number | null>(null);
+
   const progress =
     Object.keys(placements).length;
 
@@ -754,6 +762,14 @@ export function RadarSupervivencia() {
       document.body.style.overflow = "auto";
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (modalTimerRef.current !== null) {
+        window.clearTimeout(modalTimerRef.current);
+      }
+    };
+  }, []);
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
@@ -851,11 +867,37 @@ export function RadarSupervivencia() {
   /*
    * Cierra el modal y deja Radar desde cero.
    */
+  const programarModalResultado = (
+    kind: ResultKind,
+    delay: number,
+  ) => {
+    if (modalTimerRef.current !== null) {
+      window.clearTimeout(modalTimerRef.current);
+    }
+
+    modalTimerRef.current = window.setTimeout(() => {
+      setResultModalKind(kind);
+      setResultModalOpen(true);
+      modalTimerRef.current = null;
+    }, delay);
+  };
+
+  /*
+   * Cierra el modal y deja Radar desde cero.
+   */
   const repetirActividad = () => {
+    if (modalTimerRef.current !== null) {
+      window.clearTimeout(modalTimerRef.current);
+      modalTimerRef.current = null;
+    }
+
     setResultModalOpen(false);
     setSelectedSignal(null);
     setPlacements({});
     setExplanation("");
+    setGuardandoProgreso(false);
+
+    inicioActividadRef.current = Date.now();
 
     window.scrollTo({
       top: 0,
@@ -868,7 +910,11 @@ export function RadarSupervivencia() {
   };
 
   const comprobar = async () => {
-    if (progress < 4) {
+    if (guardandoProgreso) {
+      return;
+    }
+
+    if (progress < targets.length) {
       showToast(
         "Ubica las cuatro señales para activar el radar.",
         true,
@@ -882,103 +928,99 @@ export function RadarSupervivencia() {
         placements[target] === target,
     ).length;
 
-    // 1. Obtener el ID de usuario de la sesión
-    let idUsuario = 17; // ID por defecto
-    try {
-      const sessionString = localStorage.getItem("auth_session");
-      if (sessionString) {
-        const session = JSON.parse(sessionString);
-        if (session && session.id_usuario) idUsuario = Number(session.id_usuario);
-      }
-    } catch (e) {
-      console.error(e);
-    }
+    const esCorrecto = total === targets.length;
 
-    // 2. Determinar las estrellas de la partida actual
-    const nuevasEstrellas = total === 4 ? 3 : total >= 2 ? 1 : 0;
-    const esCorrecto = total === 4;
+    const tiempoSegundos = Math.max(
+      1,
+      Math.floor(
+        (Date.now() - inicioActividadRef.current) / 1000,
+      ),
+    );
 
-    // 3. Estructurar el Payload para enviar
-    const payload = {
-      id_usuario: idUsuario,
-      mundo: "mathnumbers",
-      tema: "Tema 2: Positivos y negativos",
-      actividad_codigo: "radar-supervivencia",
-      actividad_titulo: "El Radar de Supervivencia",
-      aciertos: total,
-      total_preguntas: 4,
-      precision: (total / 4) * 100,
-      estrellas_obtenidas: nuevasEstrellas,
-      xp_obtenido: total * 10,
-      completada: esCorrecto,
-      tiempo_segundos: 0,
-      respuestas: {
-        posiciones_usuario: placements,
-        explicacion_texto: explanation,
-      },
-    };
+    setGuardandoProgreso(true);
 
     try {
-      // --- MEJORA: Comprobar si ya había jugado y ganado estrellas antes ---
-      const progresoKey = `progreso_${idUsuario}_radar-supervivencia`;
-      const progresoPrevioRaw = localStorage.getItem(progresoKey);
-      let yaTeniaEstrellas = false;
-      let estrellasAnteriores = 0;
+      const resultado =
+        await guardarProgresoUsuarioActual({
+          mundo: "MathNumbers",
+          tema: "Positivos y negativos",
+          actividad_codigo:
+            "mathnumbers-radar-supervivencia",
+          actividad_titulo:
+            "El Radar de Supervivencia",
+          respuestas: {
+            posiciones_usuario: placements,
+            explicacion_texto: explanation.trim(),
+          },
+          aciertos: total,
+          total_preguntas: targets.length,
+          tiempo_segundos: tiempoSegundos,
+          xp_base: 40,
+          completada: esCorrecto,
+        });
 
-      if (progresoPrevioRaw) {
-        const progresoPrevio = JSON.parse(progresoPrevioRaw);
-        estrellasAnteriores = progresoPrevio.estrellas_obtenidas || 0;
-        yaTeniaEstrellas = estrellasAnteriores > 0;
-      }
+      inicioActividadRef.current = Date.now();
 
-      // Guardamos el progreso en el backend
-      await guardarProgresoActividad(payload);
+      const progresoGuardado = resultado.progreso;
 
-      // Guardamos localmente el progreso actual para futuras consultas rápidas
-      localStorage.setItem(
-        progresoKey, 
-        JSON.stringify({ estrellas_obtenidas: Math.max(estrellasAnteriores, nuevasEstrellas) })
+      const estrellasGuardadas = Number(
+        progresoGuardado.estrellas_obtenidas ?? 0,
+      );
+
+      const intentosGuardados = Number(
+        progresoGuardado.intentos ?? 1,
+      );
+
+      console.log(
+        "Progreso del Radar guardado:",
+        progresoGuardado,
       );
 
       if (esCorrecto) {
-        if (yaTeniaEstrellas) {
-          // Mensaje elegante para cuando ya tenía estrellas en este nivel
-          showToast(
-            `¡Increíble! Has vuelto a calibrar el radar. Ya cuentas con las ${estrellasAnteriores} ⭐ de este nivel en tu perfil.`,
-            false
-          );
-        } else {
-          // Mensaje para la primera vez que lo completa exitosamente
-          showToast(`¡Excelente! Radar calibrado. ¡Has ganado ${nuevasEstrellas} estrellas! ⭐`);
-        }
+        showToast(
+          intentosGuardados > 1
+            ? `¡Increíble! Volviste a calibrar el radar. Tu mejor resultado conserva ${estrellasGuardadas} ⭐.`
+            : `¡Excelente! Radar calibrado. ¡Has ganado ${estrellasGuardadas} estrellas! ⭐`,
+        );
 
-        window.setTimeout(() => {
-          setResultModalKind("completed");
-          setResultModalOpen(true);
-        }, 1200); // Damos un poco más de tiempo para leer el mensaje elegante
+        programarModalResultado(
+          "completed",
+          1200,
+        );
 
         return;
       }
 
-      // Si falla en ordenar
       showToast(
-        "Hay señales en posiciones incorrectas. Inténtalo de nuevo.",
+        total >= 2
+          ? "Vas cerca: todavía hay señales en posiciones incorrectas."
+          : "Hay varias señales fuera de posición. Usa el cero como referencia.",
         true,
       );
 
-      window.setTimeout(() => {
-        setResultModalKind(
-          total >= 2 ? "almost" : "retry",
-        );
-        setResultModalOpen(true);
-      }, 900);
-
+      programarModalResultado(
+        total >= 2 ? "almost" : "retry",
+        900,
+      );
     } catch (error) {
-      console.error(error);
-      showToast("Error de conexión: No se pudo guardar el progreso.", true);
+      console.error(
+        "No se pudo guardar el progreso del Radar:",
+        error,
+      );
+
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "No se pudo guardar el progreso.";
+
+      showToast(
+        `Error de conexión: ${mensaje}`,
+        true,
+      );
+    } finally {
+      setGuardandoProgreso(false);
     }
   };
-  
 
 
   return (
@@ -1184,10 +1226,14 @@ export function RadarSupervivencia() {
 
         <section className="mnx-radar-activity-grid">
           <article className="mnx-radar-art">
-            <img
-              src={radarImage}
-              alt="Radar de supervivencia"
-            />
+            <div className="mnx-radar-visual">
+              <img
+                className="mnx-radar-visual-image"
+                src={radarAnimado}
+                alt="Radar de supervivencia calibrando señales"
+                draggable={false}
+              />
+            </div>
 
             <div className="mnx-radar-mission">
               <FiTarget />
@@ -1388,9 +1434,13 @@ export function RadarSupervivencia() {
               type="button"
               className="mnx-radar-check-btn"
               onClick={comprobar}
+              disabled={guardandoProgreso}
+              aria-busy={guardandoProgreso}
             >
               <FiCheckCircle />
-              Comprobar posiciones
+              {guardandoProgreso
+                ? "Guardando progreso..."
+                : "Comprobar posiciones"}
             </button>
 
             <p className="mnx-radar-progress">

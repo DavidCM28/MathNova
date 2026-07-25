@@ -24,6 +24,7 @@ import {
   FiClock,
   FiRefreshCw,
   FiCheck,
+  FiUserCheck,
   FiEye,
   FiAlertTriangle,
   FiArrowRight,
@@ -437,6 +438,16 @@ function AvanceActividadDocente() {
 
             <div className="docente-menu-divider"></div>
 
+            <button
+              type="button"
+              className={`docente-menu-item ${
+                selectedMenu === "gestion-docentes" ? "active" : ""
+              }`}
+              onClick={() => irARuta("/gestion-docentes", "gestion-docentes")}
+            >
+              <FiUserCheck />
+              <span>Gestión de docentes</span>
+            </button>
             <button
               className={`docente-menu-item ${
                 selectedMenu === "actividades" ? "active" : ""

@@ -1,0 +1,3066 @@
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+.mnx-simulador-page,
+.mnx-simulador-page * {
+  box-sizing: border-box;
+}
+
+.mnx-simulador-page {
+  --primary: #0ba34e;
+  --primary-dark: #067238;
+  --primary-deep: #054e2b;
+  --primary-soft: #e9faed;
+  --blue: #1685ff;
+  --purple: #8655ff;
+  --gold: #ffb703;
+  --ink: #07192b;
+  --copy: #405269;
+  --muted: #6c788a;
+  --border: rgba(12, 164, 75, 0.14);
+  --shadow-sm: 0 8px 20px rgba(19, 70, 45, 0.08);
+  --shadow-md: 0 16px 34px rgba(19, 70, 45, 0.12);
+  --shadow-lg: 0 24px 54px rgba(19, 70, 45, 0.16);
+
+  min-height: 100vh;
+  padding-left: 286px;
+  overflow-x: hidden;
+  background: #effbe9;
+  color: var(--ink);
+  font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+}
+
+.mnx-simulador-page button,
+.mnx-simulador-page input {
+  font: inherit;
+}
+
+.mnx-simulador-page button:focus-visible,
+.mnx-simulador-page input:focus-visible {
+  outline: 4px solid rgba(255, 183, 3, 0.38);
+  outline-offset: 3px;
+}
+
+/* SIDEBAR */
+
+.mnx-simulador-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 90;
+  width: 286px;
+  min-width: 286px;
+  height: 100vh;
+  height: 100dvh;
+  padding: 30px 22px 22px;
+  border-radius: 0 34px 34px 0;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  box-shadow: 12px 0 34px rgba(19, 70, 45, 0.09);
+}
+
+.mnx-simulador-sidebar-logo {
+  width: 186px;
+  max-width: 100%;
+  margin-bottom: 26px;
+}
+
+.mnx-simulador-sidebar-menu {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+}
+
+.mnx-simulador-menu-item {
+  width: 100%;
+  min-height: 56px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: #172334;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease;
+}
+
+.mnx-simulador-menu-item svg {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+}
+
+.mnx-simulador-menu-item:hover {
+  background: #effaf2;
+  color: var(--primary-dark);
+  transform: translateX(4px);
+}
+
+.mnx-simulador-menu-active,
+.mnx-simulador-menu-active:hover {
+  color: #fff;
+  background: linear-gradient(
+    135deg,
+    #17b657,
+    #0a8f40
+  );
+  box-shadow: 0 12px 24px rgba(19, 168, 78, 0.25);
+}
+
+.mnx-simulador-week-card {
+  width: 100%;
+  min-height: 128px;
+  margin-top: auto;
+  padding: 15px 14px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #dfeee2;
+  border-radius: 20px;
+  background:
+    radial-gradient(
+      circle at 88% 18%,
+      rgba(141, 228, 111, 0.32),
+      transparent 32%
+    ),
+    linear-gradient(145deg, #fff, #f0fff3);
+  box-shadow: var(--shadow-md);
+}
+
+.mnx-simulador-week-head {
+  padding-right: 58px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mnx-simulador-week-progress {
+  margin-top: 15px;
+  padding-right: 58px;
+  display: grid;
+  grid-template-columns: 20px 1fr 34px;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+}
+
+.mnx-simulador-week-progress > span {
+  color: var(--gold);
+  font-size: 21px;
+}
+
+.mnx-simulador-week-progress > b {
+  height: 10px;
+  border-radius: 999px;
+  background: #ffe8ab;
+  overflow: hidden;
+}
+
+.mnx-simulador-week-progress i {
+  display: block;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    #ffb703,
+    #ff8a00
+  );
+}
+
+.mnx-simulador-week-card img {
+  position: absolute;
+  right: -3px;
+  bottom: -4px;
+  width: 74px;
+  height: 86px;
+  object-fit: contain;
+}
+
+/* FONDO */
+
+.mnx-simulador-content {
+  min-height: 100vh;
+  position: relative;
+  overflow-x: clip;
+  overflow-y: visible;
+  background:
+    linear-gradient(
+      180deg,
+      #dff6d8 0%,
+      #ecfae5 24%,
+      #f7ffe9 58%,
+      #fff8e8 100%
+    );
+}
+
+.mnx-simulador-decoration {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.mnx-simulador-decoration-one {
+  top: -150px;
+  right: -90px;
+  width: 460px;
+  height: 460px;
+  background:
+    radial-gradient(
+      circle at 35% 35%,
+      rgba(255, 235, 126, 0.9),
+      rgba(141, 228, 111, 0.45) 46%,
+      rgba(19, 168, 78, 0.05) 72%,
+      transparent 73%
+    );
+}
+
+.mnx-simulador-decoration-two {
+  top: 440px;
+  left: 7%;
+  width: 330px;
+  height: 330px;
+  background:
+    radial-gradient(
+      circle,
+      rgba(127, 219, 112, 0.25),
+      transparent 70%
+    );
+}
+
+.mnx-simulador-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  color: rgba(255, 183, 3, 0.7);
+  font-size: 24px;
+}
+
+.mnx-simulador-stars span {
+  position: absolute;
+  animation: mnx-simulador-star-float 4.7s ease-in-out infinite;
+}
+
+.mnx-simulador-stars span:nth-child(1) {
+  top: 100px;
+  left: 10%;
+}
+
+.mnx-simulador-stars span:nth-child(2) {
+  top: 180px;
+  right: 12%;
+  animation-delay: 0.8s;
+}
+
+.mnx-simulador-stars span:nth-child(3) {
+  top: 560px;
+  right: 5%;
+  animation-delay: 1.6s;
+}
+
+.mnx-simulador-stars span:nth-child(4) {
+  top: 800px;
+  left: 7%;
+  animation-delay: 2.4s;
+}
+
+@keyframes mnx-simulador-star-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    opacity: 0.55;
+  }
+
+  50% {
+    transform: translateY(-10px) rotate(10deg) scale(1.14);
+    opacity: 1;
+  }
+}
+
+/* CONTENEDOR */
+
+.mnx-simulador-main {
+  width: 100%;
+  max-width: 1580px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 24px clamp(20px, 2vw, 38px) 34px;
+  position: relative;
+  z-index: 2;
+}
+
+.mnx-simulador-top-actions {
+  min-height: 42px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.mnx-simulador-top-actions button {
+  min-height: 40px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: 13px;
+  background: #fff;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ENCABEZADO */
+
+.mnx-simulador-header {
+  margin-bottom: 18px;
+  padding: 23px 25px;
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.25fr)
+    minmax(370px, 0.75fr);
+  gap: 24px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  background:
+    radial-gradient(
+      circle at 90% 15%,
+      rgba(255, 183, 3, 0.12),
+      transparent 20%
+    ),
+    rgba(255, 255, 255, 0.97);
+  box-shadow: var(--shadow-md);
+}
+
+.mnx-simulador-breadcrumb {
+  width: fit-content;
+  min-height: 34px;
+  margin-bottom: 12px;
+  padding: 0 13px;
+  border: 1px solid rgba(19, 168, 78, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.84);
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: var(--shadow-sm);
+}
+
+.mnx-simulador-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mnx-simulador-title-icon {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 58px;
+  border-radius: 19px;
+  background: linear-gradient(
+    145deg,
+    #15bb5c,
+    #078c43
+  );
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  box-shadow: 0 13px 22px rgba(12, 171, 85, 0.25);
+}
+
+.mnx-simulador-title-row h1 {
+  margin: 0;
+  font-size: clamp(30px, 2.7vw, 45px);
+  line-height: 1.03;
+  letter-spacing: -1px;
+  font-weight: 950;
+}
+
+.mnx-simulador-header-copy > p {
+  max-width: 740px;
+  margin: 14px 0;
+  color: var(--copy);
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 650;
+}
+
+.mnx-simulador-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mnx-simulador-pills span {
+  min-height: 31px;
+  padding: 0 12px;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--primary-dark);
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 800;
+  box-shadow: var(--shadow-sm);
+}
+
+.mnx-simulador-pills span:nth-child(2) {
+  color: #2b6cb0;
+}
+
+.mnx-simulador-pills span:nth-child(3) {
+  color: #7c4dff;
+}
+
+.mnx-simulador-pills span:nth-child(4) {
+  color: #c66b00;
+  background: #fff7db;
+}
+
+.mnx-simulador-welcome {
+  min-height: 155px;
+  display: grid;
+  grid-template-columns: 1fr 126px;
+  align-items: center;
+  gap: 9px;
+}
+
+.mnx-simulador-speech {
+  min-height: 136px;
+  padding: 18px;
+  position: relative;
+  border: 2px solid rgba(19, 168, 78, 0.2);
+  border-radius: 34px 42px 34px 42px;
+  background:
+    radial-gradient(
+      circle at 90% 18%,
+      rgba(255, 183, 3, 0.15),
+      transparent 22%
+    ),
+    linear-gradient(
+      135deg,
+      #fff,
+      #f7fff3
+    );
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+}
+
+.mnx-simulador-speech::before {
+  content: "";
+  position: absolute;
+  right: -15px;
+  top: 52px;
+  width: 26px;
+  height: 26px;
+  border-right: 2px solid rgba(19, 168, 78, 0.2);
+  border-top: 2px solid rgba(19, 168, 78, 0.2);
+  border-radius: 50%;
+  background: #fff;
+}
+
+.mnx-simulador-speech > span,
+.mnx-simulador-reminder-card div > span {
+  width: fit-content;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #e8f9ec;
+  color: var(--primary-dark);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.mnx-simulador-speech h2 {
+  margin: 7px 0 4px;
+  font-size: 18px;
+}
+
+.mnx-simulador-speech p {
+  margin: 0;
+  color: var(--copy);
+  font-size: 11.5px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.mnx-simulador-intro-character {
+  width: 126px;
+  height: 158px;
+  object-fit: contain;
+  filter: drop-shadow(0 15px 14px rgba(20, 72, 44, 0.18));
+  animation: mnx-simulador-character-float 3s ease-in-out infinite;
+}
+
+@keyframes mnx-simulador-character-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-7px) rotate(1deg);
+  }
+}
+
+/* GRID PRINCIPAL */
+
+.mnx-simulador-activity-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(310px, 365px)
+    minmax(0, 1fr)
+    minmax(245px, 280px);
+  grid-template-areas:
+    "art guide guide"
+    "art challenges actions"
+    "reminder notes actions";
+  gap: 16px;
+  align-items: start;
+}
+
+.mnx-simulador-art,
+.mnx-simulador-guide-card,
+.mnx-simulador-challenge-card,
+.mnx-simulador-actions,
+.mnx-simulador-reminder-card,
+.mnx-simulador-quick-notes,
+.mnx-simulador-evidence-card,
+.mnx-simulador-status-card {
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.mnx-simulador-art {
+  grid-area: art;
+  width: 100%;
+  height: 625px;
+  padding: 14px 14px 142px;
+  position: relative;
+  overflow: hidden;
+  background: #061f18;
+}
+
+.mnx-simulador-art > img {
+  width: 100%;
+  height: 100%;
+  border-radius: 17px;
+  object-fit: cover;
+  display: block;
+}
+
+.mnx-simulador-mission {
+  position: absolute;
+  left: 13px;
+  right: 13px;
+  bottom: 13px;
+  min-height: 118px;
+  padding: 15px;
+  border: 1px solid rgba(141, 242, 88, 0.72);
+  border-radius: 18px;
+  background: rgba(4, 48, 26, 0.95);
+  color: #fff;
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 11px;
+  align-items: center;
+}
+
+.mnx-simulador-mission > svg {
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border-radius: 13px;
+  color: #a7f76f;
+  background: rgba(167, 247, 111, 0.13);
+}
+
+.mnx-simulador-mission strong {
+  color: #a7f76f;
+  font-size: 15px;
+}
+
+.mnx-simulador-mission p {
+  margin: 3px 0 8px;
+  font-size: 10px;
+  line-height: 1.38;
+}
+
+.mnx-simulador-energy-track {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.19);
+  overflow: hidden;
+}
+
+.mnx-simulador-energy-track b {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    #ffbd32,
+    #21c667
+  );
+  transition: width 0.35s ease;
+}
+
+/* GUÍA */
+
+.mnx-simulador-guide-card {
+  grid-area: guide;
+  padding: 17px 19px;
+}
+
+.mnx-simulador-section-heading {
+  margin-bottom: 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mnx-simulador-section-heading > span {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 13px;
+  background: #def8e4;
+  color: var(--primary-dark);
+  display: grid;
+  place-items: center;
+}
+
+.mnx-simulador-section-heading strong {
+  display: block;
+  color: var(--primary-dark);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.mnx-simulador-section-heading p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.mnx-simulador-guide-steps {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    28px
+    minmax(0, 1fr)
+    28px
+    minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.mnx-simulador-guide-steps > i {
+  color: var(--primary);
+  font-style: normal;
+  font-size: 25px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.mnx-simulador-guide-steps article {
+  min-height: 146px;
+  padding: 13px;
+  border: 1px solid #dfeae2;
+  border-radius: 17px;
+  background: linear-gradient(145deg, #fff, #f8fff9);
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 7px;
+}
+
+.mnx-simulador-guide-steps article > b {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+}
+
+.mnx-simulador-guide-steps article > strong {
+  font-size: 11px;
+  text-align: center;
+}
+
+.mnx-simulador-guide-steps article > em {
+  min-width: 82px;
+  min-height: 42px;
+  padding: 0 10px;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 900;
+  box-shadow: var(--shadow-sm);
+}
+
+.mnx-simulador-mini-table {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  border: 1px solid #dfe8e1;
+  border-radius: 9px;
+  overflow: hidden;
+  font-size: 8px;
+}
+
+.mnx-simulador-mini-table > * {
+  min-height: 22px;
+  border-right: 1px solid #e2e9e4;
+  border-bottom: 1px solid #e2e9e4;
+  display: grid;
+  place-items: center;
+}
+
+.mnx-simulador-mini-table > :nth-child(2n) {
+  border-right: 0;
+}
+
+.mnx-simulador-mini-table > :nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.mnx-simulador-mini-table span {
+  background: #eaf8ed;
+  font-weight: 900;
+}
+
+/* RETOS */
+
+.mnx-simulador-challenges {
+  grid-area: challenges;
+  min-width: 0;
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.mnx-simulador-challenge-card {
+  min-width: 0;
+  padding: 14px;
+}
+
+.mnx-simulador-challenge-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+
+.mnx-simulador-challenge-head > span {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 50%;
+  background: linear-gradient(
+    145deg,
+    #18b85b,
+    var(--primary-dark)
+  );
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.mnx-simulador-challenge-head h2 {
+  margin: 1px 0 3px;
+  font-size: 12px;
+  line-height: 1.25;
+  font-weight: 900;
+}
+
+.mnx-simulador-challenge-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 9.5px;
+  line-height: 1.3;
+  font-weight: 650;
+}
+
+.mnx-simulador-code-table {
+  margin: 13px 0;
+  display: grid;
+  grid-template-columns:
+    58px repeat(3, 1fr);
+  border: 1px solid #dfe8e1;
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: 9px;
+}
+
+.mnx-simulador-code-table > * {
+  min-height: 34px;
+  border-right: 1px solid #e1e8e3;
+  border-bottom: 1px solid #e1e8e3;
+  display: grid;
+  place-items: center;
+}
+
+.mnx-simulador-code-table > :nth-child(4n) {
+  border-right: 0;
+}
+
+.mnx-simulador-code-table > :nth-last-child(-n + 4) {
+  border-bottom: 0;
+}
+
+.mnx-simulador-code-table span {
+  background: #eaf8ed;
+  color: var(--primary-dark);
+  font-weight: 900;
+}
+
+.mnx-simulador-rule-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.mnx-simulador-rule-options button {
+  min-height: 48px;
+  padding: 0 38px 0 12px;
+  border: 2px solid #e3ece5;
+  border-radius: 13px;
+  background: #fff;
+  position: relative;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.mnx-simulador-rule-options button > i {
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  width: 23px;
+  height: 23px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: translateY(-50%);
+}
+
+.mnx-simulador-rule-options button.is-selected {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  box-shadow: 0 0 0 4px rgba(12, 164, 75, 0.09);
+}
+
+.mnx-simulador-rule-options button.is-selected > i {
+  opacity: 1;
+}
+
+.mnx-simulador-note {
+  margin-top: 11px;
+  padding-top: 10px;
+  border-top: 1px solid #e2ebe4;
+  color: var(--copy);
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 7px;
+  align-items: center;
+  font-size: 8.8px;
+  line-height: 1.35;
+}
+
+.mnx-simulador-formula-clues {
+  margin-top: 11px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 7px;
+}
+
+.mnx-simulador-formula-clues span {
+  min-height: 48px;
+  padding: 7px;
+  border-radius: 10px;
+  background: #eff8f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: var(--copy);
+  font-size: 8px;
+  font-weight: 750;
+  text-align: center;
+}
+
+.mnx-simulador-formula-clues span:last-child {
+  background: #fff2f7;
+}
+
+.mnx-simulador-predictions {
+  display: grid;
+  align-content: start;
+}
+
+.mnx-simulador-predictions > label {
+  min-height: 60px;
+  margin-top: 11px;
+  padding: 8px 10px;
+  border: 1px solid #dfe8e1;
+  border-radius: 12px;
+  background: #f7fcf8;
+  display: grid;
+  grid-template-columns: 1fr 26px 62px 24px;
+  gap: 7px;
+  align-items: center;
+}
+
+.mnx-simulador-predictions label > span {
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.mnx-simulador-predictions label > i {
+  color: var(--primary-dark);
+  font-style: normal;
+  font-size: 18px;
+  text-align: center;
+}
+
+.mnx-simulador-predictions input {
+  width: 62px;
+  min-height: 42px;
+  border: 2px solid #dfe8e1;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 17px;
+  font-weight: 900;
+  text-align: center;
+  outline: none;
+}
+
+.mnx-simulador-predictions input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(12, 164, 75, 0.09);
+}
+
+.mnx-simulador-predictions label > svg {
+  color: var(--primary);
+  font-size: 21px;
+}
+
+.mnx-simulador-prediction-rule {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #eff8f1;
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.mnx-simulador-prediction-rule span {
+  color: var(--copy);
+  font-size: 8.5px;
+}
+
+.mnx-simulador-prediction-rule strong {
+  color: var(--primary-dark);
+  font-size: 20px;
+}
+
+/* ACCIONES */
+
+.mnx-simulador-actions {
+  grid-area: actions;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.mnx-simulador-check-button,
+.mnx-simulador-save-button {
+  width: 100%;
+  border-radius: 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.mnx-simulador-check-button {
+  min-height: 62px;
+  padding: 0 14px;
+  border: 0;
+  background: linear-gradient(
+    180deg,
+    #16b558,
+    #087e3a
+  );
+  color: #fff;
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 9px;
+  align-items: center;
+  box-shadow: 0 13px 24px rgba(19, 168, 78, 0.22);
+}
+
+.mnx-simulador-check-button > span {
+  padding: 7px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.17);
+  font-size: 9px;
+}
+
+.mnx-simulador-save-button {
+  min-height: 52px;
+  border: 1px solid var(--primary);
+  background: #fff;
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.mnx-simulador-evidence-card,
+.mnx-simulador-status-card {
+  padding: 14px;
+}
+
+.mnx-simulador-evidence-title,
+.mnx-simulador-status-card > header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mnx-simulador-evidence-title > svg,
+.mnx-simulador-status-card > header > svg {
+  width: 34px;
+  height: 34px;
+  padding: 8px;
+  border-radius: 10px;
+  background: #e7f8eb;
+  color: var(--primary);
+}
+
+.mnx-simulador-evidence-title strong,
+.mnx-simulador-status-card > header strong {
+  font-size: 12px;
+}
+
+.mnx-simulador-evidence-card > p {
+  margin: 11px 0;
+  color: var(--copy);
+  font-size: 9.5px;
+  line-height: 1.45;
+}
+
+.mnx-simulador-info-row {
+  padding-top: 11px;
+  border-top: 1px solid #e2ebe4;
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.mnx-simulador-info-row > svg {
+  width: 30px;
+  height: 30px;
+  padding: 7px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+}
+
+.mnx-simulador-info-row p {
+  margin: 0;
+  color: var(--copy);
+  font-size: 9.5px;
+  line-height: 1.4;
+}
+
+.mnx-simulador-status-card {
+  display: grid;
+  gap: 8px;
+}
+
+.mnx-simulador-status-card > div {
+  min-height: 42px;
+  padding: 7px 9px;
+  border-radius: 10px;
+  background: #f4faf5;
+  display: grid;
+  grid-template-columns: 27px 1fr 22px;
+  gap: 7px;
+  align-items: center;
+}
+
+.mnx-simulador-status-card > div > span {
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+
+.mnx-simulador-status-card .is-blue {
+  background: var(--blue);
+}
+
+.mnx-simulador-status-card .is-purple {
+  background: var(--purple);
+}
+
+.mnx-simulador-status-card .is-green {
+  background: var(--primary);
+}
+
+.mnx-simulador-status-card p {
+  margin: 0;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.mnx-simulador-status-card > div > svg {
+  color: var(--primary);
+  font-size: 19px;
+}
+
+.mnx-simulador-status-card small {
+  margin-top: 4px;
+  color: var(--copy);
+  font-size: 8.5px;
+  line-height: 1.35;
+}
+
+/* PISTA Y NOTAS */
+
+.mnx-simulador-reminder-card {
+  grid-area: reminder;
+  min-height: 190px;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 12px;
+  align-items: center;
+  background:
+    radial-gradient(
+      circle at 90% 8%,
+      rgba(141, 228, 111, 0.26),
+      transparent 32%
+    ),
+    linear-gradient(145deg, #f7fff8, #eaf9ee);
+}
+
+.mnx-simulador-reminder-card img {
+  width: 92px;
+  height: 125px;
+  object-fit: contain;
+}
+
+.mnx-simulador-reminder-card h3 {
+  margin: 7px 0 4px;
+  font-size: 14px;
+}
+
+.mnx-simulador-reminder-card p {
+  margin: 0;
+  color: var(--copy);
+  font-size: 10px;
+  line-height: 1.42;
+  font-weight: 700;
+}
+
+.mnx-simulador-reminder-card button {
+  min-height: 34px;
+  margin-top: 8px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 10px;
+  background: #2f80ed;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9.5px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.mnx-simulador-quick-notes {
+  grid-area: notes;
+  padding: 15px;
+}
+
+.mnx-simulador-quick-notes header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary-dark);
+}
+
+.mnx-simulador-quick-notes header > svg {
+  width: 34px;
+  height: 34px;
+  padding: 8px;
+  border-radius: 10px;
+  background: #e7f8eb;
+}
+
+.mnx-simulador-quick-notes ul {
+  margin: 11px 0 0;
+  padding-left: 20px;
+  color: var(--copy);
+  font-size: 9.5px;
+  line-height: 1.6;
+  font-weight: 650;
+}
+
+/* ESTADÍSTICAS */
+
+.mnx-simulador-stats {
+  min-height: 84px;
+  margin-top: 14px;
+  border-radius: 20px;
+  background: #fff;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.mnx-simulador-stats article {
+  padding: 12px;
+  border-right: 1px solid #e8f0e9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+}
+
+.mnx-simulador-stats article:last-child {
+  border-right: 0;
+}
+
+.mnx-simulador-stats svg {
+  color: var(--primary);
+  font-size: 30px;
+}
+
+.mnx-simulador-stats span {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.mnx-simulador-stats strong {
+  display: block;
+  color: var(--ink);
+  font-size: 19px;
+}
+
+.mnx-simulador-xp-star {
+  color: var(--gold) !important;
+  font-size: 38px !important;
+}
+
+/* MODAL */
+
+.mnx-simulador-help-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  padding: 24px;
+  background: rgba(4, 31, 17, 0.64);
+  display: grid;
+  place-items: center;
+  backdrop-filter: blur(6px);
+}
+
+.mnx-simulador-help-modal {
+  position: relative;
+  width: min(860px, 96vw);
+  padding: 28px;
+  border: 2px solid rgba(19, 168, 78, 0.18);
+  border-radius: 28px;
+  background:
+    radial-gradient(
+      circle at 90% 15%,
+      rgba(255, 183, 3, 0.12),
+      transparent 22%
+    ),
+    #fff;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 24px;
+  align-items: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.mnx-simulador-help-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 50%;
+  background: #eff4f0;
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.mnx-simulador-help-media img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+}
+
+.mnx-simulador-help-copy > span {
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: #e8f9ec;
+  color: var(--primary-dark);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.mnx-simulador-help-copy h2 {
+  margin: 11px 0 8px;
+  font-size: 28px;
+}
+
+.mnx-simulador-help-copy > p {
+  color: var(--copy);
+  line-height: 1.55;
+  font-weight: 650;
+}
+
+.mnx-simulador-help-steps {
+  margin-top: 15px;
+  display: grid;
+  gap: 8px;
+}
+
+.mnx-simulador-help-steps article {
+  padding: 11px;
+  border: 1px solid #dfeae2;
+  border-radius: 13px;
+  background: #f8fff9;
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 9px;
+  align-items: center;
+}
+
+.mnx-simulador-help-steps strong {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: grid;
+  place-items: center;
+}
+
+.mnx-simulador-help-understood {
+  min-height: 46px;
+  margin-top: 14px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 13px;
+  background: var(--primary);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* OTROS */
+
+.mnx-simulador-hamburger {
+  display: none;
+}
+
+.mnx-simulador-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  background: rgba(4, 31, 17, 0.35);
+  backdrop-filter: blur(3px);
+}
+
+.mnx-simulador-logout {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 70;
+  width: 52px;
+  height: 52px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: #ef4444;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(19, 70, 45, 0.16);
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1380px) {
+  .mnx-simulador-main {
+    max-width: 1260px;
+    padding-inline: 24px;
+  }
+
+  .mnx-simulador-activity-grid {
+    grid-template-columns:
+      minmax(285px, 330px)
+      minmax(0, 1fr)
+      minmax(220px, 250px);
+  }
+
+  .mnx-simulador-art {
+    height: 590px;
+  }
+
+  .mnx-simulador-challenge-head h2 {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 1180px) {
+  .mnx-simulador-page {
+    padding-left: 250px;
+  }
+
+  .mnx-simulador-sidebar {
+    width: 250px;
+    min-width: 250px;
+  }
+
+  .mnx-simulador-header {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-simulador-welcome {
+    width: min(100%, 680px);
+  }
+
+  .mnx-simulador-activity-grid {
+    grid-template-columns:
+      minmax(285px, 330px)
+      minmax(0, 1fr);
+    grid-template-areas:
+      "art guide"
+      "art challenges"
+      "reminder challenges"
+      "notes notes"
+      "actions actions";
+  }
+
+  .mnx-simulador-actions {
+    display: grid;
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .mnx-simulador-status-card,
+  .mnx-simulador-evidence-card {
+    grid-column: 1 / -1;
+  }
+
+  .mnx-simulador-challenges {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .mnx-simulador-predictions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 980px) {
+  .mnx-simulador-page {
+    padding-left: 0;
+  }
+
+  .mnx-simulador-hamburger {
+    position: fixed;
+    top: 18px;
+    left: 18px;
+    z-index: 120;
+    width: 58px;
+    height: 58px;
+    border: 0;
+    border-radius: 18px;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 12px 28px rgba(19, 70, 45, 0.15);
+    cursor: pointer;
+  }
+
+  .mnx-simulador-hamburger img {
+    width: 38px;
+  }
+
+  .mnx-simulador-hamburger-open {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .mnx-simulador-sidebar {
+    left: -310px;
+    width: 280px;
+    min-width: 280px;
+    transition: left 0.3s ease;
+    z-index: 115;
+  }
+
+  .mnx-simulador-sidebar-open {
+    left: 0;
+  }
+
+  .mnx-simulador-main {
+    max-width: 900px;
+    padding-top: 96px;
+  }
+
+  .mnx-simulador-activity-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "art"
+      "guide"
+      "challenges"
+      "actions"
+      "reminder"
+      "notes";
+  }
+
+  .mnx-simulador-art,
+  .mnx-simulador-reminder-card {
+    width: min(100%, 620px);
+    margin-inline: auto;
+  }
+
+  .mnx-simulador-challenges {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .mnx-simulador-predictions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-simulador-main {
+    padding-inline: 14px;
+  }
+
+  .mnx-simulador-top-actions {
+    display: grid;
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .mnx-simulador-header {
+    padding: 20px 16px;
+    border-radius: 24px;
+  }
+
+  .mnx-simulador-title-row {
+    align-items: flex-start;
+  }
+
+  .mnx-simulador-title-row h1 {
+    font-size: 31px;
+  }
+
+  .mnx-simulador-welcome {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-simulador-intro-character {
+    margin-inline: auto;
+  }
+
+  .mnx-simulador-art {
+    height: 500px;
+  }
+
+  .mnx-simulador-guide-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-simulador-guide-steps > i {
+    transform: rotate(90deg);
+  }
+
+  .mnx-simulador-challenges {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-simulador-predictions {
+    grid-column: auto;
+  }
+
+  .mnx-simulador-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-simulador-status-card,
+  .mnx-simulador-evidence-card {
+    grid-column: auto;
+  }
+
+  .mnx-simulador-reminder-card {
+    grid-template-columns: 82px minmax(0, 1fr);
+  }
+
+  .mnx-simulador-reminder-card img {
+    width: 82px;
+    height: 112px;
+  }
+
+  .mnx-simulador-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-simulador-stats article {
+    border-right: 0;
+    border-bottom: 1px solid #e8f0e9;
+  }
+
+  .mnx-simulador-help-modal {
+    grid-template-columns: 1fr;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+
+  .mnx-simulador-help-media {
+    display: none;
+  }
+}
+
+
+/* =====================================================================
+   AJUSTE VISUAL FINAL · DISEÑO DEL COFRE DE BIENVENIDA
+   - Distribución principal de dos columnas.
+   - Retos más amplios y ordenados.
+   - Tipografía ligeramente más grande.
+   - Acciones, pista y notas sin espacios vacíos.
+   ===================================================================== */
+
+.mnx-simulador-page.mnx-simulador-cofre-layout {
+  --sim-card-radius: 24px;
+  --sim-card-border: rgba(10, 121, 57, 0.15);
+  --sim-card-shadow: 0 12px 28px rgba(19, 70, 45, 0.09);
+}
+
+/* Contenedor general */
+.mnx-simulador-cofre-layout .mnx-simulador-main {
+  width: 100%;
+  max-width: 1480px;
+  margin-inline: auto;
+  padding: 24px clamp(24px, 2.2vw, 42px) 36px;
+}
+
+/* Encabezado con proporciones del Cofre */
+.mnx-simulador-cofre-layout .mnx-simulador-header {
+  grid-template-columns:
+    minmax(0, 1.2fr)
+    minmax(390px, 0.8fr);
+  gap: 28px;
+  padding: 26px 28px;
+  border-radius: 32px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-title-row h1 {
+  font-size: clamp(34px, 3vw, 48px);
+  line-height: 1.04;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-header-copy > p {
+  max-width: 760px;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-pills span {
+  min-height: 34px;
+  padding-inline: 14px;
+  font-size: 12px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-speech h2 {
+  font-size: 20px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-speech p {
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/*
+ * Dos columnas principales:
+ * izquierda: portada, misión, pista y notas.
+ * derecha: guía, retos y acciones.
+ */
+.mnx-simulador-cofre-layout .mnx-simulador-activity-grid {
+  grid-template-columns:
+    minmax(330px, 390px)
+    minmax(0, 1fr);
+  grid-template-areas:
+    "art guide"
+    "art challenges"
+    "reminder actions"
+    "notes actions";
+  gap: 18px;
+  align-items: start;
+}
+
+/* Portada compacta, sin estirarse por los retos */
+.mnx-simulador-cofre-layout .mnx-simulador-art {
+  width: 100%;
+  height: 640px;
+  min-height: 640px;
+  align-self: start;
+  padding: 16px 16px 146px;
+  border-radius: 28px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-art > img {
+  border-radius: 20px;
+  object-position: center;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-mission {
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  min-height: 120px;
+  border-radius: 20px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-mission strong {
+  font-size: 16px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-mission p {
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+/* Guía visual */
+.mnx-simulador-cofre-layout .mnx-simulador-guide-card {
+  width: 100%;
+  padding: 20px 22px;
+  border-radius: var(--sim-card-radius);
+  box-shadow: var(--sim-card-shadow);
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-section-heading > span {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-section-heading strong {
+  font-size: 16px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-section-heading p {
+  font-size: 11.5px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-guide-steps {
+  gap: 11px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-guide-steps article {
+  min-height: 164px;
+  padding: 15px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-guide-steps article > strong {
+  font-size: 13px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-guide-steps article > em {
+  min-width: 92px;
+  min-height: 46px;
+  font-size: 20px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-mini-table {
+  font-size: 10px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-mini-table > * {
+  min-height: 25px;
+}
+
+/* Retos más amplios, como las preguntas del Cofre */
+.mnx-simulador-cofre-layout .mnx-simulador-challenges {
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-challenge-card {
+  height: 100%;
+  padding: 17px;
+  border-radius: var(--sim-card-radius);
+  box-shadow: var(--sim-card-shadow);
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-predictions {
+  grid-column: 1 / -1;
+  height: auto;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-challenge-head {
+  gap: 11px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-challenge-head > span {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 14px;
+  font-size: 14px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-challenge-head h2 {
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-challenge-head p {
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-code-table {
+  margin: 15px 0;
+  font-size: 11px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-code-table > * {
+  min-height: 40px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-rule-options {
+  gap: 10px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-rule-options button {
+  min-height: 55px;
+  border-radius: 15px;
+  font-size: 19px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-note {
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-formula-clues span {
+  min-height: 56px;
+  padding: 9px;
+  font-size: 10px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-predictions {
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-predictions .mnx-simulador-challenge-head,
+.mnx-simulador-cofre-layout .mnx-simulador-prediction-rule {
+  grid-column: 1 / -1;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-predictions > label {
+  min-height: 72px;
+  margin-top: 0;
+  padding: 10px 13px;
+  grid-template-columns: 1fr 30px 74px 28px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-predictions label > span {
+  font-size: 14px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-predictions input {
+  width: 74px;
+  min-height: 48px;
+  font-size: 19px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-prediction-rule {
+  padding: 14px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-prediction-rule span {
+  font-size: 10px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-prediction-rule strong {
+  font-size: 23px;
+}
+
+/* Acciones sin columna angosta */
+.mnx-simulador-cofre-layout .mnx-simulador-actions {
+  width: 100%;
+  align-self: start;
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-check-button,
+.mnx-simulador-cofre-layout .mnx-simulador-save-button {
+  min-height: 64px;
+  border-radius: 18px;
+  font-size: 15px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-evidence-card,
+.mnx-simulador-cofre-layout .mnx-simulador-status-card {
+  min-height: 0;
+  height: auto;
+  padding: 16px;
+  border-radius: 20px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-evidence-card {
+  grid-column: 1 / -1;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-status-card {
+  grid-column: 1 / -1;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-evidence-title strong,
+.mnx-simulador-cofre-layout .mnx-simulador-status-card > header strong {
+  font-size: 14px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-evidence-card > p,
+.mnx-simulador-cofre-layout .mnx-simulador-info-row p,
+.mnx-simulador-cofre-layout .mnx-simulador-status-card p {
+  font-size: 11px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-status-card small {
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+/* Pista y notas compactas */
+.mnx-simulador-cofre-layout .mnx-simulador-reminder-card,
+.mnx-simulador-cofre-layout .mnx-simulador-quick-notes {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  align-self: start;
+  border-radius: var(--sim-card-radius);
+  box-shadow: var(--sim-card-shadow);
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-reminder-card {
+  padding: 17px;
+  grid-template-columns:
+    96px minmax(0, 1fr);
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-reminder-card img {
+  width: 96px;
+  height: 132px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-reminder-card h3 {
+  font-size: 16px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-reminder-card p {
+  font-size: 11px;
+  line-height: 1.48;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-reminder-card button {
+  min-height: 38px;
+  font-size: 10.5px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-quick-notes {
+  padding: 17px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-quick-notes header strong {
+  font-size: 15px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-quick-notes ul {
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+/* Estadísticas */
+.mnx-simulador-cofre-layout .mnx-simulador-stats {
+  min-height: 90px;
+  margin-top: 16px;
+  border-radius: 22px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-stats span {
+  font-size: 10.5px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-stats strong {
+  font-size: 21px;
+}
+
+/* Laptop */
+@media (max-width: 1380px) and (min-width: 981px) {
+  .mnx-simulador-cofre-layout .mnx-simulador-main {
+    max-width: 1240px;
+    padding-inline: 24px;
+  }
+
+  .mnx-simulador-cofre-layout .mnx-simulador-activity-grid {
+    grid-template-columns:
+      minmax(300px, 340px)
+      minmax(0, 1fr);
+  }
+
+  .mnx-simulador-cofre-layout .mnx-simulador-art {
+    height: 610px;
+    min-height: 610px;
+  }
+
+  .mnx-simulador-cofre-layout .mnx-simulador-guide-steps article {
+    min-height: 154px;
+  }
+}
+
+/* Tableta */
+@media (max-width: 980px) {
+  .mnx-simulador-cofre-layout .mnx-simulador-activity-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "art"
+      "guide"
+      "challenges"
+      "actions"
+      "reminder"
+      "notes";
+  }
+
+  .mnx-simulador-cofre-layout .mnx-simulador-art {
+    width: min(100%, 620px);
+    height: 580px;
+    min-height: 580px;
+    margin-inline: auto;
+  }
+
+  .mnx-simulador-cofre-layout .mnx-simulador-challenges {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Móvil */
+@media (max-width: 700px) {
+  .mnx-simulador-cofre-layout .mnx-simulador-title-row h1 {
+    font-size: 32px;
+  }
+
+  .mnx-simulador-cofre-layout .mnx-simulador-challenges,
+  .mnx-simulador-cofre-layout .mnx-simulador-actions,
+  .mnx-simulador-cofre-layout .mnx-simulador-predictions {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-simulador-cofre-layout .mnx-simulador-predictions .mnx-simulador-challenge-head,
+  .mnx-simulador-cofre-layout .mnx-simulador-prediction-rule,
+  .mnx-simulador-cofre-layout .mnx-simulador-evidence-card,
+  .mnx-simulador-cofre-layout .mnx-simulador-status-card {
+    grid-column: auto;
+  }
+
+  .mnx-simulador-cofre-layout .mnx-simulador-art {
+    height: 500px;
+    min-height: 500px;
+  }
+
+  .mnx-simulador-cofre-layout .mnx-simulador-reminder-card {
+    grid-template-columns:
+      82px minmax(0, 1fr);
+  }
+
+  .mnx-simulador-cofre-layout .mnx-simulador-reminder-card img {
+    width: 82px;
+    height: 112px;
+  }
+}
+
+
+/* =====================================================================
+   AJUSTE FINAL DEL SIDEBAR
+   - Textos en negrita.
+   - Menú más compacto.
+   - El progreso semanal deja de irse hasta el fondo.
+   - Se elimina el espacio vacío sobrante.
+   ===================================================================== */
+
+.mnx-simulador-cofre-layout .mnx-simulador-sidebar {
+  justify-content: flex-start;
+  padding-bottom: 24px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-sidebar-logo {
+  margin-bottom: 22px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-sidebar-menu {
+  gap: 7px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-menu-item {
+  min-height: 54px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.25;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-menu-item span {
+  font-weight: 850;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-week-card {
+  min-height: 118px;
+  margin-top: 22px;
+  padding: 14px;
+  flex: 0 0 auto;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-week-head,
+.mnx-simulador-cofre-layout .mnx-simulador-week-progress {
+  font-weight: 850;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-week-head strong,
+.mnx-simulador-cofre-layout .mnx-simulador-week-head span,
+.mnx-simulador-cofre-layout .mnx-simulador-week-progress strong {
+  font-weight: 850;
+}
+
+/* Evita que el sidebar produzca huecos exagerados en pantallas altas. */
+@media (min-width: 981px) {
+  .mnx-simulador-cofre-layout .mnx-simulador-sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .mnx-simulador-cofre-layout .mnx-simulador-week-card {
+    margin-top: 22px;
+  }
+}
+
+@media (max-width: 980px) {
+  .mnx-simulador-cofre-layout .mnx-simulador-week-card {
+    margin-top: 20px;
+  }
+}
+
+
+/* =====================================================================
+   CORRECCIÓN DEFINITIVA DEL ESPACIO DEL SIDEBAR
+   Se aplican reglas directas para que funcionen aunque no exista
+   la clase mnx-simulador-cofre-layout en el componente.
+   ===================================================================== */
+
+.mnx-simulador-sidebar {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  padding-bottom: 22px !important;
+}
+
+.mnx-simulador-sidebar-logo {
+  flex: 0 0 auto !important;
+  margin-bottom: 20px !important;
+}
+
+.mnx-simulador-sidebar-menu {
+  flex: 0 0 auto !important;
+  width: 100% !important;
+  gap: 6px !important;
+  margin: 0 !important;
+}
+
+.mnx-simulador-menu-item,
+.mnx-simulador-menu-item span {
+  font-weight: 900 !important;
+}
+
+.mnx-simulador-menu-item {
+  min-height: 52px !important;
+  padding: 0 16px !important;
+  font-size: 14px !important;
+  line-height: 1.25 !important;
+}
+
+/* Quita el margin-top:auto original que empujaba la tarjeta al fondo. */
+.mnx-simulador-week-card {
+  flex: 0 0 auto !important;
+  width: 100% !important;
+  min-height: 116px !important;
+  margin: 16px 0 0 !important;
+  padding: 14px !important;
+}
+
+.mnx-simulador-week-head,
+.mnx-simulador-week-head strong,
+.mnx-simulador-week-head span,
+.mnx-simulador-week-progress,
+.mnx-simulador-week-progress strong {
+  font-weight: 900 !important;
+}
+
+/* En pantallas bajas permite desplazamiento sin volver a crear el hueco. */
+@media (max-height: 760px) and (min-width: 981px) {
+  .mnx-simulador-sidebar {
+    overflow-y: auto !important;
+  }
+
+  .mnx-simulador-week-card {
+    margin-top: 14px !important;
+  }
+}
+
+
+/* =====================================================================
+   CORRECCIÓN DEL HUECO VACÍO DE LA COLUMNA IZQUIERDA
+   La portada ahora se estira junto con la guía y los retos del lado
+   derecho, por lo que ya no queda el fondo vacío antes de la pista.
+   ===================================================================== */
+
+@media (min-width: 981px) {
+  .mnx-simulador-activity-grid,
+  .mnx-simulador-cofre-layout .mnx-simulador-activity-grid {
+    align-items: stretch !important;
+  }
+
+  .mnx-simulador-art,
+  .mnx-simulador-cofre-layout .mnx-simulador-art {
+    height: auto !important;
+    min-height: 640px !important;
+    align-self: stretch !important;
+  }
+
+  .mnx-simulador-art > img,
+  .mnx-simulador-cofre-layout .mnx-simulador-art > img {
+    height: 100% !important;
+    min-height: 0 !important;
+    object-fit: cover !important;
+  }
+
+  .mnx-simulador-reminder-card,
+  .mnx-simulador-cofre-layout .mnx-simulador-reminder-card,
+  .mnx-simulador-quick-notes,
+  .mnx-simulador-cofre-layout .mnx-simulador-quick-notes {
+    align-self: start !important;
+    margin-top: 0 !important;
+  }
+}
+
+/* Mantiene una altura controlada al pasar a una sola columna. */
+@media (max-width: 980px) {
+  .mnx-simulador-art,
+  .mnx-simulador-cofre-layout .mnx-simulador-art {
+    height: 580px !important;
+    min-height: 580px !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-simulador-art,
+  .mnx-simulador-cofre-layout .mnx-simulador-art {
+    height: 500px !important;
+    min-height: 500px !important;
+  }
+}
+/* =====================================================================
+   AJUSTE V4 · RETO EXTRA, RESPUESTAS MEZCLADAS Y PORTADA COMPACTA
+   ===================================================================== */
+
+.mnx-simulador-page textarea {
+  font: inherit;
+}
+
+.mnx-simulador-page textarea:focus-visible {
+  outline: 4px solid rgba(255, 183, 3, 0.38);
+  outline-offset: 3px;
+}
+
+/* Columnas independientes: la altura de los retos ya no estira la imagen. */
+.mnx-simulador-cofre-layout .mnx-simulador-activity-grid,
+.mnx-simulador-activity-grid {
+  display: grid !important;
+  grid-template-columns: minmax(315px, 370px) minmax(0, 1fr) !important;
+  grid-template-areas: none !important;
+  gap: 18px !important;
+  align-items: start !important;
+}
+
+.mnx-simulador-left-column,
+.mnx-simulador-right-column {
+  min-width: 0;
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+.mnx-simulador-left-column > *,
+.mnx-simulador-right-column > * {
+  width: 100% !important;
+  margin: 0 !important;
+  grid-area: auto !important;
+}
+
+/* Portada más corta y sin estirarse por el contenido derecho. */
+.mnx-simulador-cofre-layout .mnx-simulador-art,
+.mnx-simulador-art {
+  height: 500px !important;
+  min-height: 500px !important;
+  align-self: start !important;
+  padding: 14px 14px 128px !important;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-art > img,
+.mnx-simulador-art > img {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  object-fit: cover !important;
+  object-position: center 44% !important;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-mission,
+.mnx-simulador-mission {
+  min-height: 98px;
+  padding: 13px 14px;
+}
+
+/* Retos organizados y reto extra a todo el ancho. */
+.mnx-simulador-right-column .mnx-simulador-challenges {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+.mnx-simulador-right-column .mnx-simulador-predictions,
+.mnx-simulador-right-column .mnx-simulador-explanation-card {
+  grid-column: 1 / -1;
+}
+
+.mnx-simulador-explanation-card {
+  min-width: 0;
+  padding: 18px !important;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.mnx-simulador-explanation-card .mnx-simulador-challenge-head > span {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 16px;
+  font-size: 16px;
+}
+
+.mnx-simulador-explanation-card .mnx-simulador-challenge-head h2 {
+  font-size: 19px;
+  line-height: 1.25;
+}
+
+.mnx-simulador-explanation-card .mnx-simulador-challenge-head p {
+  font-size: 12px;
+}
+
+.mnx-simulador-answer-box {
+  margin-top: 14px;
+  position: relative;
+  display: block;
+}
+
+.mnx-simulador-answer-box textarea {
+  width: 100%;
+  min-height: 150px;
+  padding: 17px 17px 34px;
+  border: 2px solid #dce8df;
+  border-radius: 20px;
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.mnx-simulador-answer-box textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(12, 164, 75, 0.09);
+}
+
+.mnx-simulador-answer-box > span {
+  position: absolute;
+  right: 17px;
+  bottom: 11px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mnx-simulador-explanation-actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mnx-simulador-save-explanation {
+  width: auto !important;
+  min-width: 255px;
+  min-height: 58px !important;
+  padding: 0 22px;
+  border: 0 !important;
+  border-radius: 18px !important;
+  background: linear-gradient(180deg, #18b95c, #078c40) !important;
+  color: #ffffff !important;
+  font-size: 15px;
+  box-shadow: 0 13px 24px rgba(19, 168, 78, 0.22) !important;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.mnx-simulador-save-explanation:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 17px 30px rgba(19, 168, 78, 0.28) !important;
+}
+
+/* El resto de tarjetas de la izquierda queda inmediatamente bajo la imagen. */
+.mnx-simulador-left-column .mnx-simulador-reminder-card,
+.mnx-simulador-left-column .mnx-simulador-quick-notes {
+  align-self: start !important;
+}
+
+@media (max-width: 1380px) and (min-width: 981px) {
+  .mnx-simulador-cofre-layout .mnx-simulador-activity-grid,
+  .mnx-simulador-activity-grid {
+    grid-template-columns: minmax(285px, 325px) minmax(0, 1fr) !important;
+  }
+
+  .mnx-simulador-cofre-layout .mnx-simulador-art,
+  .mnx-simulador-art {
+    height: 470px !important;
+    min-height: 470px !important;
+  }
+}
+
+@media (max-width: 980px) {
+  .mnx-simulador-cofre-layout .mnx-simulador-activity-grid,
+  .mnx-simulador-activity-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .mnx-simulador-left-column,
+  .mnx-simulador-right-column {
+    width: 100%;
+  }
+
+  .mnx-simulador-cofre-layout .mnx-simulador-art,
+  .mnx-simulador-art {
+    width: min(100%, 620px) !important;
+    height: 500px !important;
+    min-height: 500px !important;
+    margin-inline: auto !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-simulador-right-column .mnx-simulador-challenges {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-simulador-right-column .mnx-simulador-predictions,
+  .mnx-simulador-right-column .mnx-simulador-explanation-card {
+    grid-column: auto;
+  }
+
+  .mnx-simulador-cofre-layout .mnx-simulador-art,
+  .mnx-simulador-art {
+    height: 430px !important;
+    min-height: 430px !important;
+    padding: 12px 12px 120px !important;
+  }
+
+  .mnx-simulador-explanation-card {
+    padding: 15px !important;
+  }
+
+  .mnx-simulador-explanation-card .mnx-simulador-challenge-head h2 {
+    font-size: 17px;
+  }
+
+  .mnx-simulador-answer-box textarea {
+    min-height: 135px;
+    font-size: 15px;
+  }
+
+  .mnx-simulador-save-explanation {
+    width: 100% !important;
+    min-width: 0;
+  }
+}
+
+/* =====================================================================
+   AJUSTE V5 · ACCIONES Y ESTADÍSTICAS EN LA COLUMNA IZQUIERDA
+   ===================================================================== */
+
+/* Mantiene compacta la columna izquierda y aprovecha el espacio disponible. */
+.mnx-simulador-cofre-layout .mnx-simulador-left-column,
+.mnx-simulador-left-column {
+  gap: 16px;
+}
+
+/* El botón principal ahora ocupa todo el ancho debajo de las notas. */
+.mnx-simulador-cofre-layout .mnx-simulador-check-button-left,
+.mnx-simulador-check-button-left {
+  width: 100% !important;
+  min-height: 66px;
+  margin: 0 !important;
+  border-radius: 19px;
+  font-size: 15px;
+}
+
+/* Estadísticas compactas en una cuadrícula 2 × 2. */
+.mnx-simulador-cofre-layout .mnx-simulador-stats-compact,
+.mnx-simulador-stats-compact {
+  width: 100% !important;
+  min-height: 0;
+  margin: 0 !important;
+  border-radius: 24px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  box-shadow: var(--shadow-sm);
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-stats-compact article,
+.mnx-simulador-stats-compact article {
+  min-height: 94px;
+  padding: 14px 12px;
+  justify-content: flex-start;
+  border-right: 1px solid #e8f0e9;
+  border-bottom: 1px solid #e8f0e9;
+}
+
+.mnx-simulador-stats-compact article:nth-child(2n) {
+  border-right: 0;
+}
+
+.mnx-simulador-stats-compact article:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.mnx-simulador-stats-compact svg,
+.mnx-simulador-stats-compact .mnx-simulador-xp-star {
+  font-size: 28px !important;
+}
+
+.mnx-simulador-stats-compact span {
+  font-size: 10px !important;
+}
+
+.mnx-simulador-stats-compact strong {
+  font-size: 17px !important;
+}
+
+/* Al quitar Guardar avance, el estado usa todo el ancho sin huecos. */
+.mnx-simulador-cofre-layout .mnx-simulador-actions,
+.mnx-simulador-actions {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 14px;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-status-card,
+.mnx-simulador-cofre-layout .mnx-simulador-evidence-card,
+.mnx-simulador-status-card,
+.mnx-simulador-evidence-card {
+  grid-column: 1 / -1 !important;
+  width: 100%;
+}
+
+@media (max-width: 980px) {
+  .mnx-simulador-left-column {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.72fr);
+    align-items: start;
+  }
+
+  .mnx-simulador-left-column .mnx-simulador-art {
+    grid-row: span 2;
+  }
+
+  .mnx-simulador-left-column .mnx-simulador-check-button-left,
+  .mnx-simulador-left-column .mnx-simulador-stats-compact {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-simulador-left-column {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-simulador-left-column .mnx-simulador-art {
+    grid-row: auto;
+  }
+
+  .mnx-simulador-stats-compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mnx-simulador-stats-compact article {
+    min-height: 86px;
+  }
+}
+
+/* =====================================================================
+   AJUSTE V6 · ESTADO EN LA COLUMNA IZQUIERDA
+   Evita el hueco que quedaba junto al reto de explicación.
+   ===================================================================== */
+
+.mnx-simulador-left-status {
+  display: grid;
+  gap: 14px;
+  width: 100%;
+}
+
+.mnx-simulador-left-status > * {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+.mnx-simulador-status-card-left,
+.mnx-simulador-evidence-card-left {
+  min-height: 0 !important;
+  padding: 16px !important;
+  border-radius: 22px !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.mnx-simulador-status-card-left {
+  gap: 10px !important;
+}
+
+.mnx-simulador-status-card-left > div {
+  min-height: 46px;
+  padding: 9px 11px;
+}
+
+.mnx-simulador-status-card-left p {
+  font-size: 10.5px;
+}
+
+.mnx-simulador-status-card-left small {
+  font-size: 9.5px;
+  line-height: 1.45;
+}
+
+/* La antigua columna de acciones ya no participa en la distribución. */
+.mnx-simulador-right-column > .mnx-simulador-actions {
+  display: none !important;
+}
+
+@media (max-width: 980px) {
+  .mnx-simulador-left-status {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-simulador-status-card-left,
+  .mnx-simulador-evidence-card-left {
+    padding: 14px !important;
+  }
+}
+
+/* =====================================================================
+   AJUSTE V7 · SIN HUECO ENTRE COLUMNAS
+   La columna izquierda se estira hasta la misma altura que la derecha y
+   la tarjeta de estado ocupa cualquier espacio restante.
+   ===================================================================== */
+
+@media (min-width: 981px) {
+  .mnx-simulador-cofre-layout .mnx-simulador-activity-grid,
+  .mnx-simulador-activity-grid {
+    align-items: stretch !important;
+  }
+
+  .mnx-simulador-left-column {
+    height: 100%;
+    align-self: stretch;
+    grid-template-rows:
+      auto
+      auto
+      auto
+      auto
+      auto
+      minmax(230px, 1fr);
+    align-content: stretch;
+  }
+
+  .mnx-simulador-left-status {
+    height: 100%;
+    grid-template-rows: auto minmax(0, 1fr);
+    align-content: stretch;
+  }
+
+  .mnx-simulador-left-status > .mnx-simulador-status-card-left:last-child {
+    height: 100% !important;
+    align-self: stretch;
+  }
+}
+
+@media (max-width: 980px) {
+  .mnx-simulador-left-column {
+    height: auto;
+    grid-template-rows: none;
+  }
+
+  .mnx-simulador-left-status,
+  .mnx-simulador-left-status > .mnx-simulador-status-card-left:last-child {
+    height: auto !important;
+  }
+}
+
+
+/* =====================================================================
+   EFERAS RTX.WEBP · ANIMACIÓN PRINCIPAL DEL SIMULADOR
+   Ruta:
+   src/assets/mathnumbers/12-simulador/eferas rtx.webp
+
+   El navegador reproduce automáticamente el WebP animado dentro de <img>.
+   ===================================================================== */
+
+.mnx-simulador-cofre-layout .mnx-simulador-art {
+  overflow: hidden;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-art > img {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-width: none;
+  max-height: none;
+  display: block;
+  object-fit: contain !important;
+  object-position: center !important;
+  border-radius: 20px;
+  pointer-events: none;
+  user-select: none;
+  filter:
+    saturate(1.06)
+    contrast(1.03)
+    brightness(1.02)
+    drop-shadow(0 18px 20px rgba(0, 0, 0, 0.22));
+}
+
+@media (max-width: 700px) {
+  .mnx-simulador-cofre-layout .mnx-simulador-art > img {
+    border-radius: 16px;
+  }
+}
+
+/* =====================================================================
+   AUDIO · INTRODUCCIÓN Y CONSEJO DE SUMA
+   ===================================================================== */
+
+.mnx-simulador-cofre-layout .mnx-simulador-speech p {
+  min-height: 64px;
+  margin: 9px 0 0;
+}
+
+.mnx-simulador-audio-controls {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.mnx-simulador-audio-controls button {
+  width: 35px;
+  height: 35px;
+  min-height: 35px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #18ba5e, #078b42);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(19, 168, 78, 0.2);
+  transition:
+    transform 0.22s ease,
+    opacity 0.22s ease,
+    filter 0.22s ease;
+}
+
+.mnx-simulador-audio-controls button:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.05);
+  filter: brightness(1.06);
+}
+
+.mnx-simulador-audio-controls button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mnx-simulador-audio-status {
+  min-height: 34px;
+  padding: 0 11px;
+  border-radius: 999px;
+  color: var(--muted);
+  background: #edf4ef;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 850;
+}
+
+.mnx-simulador-audio-status svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+}
+
+.mnx-simulador-audio-status.is-playing,
+.mnx-simulador-reminder-audio-status.is-playing {
+  color: var(--primary-dark);
+  background: #ddf7e4;
+  animation: mnx-simulador-audio-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes mnx-simulador-audio-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(19, 168, 78, 0.15);
+  }
+
+  50% {
+    box-shadow: 0 0 0 7px rgba(19, 168, 78, 0);
+  }
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-reminder-card {
+  min-height: 250px;
+  height: auto;
+  align-items: center;
+}
+
+.mnx-simulador-cofre-layout .mnx-simulador-reminder-card img {
+  animation: mnx-simulador-reminder-float 3s ease-in-out infinite;
+}
+
+@keyframes mnx-simulador-reminder-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-6px) rotate(1deg);
+  }
+}
+
+.mnx-simulador-reminder-copy {
+  min-width: 0;
+}
+
+.mnx-simulador-reminder-audio-controls {
+  width: 100%;
+  margin-top: 11px;
+  display: grid;
+  grid-template-columns: repeat(3, 34px);
+  align-items: center;
+  justify-content: start;
+  gap: 7px;
+}
+
+.mnx-simulador-cofre-layout
+  .mnx-simulador-reminder-audio-controls
+  button {
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #18ba5e, #078b42);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 7px 14px rgba(19, 168, 78, 0.18);
+  transition:
+    transform 0.22s ease,
+    opacity 0.22s ease;
+}
+
+.mnx-simulador-cofre-layout
+  .mnx-simulador-reminder-audio-controls
+  button:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.04);
+}
+
+.mnx-simulador-cofre-layout
+  .mnx-simulador-reminder-audio-controls
+  button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mnx-simulador-reminder-audio-status {
+  grid-column: 1 / -1;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 31px;
+  padding: 0 9px;
+  border-radius: 999px;
+  color: var(--muted);
+  background: #edf4ef;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 850;
+}
+
+.mnx-simulador-reminder-audio-status svg {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 13px;
+}
+
+@media (max-width: 700px) {
+  .mnx-simulador-audio-controls {
+    justify-content: center;
+  }
+
+  .mnx-simulador-audio-status {
+    flex: 1 1 150px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 460px) {
+  .mnx-simulador-reminder-copy {
+    text-align: center;
+  }
+
+  .mnx-simulador-reminder-audio-controls {
+    justify-content: center;
+  }
+
+  .mnx-simulador-reminder-audio-status {
+    justify-self: center;
+    justify-content: center;
+  }
+}

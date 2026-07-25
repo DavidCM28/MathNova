@@ -8,7 +8,6 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiBarChart2,
-  FiBookOpen,
   FiCheck,
   FiFlag,
   FiGrid,
@@ -32,7 +31,9 @@ import { Toast } from "../components/Toast";
 import { ResultModal } from "../components/ResultModal";
 import type { ResultKind } from "../types";
 import { useToast } from "../hooks/useToast";
-import { guardarProgresoActividad } from "../../../services/progresoService";
+import {
+  guardarProgresoUsuarioActual,
+} from "../../../services/progresoService";
 import {
   chestFall,
   chestVib,
@@ -61,8 +62,8 @@ type CharacterMediaConfig = {
 
 
 const correctAnswers: Record<QuestionKey, AnswerValue> = {
-  q1: "b",
-  q2: "b",
+  q1: "c",
+  q2: "d",
 };
 
 const cofreRoute = "/actividades/mathnumbers/cofre-bienvenida";
@@ -847,7 +848,9 @@ export function CofreBienvenida() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [chestPhase, setChestPhase] =
     useState<ChestPhase>("fall");
-  const [attempts] = useState(0);
+  const [attempts, setAttempts] = useState(0);
+  const [guardandoProgreso, setGuardandoProgreso] =
+    useState(false);
   const [guideAudioStatus, setGuideAudioStatus] =
     useState<AudioStatus>("idle");
 
@@ -858,6 +861,8 @@ export function CofreBienvenida() {
     useState<ResultKind>("completed");
 
   const introAudioRef = useRef<HTMLAudioElement | null>(null);
+  const inicioActividadRef = useRef<number>(Date.now());
+  const resultTimerRef = useRef<number | null>(null);
   const [introAudioStatus, setIntroAudioStatus] =
     useState<AudioStatus>("idle");
 
@@ -884,6 +889,14 @@ export function CofreBienvenida() {
       document.body.style.overflow = "auto";
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (resultTimerRef.current !== null) {
+        window.clearTimeout(resultTimerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const animation = new Image();
@@ -982,6 +995,10 @@ export function CofreBienvenida() {
     question: QuestionKey,
     value: AnswerValue,
   ) => {
+    if (guardandoProgreso) {
+      return;
+    }
+
     setAnswers((current) => ({
       ...current,
       [question]: value,
@@ -1014,14 +1031,23 @@ export function CofreBienvenida() {
   };
 
   const limpiarActividad = () => {
+    if (resultTimerRef.current !== null) {
+      window.clearTimeout(resultTimerRef.current);
+      resultTimerRef.current = null;
+    }
+
     setAnswers({});
     setChecked(false);
     setSolved(false);
     setChestPhase("fall");
+    setGuardandoProgreso(false);
+
+    inicioActividadRef.current = Date.now();
   };
 
   const repetirActividad = () => {
     limpiarActividad();
+    setAttempts(0);
     setResultModalOpen(false);
     setResultModalKind("completed");
 
@@ -1045,6 +1071,10 @@ export function CofreBienvenida() {
   };
 
   const comprobar = async () => {
+    if (guardandoProgreso) {
+      return;
+    }
+
     if (progress !== 2) {
       showToast(
         "Selecciona una respuesta en cada pregunta para abrir el cofre.",
@@ -1060,86 +1090,77 @@ export function CofreBienvenida() {
         answers[question] === correctAnswers[question],
     ).length;
 
-    setChecked(total === 2);
-    setSolved(total === 2);
-
-    let idUsuario = 17;
-
-    try {
-      const sessionString = localStorage.getItem("auth_session");
-
-      if (sessionString) {
-        const session = JSON.parse(sessionString);
-
-        if (session && session.id_usuario) {
-          idUsuario = Number(session.id_usuario);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-
-    const nuevasEstrellas = total === 2 ? 3 : total === 1 ? 1 : 0;
     const esCorrecto = total === 2;
 
-    const payload = {
-      id_usuario: idUsuario,
-      mundo: "MathNumbers",
-      tema: "Fracciones y decimales",
-      actividad_codigo: "mathnumbers-cofre-bienvenida",
-      actividad_titulo: "El Cofre de Bienvenida",
-      respuestas: answers as Record<string, unknown>,
-      aciertos: total,
-      total_preguntas: 2,
-      estrellas_obtenidas: nuevasEstrellas,
-      xp_obtenido: total * 25,
-      completada: esCorrecto,
-      tiempo_segundos: 0,
-      xp_base: 50,
-    };
+    const tiempoSegundos = Math.max(
+      1,
+      Math.floor(
+        (Date.now() - inicioActividadRef.current) / 1000,
+      ),
+    );
+
+    /*
+     * Solo mostramos las respuestas correctas cuando el alumno
+     * resolvió toda la actividad. Así no revelamos la respuesta
+     * al abrir el modal de "casi" o "vuelve a intentarlo".
+     */
+    setChecked(esCorrecto);
+    setSolved(esCorrecto);
+
+    setAttempts((intentosActuales) =>
+      Math.min(intentosActuales + 1, 3),
+    );
+
+    setGuardandoProgreso(true);
 
     try {
-      const progresoKey =
-        `progreso_${idUsuario}_cofre-bienvenida`;
-      const progresoPrevioRaw =
-        localStorage.getItem(progresoKey);
-      let yaTeniaEstrellas = false;
-      let estrellasAnteriores = 0;
+      const resultado =
+        await guardarProgresoUsuarioActual({
+          mundo: "MathNumbers",
+          tema: "Fracciones y decimales",
+          actividad_codigo:
+            "mathnumbers-cofre-bienvenida",
+          actividad_titulo:
+            "El Cofre de Bienvenida",
+          respuestas:
+            answers as Record<string, unknown>,
+          aciertos: total,
+          total_preguntas: 2,
+          tiempo_segundos: tiempoSegundos,
+          xp_base: 40,
+          completada: esCorrecto,
+        });
 
-      if (progresoPrevioRaw) {
-        const progresoPrevio = JSON.parse(progresoPrevioRaw);
-        estrellasAnteriores =
-          progresoPrevio.estrellas_obtenidas || 0;
-        yaTeniaEstrellas = estrellasAnteriores > 0;
-      }
-
-      await guardarProgresoActividad(payload);
-
-      localStorage.setItem(
-        progresoKey,
-        JSON.stringify({
-          estrellas_obtenidas: Math.max(
-            estrellasAnteriores,
-            nuevasEstrellas,
-          ),
-        }),
+      const estrellasGuardadas = Number(
+        resultado.progreso.estrellas_obtenidas ?? 0,
       );
 
-      if (total === 2) {
-        if (yaTeniaEstrellas) {
-          showToast(
-            `¡Increíble! Has vuelto a abrir el cofre. Ya cuentas con las ${estrellasAnteriores} ⭐ de esta bienvenida en tu perfil.`,
-            false,
-          );
-        } else {
-          showToast(
-            `¡Perfecto! El cofre se iluminó. ¡Has ganado ${nuevasEstrellas} estrellas! ⭐`,
-          );
+      const numeroIntentos = Number(
+        resultado.progreso.intentos ?? 1,
+      );
+
+      console.log(
+        "Progreso del Cofre guardado:",
+        resultado.progreso,
+      );
+
+      inicioActividadRef.current = Date.now();
+
+      if (esCorrecto) {
+        showToast(
+          numeroIntentos > 1
+            ? `¡Increíble! Volviste a abrir el cofre. Tu mejor resultado conserva ${estrellasGuardadas} ⭐.`
+            : `¡Perfecto! El cofre se iluminó. ¡Has ganado ${estrellasGuardadas} estrellas! ⭐`,
+        );
+
+        if (resultTimerRef.current !== null) {
+          window.clearTimeout(resultTimerRef.current);
         }
 
-        window.setTimeout(() => {
+        resultTimerRef.current = window.setTimeout(() => {
           setResultModalKind("completed");
           setResultModalOpen(true);
+          resultTimerRef.current = null;
         }, 1300);
 
         return;
@@ -1152,18 +1173,34 @@ export function CofreBienvenida() {
         true,
       );
 
-      window.setTimeout(() => {
+      if (resultTimerRef.current !== null) {
+        window.clearTimeout(resultTimerRef.current);
+      }
+
+      resultTimerRef.current = window.setTimeout(() => {
         setResultModalKind(
           total === 1 ? "almost" : "retry",
         );
         setResultModalOpen(true);
+        resultTimerRef.current = null;
       }, 1100);
     } catch (error) {
-      console.error(error);
+      console.error(
+        "No se pudo guardar el progreso del Cofre:",
+        error,
+      );
+
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "No se pudo guardar el progreso.";
+
       showToast(
-        "Error de conexión: No se pudo verificar tu progreso.",
+        `Error de conexión: ${mensaje}`,
         true,
       );
+    } finally {
+      setGuardandoProgreso(false);
     }
   };
 
@@ -1514,6 +1551,7 @@ export function CofreBienvenida() {
                     type="button"
                     className={answerClass("q1", "a")}
                     onClick={() => selectAnswer("q1", "a")}
+                    disabled={guardandoProgreso}
                   >
                     <span>A</span>
                     <strong>0.2</strong>
@@ -1524,9 +1562,10 @@ export function CofreBienvenida() {
                     type="button"
                     className={answerClass("q1", "b")}
                     onClick={() => selectAnswer("q1", "b")}
+                    disabled={guardandoProgreso}
                   >
                     <span>B</span>
-                    <strong>0.5</strong>
+                    <strong>1.5</strong>
                     <i><FiCheck /></i>
                   </button>
 
@@ -1534,9 +1573,10 @@ export function CofreBienvenida() {
                     type="button"
                     className={answerClass("q1", "c")}
                     onClick={() => selectAnswer("q1", "c")}
+                    disabled={guardandoProgreso}
                   >
                     <span>C</span>
-                    <strong>1.5</strong>
+                    <strong>0.5</strong>
                     <i><FiCheck /></i>
                   </button>
 
@@ -1544,6 +1584,7 @@ export function CofreBienvenida() {
                     type="button"
                     className={answerClass("q1", "d")}
                     onClick={() => selectAnswer("q1", "d")}
+                    disabled={guardandoProgreso}
                   >
                     <span>D</span>
                     <strong>2.0</strong>
@@ -1566,6 +1607,7 @@ export function CofreBienvenida() {
                     type="button"
                     className={answerClass("q2", "a")}
                     onClick={() => selectAnswer("q2", "a")}
+                    disabled={guardandoProgreso}
                   >
                     <span>A</span>
                     <Fraction top="1" bottom="2" />
@@ -1576,9 +1618,10 @@ export function CofreBienvenida() {
                     type="button"
                     className={answerClass("q2", "b")}
                     onClick={() => selectAnswer("q2", "b")}
+                    disabled={guardandoProgreso}
                   >
                     <span>B</span>
-                    <Fraction top="1" bottom="4" />
+                    <Fraction top="4" bottom="1" />
                     <i><FiCheck /></i>
                   </button>
 
@@ -1586,6 +1629,7 @@ export function CofreBienvenida() {
                     type="button"
                     className={answerClass("q2", "c")}
                     onClick={() => selectAnswer("q2", "c")}
+                    disabled={guardandoProgreso}
                   >
                     <span>C</span>
                     <Fraction top="2" bottom="5" />
@@ -1596,9 +1640,10 @@ export function CofreBienvenida() {
                     type="button"
                     className={answerClass("q2", "d")}
                     onClick={() => selectAnswer("q2", "d")}
+                    disabled={guardandoProgreso}
                   >
                     <span>D</span>
-                    <Fraction top="4" bottom="1" />
+                    <Fraction top="1" bottom="4" />
                     <i><FiCheck /></i>
                   </button>
                 </div>
@@ -1634,9 +1679,13 @@ export function CofreBienvenida() {
                 type="button"
                 className="mnx-cofre-check-button"
                 onClick={comprobar}
+                disabled={guardandoProgreso}
+                aria-busy={guardandoProgreso}
               >
                 <FiCheck />
-                Comprobar respuestas
+                {guardandoProgreso
+                  ? "Guardando progreso..."
+                  : "Comprobar respuestas"}
                 <span>{progress}/2 listas</span>
               </button>
             </aside>

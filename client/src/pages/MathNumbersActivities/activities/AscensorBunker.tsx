@@ -4,6 +4,7 @@ import audioConsejoSumaAscensor from "../../../assets/mathnumbers/03-ascensor-bu
 import audioPistaByteAscensor from "../../../assets/mathnumbers/03-ascensor-bunker/pista_byte_ascensor.mp3";
 import bytePista from "../../../assets/mathnumbers/byte_pista.png";
 import videoByteAscensor from "../../../assets/mathnumbers/03-ascensor-bunker/byte_hablando_ascensor.mp4";
+import ascensorAnimado from "../../../assets/mathnumbers/03-ascensor-bunker/ascensor.webp";
 
 import { useEffect, useRef, useState } from "react";
 import type { DragEvent } from "react";
@@ -40,10 +41,11 @@ import { Toast } from "../components/Toast";
 import { ResultModal } from "../components/ResultModal";
 import type { ResultKind } from "../types";
 import { useToast } from "../hooks/useToast";
-import { guardarProgresoActividad } from "../../../services/progresoService";
 import {
-  ascensorCommander,
-  ascensorElevator,
+  guardarProgresoUsuarioActual,
+} from "../../../services/progresoService";
+
+import {
   cofreGuide,
   cofreHeroTalking,
   cofreHeroTalkingIdle,
@@ -724,6 +726,18 @@ export function AscensorBunker() {
   const [explanation, setExplanation] =
     useState("");
 
+  const [attempts, setAttempts] =
+    useState(0);
+
+  const [guardandoProgreso, setGuardandoProgreso] =
+    useState(false);
+
+  const inicioActividadRef =
+    useRef<number>(Date.now());
+
+  const resultadoTimerRef =
+    useRef<number | null>(null);
+
   /*
    * Controla la ventana modal de actividad completada.
    */
@@ -748,6 +762,14 @@ export function AscensorBunker() {
       document.body.style.overflow = "auto";
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (resultadoTimerRef.current !== null) {
+        window.clearTimeout(resultadoTimerRef.current);
+      }
+    };
+  }, []);
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
@@ -824,10 +846,19 @@ export function AscensorBunker() {
    * el Ascensor del Búnker.
    */
   const repetirActividad = () => {
+    if (resultadoTimerRef.current !== null) {
+      window.clearTimeout(resultadoTimerRef.current);
+      resultadoTimerRef.current = null;
+    }
+
     setResultModalOpen(false);
     setSelectedFloor(null);
     setSlots([...emptySlots]);
     setExplanation("");
+    setAttempts(0);
+    setGuardandoProgreso(false);
+
+    inicioActividadRef.current = Date.now();
 
     window.scrollTo({
       top: 0,
@@ -840,6 +871,10 @@ export function AscensorBunker() {
   };
 
   const verificar = async () => {
+    if (guardandoProgreso) {
+      return;
+    }
+
     if (progress < 5) {
       showToast(
         "Coloca las cinco tarjetas en el ascensor.",
@@ -852,101 +887,109 @@ export function AscensorBunker() {
       (value, index) => slots[index] === value,
     ).length;
 
-    // 1. Obtener el ID de usuario de la sesión
-    let idUsuario = 17; // ID por defecto
-    try {
-      const sessionString = localStorage.getItem("auth_session");
-      if (sessionString) {
-        const session = JSON.parse(sessionString);
-        if (session && session.id_usuario) idUsuario = Number(session.id_usuario);
-      }
-    } catch (e) {
-      console.error(e);
-    }
+    const esCorrecto = total === correctOrder.length;
 
-    // 2. Determinar las estrellas de la partida actual
-    const nuevasEstrellas = total === 5 ? 3 : total >= 3 ? 1 : 0;
-    const esCorrecto = total === 5;
+    const tiempoSegundos = Math.max(
+      1,
+      Math.floor(
+        (Date.now() - inicioActividadRef.current) / 1000,
+      ),
+    );
 
-    // 3. Estructurar el Payload para enviar
-    const payload = {
-      id_usuario: idUsuario,
-      mundo: "mathnumbers",
-      tema: "Tema 2: Positivos y negativos",
-      actividad_codigo: "ascensor-bunker",
-      actividad_titulo: "El Ascensor del Búnker",
-      aciertos: total,
-      total_preguntas: 5,
-      precision: (total / 5) * 100,
-      estrellas_obtenidas: nuevasEstrellas,
-      xp_obtenido: total * 10,
-      completada: esCorrecto,
-      tiempo_segundos: 0,
-      respuestas: {
-        slots_usuario: slots,
-        explicacion_texto: explanation,
-      },
-    };
+    setAttempts((intentosActuales) =>
+      Math.min(intentosActuales + 1, 3),
+    );
+
+    setGuardandoProgreso(true);
 
     try {
-      // --- MEJORA: Comprobar si ya había jugado y ganado estrellas antes ---
-      // Consultamos el progreso guardado en el localStorage como caché rápida del estado del usuario
-      const progresoKey = `progreso_${idUsuario}_ascensor-bunker`;
-      const progresoPrevioRaw = localStorage.getItem(progresoKey);
-      let yaTeniaEstrellas = false;
-      let estrellasAnteriores = 0;
+      const resultado =
+        await guardarProgresoUsuarioActual({
+          mundo: "MathNumbers",
+          tema: "Tema 2: Positivos y negativos",
+          actividad_codigo:
+            "mathnumbers-ascensor-bunker",
+          actividad_titulo:
+            "El Ascensor del Búnker",
+          respuestas: {
+            orden_usuario: slots,
+            explicacion_texto: explanation.trim(),
+          },
+          aciertos: total,
+          total_preguntas: correctOrder.length,
+          tiempo_segundos: tiempoSegundos,
+          xp_base: 50,
+          completada: esCorrecto,
+        });
 
-      if (progresoPrevioRaw) {
-        const progresoPrevio = JSON.parse(progresoPrevioRaw);
-        estrellasAnteriores = progresoPrevio.estrellas_obtenidas || 0;
-        yaTeniaEstrellas = estrellasAnteriores > 0;
+      inicioActividadRef.current = Date.now();
+
+      const progresoGuardado = resultado.progreso;
+      const estrellasGuardadas = Number(
+        progresoGuardado.estrellas_obtenidas ?? 0,
+      );
+      const numeroIntentos = Number(
+        progresoGuardado.intentos ?? 1,
+      );
+
+      console.log(
+        "Progreso del Ascensor guardado:",
+        progresoGuardado,
+      );
+
+      if (resultadoTimerRef.current !== null) {
+        window.clearTimeout(resultadoTimerRef.current);
       }
-
-      // Guardamos el progreso en el backend
-      await guardarProgresoActividad(payload);
-
-      // Guardamos localmente el progreso actual para futuras consultas rápidas
-      localStorage.setItem(progresoKey, JSON.stringify({ estrellas_obtenidas: Math.max(estrellasAnteriores, nuevasEstrellas) }));
 
       if (esCorrecto) {
-        if (yaTeniaEstrellas) {
-          // Mensaje elegante para cuando ya tenía estrellas en este nivel
-          showToast(
-            `¡Increíble! Has vuelto a superar el nivel. Ya cuentas con las ${estrellasAnteriores} ⭐ de este búnker en tu perfil.`,
-            false
-          );
-        } else {
-          // Mensaje para la primera vez que lo completa exitosamente
-          showToast(`¡Ruta correcta! Ascensor restablecido. ¡Has ganado ${nuevasEstrellas} estrellas! ⭐`);
-        }
+        showToast(
+          numeroIntentos > 1
+            ? `¡Increíble! Volviste a restablecer el ascensor. Tu mejor resultado conserva ${estrellasGuardadas} ⭐.`
+            : `¡Ruta correcta! Ascensor restablecido. ¡Has ganado ${estrellasGuardadas} estrellas! ⭐`,
+        );
 
-        window.setTimeout(() => {
+        resultadoTimerRef.current = window.setTimeout(() => {
           setResultModalKind("completed");
           setResultModalOpen(true);
-        }, 1200); // Damos un poco más de tiempo para leer el mensaje elegante
+          resultadoTimerRef.current = null;
+        }, 1200);
 
         return;
       }
 
-      // Si falla en ordenar
       showToast(
-        "El orden no es correcto. Inténtalo de nuevo.",
+        total >= 3
+          ? "Vas cerca: revisa la posición de algunos pisos."
+          : "El orden no es correcto. Inténtalo de nuevo.",
         true,
       );
 
-      window.setTimeout(() => {
+      resultadoTimerRef.current = window.setTimeout(() => {
         setResultModalKind(
           total >= 3 ? "almost" : "retry",
         );
         setResultModalOpen(true);
+        resultadoTimerRef.current = null;
       }, 900);
-
     } catch (error) {
-      console.error(error);
-      showToast("Error de conexión: No se pudo verificar tu progreso.", true);
+      console.error(
+        "No se pudo guardar el progreso del Ascensor:",
+        error,
+      );
+
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "No se pudo guardar el progreso.";
+
+      showToast(
+        `Error de conexión: ${mensaje}`,
+        true,
+      );
+    } finally {
+      setGuardandoProgreso(false);
     }
   };
-  
 
   return (
     <main className="mnx-ascensor-page">
@@ -1156,10 +1199,24 @@ export function AscensorBunker() {
 
         <section className="mnx-ascensor-activity-grid">
           <article className="mnx-ascensor-art">
-            <img
-              src={ascensorElevator}
-              alt="Ascensor del Búnker"
-            />
+            <div className="mnx-ascensor-visual">
+              <img
+                className="mnx-ascensor-visual-image"
+                src={ascensorAnimado}
+                alt="Ascensor del Búnker en funcionamiento"
+                draggable={false}
+              />
+
+              <span
+                className="mnx-ascensor-status-light mnx-ascensor-status-light-one"
+                aria-hidden="true"
+              />
+
+              <span
+                className="mnx-ascensor-status-light mnx-ascensor-status-light-two"
+                aria-hidden="true"
+              />
+            </div>
 
             <div className="mnx-ascensor-mission">
               <FiTarget />
@@ -1376,14 +1433,17 @@ export function AscensorBunker() {
               type="button"
               className="mnx-ascensor-check-btn"
               onClick={verificar}
+              disabled={guardandoProgreso}
+              aria-busy={guardandoProgreso}
             >
               <FiCheckCircle />
-              Comprobar orden
+              {guardandoProgreso
+                ? "Guardando progreso..."
+                : "Comprobar orden"}
             </button>
 
             <p className="mnx-ascensor-progress">
-              Progreso: {progress}/5 pisos
-              colocados
+              Progreso: {progress}/5 pisos colocados · Intentos: {attempts}/3
             </p>
 
             <article className="mnx-ascensor-evidence-card">

@@ -1073,3 +1073,354 @@ body {
 .fbk-menu-item:hover svg {
   transform: none !important;
 }
+
+
+/* =====================================================================
+   AJUSTE VISUAL · RETROALIMENTACIÓN MÁS AMPLIA Y ORDENADA
+   Mantiene la estructura y la lógica; solo corrige tamaños y distribución.
+   ===================================================================== */
+
+/* Página y sidebar más compactos */
+html body #root .fbk-page {
+  gap: 18px !important;
+  align-items: flex-start;
+}
+
+html body #root .fbk-page > .fbk-sidebar {
+  width: 250px !important;
+  min-width: 250px !important;
+  max-width: 250px !important;
+  min-height: 100vh !important;
+  padding: 26px 18px 20px !important;
+  border-radius: 0 28px 28px 0 !important;
+}
+
+html body #root .fbk-page > .fbk-sidebar .fbk-sidebar-logo {
+  width: 150px !important;
+  margin: 0 0 24px !important;
+}
+
+html body #root .fbk-page > .fbk-sidebar .fbk-sidebar-menu {
+  gap: 7px !important;
+}
+
+html body #root .fbk-page > .fbk-sidebar .fbk-menu-item,
+html body #root .fbk-page > .fbk-sidebar .fbk-menu-item.fbk-active {
+  min-height: 50px !important;
+  height: 50px !important;
+  max-height: 50px !important;
+  padding: 0 14px !important;
+  gap: 11px !important;
+  border-radius: 13px !important;
+  font-size: 13px !important;
+}
+
+html body #root .fbk-page > .fbk-sidebar .fbk-menu-item span {
+  font-size: 13px !important;
+}
+
+html body #root .fbk-page > .fbk-sidebar .fbk-menu-item svg {
+  width: 22px !important;
+  min-width: 22px !important;
+  height: 22px !important;
+  font-size: 22px !important;
+}
+
+html body #root .fbk-page > .fbk-sidebar .fbk-sidebar-bottom {
+  margin-top: 18px;
+}
+
+html body #root .fbk-page > .fbk-sidebar .fbk-hello-box {
+  min-height: 68px;
+  padding: 7px 12px 7px 8px;
+  border-radius: 18px;
+}
+
+html body #root .fbk-page > .fbk-sidebar .fbk-hello-box img {
+  width: 54px;
+  height: 54px;
+}
+
+html body #root .fbk-page > .fbk-sidebar .fbk-hello-box span {
+  font-size: 13px;
+}
+
+html body #root .fbk-page > .fbk-sidebar .fbk-sidebar-fox-box {
+  margin-top: 10px;
+  padding: 0;
+}
+
+html body #root .fbk-page > .fbk-sidebar .fbk-sidebar-fox {
+  width: 130px;
+  max-width: 130px;
+}
+
+/* Contenido principal con mejor respiración */
+.fbk-content {
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 28px 28px 24px;
+}
+
+.fbk-topbar {
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.fbk-topbar h1 {
+  font-size: clamp(48px, 4vw, 66px);
+  line-height: 1;
+  letter-spacing: -1.5px;
+}
+
+.fbk-topbar p {
+  margin-top: 11px;
+  font-size: 18px;
+  line-height: 1.45;
+}
+
+.fbk-topbar-user-area {
+  gap: 12px;
+}
+
+.fbk-bell-btn {
+  width: 50px;
+  height: 50px;
+}
+
+.fbk-profile-chip {
+  height: 54px;
+  min-width: 190px;
+}
+
+/* Tres tarjetas amplias arriba y progreso abajo */
+.fbk-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+  align-items: stretch;
+}
+
+.fbk-card,
+.fbk-progress-panel {
+  min-height: 430px;
+  padding: 24px;
+  border-radius: 24px;
+}
+
+.fbk-progress-panel {
+  grid-column: 1 / -1;
+  min-height: 250px;
+  display: grid;
+  grid-template-columns: minmax(220px, 0.7fr) minmax(260px, 1fr) minmax(280px, 1fr);
+  gap: 24px;
+  align-items: center;
+}
+
+.fbk-progress-panel > h2,
+.fbk-progress-panel > p {
+  grid-column: 1;
+}
+
+.fbk-progress-panel > p {
+  margin: 10px 0 0;
+}
+
+.fbk-progress-fox {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  width: 170px;
+  height: 170px;
+  margin: 0 auto;
+  transform: scale(1.08);
+}
+
+.fbk-progress-panel:hover .fbk-progress-fox {
+  transform: scale(1.13) rotate(-3deg);
+}
+
+.fbk-progress-stats {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  margin-top: 0;
+  padding: 18px;
+  gap: 14px;
+}
+
+/* Tarjetas internas más equilibradas */
+.fbk-card > .fbk-card-icon {
+  width: 52px;
+  height: 52px;
+  min-height: 52px;
+  margin-bottom: 18px;
+}
+
+.fbk-card h2 {
+  font-size: 21px;
+}
+
+.fbk-summary-badge {
+  top: 24px;
+  right: 24px;
+}
+
+.fbk-summary-box {
+  margin-top: 26px;
+  padding: 19px 18px;
+}
+
+.fbk-summary-row {
+  margin-bottom: 17px;
+}
+
+.fbk-summary-row span {
+  font-size: 14px;
+}
+
+.fbk-summary-row strong {
+  font-size: 24px;
+}
+
+.fbk-guide-card p {
+  margin: 13px 0 17px;
+}
+
+.fbk-guide-list {
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.fbk-message-panel {
+  min-height: 220px;
+  margin-top: 18px;
+  padding: 20px 18px;
+}
+
+.fbk-message-panel p {
+  margin-bottom: 18px;
+  font-size: 14px;
+}
+
+.fbk-card button {
+  min-height: 50px;
+  margin-top: 20px;
+}
+
+/* Evita que los efectos hover provoquen cortes */
+.fbk-card:hover,
+.fbk-progress-panel:hover {
+  transform: translateY(-4px);
+}
+
+/* Laptop */
+@media (max-width: 1350px) and (min-width: 951px) {
+  html body #root .fbk-page > .fbk-sidebar {
+    width: 230px !important;
+    min-width: 230px !important;
+    max-width: 230px !important;
+  }
+
+  .fbk-content {
+    padding-inline: 22px;
+  }
+
+  .fbk-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .fbk-progress-panel {
+    grid-column: 1 / -1;
+  }
+
+  .fbk-card {
+    min-height: 410px;
+  }
+}
+
+/* Tableta */
+@media (max-width: 950px) {
+  .fbk-content {
+    padding-inline: 20px;
+  }
+
+  .fbk-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fbk-card,
+  .fbk-progress-panel {
+    max-width: none;
+    min-height: 0;
+  }
+
+  .fbk-progress-panel {
+    grid-column: auto;
+    grid-template-columns: 1fr 190px;
+  }
+
+  .fbk-progress-panel > h2,
+  .fbk-progress-panel > p {
+    grid-column: 1;
+  }
+
+  .fbk-progress-fox {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .fbk-progress-stats {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+}
+
+/* Móvil */
+@media (max-width: 850px) {
+  .fbk-content {
+    padding: 118px 16px 22px;
+  }
+
+  .fbk-topbar {
+    align-items: flex-start;
+  }
+
+  .fbk-topbar h1 {
+    font-size: 40px;
+  }
+
+  .fbk-topbar p {
+    font-size: 16px;
+  }
+
+  .fbk-hamburger-btn {
+    width: 62px;
+    height: 62px;
+    top: 20px;
+    left: 18px;
+    border-radius: 18px;
+  }
+
+  .fbk-hamburger-btn img {
+    width: 42px;
+    height: 42px;
+  }
+
+  .fbk-progress-panel {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .fbk-progress-panel > h2,
+  .fbk-progress-panel > p,
+  .fbk-progress-fox,
+  .fbk-progress-stats {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .fbk-progress-fox {
+    width: 150px;
+    height: 150px;
+  }
+}

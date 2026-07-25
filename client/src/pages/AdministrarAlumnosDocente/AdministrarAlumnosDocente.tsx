@@ -33,6 +33,7 @@ import {
   FiAlertTriangle,
   FiStar,
   FiCheckCircle,
+  FiUserCheck,
   FiInfo,
   FiX,
   FiUser,
@@ -812,6 +813,16 @@ function AdministrarAlumnosDocente() {
 
             <div className="docente-menu-divider"></div>
 
+            <button
+              type="button"
+              className={`docente-menu-item ${
+                selectedMenu === "gestion-docentes" ? "active" : ""
+              }`}
+              onClick={() => irARuta("/gestion-docentes", "gestion-docentes")}
+            >
+              <FiUserCheck />
+              <span>Gestión de docentes</span>
+            </button>
             <button
               type="button"
               className={`docente-menu-item ${
