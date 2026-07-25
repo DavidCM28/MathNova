@@ -128,6 +128,11 @@ const operationSymbols: Record<OperationKey, string> = {
 
 const challengeOneOptions: OperationOption[] = [
   {
+    key: "addition",
+    symbol: "+",
+    name: "Suma",
+  },
+  {
     key: "parentheses",
     symbol: "( )",
     name: "Paréntesis",
@@ -137,23 +142,18 @@ const challengeOneOptions: OperationOption[] = [
     symbol: "×",
     name: "Multiplicación",
   },
-  {
-    key: "addition",
-    symbol: "+",
-    name: "Suma",
-  },
 ];
 
 const challengeTwoOptions: OperationOption[] = [
   {
-    key: "division",
-    symbol: "÷",
-    name: "División",
-  },
-  {
     key: "subtraction",
     symbol: "−",
     name: "Resta",
+  },
+  {
+    key: "division",
+    symbol: "÷",
+    name: "División",
   },
 ];
 

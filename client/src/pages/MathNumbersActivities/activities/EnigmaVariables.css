@@ -1,0 +1,3003 @@
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+.mnx-enigma-page,
+.mnx-enigma-page * {
+  box-sizing: border-box;
+}
+
+.mnx-enigma-page {
+  --primary: #0aa44b;
+  --primary-light: #eaf9ee;
+  --primary-dark: #067336;
+  --ink: #07192b;
+  --copy: #405269;
+  --muted: #6c788a;
+  --gold: #ffb703;
+  min-height: 100vh;
+  padding-left: 286px;
+  overflow-x: hidden;
+  background: #eff8f1;
+  color: var(--ink);
+  font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+}
+
+.mnx-enigma-page button,
+.mnx-enigma-page input,
+.mnx-enigma-page textarea {
+  font: inherit;
+}
+
+.mnx-enigma-page button:focus-visible,
+.mnx-enigma-page input:focus-visible,
+.mnx-enigma-page textarea:focus-visible {
+  outline: 4px solid rgba(255, 183, 3, 0.4);
+  outline-offset: 3px;
+}
+
+/* SIDEBAR */
+
+.mnx-enigma-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 90;
+  width: 286px;
+  min-width: 286px;
+  height: 100vh;
+  height: 100dvh;
+  padding: 30px 22px 22px;
+  border-radius: 0 34px 34px 0;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  box-shadow: 12px 0 34px rgba(19, 70, 45, 0.09);
+}
+
+.mnx-enigma-sidebar-logo {
+  width: 186px;
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 26px;
+}
+
+.mnx-enigma-sidebar-menu {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+}
+
+.mnx-enigma-menu-item {
+  width: 100%;
+  min-height: 56px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: #172334;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.mnx-enigma-menu-item svg {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+}
+
+.mnx-enigma-menu-item:hover {
+  color: var(--primary-dark);
+  background: #effaf2;
+  transform: translateX(4px);
+}
+
+.mnx-enigma-menu-active,
+.mnx-enigma-menu-active:hover {
+  color: #ffffff;
+  background: linear-gradient(
+    135deg,
+    #17b657,
+    var(--primary-dark)
+  );
+  box-shadow: 0 12px 24px rgba(19, 168, 78, 0.24);
+}
+
+.mnx-enigma-week-card {
+  width: 100%;
+  min-height: 128px;
+  margin-top: auto;
+  padding: 15px 14px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #dfeee2;
+  border-radius: 20px;
+  background:
+    radial-gradient(
+      circle at 88% 18%,
+      rgba(141, 228, 111, 0.3),
+      transparent 32%
+    ),
+    linear-gradient(145deg, #ffffff, #f0fff3);
+}
+
+.mnx-enigma-week-head {
+  padding-right: 58px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mnx-enigma-week-progress {
+  margin-top: 15px;
+  padding-right: 58px;
+  display: grid;
+  grid-template-columns: 20px 1fr 34px;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+}
+
+.mnx-enigma-week-progress > span {
+  color: var(--gold);
+  font-size: 21px;
+}
+
+.mnx-enigma-week-progress > b {
+  height: 10px;
+  border-radius: 999px;
+  background: #dce8df;
+  overflow: hidden;
+}
+
+.mnx-enigma-week-progress i {
+  display: block;
+  width: 60%;
+  height: 100%;
+  background: var(--primary);
+}
+
+.mnx-enigma-week-card img {
+  position: absolute;
+  right: -3px;
+  bottom: -4px;
+  width: 74px;
+  height: 86px;
+  object-fit: contain;
+}
+
+/* CONTENIDO */
+
+.mnx-enigma-content {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at 85% 5%,
+      rgba(123, 224, 145, 0.3),
+      transparent 23rem
+    ),
+    linear-gradient(
+      180deg,
+      #eaf8ee 0%,
+      #f8fcf9 54%,
+      #edf8f1 100%
+    );
+}
+
+.mnx-enigma-decoration {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.mnx-enigma-decoration-one {
+  right: -120px;
+  top: -120px;
+  width: 380px;
+  height: 380px;
+  border: 50px solid rgba(30, 180, 90, 0.06);
+}
+
+.mnx-enigma-decoration-two {
+  left: 25%;
+  bottom: -120px;
+  width: 250px;
+  height: 250px;
+  background: rgba(255, 190, 45, 0.06);
+}
+
+.mnx-enigma-main {
+  width: 100%;
+  max-width: 1580px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 24px clamp(20px, 2vw, 38px) 36px;
+  position: relative;
+  z-index: 2;
+}
+
+.mnx-enigma-top-actions {
+  min-height: 42px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.mnx-enigma-top-actions button {
+  min-height: 40px;
+  padding: 0 15px;
+  border: 1px solid rgba(12, 171, 85, 0.2);
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(19, 70, 45, 0.07);
+}
+
+/* ENCABEZADO */
+
+.mnx-enigma-header {
+  margin-bottom: 18px;
+  padding: 22px 25px;
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.25fr)
+    minmax(370px, 0.75fr);
+  gap: 24px;
+  align-items: center;
+  border: 1px solid rgba(12, 171, 85, 0.15);
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 16px 34px rgba(19, 70, 45, 0.09);
+}
+
+.mnx-enigma-breadcrumb {
+  width: fit-content;
+  margin-bottom: 12px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.mnx-enigma-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mnx-enigma-title-icon {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  border-radius: 18px;
+  background: linear-gradient(
+    145deg,
+    #16b55a,
+    var(--primary-dark)
+  );
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  box-shadow: 0 12px 22px rgba(12, 171, 85, 0.2);
+}
+
+.mnx-enigma-title-row h1 {
+  margin: 0;
+  font-size: clamp(30px, 2.7vw, 44px);
+  line-height: 1.03;
+  letter-spacing: -0.9px;
+  font-weight: 950;
+}
+
+.mnx-enigma-header-copy > p {
+  max-width: 740px;
+  margin: 14px 0;
+  color: var(--copy);
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 650;
+}
+
+.mnx-enigma-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mnx-enigma-pills span {
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid #dceae0;
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--primary-dark);
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mnx-enigma-welcome {
+  min-height: 150px;
+  display: grid;
+  grid-template-columns: 1fr 122px;
+  align-items: center;
+  gap: 9px;
+}
+
+.mnx-enigma-speech {
+  min-height: 128px;
+  padding: 18px;
+  border: 2px solid rgba(12, 171, 85, 0.18);
+  border-radius: 24px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.mnx-enigma-speech > span,
+.mnx-enigma-reminder-card div > span {
+  width: fit-content;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #e8f9ec;
+  color: var(--primary-dark);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.mnx-enigma-speech h2 {
+  margin: 7px 0 4px;
+  font-size: 18px;
+}
+
+.mnx-enigma-speech p {
+  margin: 0;
+  color: var(--copy);
+  font-size: 11.5px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.mnx-enigma-intro-character {
+  width: 122px;
+  height: 150px;
+  object-fit: contain;
+  filter: drop-shadow(
+    0 15px 14px rgba(20, 72, 44, 0.18)
+  );
+}
+
+/* TABLERO PRINCIPAL */
+
+.mnx-enigma-activity-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(310px, 365px)
+    minmax(0, 1fr)
+    minmax(245px, 280px);
+  grid-template-areas:
+    "art guide guide"
+    "art challenges actions"
+    "reminder challenges actions";
+  gap: 16px;
+  align-items: start;
+}
+
+.mnx-enigma-art,
+.mnx-enigma-guide-card,
+.mnx-enigma-challenge-card,
+.mnx-enigma-explanation-card,
+.mnx-enigma-actions,
+.mnx-enigma-reminder-card,
+.mnx-enigma-evidence-card {
+  border: 1px solid rgba(12, 171, 85, 0.14);
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(19, 70, 45, 0.07);
+}
+
+.mnx-enigma-art {
+  grid-area: art;
+  width: 100%;
+  height: 625px;
+  padding: 14px 14px 142px;
+  position: relative;
+  overflow: hidden;
+  background: #061f18;
+}
+
+.mnx-enigma-art > img {
+  width: 100%;
+  height: 100%;
+  border-radius: 17px;
+  object-fit: cover;
+  display: block;
+}
+
+.mnx-enigma-mission {
+  position: absolute;
+  left: 13px;
+  right: 13px;
+  bottom: 13px;
+  min-height: 118px;
+  padding: 15px;
+  border: 1px solid rgba(141, 242, 88, 0.72);
+  border-radius: 18px;
+  background: rgba(4, 48, 26, 0.95);
+  color: #ffffff;
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 11px;
+  align-items: center;
+}
+
+.mnx-enigma-mission > svg {
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border-radius: 13px;
+  color: #a7f76f;
+  background: rgba(167, 247, 111, 0.13);
+}
+
+.mnx-enigma-mission strong {
+  color: #a7f76f;
+  font-size: 15px;
+}
+
+.mnx-enigma-mission p {
+  margin: 3px 0 8px;
+  font-size: 10px;
+  line-height: 1.38;
+}
+
+.mnx-enigma-energy-track {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.19);
+  overflow: hidden;
+}
+
+.mnx-enigma-energy-track b {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    #ffbd32,
+    #21c667
+  );
+  transition: width 0.35s ease;
+}
+
+/* GUÍA */
+
+.mnx-enigma-guide-card {
+  grid-area: guide;
+  padding: 17px 19px;
+}
+
+.mnx-enigma-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 13px;
+}
+
+.mnx-enigma-section-heading > span {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 13px;
+  background: #def8e4;
+  color: var(--primary-dark);
+  display: grid;
+  place-items: center;
+}
+
+.mnx-enigma-section-heading strong {
+  display: block;
+  color: var(--primary-dark);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.mnx-enigma-section-heading p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.mnx-enigma-guide-steps {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    28px
+    minmax(0, 1fr)
+    28px
+    minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.mnx-enigma-guide-steps > i {
+  color: var(--primary);
+  font-style: normal;
+  font-size: 25px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.mnx-enigma-guide-steps article {
+  min-height: 132px;
+  padding: 13px;
+  border: 1px solid #dfeae2;
+  border-radius: 16px;
+  background: #fbfffc;
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 7px;
+  text-align: center;
+}
+
+.mnx-enigma-guide-steps article > b {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+}
+
+.mnx-enigma-guide-steps article > strong {
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.mnx-enigma-guide-steps article > span {
+  min-width: 90px;
+  min-height: 46px;
+  padding: 0 12px;
+  border: 2px dashed #a9d8b7;
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.mnx-enigma-guide-steps article > p {
+  margin: 0;
+  color: var(--copy);
+  font-size: 9.5px;
+  line-height: 1.35;
+  font-weight: 650;
+}
+
+/* RETOS */
+
+.mnx-enigma-challenges {
+  grid-area: challenges;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.mnx-enigma-challenge-card {
+  min-width: 0;
+  padding: 14px;
+}
+
+.mnx-enigma-challenge-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  position: relative;
+}
+
+.mnx-enigma-challenge-head > span {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 50%;
+  background: linear-gradient(
+    145deg,
+    #18b85b,
+    var(--primary-dark)
+  );
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.mnx-enigma-challenge-head > div {
+  min-width: 0;
+}
+
+.mnx-enigma-challenge-head h2 {
+  margin: 1px 0 3px;
+  font-size: 12.5px;
+  line-height: 1.25;
+  font-weight: 900;
+}
+
+.mnx-enigma-challenge-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 9.5px;
+  line-height: 1.3;
+  font-weight: 650;
+}
+
+.mnx-enigma-context-box {
+  min-height: 72px;
+  margin: 12px 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: #eff7f0;
+  color: var(--copy);
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  line-height: 1.45;
+  font-weight: 650;
+  text-align: center;
+}
+
+.mnx-enigma-radio-options {
+  display: grid;
+  gap: 9px;
+}
+
+.mnx-enigma-radio-options label {
+  min-height: 40px;
+  display: grid;
+  grid-template-columns: 19px 1fr;
+  gap: 8px;
+  align-items: center;
+  color: var(--copy);
+  font-size: 9.5px;
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.mnx-enigma-radio-options input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--primary);
+}
+
+.mnx-enigma-reset-expression {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #dce8df;
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--primary-dark);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.mnx-enigma-expression-slots {
+  min-height: 69px;
+  margin: 12px 0;
+  padding: 10px;
+  border: 2px dashed #b7dbc1;
+  border-radius: 13px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.mnx-enigma-expression-slots button {
+  min-height: 46px;
+  border: 1px dashed #ccd9cf;
+  border-radius: 10px;
+  background: #f9fcfa;
+  color: #9aa7a0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.mnx-enigma-expression-slots button.is-filled {
+  border-style: solid;
+  border-color: #b7d8c0;
+  background: #ffffff;
+  color: var(--ink);
+}
+
+.mnx-enigma-expression-slots strong {
+  font-size: 22px;
+}
+
+.mnx-enigma-token-bank {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.mnx-enigma-token-bank button {
+  min-height: 43px;
+  border: 1px solid #dfe8e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 19px;
+  font-weight: 900;
+  cursor: grab;
+  box-shadow: 0 6px 12px rgba(19, 70, 45, 0.05);
+}
+
+.mnx-enigma-token-bank button:hover {
+  border-color: var(--primary);
+  background: #f1fff4;
+}
+
+.mnx-enigma-token-bank button.is-used {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.mnx-enigma-substitution-expression {
+  min-height: 72px;
+  margin: 12px 0 15px;
+  padding: 10px;
+  border-radius: 12px;
+  background: #eff7f0;
+  display: grid;
+  place-items: center;
+  gap: 3px;
+}
+
+.mnx-enigma-substitution-expression small {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.mnx-enigma-substitution-expression strong {
+  font-size: 23px;
+}
+
+.mnx-enigma-substitution-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.mnx-enigma-substitution-row b {
+  min-width: 56px;
+  min-height: 40px;
+  border: 1px solid #dce8df;
+  border-radius: 10px;
+  background: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+}
+
+.mnx-enigma-result-field {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr 76px;
+  align-items: center;
+  gap: 10px;
+}
+
+.mnx-enigma-result-field > span {
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 850;
+  text-align: right;
+}
+
+.mnx-enigma-result-field input {
+  width: 76px;
+  min-height: 45px;
+  border: 2px solid #dfe8e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 900;
+  text-align: center;
+  outline: none;
+}
+
+.mnx-enigma-result-field input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(12, 164, 75, 0.09);
+}
+
+.mnx-enigma-explanation-card {
+  grid-column: 1 / -1;
+  padding: 14px;
+}
+
+.mnx-enigma-answer-box {
+  margin-top: 11px;
+  position: relative;
+  display: block;
+}
+
+.mnx-enigma-answer-box textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 13px 13px 29px;
+  border: 2px solid #e0e9e2;
+  border-radius: 13px;
+  background: #ffffff;
+  color: var(--ink);
+  resize: vertical;
+  outline: none;
+}
+
+.mnx-enigma-answer-box textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(12, 164, 75, 0.09);
+}
+
+.mnx-enigma-answer-box > span {
+  position: absolute;
+  right: 11px;
+  bottom: 8px;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+/* ACCIONES */
+
+.mnx-enigma-actions {
+  grid-area: actions;
+  padding: 14px;
+  display: grid;
+  gap: 11px;
+  align-content: start;
+}
+
+.mnx-enigma-check-button,
+.mnx-enigma-save-button {
+  width: 100%;
+  min-height: 62px;
+  padding: 0 14px;
+  border-radius: 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.mnx-enigma-check-button {
+  border: 0;
+  background: linear-gradient(
+    180deg,
+    #16b558,
+    #087e3a
+  );
+  color: #ffffff;
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 9px;
+  align-items: center;
+  box-shadow: 0 13px 24px rgba(19, 168, 78, 0.22);
+}
+
+.mnx-enigma-check-button > span {
+  padding: 7px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.17);
+  font-size: 9px;
+}
+
+.mnx-enigma-save-button {
+  min-height: 52px;
+  border: 1px solid var(--primary);
+  background: #ffffff;
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.mnx-enigma-evidence-card {
+  padding: 14px;
+}
+
+.mnx-enigma-evidence-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mnx-enigma-evidence-title > svg {
+  width: 34px;
+  height: 34px;
+  padding: 8px;
+  border-radius: 10px;
+  background: #e7f8eb;
+  color: var(--primary);
+}
+
+.mnx-enigma-evidence-title strong {
+  font-size: 12px;
+}
+
+.mnx-enigma-evidence-card > p {
+  margin: 11px 0;
+  color: var(--copy);
+  font-size: 9.5px;
+  line-height: 1.45;
+}
+
+.mnx-enigma-info-row {
+  padding-top: 11px;
+  border-top: 1px solid #e2ebe4;
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.mnx-enigma-info-row > svg {
+  width: 30px;
+  height: 30px;
+  padding: 7px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.mnx-enigma-info-row p {
+  margin: 0;
+  color: var(--copy);
+  font-size: 9.5px;
+  line-height: 1.4;
+  font-weight: 650;
+}
+
+/* PISTA */
+
+.mnx-enigma-reminder-card {
+  grid-area: reminder;
+  min-height: 190px;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 12px;
+  align-items: center;
+  background:
+    radial-gradient(
+      circle at 90% 8%,
+      rgba(141, 228, 111, 0.26),
+      transparent 32%
+    ),
+    linear-gradient(145deg, #f7fff8, #eaf9ee);
+}
+
+.mnx-enigma-reminder-card img {
+  width: 92px;
+  height: 125px;
+  object-fit: contain;
+}
+
+.mnx-enigma-reminder-card h3 {
+  margin: 7px 0 4px;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.mnx-enigma-reminder-card p {
+  margin: 0;
+  color: var(--copy);
+  font-size: 10px;
+  line-height: 1.42;
+  font-weight: 700;
+}
+
+.mnx-enigma-reminder-card button {
+  min-height: 34px;
+  margin-top: 8px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9.5px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+/* ESTADÍSTICAS */
+
+.mnx-enigma-stats {
+  min-height: 84px;
+  margin-top: 14px;
+  border-radius: 20px;
+  background: #ffffff;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  overflow: hidden;
+  box-shadow: 0 14px 32px rgba(19, 70, 45, 0.1);
+}
+
+.mnx-enigma-stats article {
+  padding: 12px;
+  border-right: 1px solid #e8f0e9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+}
+
+.mnx-enigma-stats article:last-child {
+  border-right: 0;
+}
+
+.mnx-enigma-stats svg {
+  color: var(--primary);
+  font-size: 30px;
+}
+
+.mnx-enigma-stats span {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.mnx-enigma-stats strong {
+  display: block;
+  color: var(--ink);
+  font-size: 19px;
+}
+
+.mnx-enigma-xp-star {
+  color: var(--gold) !important;
+  font-size: 38px !important;
+}
+
+/* MODAL */
+
+.mnx-enigma-help-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  padding: 24px;
+  background: rgba(4, 31, 17, 0.64);
+  display: grid;
+  place-items: center;
+  backdrop-filter: blur(6px);
+}
+
+.mnx-enigma-help-modal {
+  position: relative;
+  width: min(860px, 96vw);
+  padding: 28px;
+  border-radius: 28px;
+  background: #ffffff;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 24px;
+  align-items: center;
+  box-shadow: 0 28px 80px rgba(17, 46, 79, 0.25);
+}
+
+.mnx-enigma-help-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 50%;
+  background: #eff4f0;
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.mnx-enigma-help-media img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+}
+
+.mnx-enigma-help-copy > span {
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: #e8f9ec;
+  color: var(--primary-dark);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.mnx-enigma-help-copy h2 {
+  margin: 11px 0 8px;
+  font-size: 28px;
+}
+
+.mnx-enigma-help-copy > p {
+  color: var(--copy);
+  line-height: 1.55;
+  font-weight: 650;
+}
+
+.mnx-enigma-help-steps {
+  margin-top: 15px;
+  display: grid;
+  gap: 8px;
+}
+
+.mnx-enigma-help-steps article {
+  padding: 11px;
+  border: 1px solid #dfeae2;
+  border-radius: 13px;
+  background: #f8fff9;
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 9px;
+  align-items: center;
+}
+
+.mnx-enigma-help-steps strong {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+}
+
+.mnx-enigma-help-understood {
+  min-height: 46px;
+  margin-top: 14px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 13px;
+  background: var(--primary);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* OTROS */
+
+.mnx-enigma-hamburger {
+  display: none;
+}
+
+.mnx-enigma-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  background: rgba(4, 31, 17, 0.35);
+  backdrop-filter: blur(3px);
+}
+
+.mnx-enigma-logout {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 70;
+  width: 52px;
+  height: 52px;
+  border: 0;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #ef4444;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(19, 70, 45, 0.16);
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1380px) {
+  .mnx-enigma-main {
+    max-width: 1260px;
+    padding-inline: 24px;
+  }
+
+  .mnx-enigma-activity-grid {
+    grid-template-columns:
+      minmax(285px, 330px)
+      minmax(0, 1fr)
+      minmax(220px, 250px);
+  }
+
+  .mnx-enigma-art {
+    height: 590px;
+  }
+
+  .mnx-enigma-guide-steps article {
+    min-height: 122px;
+  }
+
+  .mnx-enigma-challenge-head h2 {
+    font-size: 11.5px;
+  }
+}
+
+@media (max-width: 1180px) {
+  .mnx-enigma-page {
+    padding-left: 250px;
+  }
+
+  .mnx-enigma-sidebar {
+    width: 250px;
+    min-width: 250px;
+  }
+
+  .mnx-enigma-header {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-enigma-welcome {
+    width: min(100%, 680px);
+  }
+
+  .mnx-enigma-activity-grid {
+    grid-template-columns:
+      minmax(285px, 330px)
+      minmax(0, 1fr);
+    grid-template-areas:
+      "art guide"
+      "art challenges"
+      "reminder challenges"
+      "actions actions";
+  }
+
+  .mnx-enigma-actions {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, 1fr);
+  }
+
+  .mnx-enigma-evidence-card {
+    grid-column: 1 / -1;
+  }
+
+  .mnx-enigma-challenges {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .mnx-enigma-challenge-three {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 980px) {
+  .mnx-enigma-page {
+    padding-left: 0;
+  }
+
+  .mnx-enigma-hamburger {
+    position: fixed;
+    top: 18px;
+    left: 18px;
+    z-index: 120;
+    width: 58px;
+    height: 58px;
+    border: 0;
+    border-radius: 18px;
+    background: #ffffff;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 12px 28px rgba(19, 70, 45, 0.15);
+    cursor: pointer;
+  }
+
+  .mnx-enigma-hamburger img {
+    width: 38px;
+  }
+
+  .mnx-enigma-hamburger-open {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .mnx-enigma-sidebar {
+    left: -310px;
+    width: 280px;
+    min-width: 280px;
+    transition: left 0.3s ease;
+    z-index: 115;
+  }
+
+  .mnx-enigma-sidebar-open {
+    left: 0;
+  }
+
+  .mnx-enigma-main {
+    max-width: 900px;
+    padding-top: 96px;
+  }
+
+  .mnx-enigma-activity-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "art"
+      "guide"
+      "challenges"
+      "actions"
+      "reminder";
+  }
+
+  .mnx-enigma-art,
+  .mnx-enigma-reminder-card {
+    width: min(100%, 620px);
+    margin-inline: auto;
+  }
+
+  .mnx-enigma-challenges {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-enigma-main {
+    padding-inline: 14px;
+  }
+
+  .mnx-enigma-top-actions {
+    display: grid;
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .mnx-enigma-header {
+    padding: 20px 16px;
+    border-radius: 24px;
+  }
+
+  .mnx-enigma-title-row {
+    align-items: flex-start;
+  }
+
+  .mnx-enigma-title-row h1 {
+    font-size: 32px;
+  }
+
+  .mnx-enigma-welcome {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-enigma-intro-character {
+    margin-inline: auto;
+  }
+
+  .mnx-enigma-art {
+    height: 500px;
+  }
+
+  .mnx-enigma-guide-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-enigma-guide-steps > i {
+    transform: rotate(90deg);
+  }
+
+  .mnx-enigma-challenges {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-enigma-challenge-three {
+    grid-column: auto;
+  }
+
+  .mnx-enigma-explanation-card {
+    grid-column: auto;
+  }
+
+  .mnx-enigma-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-enigma-evidence-card {
+    grid-column: auto;
+  }
+
+  .mnx-enigma-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-enigma-stats article {
+    border-right: 0;
+    border-bottom: 1px solid #e8f0e9;
+  }
+
+  .mnx-enigma-help-modal {
+    grid-template-columns: 1fr;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+
+  .mnx-enigma-help-media {
+    display: none;
+  }
+}
+
+
+/* =====================================================================
+   DISEÑO FINAL · INSPIRADO EN COFRE DE BIENVENIDA
+   Conserva toda la lógica de El Enigma de Variables y mantiene
+   estilos independientes con el prefijo mnx-enigma-.
+   ===================================================================== */
+
+.mnx-enigma-page.mnx-enigma-cofre-layout {
+  --mn-primary: #13a84e;
+  --mn-primary-dark: #08753a;
+  --mn-primary-deep: #07532d;
+  --mn-primary-soft: #eaffef;
+  --mn-lime: #8de46f;
+  --mn-mint: #dff8df;
+  --mn-gold: #ffb703;
+  --mn-gold-dark: #f28b00;
+  --mn-blue: #2f80ed;
+  --mn-purple: #7c4dff;
+  --mn-coral: #ef6a67;
+  --mn-ink: #07192b;
+  --mn-copy: #29374a;
+  --mn-muted: #6b7789;
+  --mn-card-border: rgba(10, 121, 57, 0.14);
+  --mn-radius-sm: 14px;
+  --mn-radius-md: 20px;
+  --mn-radius-lg: 28px;
+  --mn-shadow-sm: 0 8px 20px rgba(19, 70, 45, 0.08);
+  --mn-shadow-md: 0 16px 34px rgba(19, 70, 45, 0.12);
+  --mn-shadow-lg: 0 24px 54px rgba(19, 70, 45, 0.16);
+  --mn-transition: 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  background: #effbe9;
+  color: var(--mn-ink);
+}
+
+/* Fondo general igual al lenguaje visual del Cofre */
+.mnx-enigma-cofre-layout .mnx-enigma-content {
+  overflow-x: clip;
+  overflow-y: visible;
+  background:
+    linear-gradient(
+      180deg,
+      #dff6d8 0%,
+      #ecfae5 24%,
+      #f7ffe9 58%,
+      #fff8e8 100%
+    );
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-decoration-one {
+  top: -150px;
+  right: -90px;
+  width: 460px;
+  height: 460px;
+  border: 0;
+  background:
+    radial-gradient(
+      circle at 35% 35%,
+      rgba(255, 235, 126, 0.9),
+      rgba(141, 228, 111, 0.45) 46%,
+      rgba(19, 168, 78, 0.05) 72%,
+      transparent 73%
+    );
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-decoration-two {
+  top: 420px;
+  bottom: auto;
+  left: 6%;
+  width: 340px;
+  height: 340px;
+  background:
+    radial-gradient(
+      circle,
+      rgba(127, 219, 112, 0.26),
+      transparent 70%
+    );
+}
+
+.mnx-enigma-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  color: rgba(255, 183, 3, 0.72);
+  font-size: 24px;
+}
+
+.mnx-enigma-stars span {
+  position: absolute;
+  animation: mnx-enigma-star-float 4.6s ease-in-out infinite;
+}
+
+.mnx-enigma-stars span:nth-child(1) {
+  top: 90px;
+  left: 10%;
+}
+
+.mnx-enigma-stars span:nth-child(2) {
+  top: 170px;
+  right: 12%;
+  animation-delay: 0.8s;
+}
+
+.mnx-enigma-stars span:nth-child(3) {
+  top: 520px;
+  right: 5%;
+  animation-delay: 1.6s;
+}
+
+.mnx-enigma-stars span:nth-child(4) {
+  top: 760px;
+  left: 7%;
+  animation-delay: 2.4s;
+}
+
+@keyframes mnx-enigma-star-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    opacity: 0.55;
+  }
+
+  50% {
+    transform: translateY(-10px) rotate(10deg) scale(1.15);
+    opacity: 1;
+  }
+}
+
+/* Sidebar con las mismas proporciones del Cofre */
+.mnx-enigma-cofre-layout .mnx-enigma-sidebar {
+  width: 286px;
+  min-width: 286px;
+  padding: 30px 22px 22px;
+  border-radius: 0 34px 34px 0;
+  box-shadow: 12px 0 34px rgba(19, 70, 45, 0.09);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-sidebar-logo {
+  width: 186px;
+  margin-bottom: 26px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-menu-item {
+  min-height: 56px;
+  border-radius: 16px;
+  gap: 15px;
+  font-size: 14px;
+  font-weight: 800;
+  transition:
+    transform var(--mn-transition),
+    background var(--mn-transition),
+    color var(--mn-transition),
+    box-shadow var(--mn-transition);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-menu-item:hover {
+  background: #effaf2;
+  color: var(--mn-primary-dark);
+  transform: translateX(5px);
+  box-shadow: 0 8px 18px rgba(19, 168, 78, 0.11);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-menu-active,
+.mnx-enigma-cofre-layout .mnx-enigma-menu-active:hover {
+  color: #ffffff;
+  background: linear-gradient(135deg, #17b657, #0a8f40);
+  box-shadow: 0 12px 24px rgba(19, 168, 78, 0.25);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-week-card {
+  padding: 15px 14px 12px;
+  border: 1px solid #e1f1e4;
+  border-radius: 20px;
+  background:
+    radial-gradient(
+      circle at 88% 18%,
+      rgba(141, 228, 111, 0.32),
+      transparent 32%
+    ),
+    linear-gradient(145deg, #ffffff 0%, #f3fff4 100%);
+  box-shadow: var(--mn-shadow-md);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-week-progress > b {
+  background: #ffe8ab;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-week-progress i {
+  background: linear-gradient(90deg, #ffb703, #ff8a00);
+}
+
+/* Contenedor y encabezado */
+.mnx-enigma-cofre-layout .mnx-enigma-main {
+  max-width: 1480px;
+  padding: 24px clamp(22px, 2.1vw, 40px) 32px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-top-actions button {
+  border: 0;
+  border-radius: 13px;
+  background: #ffffff;
+  box-shadow: var(--mn-shadow-sm);
+  transition:
+    transform var(--mn-transition),
+    background var(--mn-transition),
+    box-shadow var(--mn-transition);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-top-actions button:hover {
+  transform: translateY(-3px);
+  background: #effaf2;
+  box-shadow: var(--mn-shadow-md);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-header {
+  padding: 24px 26px;
+  grid-template-columns:
+    minmax(0, 1.25fr)
+    minmax(360px, 0.75fr);
+  gap: 24px;
+  border: 1px solid var(--mn-card-border);
+  border-radius: 30px;
+  background:
+    radial-gradient(
+      circle at 90% 15%,
+      rgba(255, 183, 3, 0.12),
+      transparent 20%
+    ),
+    rgba(255, 255, 255, 0.97);
+  box-shadow: var(--mn-shadow-md);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-breadcrumb {
+  min-height: 34px;
+  padding: 0 13px;
+  border: 1px solid rgba(19, 168, 78, 0.16);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: var(--mn-shadow-sm);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-title-icon {
+  width: 58px;
+  height: 58px;
+  flex-basis: 58px;
+  border-radius: 19px;
+  background: linear-gradient(145deg, #15bb5c, #078c43);
+  box-shadow: 0 13px 22px rgba(12, 171, 85, 0.25);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-title-row h1 {
+  font-size: clamp(31px, 3vw, 48px);
+  line-height: 1;
+  letter-spacing: -1.1px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-pills span {
+  min-height: 32px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: var(--mn-shadow-sm);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-pills span:nth-child(2) {
+  color: #2b6cb0;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-pills span:nth-child(3) {
+  color: #7c4dff;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-pills span:nth-child(4) {
+  color: #c66b00;
+  background: #fff7db;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-speech {
+  min-height: 142px;
+  padding: 18px 20px;
+  position: relative;
+  border: 2px solid rgba(19, 168, 78, 0.22);
+  border-radius: 34px 42px 34px 42px;
+  background:
+    radial-gradient(
+      circle at 90% 18%,
+      rgba(255, 183, 3, 0.15),
+      transparent 22%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.98),
+      rgba(247, 255, 243, 0.98)
+    );
+  box-shadow: var(--mn-shadow-md);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-speech::before {
+  content: "";
+  position: absolute;
+  right: -15px;
+  top: 52px;
+  width: 26px;
+  height: 26px;
+  border-right: 2px solid rgba(19, 168, 78, 0.22);
+  border-top: 2px solid rgba(19, 168, 78, 0.22);
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-intro-character {
+  width: 132px;
+  height: 165px;
+  animation: mnx-enigma-character-float 3s ease-in-out infinite;
+}
+
+@keyframes mnx-enigma-character-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-7px) rotate(1deg);
+  }
+}
+
+/* Distribución principal de dos columnas, como el Cofre */
+.mnx-enigma-cofre-layout .mnx-enigma-activity-grid {
+  width: 100%;
+  grid-template-columns:
+    minmax(320px, 390px)
+    minmax(0, 1fr);
+  grid-template-areas:
+    "art guide"
+    "art challenges"
+    "reminder actions";
+  gap: 18px;
+  align-items: stretch;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-art {
+  width: 100%;
+  min-height: 620px;
+  height: auto;
+  align-self: stretch;
+  padding: 16px 16px 145px;
+  border: 1px solid var(--mn-card-border);
+  border-radius: 28px;
+  background: #06271b;
+  box-shadow: var(--mn-shadow-md);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-art > img {
+  border-radius: 20px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-mission {
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  border-radius: 20px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-guide-card,
+.mnx-enigma-cofre-layout .mnx-enigma-challenge-card,
+.mnx-enigma-cofre-layout .mnx-enigma-explanation-card,
+.mnx-enigma-cofre-layout .mnx-enigma-actions,
+.mnx-enigma-cofre-layout .mnx-enigma-reminder-card,
+.mnx-enigma-cofre-layout .mnx-enigma-evidence-card {
+  border: 1px solid var(--mn-card-border);
+  border-radius: 24px;
+  box-shadow: var(--mn-shadow-sm);
+}
+
+/* Guía */
+.mnx-enigma-cofre-layout .mnx-enigma-guide-card {
+  padding: 19px 22px;
+  align-self: start;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-guide-steps article {
+  min-height: 122px;
+  border-radius: 17px;
+  background:
+    linear-gradient(145deg, #ffffff, #f8fff9);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-guide-steps article > span {
+  border: 0;
+  background: #ffffff;
+  box-shadow: var(--mn-shadow-sm);
+}
+
+/* Retos */
+.mnx-enigma-cofre-layout .mnx-enigma-challenges {
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: stretch;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-challenge-card {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-challenge-three {
+  grid-column: 1 / -1;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-challenge-head > span {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 14px;
+  box-shadow: 0 10px 18px rgba(19, 168, 78, 0.2);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-challenge-head h2 {
+  font-size: 14px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-context-box,
+.mnx-enigma-cofre-layout .mnx-enigma-substitution-expression {
+  border: 1px solid rgba(19, 168, 78, 0.12);
+  background:
+    linear-gradient(145deg, #fbfffc, #eefcf2);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-radio-options label,
+.mnx-enigma-cofre-layout .mnx-enigma-expression-slots,
+.mnx-enigma-cofre-layout .mnx-enigma-token-bank button,
+.mnx-enigma-cofre-layout .mnx-enigma-result-field input {
+  border-radius: 14px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-expression-slots {
+  min-height: 76px;
+  padding: 11px;
+  border: 2px dashed rgba(19, 168, 78, 0.35);
+  background: #fbfffc;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-token-bank button {
+  min-height: 48px;
+  border: 2px solid #e3ece5;
+  transition:
+    transform var(--mn-transition),
+    border-color var(--mn-transition),
+    background var(--mn-transition);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-token-bank button:hover {
+  transform: translateY(-2px);
+  border-color: var(--mn-primary);
+  background: var(--mn-primary-soft);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-explanation-card {
+  grid-column: 1 / -1;
+  padding: 16px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-answer-box textarea {
+  min-height: 112px;
+  border-radius: 17px;
+}
+
+/* Consejo y acciones */
+.mnx-enigma-cofre-layout .mnx-enigma-reminder-card {
+  min-height: 245px;
+  padding: 17px;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 12px;
+  background:
+    radial-gradient(
+      circle at 85% 12%,
+      rgba(143, 228, 93, 0.32),
+      transparent 28%
+    ),
+    linear-gradient(145deg, #f5fff7 0%, #eaf9ef 100%);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-reminder-card img {
+  width: 94px;
+  height: 130px;
+  filter: drop-shadow(0 12px 12px rgba(20, 72, 44, 0.14));
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-reminder-card button {
+  background: var(--mn-blue);
+  box-shadow: 0 10px 20px rgba(47, 128, 237, 0.22);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-actions {
+  align-self: stretch;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-check-button {
+  min-height: 70px;
+  border-radius: 18px;
+  font-size: 15px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-save-button {
+  min-height: 56px;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: var(--mn-shadow-sm);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-evidence-card {
+  flex: 1;
+  min-height: 150px;
+  background:
+    linear-gradient(145deg, #ffffff, #fff9e6);
+}
+
+/* Estadísticas */
+.mnx-enigma-cofre-layout .mnx-enigma-stats {
+  min-height: 88px;
+  border-radius: 22px;
+  box-shadow: var(--mn-shadow-md);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-stats article {
+  padding: 13px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-stats strong {
+  font-size: 20px;
+}
+
+/* Modal con estilo del Cofre */
+.mnx-enigma-cofre-layout .mnx-enigma-help-modal {
+  border: 2px solid rgba(19, 168, 78, 0.18);
+  background:
+    radial-gradient(
+      circle at 90% 15%,
+      rgba(255, 183, 3, 0.12),
+      transparent 22%
+    ),
+    #ffffff;
+  box-shadow: var(--mn-shadow-lg);
+}
+
+/* Responsive */
+@media (max-width: 1380px) and (min-width: 981px) {
+  .mnx-enigma-cofre-layout .mnx-enigma-main {
+    max-width: 1240px;
+    padding-inline: 24px;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-activity-grid {
+    grid-template-columns:
+      minmax(290px, 340px)
+      minmax(0, 1fr);
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-challenges {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-challenge-three,
+  .mnx-enigma-cofre-layout .mnx-enigma-explanation-card {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 980px) {
+  .mnx-enigma-cofre-layout .mnx-enigma-activity-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "art"
+      "guide"
+      "challenges"
+      "reminder"
+      "actions";
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-art,
+  .mnx-enigma-cofre-layout .mnx-enigma-reminder-card {
+    width: min(100%, 620px);
+    margin-inline: auto;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-challenges {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-challenge-three {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-enigma-cofre-layout .mnx-enigma-header {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-challenges {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-challenge-three,
+  .mnx-enigma-cofre-layout .mnx-enigma-explanation-card {
+    grid-column: auto;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-reminder-card {
+    min-height: 0;
+    grid-template-columns: 82px minmax(0, 1fr);
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-reminder-card img {
+    width: 82px;
+    height: 112px;
+  }
+}
+
+/* =====================================================================
+   AJUSTE: RETO EXTRA + BOTÓN GUARDAR DENTRO DE LA TARJETA
+   ===================================================================== */
+
+.mnx-enigma-cofre-layout .mnx-enigma-explanation-card {
+  padding: 20px 22px 18px;
+}
+
+.mnx-enigma-cofre-layout
+  .mnx-enigma-explanation-card
+  .mnx-enigma-challenge-head {
+  align-items: center;
+  gap: 12px;
+}
+
+.mnx-enigma-cofre-layout
+  .mnx-enigma-explanation-card
+  .mnx-enigma-challenge-head > span {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 15px;
+  font-size: 16px;
+}
+
+.mnx-enigma-cofre-layout
+  .mnx-enigma-explanation-card
+  .mnx-enigma-challenge-head h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.mnx-enigma-cofre-layout
+  .mnx-enigma-explanation-card
+  .mnx-enigma-challenge-head p {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-answer-box {
+  margin-top: 15px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-answer-box textarea {
+  min-height: 140px;
+  padding: 18px 18px 38px;
+  border-width: 2px;
+  border-radius: 18px;
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+.mnx-enigma-cofre-layout
+  .mnx-enigma-answer-box textarea::placeholder {
+  color: #344054;
+  opacity: 0.82;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-answer-box > span {
+  right: 16px;
+  bottom: 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.mnx-enigma-explanation-actions {
+  margin-top: 13px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-save-button-inline {
+  width: auto;
+  min-width: 230px;
+  min-height: 54px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #17b95b, #087e3a);
+  color: #ffffff;
+  font-size: 14px;
+  box-shadow: 0 12px 22px rgba(19, 168, 78, 0.22);
+  transition:
+    transform var(--mn-transition),
+    box-shadow var(--mn-transition),
+    filter var(--mn-transition);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-save-button-inline:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.03);
+  box-shadow: 0 16px 28px rgba(19, 168, 78, 0.28);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-save-button-inline svg {
+  width: 19px;
+  height: 19px;
+}
+
+@media (max-width: 700px) {
+  .mnx-enigma-cofre-layout .mnx-enigma-explanation-card {
+    padding: 17px;
+  }
+
+  .mnx-enigma-cofre-layout
+    .mnx-enigma-explanation-card
+    .mnx-enigma-challenge-head {
+    align-items: flex-start;
+  }
+
+  .mnx-enigma-cofre-layout
+    .mnx-enigma-explanation-card
+    .mnx-enigma-challenge-head h2 {
+    font-size: 16px;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-answer-box textarea {
+    min-height: 165px;
+    font-size: 16px;
+  }
+
+  .mnx-enigma-explanation-actions {
+    justify-content: stretch;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-save-button-inline {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+
+/* =====================================================================
+   AJUSTE V2 · TEXTOS MÁS LEGIBLES Y ESCENA PRINCIPAL MÁS COMPACTA
+   ===================================================================== */
+
+/* Evita que la escena izquierda se estire por la altura de los retos. */
+.mnx-enigma-cofre-layout .mnx-enigma-activity-grid {
+  align-items: start;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-art {
+  height: 520px;
+  min-height: 520px;
+  align-self: start;
+  padding: 15px 15px 132px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-art > img {
+  height: 100%;
+  object-position: center;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-mission {
+  min-height: 104px;
+  padding: 14px 15px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-mission strong {
+  font-size: 17px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-mission p {
+  margin: 5px 0 10px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+/* Encabezado y textos secundarios. */
+.mnx-enigma-cofre-layout .mnx-enigma-header-copy > p {
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-pills span {
+  font-size: 12px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-speech > span,
+.mnx-enigma-cofre-layout .mnx-enigma-reminder-card div > span {
+  font-size: 11.5px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-speech h2 {
+  font-size: 20px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-speech p {
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* Guía visual. */
+.mnx-enigma-cofre-layout .mnx-enigma-section-heading strong {
+  font-size: 16px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-section-heading p {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-guide-steps article > strong {
+  font-size: 14px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-guide-steps article > p {
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+/* Retos: títulos, instrucciones y opciones más grandes. */
+.mnx-enigma-cofre-layout .mnx-enigma-challenge-head h2 {
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-challenge-head p {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-context-box {
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-radio-options label {
+  min-height: 44px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-substitution-expression small {
+  font-size: 11px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-substitution-row {
+  font-size: 14px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-result-field > span {
+  font-size: 13px;
+}
+
+/* Botones y tarjetas informativas. */
+.mnx-enigma-cofre-layout .mnx-enigma-check-button,
+.mnx-enigma-cofre-layout .mnx-enigma-save-button-inline {
+  font-size: 15px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-evidence-title strong {
+  font-size: 14px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-evidence-card > p,
+.mnx-enigma-cofre-layout .mnx-enigma-info-row p {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-reminder-card h3 {
+  font-size: 16px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-reminder-card p {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-reminder-card button {
+  font-size: 11.5px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-stats span {
+  font-size: 11px;
+}
+
+@media (max-width: 1380px) and (min-width: 981px) {
+  .mnx-enigma-cofre-layout .mnx-enigma-art {
+    height: 500px;
+    min-height: 500px;
+  }
+}
+
+@media (max-width: 980px) {
+  .mnx-enigma-cofre-layout .mnx-enigma-art {
+    width: min(100%, 620px);
+    height: 480px;
+    min-height: 480px;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-enigma-cofre-layout .mnx-enigma-art {
+    height: 430px;
+    min-height: 430px;
+    padding: 12px 12px 126px;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-mission {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-mission strong {
+    font-size: 16px;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-mission p {
+    font-size: 11.5px;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-challenge-head h2 {
+    font-size: 15px;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-radio-options label,
+  .mnx-enigma-cofre-layout .mnx-enigma-context-box {
+    font-size: 11.5px;
+  }
+}
+
+/* =====================================================================
+   AJUSTE V3 · COLUMNAS INDEPENDIENTES Y ESPACIOS EQUILIBRADOS
+   ===================================================================== */
+
+/* Cada columna crece de forma independiente. Así la pista queda justo
+   debajo de la imagen y ya no es empujada por la altura de los retos. */
+.mnx-enigma-cofre-layout .mnx-enigma-activity-grid {
+  display: grid;
+  grid-template-columns: minmax(315px, 370px) minmax(0, 1fr);
+  grid-template-areas: none;
+  gap: 18px;
+  align-items: start;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-left-column,
+.mnx-enigma-cofre-layout .mnx-enigma-right-column {
+  min-width: 0;
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-art,
+.mnx-enigma-cofre-layout .mnx-enigma-guide-card,
+.mnx-enigma-cofre-layout .mnx-enigma-challenges,
+.mnx-enigma-cofre-layout .mnx-enigma-actions,
+.mnx-enigma-cofre-layout .mnx-enigma-reminder-card {
+  grid-area: auto;
+  width: 100%;
+  margin: 0;
+}
+
+/* Imagen compacta, pero con suficiente presencia visual. */
+.mnx-enigma-cofre-layout .mnx-enigma-art {
+  height: 475px;
+  min-height: 475px;
+  padding: 14px 14px 128px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-art > img {
+  object-position: center;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-mission {
+  min-height: 98px;
+  padding: 13px 14px;
+}
+
+/* La pista ocupa el ancho de la columna y queda pegada a la escena. */
+.mnx-enigma-cofre-layout .mnx-enigma-reminder-card {
+  min-height: 210px;
+  padding: 16px;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 13px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-reminder-card img {
+  width: 88px;
+  height: 122px;
+}
+
+/* Retos más compactos y equilibrados. */
+.mnx-enigma-cofre-layout .mnx-enigma-challenges {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: stretch;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-challenge-card {
+  padding: 15px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-challenge-three,
+.mnx-enigma-cofre-layout .mnx-enigma-explanation-card {
+  grid-column: auto;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-challenge-three {
+  min-height: 275px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-explanation-card {
+  min-height: 275px;
+  padding: 15px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-substitution-expression {
+  min-height: 62px;
+  margin: 10px 0 12px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-answer-box {
+  margin-top: 10px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-answer-box textarea {
+  min-height: 118px;
+  padding: 13px 14px 30px;
+  font-size: 15px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-explanation-actions {
+  margin-top: 11px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-save-button-inline {
+  min-width: 210px;
+  min-height: 48px;
+  padding-inline: 18px;
+}
+
+/* El botón final queda inmediatamente debajo de los retos. */
+.mnx-enigma-cofre-layout .mnx-enigma-actions {
+  gap: 10px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-check-button {
+  min-height: 64px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-stats {
+  margin-top: 18px;
+}
+
+@media (max-width: 1380px) and (min-width: 981px) {
+  .mnx-enigma-cofre-layout .mnx-enigma-activity-grid {
+    grid-template-columns: minmax(285px, 325px) minmax(0, 1fr);
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-art {
+    height: 445px;
+    min-height: 445px;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-challenges {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1100px) and (min-width: 981px) {
+  .mnx-enigma-cofre-layout .mnx-enigma-challenges {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-challenge-three,
+  .mnx-enigma-cofre-layout .mnx-enigma-explanation-card {
+    grid-column: auto;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 980px) {
+  .mnx-enigma-cofre-layout .mnx-enigma-activity-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-left-column,
+  .mnx-enigma-cofre-layout .mnx-enigma-right-column {
+    width: 100%;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-left-column {
+    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+    align-items: stretch;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-art {
+    height: 450px;
+    min-height: 450px;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-reminder-card {
+    min-height: 450px;
+    grid-template-columns: 1fr;
+    align-content: center;
+    text-align: center;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-reminder-card img {
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-enigma-cofre-layout .mnx-enigma-left-column {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-art {
+    height: 410px;
+    min-height: 410px;
+    padding: 12px 12px 122px;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-reminder-card {
+    min-height: 0;
+    grid-template-columns: 78px minmax(0, 1fr);
+    text-align: left;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-reminder-card img {
+    width: 78px;
+    height: 106px;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-challenges {
+    grid-template-columns: 1fr;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-challenge-three,
+  .mnx-enigma-cofre-layout .mnx-enigma-explanation-card {
+    min-height: 0;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-save-button-inline {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* =====================================================================
+   AJUSTE V4 · OCUPAR ESPACIO EN BLANCO Y ESTADÍSTICAS COMPACTAS
+   ===================================================================== */
+
+.mnx-enigma-cofre-layout .mnx-enigma-left-column {
+  gap: 16px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-right-column {
+  gap: 16px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-reminder-card {
+  min-height: 194px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-stats-compact {
+  width: 100%;
+  min-height: 0;
+  margin-top: 0;
+  border-radius: 24px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  box-shadow: var(--mn-shadow-sm);
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-stats-compact article {
+  min-height: 92px;
+  padding: 14px 12px;
+  justify-content: flex-start;
+  border-right: 1px solid #e8f0e9;
+  border-bottom: 1px solid #e8f0e9;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-stats-compact article:nth-child(2n) {
+  border-right: 0;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-stats-compact article:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-stats-compact svg,
+.mnx-enigma-cofre-layout .mnx-enigma-stats-compact .mnx-enigma-xp-star {
+  font-size: 28px !important;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-stats-compact span {
+  font-size: 10px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-stats-compact strong {
+  font-size: 16px;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-token-bank {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-token-bank button {
+  min-height: 54px;
+}
+
+@media (max-width: 980px) {
+  .mnx-enigma-cofre-layout .mnx-enigma-left-column {
+    grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-stats-compact {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 700px) {
+  .mnx-enigma-cofre-layout .mnx-enigma-stats-compact {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .mnx-enigma-cofre-layout .mnx-enigma-stats-compact article {
+    min-height: 86px;
+  }
+}
+
+
+/* =====================================================================
+   ENIGMA.WEBP · ANIMACIÓN PRINCIPAL
+   Ruta:
+   src/assets/mathnumbers/11-enigma/enigma.webp
+
+   El WebP se reproduce automáticamente dentro de la etiqueta <img>.
+   ===================================================================== */
+
+.mnx-enigma-cofre-layout .mnx-enigma-art {
+  overflow: hidden;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-art > img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 20px;
+  pointer-events: none;
+  user-select: none;
+  filter:
+    saturate(1.06)
+    contrast(1.03)
+    brightness(1.02)
+    drop-shadow(0 18px 20px rgba(0, 0, 0, 0.22));
+}
+
+@media (max-width: 700px) {
+  .mnx-enigma-cofre-layout .mnx-enigma-art > img {
+    border-radius: 16px;
+  }
+}
+
+/* =====================================================================
+   AUDIO · INTRODUCCIÓN Y CONSEJO DE SUMA
+   ===================================================================== */
+
+.mnx-enigma-cofre-layout .mnx-enigma-speech p {
+  min-height: 58px;
+  margin: 9px 0 0;
+}
+
+.mnx-enigma-audio-controls {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.mnx-enigma-audio-controls button {
+  width: 35px;
+  height: 35px;
+  min-height: 35px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #18ba5e, #078b42);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(19, 168, 78, 0.2);
+  transition:
+    transform var(--mn-transition),
+    opacity var(--mn-transition),
+    filter var(--mn-transition);
+}
+
+.mnx-enigma-audio-controls button:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.05);
+  filter: brightness(1.06);
+}
+
+.mnx-enigma-audio-controls button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mnx-enigma-audio-status {
+  min-height: 34px;
+  padding: 0 11px;
+  border-radius: 999px;
+  color: var(--mn-muted);
+  background: #edf4ef;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 850;
+}
+
+.mnx-enigma-audio-status svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+}
+
+.mnx-enigma-audio-status.is-playing,
+.mnx-enigma-reminder-audio-status.is-playing {
+  color: var(--mn-primary-dark);
+  background: #ddf7e4;
+  animation: mnx-enigma-audio-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes mnx-enigma-audio-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(19, 168, 78, 0.15);
+  }
+
+  50% {
+    box-shadow: 0 0 0 7px rgba(19, 168, 78, 0);
+  }
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-reminder-card {
+  min-height: 250px;
+  height: auto;
+  align-items: center;
+}
+
+.mnx-enigma-cofre-layout .mnx-enigma-reminder-card img {
+  animation: mnx-enigma-reminder-float 3s ease-in-out infinite;
+}
+
+@keyframes mnx-enigma-reminder-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-6px) rotate(1deg);
+  }
+}
+
+.mnx-enigma-reminder-copy {
+  min-width: 0;
+}
+
+.mnx-enigma-reminder-audio-controls {
+  width: 100%;
+  margin-top: 11px;
+  display: grid;
+  grid-template-columns: repeat(3, 34px);
+  align-items: center;
+  justify-content: start;
+  gap: 7px;
+}
+
+.mnx-enigma-cofre-layout
+  .mnx-enigma-reminder-audio-controls
+  button {
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #18ba5e, #078b42);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 7px 14px rgba(19, 168, 78, 0.18);
+  transition:
+    transform var(--mn-transition),
+    opacity var(--mn-transition);
+}
+
+.mnx-enigma-cofre-layout
+  .mnx-enigma-reminder-audio-controls
+  button:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.04);
+}
+
+.mnx-enigma-cofre-layout
+  .mnx-enigma-reminder-audio-controls
+  button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mnx-enigma-reminder-audio-status {
+  grid-column: 1 / -1;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 31px;
+  padding: 0 9px;
+  border-radius: 999px;
+  color: var(--mn-muted);
+  background: #edf4ef;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 850;
+}
+
+.mnx-enigma-reminder-audio-status svg {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 13px;
+}
+
+.mnx-enigma-cofre-layout
+  .mnx-enigma-reminder-card
+  .mnx-enigma-full-hint-button {
+  min-height: 34px;
+  margin-top: 9px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--mn-blue);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 850;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(47, 128, 237, 0.22);
+}
+
+@media (max-width: 700px) {
+  .mnx-enigma-audio-controls {
+    justify-content: center;
+  }
+
+  .mnx-enigma-audio-status {
+    flex: 1 1 150px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 460px) {
+  .mnx-enigma-reminder-copy {
+    text-align: center;
+  }
+
+  .mnx-enigma-reminder-audio-controls {
+    justify-content: center;
+  }
+
+  .mnx-enigma-reminder-audio-status {
+    justify-self: center;
+    justify-content: center;
+  }
+}

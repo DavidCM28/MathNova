@@ -53,6 +53,9 @@ type AudioStatus = "idle" | "playing" | "paused" | "ended";
 const puenteRoute =
   "/actividades/mathnumbers/puente-prioridades";
 
+const enigmaVariablesRoute =
+  "/actividades/mathnumbers/enigma-variables";
+
 const INTRO_AUDIO_SRC = audioIntroPuente;
 const GUIDE_AUDIO_SRC = audioConsejoSumaPuente;
 
@@ -1402,7 +1405,7 @@ export function PuentePrioridades() {
       {resultModalOpen && (
         <ResultModal
           kind={resultModalKind}
-          nextRoute={activityListRoute}
+          nextRoute={enigmaVariablesRoute}
           retryRoute={puenteRoute}
           onClose={cerrarResultado}
           onRetry={repetirActividad}
