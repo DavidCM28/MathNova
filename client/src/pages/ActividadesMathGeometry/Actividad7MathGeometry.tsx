@@ -18,12 +18,12 @@ import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 
 import heroBanner from "../../assets/mathGeometry/actividad7/banner_act7_MathGeometry.png";
-import reto1 from "../../assets/mathGeometry/actividad7/reto1_act7_MathGeometry.png";
-import reto2 from "../../assets/mathGeometry/actividad7/reto2_act7_MathGeometry.png";
-import reto3 from "../../assets/mathGeometry/actividad7/reto3_act7_MathGeometry.png";
-import reto4 from "../../assets/mathGeometry/actividad7/reto4_act7_MathGeometry.png";
-import reto5 from "../../assets/mathGeometry/actividad7/reto5_act7_MathGeometry.png";
-import reto6 from "../../assets/mathGeometry/actividad7/reto6_act7_MathGeometry.png";
+import reto1 from "../../assets/mathGeometry/actividad7/act7_reto1.png";
+import reto2 from "../../assets/mathGeometry/actividad7/act7_reto2.png";
+import reto3 from "../../assets/mathGeometry/actividad7/act7_reto3.png";
+import reto4 from "../../assets/mathGeometry/actividad7/act7_reto4.png";
+import reto5 from "../../assets/mathGeometry/actividad7/act7_reto5.png";
+import reto6 from "../../assets/mathGeometry/actividad7/act7_reto6.png";
 
 import byteImagen from "../../assets/mathGeometry/actividad7/byte-act7-mathgeometry.png";
 import profesorConsejoImagen from "../../assets/mathGeometry/actividad7/profesor_dando_consejo_actividad_7.png";
@@ -90,19 +90,14 @@ import videoProfesor from "../../assets/mathGeometry/actividad7/instrucciones_pr
 import videoByte from "../../assets/mathGeometry/actividad7/byte_aciertos_y_pistas_act_7_MathGeometry.mp4";
 import videoSombra from "../../assets/mathGeometry/actividad7/act_6_sombra_error_MathGeometry_.mp4";
 
-/* ================================================================
-   AUDIOS DE LA ACTIVIDAD 7
-   ---------------------------------------------------------------
-   Los modales quedaron preparados, pero sin audios, como se solicitó.
-   Cuando tengas los archivos MP3, importa cada uno aquí y reemplaza "".
-   ================================================================ */
-const audioNovaIntroduccion = "";
-const audioProfesorAstro = "";
-const audioPistaNova = "";
-const audioPistaProfesor = "";
-const audioPistaByte = "";
-const audioSombraError = "";
-const audioNovaCierre = "";
+/* Audios de bienvenida, explicación y pistas de la Actividad 7. */
+import audioNovaIntroduccion from "../../assets/mathGeometry/actividad7/act7_bienvenida_nova_MathGeometry.mp3";
+import audioProfesorAstro from "../../assets/mathGeometry/actividad7/act7_instrucciones_profe_astro_MathGeometry.mp3";
+import audioPistaNova from "../../assets/mathGeometry/actividad7/act7_pista_1_Nova_MathGeometry.mp3";
+import audioPistaProfesor from "../../assets/mathGeometry/actividad7/act7_pista_2_Profesor_Astro_MathGeometry.mp3";
+import audioPistaByte from "../../assets/mathGeometry/actividad7/act7_pista_3_Byte_MathGeometry.mp3";
+import audioSombraError from "../../assets/mathGeometry/actividad7/act7_sombra_del_error_MathGeometry.mp3";
+import audioNovaCierre from "../../assets/mathGeometry/actividad7/act7_nova_cierre_MathGeometry.mp3";
 
 const audioByteAcierto = "";
 const audioProfesorAcierto = "";
@@ -112,37 +107,39 @@ const RETOS: Reto[] = [
   {
     id: 1,
     imagen: reto1,
-    pregunta: "Selecciona la línea que pasa por el centro.",
+    pregunta:
+      "Observa el triángulo y selecciona la línea que pasa por el centro de la figura.",
     opciones: [
-      { id: "C", texto: "Línea diagonal de B al lado AC" },
-      { id: "A", texto: "Línea vertical que pasa por el centro" },
-      { id: "D", texto: "Línea diagonal de C al lado AB" },
-      { id: "B", texto: "Línea horizontal sobre la base BC" },
+      { id: "A", texto: "Línea roja" },
+      { id: "B", texto: "Línea azul inclinada" },
+      { id: "C", texto: "Línea verde" },
+      { id: "D", texto: "Línea azul vertical" },
     ],
-    correcta: "A",
+    correcta: "D",
   },
   {
     id: 2,
     imagen: reto2,
     pregunta:
-      "Selecciona la línea que divide el ángulo superior en dos partes iguales.",
+      "Selecciona la línea que divide una esquina del triángulo en dos partes iguales.",
     opciones: [
-      { id: "B", texto: "Línea punteada izquierda" },
-      { id: "D", texto: "Línea punteada derecha" },
-      { id: "A", texto: "Línea turquesa central" },
-      { id: "C", texto: "Lado DF de la base" },
+      { id: "A", texto: "Línea verde lateral" },
+      { id: "B", texto: "Línea blanca izquierda" },
+      { id: "C", texto: "Línea verde central" },
+      { id: "D", texto: "Línea blanca derecha" },
     ],
-    correcta: "A",
+    correcta: "C",
   },
   {
     id: 3,
     imagen: reto3,
-    pregunta: "Selecciona la altura perpendicular al lado base.",
+    pregunta:
+      "Observa cuidadosamente y selecciona la línea que llega de manera perpendicular al lado del triángulo.",
     opciones: [
-      { id: "D", texto: "Línea punteada inclinada derecha" },
-      { id: "B", texto: "Línea punteada inclinada izquierda" },
-      { id: "C", texto: "Línea vertical punteada desde G" },
-      { id: "A", texto: "Lado GI del triángulo" },
+      { id: "A", texto: "Línea roja inclinada" },
+      { id: "B", texto: "Línea amarilla" },
+      { id: "C", texto: "Línea roja vertical" },
+      { id: "D", texto: "Línea verde" },
     ],
     correcta: "C",
   },
@@ -150,58 +147,87 @@ const RETOS: Reto[] = [
     id: 4,
     imagen: reto4,
     pregunta:
-      "Selecciona la mediana que llega al punto medio del lado opuesto.",
+      "Selecciona la línea que une un vértice con el punto medio del lado contrario.",
     opciones: [
-      { id: "C", texto: "Línea punteada desde J hacia KL" },
-      { id: "B", texto: "Línea punteada desde el punto naranja hacia L" },
-      { id: "A", texto: "Línea de K al punto naranja de JL" },
-      { id: "D", texto: "Lado JL del triángulo" },
+      { id: "A", texto: "Línea amarilla punteada" },
+      { id: "B", texto: "Línea verde" },
+      { id: "C", texto: "Línea morada" },
+      { id: "D", texto: "Línea amarilla continua" },
     ],
-    correcta: "A",
+    correcta: "D",
   },
   {
     id: 5,
     imagen: reto5,
-    pregunta: "Selecciona la mediatriz del lado MN.",
+    pregunta:
+      "Observa el triángulo y elige la línea que divide el vértice en dos partes iguales.",
     opciones: [
-      { id: "D", texto: "Línea turquesa inclinada" },
-      { id: "B", texto: "Línea morada izquierda" },
-      { id: "A", texto: "Línea amarilla perpendicular a MN" },
-      { id: "C", texto: "Línea morada derecha" },
+      { id: "A", texto: "Línea roja" },
+      { id: "B", texto: "Línea morada diagonal" },
+      { id: "C", texto: "Línea amarilla" },
+      { id: "D", texto: "Línea morada vertical" },
     ],
-    correcta: "A",
+    correcta: "D",
   },
   {
     id: 6,
     imagen: reto6,
-    pregunta: "Selecciona la bisectriz del ángulo izquierdo.",
+    pregunta:
+      "Último reto: observa todas las líneas y selecciona la que pasa por el centro del triángulo.",
     opciones: [
-      { id: "B", texto: "Línea punteada inferior hacia R" },
-      { id: "D", texto: "Línea punteada superior hacia P" },
-      { id: "C", texto: "Línea punteada desde O hacia R" },
-      { id: "A", texto: "Línea naranja que sale de Q" },
+      { id: "A", texto: "Línea A" },
+      { id: "B", texto: "Línea D" },
+      { id: "C", texto: "Línea B" },
+      { id: "D", texto: "Línea C" },
     ],
-    correcta: "A",
+    correcta: "D",
   },
 ];
 
-const GUION_NOVA_INTRODUCCION = [""];
-const GUION_PROFESOR_ASTRO = [""];
-const GUION_SOMBRA_ERROR = [""];
-const GUION_NOVA_CIERRE = [""];
+const GUION_NOVA_INTRODUCCION = [
+  "¡Hola, explorador de MathNova!",
+  "Hoy entraremos a La Fortaleza Triangular.",
+  "En cada reto verás un triángulo con varias líneas.",
+  "Tu misión será observar bien y elegir la línea correcta.",
+  "Fíjate desde dónde empieza, hacia dónde va y qué parte del triángulo toca.",
+  "¡Vamos a comenzar la misión!",
+];
+
+const GUION_PROFESOR_ASTRO = [
+  "En esta actividad aprenderás a reconocer algunas líneas importantes dentro de los triángulos.",
+  "Verás líneas que pasan por el centro, líneas que dividen un ángulo en dos partes iguales, líneas que llegan rectas a un lado y líneas que unen un vértice con el punto medio del lado contrario.",
+  "No necesitas medir ni dibujar.",
+  "Solo observa con atención cada triángulo y selecciona la opción que cumpla con la instrucción.",
+  "Cuando elijas tu respuesta, revisaremos juntos si fue correcta.",
+];
+
+const GUION_SOMBRA_ERROR = [
+  "Casi lo logras.",
+  "Observa otra vez el triángulo y revisa cada línea con calma.",
+  "Fíjate desde dónde empieza y hacia dónde se dirige.",
+  "Recuerda: equivocarse también es parte de aprender.",
+  "En MathNova podemos volver a intentarlo.",
+  "¡Vamos una vez más!",
+];
+
+const GUION_NOVA_CIERRE = [
+  "¡Misión completada!",
+  "Lograste superar La Fortaleza Triangular.",
+  "Aprendiste a reconocer líneas importantes dentro de los triángulos, como la altura, la mediana, la bisectriz y las líneas que pasan por el centro.",
+  "Cada reto completado quedó registrado como evidencia de tu avance.",
+  "¡Muy buen trabajo, explorador de MathNova!",
+  "Nos vemos en la siguiente misión.",
+];
 
 const TEXTO_INICIAL_NOVA =
-  "Aquí podrás agregar después el texto y audio de introducción de Nova.";
-const TEXTO_FINAL_NOVA = "";
-const TEXTO_INICIAL_PROFESOR =
-  "Aquí podrás agregar después las instrucciones del Profesor Astro.";
-const TEXTO_FINAL_PROFESOR = "";
-const TEXTO_INICIAL_SOMBRA =
-  "Aquí podrás agregar después el mensaje de error de Sombra.";
-const TEXTO_FINAL_SOMBRA = "";
-const TEXTO_INICIAL_COMPLETADO =
-  "Aquí podrás agregar después el mensaje final de Nova.";
-const TEXTO_FINAL_COMPLETADO = "";
+  "Presiona reproducir para escuchar la introducción de Nova.";
+const TEXTO_FINAL_NOVA = GUION_NOVA_INTRODUCCION.join(" ");
+const TEXTO_INICIAL_PROFESOR = GUION_PROFESOR_ASTRO[0];
+const TEXTO_FINAL_PROFESOR = GUION_PROFESOR_ASTRO.join(" ");
+const TEXTO_INICIAL_SOMBRA = GUION_SOMBRA_ERROR[0];
+const TEXTO_FINAL_SOMBRA = GUION_SOMBRA_ERROR.join(" ");
+const TEXTO_INICIAL_COMPLETADO = GUION_NOVA_CIERRE[0];
+const TEXTO_FINAL_COMPLETADO = GUION_NOVA_CIERRE.join(" ");
 
 const PISTAS_ACT7: Record<
   PistaAct7Id,
@@ -218,29 +244,46 @@ const PISTAS_ACT7: Record<
   frente: {
     id: "frente",
     titulo: "Pista 1",
-    subtitulo: "Texto pendiente",
+    subtitulo: "Mira dónde comienza",
     personaje: "Nova",
     audio: audioPistaNova,
     video: videoNova,
-    guion: [""],
+    guion: [
+      "Pista de explorador:",
+      "Primero mira desde dónde comienza la línea.",
+      "Algunas salen de una esquina del triángulo.",
+      "Eso puede ayudarte a descartar opciones.",
+      "¡Creo que ya casi lo tienes!",
+    ],
   },
   linea: {
     id: "linea",
     titulo: "Pista 2",
-    subtitulo: "Texto pendiente",
+    subtitulo: "Observa hacia dónde llega",
     personaje: "Profesor Astro",
     audio: audioPistaProfesor,
     video: videoProfesor,
-    guion: [""],
+    guion: [
+      "Pista geométrica:",
+      "Observa hacia dónde llega la línea.",
+      "Puede llegar al centro de un lado, dividir una esquina o formar un ángulo recto.",
+      "Compara todas las opciones antes de responder.",
+    ],
   },
   letras: {
     id: "letras",
     titulo: "Pista 3",
-    subtitulo: "Texto pendiente",
+    subtitulo: "No te fijes solo en la posición",
     personaje: "Byte",
     audio: audioPistaByte,
     video: videoByte,
-    guion: [""],
+    guion: [
+      "Pista rápida:",
+      "El triángulo puede estar derecho, inclinado o girado.",
+      "No te fijes solo en su posición.",
+      "Observa qué hace la línea dentro del triángulo.",
+      "¡Esa es la clave!",
+    ],
   },
 };
 
@@ -562,6 +605,7 @@ function Actividad7MathGeometry() {
   /* Pistas de Nova, Profesor Astro y Byte. */
   const [pistaSeleccionada, setPistaSeleccionada] =
     useState<PistaAct7Id>("frente");
+  const [pistaElegida, setPistaElegida] = useState(false);
   const [textoPista, setTextoPista] = useState(TEXTO_INICIAL_PISTA);
   const [indicePistaActivo, setIndicePistaActivo] = useState(-1);
   const [progresoPistaActivo, setProgresoPistaActivo] = useState(0);
@@ -634,6 +678,7 @@ function Actividad7MathGeometry() {
       setIndicePistaActivo(-1);
       setProgresoPistaActivo(0);
       setPistaSeleccionada("frente");
+      setPistaElegida(false);
     }
 
     if (modal === "sombra") {
@@ -650,6 +695,61 @@ function Actividad7MathGeometry() {
       setCompletadoReproduciendo(false);
     }
   }, [modal]);
+
+  /*
+    El consejo del Profesor Astro comienza automáticamente al abrir su modal.
+  */
+  useEffect(() => {
+    if (modal !== "profesor") return;
+
+    const temporizador = window.setTimeout(() => {
+      const audio = audioProfesorRef.current;
+      if (!audio || !audio.src) return;
+
+      audio.currentTime = 0;
+      setTextoProfesor("");
+      setIndiceProfesorActivo(0);
+      setProgresoProfesorActivo(0);
+      setReinicioModal((valor) => valor + 1);
+      setModalReproduciendo(true);
+
+      void audio.play().catch(() => {
+        setModalReproduciendo(false);
+        setTextoProfesor(TEXTO_INICIAL_PROFESOR);
+      });
+    }, 160);
+
+    return () => window.clearTimeout(temporizador);
+  }, [modal]);
+
+  /*
+    El modal de pistas abre con el mensaje para elegir una opción.
+    La pista comienza automáticamente únicamente después de seleccionarla.
+  */
+  useEffect(() => {
+    if (modal !== "byte" || !pistaElegida) return;
+
+    const temporizador = window.setTimeout(() => {
+      const audio = audioPistaRef.current;
+      if (!audio || !audio.src) return;
+
+      audio.currentTime = 0;
+      setTextoPista("");
+      setIndicePistaActivo(0);
+      setProgresoPistaActivo(0);
+      setReinicioModal((valor) => valor + 1);
+      setModalReproduciendo(true);
+
+      void audio.play().catch(() => {
+        setModalReproduciendo(false);
+        setTextoPista(
+          `No se pudo reproducir ${PISTAS_ACT7[pistaSeleccionada].titulo.toLowerCase()}.`,
+        );
+      });
+    }, 180);
+
+    return () => window.clearTimeout(temporizador);
+  }, [modal, pistaSeleccionada, pistaElegida]);
 
   /*
     Cuando la respuesta es incorrecta, el modal de Sombra se abre y comienza
@@ -806,12 +906,17 @@ function Actividad7MathGeometry() {
 
   const seleccionarPista = (id: PistaAct7Id) => {
     audioPistaRef.current?.pause();
-    if (audioPistaRef.current) audioPistaRef.current.currentTime = 0;
-    setPistaSeleccionada(id);
-    setTextoPista(TEXTO_INICIAL_PISTA);
+
+    if (audioPistaRef.current) {
+      audioPistaRef.current.currentTime = 0;
+    }
+
+    setModalReproduciendo(false);
+    setTextoPista(`Preparando ${PISTAS_ACT7[id].titulo.toLowerCase()}...`);
     setIndicePistaActivo(-1);
     setProgresoPistaActivo(0);
-    setModalReproduciendo(false);
+    setPistaSeleccionada(id);
+    setPistaElegida(true);
     setReinicioModal((valor) => valor + 1);
   };
 
@@ -1195,6 +1300,7 @@ function Actividad7MathGeometry() {
     audioPistaRef.current?.pause();
     if (audioPistaRef.current) audioPistaRef.current.currentTime = 0;
     setPistaSeleccionada("frente");
+    setPistaElegida(false);
     setTextoPista(TEXTO_INICIAL_PISTA);
     setIndicePistaActivo(-1);
     setProgresoPistaActivo(0);
@@ -1249,14 +1355,18 @@ function Actividad7MathGeometry() {
     modal === "profesor"
       ? videoProfesor
       : modal === "byte"
-        ? pistaActiva.video
+        ? pistaElegida
+          ? pistaActiva.video
+          : videoByte
         : videoSombra;
 
   const tituloModal =
     modal === "profesor"
       ? "Consejo del Profesor Astro"
       : modal === "byte"
-        ? pistaActiva.titulo
+        ? pistaElegida
+          ? pistaActiva.titulo
+          : "Elige una pista"
         : "Mensaje de Sombra";
 
   return (
@@ -1385,7 +1495,7 @@ function Actividad7MathGeometry() {
             <span>›</span>
 
             <button type="button" className="act7geo-breadcrumb-current">
-              Act 6
+              Act 7
             </button>
           </div>
 
@@ -1393,8 +1503,8 @@ function Actividad7MathGeometry() {
             <div className="act7geo-title-area">
               <h1>Actividad 7: La Fortaleza Triangular</h1>
               <p className="act7geo-subtitle">
-                Observa cada ángulo y selecciona la línea que lo divide en dos
-                partes iguales para activar el escudo.
+                Observa cada triángulo e identifica sus rectas importantes para
+                proteger la Fortaleza Triangular.
               </p>
 
               <div className="act7geo-pills">
@@ -1516,12 +1626,6 @@ function Actividad7MathGeometry() {
 
           <div className="act7geo-layout">
             <section className="act7geo-game-card">
-              <div className="act7geo-challenge-head">
-                <span>
-                  <FiFlag /> Reto {retoActual + 1} de {RETOS.length}
-                </span>
-              </div>
-
               <div className="act7geo-laser-frame">
                 <img
                   src={reto.imagen}
@@ -1535,9 +1639,6 @@ function Actividad7MathGeometry() {
                   </div>
                 )}
               </div>
-
-              <h2>{reto.pregunta}</h2>
-
               <div
                 className="act7geo-options"
                 style={
@@ -1615,8 +1716,8 @@ function Actividad7MathGeometry() {
                 <div>
                   <h3>💡 Consejo del Profesor Astro</h3>
                   <p>
-                    Observa la distancia del punto a ambos extremos: si es
-                    igual, encontraste la bisectriz.
+                    Observa desde qué vértice inicia la línea y hacia qué punto
+                    del triángulo se dirige.
                   </p>
                   <span className="act7geo-guide-cta">
                     <FiVolume2 />
@@ -1634,8 +1735,8 @@ function Actividad7MathGeometry() {
                 <div>
                   <h3>✦ ¡Aviso de Sombra!</h3>
                   <p>
-                    No elijas un punto solo porque se ve cerca del centro;
-                    compara siempre ambos lados.
+                    No elijas una línea solo por su posición; revisa la
+                    característica que pide cada reto.
                   </p>
                 </div>
               </article>
@@ -1653,7 +1754,7 @@ function Actividad7MathGeometry() {
                 <div>
                   <h3>Pista de Byte</h3>
                   <p>
-                    Abre una pista para identificar la bisectriz del reto
+                    Abre una pista para identificar la recta importante del reto
                     actual.
                   </p>
                   <span className="act7geo-guide-cta act7geo-guide-cta-byte">
@@ -1868,7 +1969,7 @@ function Actividad7MathGeometry() {
                 onTimeUpdate={actualizarTextoSombra}
                 onEnded={() => {
                   setModalReproduciendo(false);
-                  setTextoSombra(GUION_SOMBRA_ERROR.join(" "));
+                  setTextoSombra(TEXTO_FINAL_SOMBRA);
                   setIndiceSombraActivo(GUION_SOMBRA_ERROR.length - 1);
                   setProgresoSombraActivo(100);
                 }}
@@ -1881,7 +1982,9 @@ function Actividad7MathGeometry() {
                 {modal === "profesor"
                   ? "Profesor Astro"
                   : modal === "byte"
-                    ? pistaActiva.personaje
+                    ? pistaElegida
+                      ? pistaActiva.personaje
+                      : "Selecciona una opción"
                     : "Sombra"}
               </span>
 
@@ -1899,7 +2002,7 @@ function Actividad7MathGeometry() {
                         key={id}
                         type="button"
                         className={
-                          id === pistaSeleccionada
+                          pistaElegida && id === pistaSeleccionada
                             ? "act7geo-hint-tab-active"
                             : ""
                         }
@@ -1934,6 +2037,7 @@ function Actividad7MathGeometry() {
                 <button
                   type="button"
                   className="act7geo-modal-play"
+                  disabled={modal === "byte" && !pistaElegida}
                   onClick={
                     modal === "profesor"
                       ? reproducirProfesor
@@ -1961,6 +2065,7 @@ function Actividad7MathGeometry() {
 
                 <button
                   type="button"
+                  disabled={modal === "byte" && !pistaElegida}
                   onClick={
                     modal === "profesor"
                       ? reiniciarProfesor
@@ -2023,7 +2128,18 @@ function Actividad7MathGeometry() {
                 </div>
               )}
 
-              {modal === "byte" && (
+              {modal === "byte" && !pistaElegida && (
+                <div className="act7geo-hint-empty-state">
+                  <FiHelpCircle />
+                  <strong>Elige una pista</strong>
+                  <p>
+                    Selecciona a Nova, Profesor Astro o Byte. La pista elegida
+                    comenzará a reproducirse automáticamente.
+                  </p>
+                </div>
+              )}
+
+              {modal === "byte" && pistaElegida && (
                 <div className="act7geo-modal-script-lines act7geo-hint-script-lines">
                   {pistaActiva.guion.map((linea, indice) => (
                     <p
@@ -2134,7 +2250,7 @@ function Actividad7MathGeometry() {
               onTimeUpdate={actualizarTextoCompletado}
               onEnded={() => {
                 setCompletadoReproduciendo(false);
-                setTextoCompletado(GUION_NOVA_CIERRE.join(" "));
+                setTextoCompletado(TEXTO_FINAL_COMPLETADO);
                 setIndiceCompletadoActivo(GUION_NOVA_CIERRE.length - 1);
                 setProgresoCompletadoActivo(100);
               }}

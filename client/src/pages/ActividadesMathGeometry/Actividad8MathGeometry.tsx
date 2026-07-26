@@ -18,12 +18,12 @@ import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 
 import heroBanner from "../../assets/mathGeometry/actividad8/banner_act8_MathGeometry.png";
-import reto1 from "../../assets/mathGeometry/actividad8/reto1_act8_MathGeometry.png";
-import reto2 from "../../assets/mathGeometry/actividad8/reto2_act8_MathGeometry.png";
-import reto3 from "../../assets/mathGeometry/actividad8/reto3_act8_MathGeometry.png";
-import reto4 from "../../assets/mathGeometry/actividad8/reto4_act8_MathGeometry.png";
-import reto5 from "../../assets/mathGeometry/actividad8/reto5_act8_MathGeometry.png";
-import reto6 from "../../assets/mathGeometry/actividad8/reto6_act8_MathGeometry.png";
+import reto1 from "../../assets/mathGeometry/actividad8/act8_reto1.png";
+import reto2 from "../../assets/mathGeometry/actividad8/act8_reto2.png";
+import reto3 from "../../assets/mathGeometry/actividad8/act8_reto3.png";
+import reto4 from "../../assets/mathGeometry/actividad8/act8_reto4.png";
+import reto5 from "../../assets/mathGeometry/actividad8/act8_reto5.png";
+import reto6 from "../../assets/mathGeometry/actividad8/act8_reto6.png";
 
 import byteImagen from "../../assets/mathGeometry/actividad8/byte-act8-mathgeometry.png";
 import profesorConsejoImagen from "../../assets/mathGeometry/actividad8/profesor_dando_consejo_actividad_8.png";
@@ -90,20 +90,20 @@ import videoProfesor from "../../assets/mathGeometry/actividad8/instrucciones_pr
 import videoByte from "../../assets/mathGeometry/actividad8/byte_aciertos_y_pistas_act_8_MathGeometry.mp4";
 import videoSombra from "../../assets/mathGeometry/actividad8/act_8_sombra_error_MathGeometry_.mp4";
 
+import audioNovaIntroduccion from "../../assets/mathGeometry/actividad8/act8_bienvenida_nova_MathGeometry.mp3";
+import audioProfesorAstro from "../../assets/mathGeometry/actividad8/act8_instrucciones_profe_astro_MathGeometry.mp3";
+import audioPistaNova from "../../assets/mathGeometry/actividad8/act8_pista_1_Nova_MathGeometry.mp3";
+import audioPistaProfesor from "../../assets/mathGeometry/actividad8/act8_pista_2_Profesor_Astro_MathGeometry.mp3";
+import audioPistaByte from "../../assets/mathGeometry/actividad8/act8_pista_3_Byte_MathGeometry.mp3";
+import audioSombraError from "../../assets/mathGeometry/actividad8/act8_sombra_del_error_MathGeometry.mp3";
+import audioNovaCierre from "../../assets/mathGeometry/actividad8/act8_cierre_nova_MathGeometry.mp3";
+
 /* ================================================================
    AUDIOS DE LA ACTIVIDAD 8
    ---------------------------------------------------------------
    Los modales quedaron preparados y sin audios.
    Cuando tengas los MP3, impórtalos aquí y reemplaza las cadenas vacías.
    ================================================================ */
-const audioNovaIntroduccion = "";
-const audioProfesorAstro = "";
-const audioPistaNova = "";
-const audioPistaProfesor = "";
-const audioPistaByte = "";
-const audioSombraError = "";
-const audioNovaCierre = "";
-
 const audioByteAcierto = "";
 const audioProfesorAcierto = "";
 const audioNovaAcierto = "";
@@ -112,97 +112,125 @@ const RETOS: Reto[] = [
   {
     id: 1,
     imagen: reto1,
-    pregunta: "Selecciona las diagonales correctas del cuadrilátero.",
+    pregunta: "",
     opciones: [
-      { id: "C", texto: "AB y CD" },
-      { id: "A", texto: "AC y BD" },
-      { id: "D", texto: "AD y BC" },
-      { id: "B", texto: "AB y BC" },
+      { id: "A", texto: "Línea amarilla" },
+      { id: "B", texto: "Línea celeste" },
+      { id: "C", texto: "Línea roja" },
+      { id: "D", texto: "Línea verde" },
     ],
-    correcta: "A",
+    correcta: "C",
   },
   {
     id: 2,
     imagen: reto2,
-    pregunta: "Identifica las diagonales que unen vértices opuestos.",
+    pregunta: "",
     opciones: [
-      { id: "B", texto: "EF y GH" },
-      { id: "D", texto: "EH y FG" },
-      { id: "A", texto: "EG y FH" },
-      { id: "C", texto: "EF y FG" },
+      { id: "A", texto: "Línea roja" },
+      { id: "B", texto: "Línea amarilla" },
+      { id: "C", texto: "Línea verde" },
+      { id: "D", texto: "Línea celeste" },
     ],
-    correcta: "A",
+    correcta: "C",
   },
   {
     id: 3,
     imagen: reto3,
-    pregunta: "Encuentra las dos diagonales del cuadrilátero.",
+    pregunta: "",
     opciones: [
-      { id: "D", texto: "IJ y KL" },
-      { id: "B", texto: "IL y JK" },
-      { id: "C", texto: "IK y JL" },
-      { id: "A", texto: "IJ y JK" },
-    ],
-    correcta: "C",
-  },
-  {
-    id: 4,
-    imagen: reto4,
-    pregunta: "Marca las líneas que van de un vértice al opuesto.",
-    opciones: [
-      { id: "A", texto: "MN y PO" },
-      { id: "C", texto: "MP y NO" },
-      { id: "B", texto: "MO y NP" },
-      { id: "D", texto: "MN y NO" },
+      { id: "A", texto: "Línea verde" },
+      { id: "B", texto: "Línea amarilla" },
+      { id: "C", texto: "Contorno azul" },
+      { id: "D", texto: "Punto central" },
     ],
     correcta: "B",
   },
   {
+    id: 4,
+    imagen: reto4,
+    pregunta: "",
+    opciones: [
+      { id: "A", texto: "Vértices A y B" },
+      { id: "B", texto: "Vértices A y C" },
+      { id: "C", texto: "Vértices B y D" },
+      { id: "D", texto: "Vértices C y D" },
+    ],
+    correcta: "C",
+  },
+  {
     id: 5,
     imagen: reto5,
-    pregunta: "Ubica las diagonales internas correctas.",
+    pregunta: "",
     opciones: [
-      { id: "C", texto: "QR y TS" },
-      { id: "A", texto: "QS y RT" },
-      { id: "D", texto: "QT y RS" },
-      { id: "B", texto: "QR y RS" },
+      { id: "A", texto: "Línea amarilla" },
+      { id: "B", texto: "Línea roja" },
+      { id: "C", texto: "Línea morada" },
+      { id: "D", texto: "Contorno azul" },
     ],
-    correcta: "A",
+    correcta: "C",
   },
   {
     id: 6,
     imagen: reto6,
-    pregunta: "Selecciona el par de diagonales del cuadrilátero.",
+    pregunta: "",
     opciones: [
-      { id: "B", texto: "UX y VW" },
-      { id: "D", texto: "UV y XW" },
-      { id: "C", texto: "UW y XV" },
-      { id: "A", texto: "UV y VW" },
+      { id: "A", texto: "Línea verde" },
+      { id: "B", texto: "Línea morada" },
+      { id: "C", texto: "Línea naranja" },
+      { id: "D", texto: "Línea roja" },
     ],
-    correcta: "C",
+    correcta: "D",
   },
 ];
 
-const GUION_NOVA_INTRODUCCION = [""];
-const GUION_PROFESOR_ASTRO = [""];
-const GUION_SOMBRA_ERROR = [""];
-const GUION_NOVA_CIERRE = [""];
+const GUION_NOVA_INTRODUCCION = [
+  "¡Hola, explorador de MathNova!",
+  "Hoy activaremos El Centro de Control.",
+  "En cada reto verás una figura con varias líneas o vértices marcados.",
+  "Tu misión será encontrar la diagonal correcta.",
+  "Recuerda: una diagonal une dos vértices opuestos y atraviesa el interior de la figura.",
+  "¡Vamos a encender el sistema!",
+];
+
+const GUION_PROFESOR_ASTRO = [
+  "En esta actividad aprenderás a reconocer diagonales en diferentes cuadriláteros.",
+  "Verás cuadrados, rectángulos, rombos y otras figuras con distintas posiciones.",
+  "No necesitas medir, calcular ni dibujar.",
+  "Solo observa bien qué puntos une cada línea.",
+  "Si la línea conecta dos vértices opuestos, entonces puede ser una diagonal.",
+  "Cuando elijas tu respuesta, comprobaremos si activaste correctamente la consola.",
+];
+
+const GUION_SOMBRA_ERROR = [
+  "Casi lo logras.",
+  "Observa nuevamente la figura y revisa qué puntos une cada línea.",
+  "Recuerda que una diagonal conecta vértices opuestos.",
+  "Tómate tu tiempo y vuelve a intentarlo.",
+  "¡El sistema aún puede activarse!",
+];
+
+const GUION_NOVA_CIERRE = [
+  "¡Misión completada!",
+  "Lograste activar El Centro de Control.",
+  "Aprendiste a reconocer diagonales en cuadrados, rectángulos, rombos y otros cuadriláteros.",
+  "Ahora sabes que una diagonal une dos vértices opuestos y cruza el interior de la figura.",
+  "Cada reto completado quedó registrado como evidencia de tu avance.",
+  "¡Muy buen trabajo, explorador de MathNova!",
+  "Nos vemos en la siguiente misión.",
+];
 
 const TEXTO_INICIAL_NOVA =
-  "Aquí podrás agregar después el texto y audio de introducción de Nova.";
-const TEXTO_FINAL_NOVA = "";
+  "Presiona iniciar para escuchar la explicación de Nova.";
+const TEXTO_FINAL_NOVA = GUION_NOVA_INTRODUCCION.join(" ");
 
-const TEXTO_INICIAL_PROFESOR =
-  "Aquí podrás agregar después las instrucciones del Profesor Astro.";
-const TEXTO_FINAL_PROFESOR = "";
+const TEXTO_INICIAL_PROFESOR = GUION_PROFESOR_ASTRO[0];
+const TEXTO_FINAL_PROFESOR = GUION_PROFESOR_ASTRO.join(" ");
 
-const TEXTO_INICIAL_SOMBRA =
-  "Aquí podrás agregar después el mensaje de error de Sombra.";
-const TEXTO_FINAL_SOMBRA = "";
+const TEXTO_INICIAL_SOMBRA = GUION_SOMBRA_ERROR[0];
+const TEXTO_FINAL_SOMBRA = GUION_SOMBRA_ERROR.join(" ");
 
-const TEXTO_INICIAL_COMPLETADO =
-  "Aquí podrás agregar después el mensaje final de Nova.";
-const TEXTO_FINAL_COMPLETADO = "";
+const TEXTO_INICIAL_COMPLETADO = GUION_NOVA_CIERRE[0];
+const TEXTO_FINAL_COMPLETADO = GUION_NOVA_CIERRE.join(" ");
 
 const PISTAS_ACT8: Record<
   PistaAct8Id,
@@ -219,34 +247,51 @@ const PISTAS_ACT8: Record<
   frente: {
     id: "frente",
     titulo: "Pista 1",
-    subtitulo: "Texto pendiente",
+    subtitulo: "Pista de explorador",
     personaje: "Nova",
     audio: audioPistaNova,
     video: videoNova,
-    guion: [""],
+    guion: [
+      "Pista de explorador:",
+      "Primero identifica las esquinas de la figura.",
+      "Luego revisa si la línea une dos esquinas que están una frente a la otra.",
+      "Si hace eso, puede ser una diagonal.",
+    ],
   },
   linea: {
     id: "linea",
     titulo: "Pista 2",
-    subtitulo: "Texto pendiente",
+    subtitulo: "Pista geométrica",
     personaje: "Profesor Astro",
     audio: audioPistaProfesor,
     video: videoProfesor,
-    guion: [""],
+    guion: [
+      "Pista geométrica:",
+      "No confundas los lados con las diagonales.",
+      "Los lados forman el borde de la figura.",
+      "Las diagonales atraviesan el interior y conectan vértices opuestos.",
+    ],
   },
   letras: {
     id: "letras",
     titulo: "Pista 3",
-    subtitulo: "Texto pendiente",
+    subtitulo: "Pista rápida",
     personaje: "Byte",
     audio: audioPistaByte,
     video: videoByte,
-    guion: [""],
+    guion: [
+      "Pista rápida:",
+      "La figura puede estar derecha, inclinada o girada.",
+      "No te fijes solo en la posición.",
+      "Observa qué vértices conecta cada línea.",
+      "¡Ahí está la clave!",
+    ],
   },
 };
 
 const ORDEN_PISTAS_ACT8: PistaAct8Id[] = ["frente", "linea", "letras"];
-const TEXTO_INICIAL_PISTA = "Elige una de las tres pistas para escucharla.";
+const TEXTO_INICIAL_PISTA =
+  "Selecciona una pista para escucharla. Al elegirla, comenzará automáticamente.";
 
 /*
   Las felicitaciones flotantes quedan desactivadas temporalmente.
@@ -563,6 +608,7 @@ function Actividad8MathGeometry() {
   /* Pistas de Nova, Profesor Astro y Byte. */
   const [pistaSeleccionada, setPistaSeleccionada] =
     useState<PistaAct8Id>("frente");
+  const [pistaElegida, setPistaElegida] = useState(false);
   const [textoPista, setTextoPista] = useState(TEXTO_INICIAL_PISTA);
   const [indicePistaActivo, setIndicePistaActivo] = useState(-1);
   const [progresoPistaActivo, setProgresoPistaActivo] = useState(0);
@@ -635,6 +681,7 @@ function Actividad8MathGeometry() {
       setIndicePistaActivo(-1);
       setProgresoPistaActivo(0);
       setPistaSeleccionada("frente");
+      setPistaElegida(false);
     }
 
     if (modal === "sombra") {
@@ -650,6 +697,33 @@ function Actividad8MathGeometry() {
     } else {
       setCompletadoReproduciendo(false);
     }
+  }, [modal]);
+
+  /*
+    Al abrir el consejo del Profesor Astro, el audio y la animación
+    comienzan automáticamente.
+  */
+  useEffect(() => {
+    if (modal !== "profesor") return;
+
+    const temporizador = window.setTimeout(() => {
+      const audio = audioProfesorRef.current;
+      if (!audio || !audio.src) return;
+
+      audio.currentTime = 0;
+      setTextoProfesor("");
+      setIndiceProfesorActivo(0);
+      setProgresoProfesorActivo(0);
+      setReinicioModal((valor) => valor + 1);
+      setModalReproduciendo(true);
+
+      void audio.play().catch(() => {
+        setModalReproduciendo(false);
+        setTextoProfesor(TEXTO_INICIAL_PROFESOR);
+      });
+    }, 140);
+
+    return () => window.clearTimeout(temporizador);
   }, [modal]);
 
   /*
@@ -807,13 +881,31 @@ function Actividad8MathGeometry() {
 
   const seleccionarPista = (id: PistaAct8Id) => {
     audioPistaRef.current?.pause();
-    if (audioPistaRef.current) audioPistaRef.current.currentTime = 0;
+
+    if (audioPistaRef.current) {
+      audioPistaRef.current.currentTime = 0;
+    }
+
     setPistaSeleccionada(id);
-    setTextoPista(TEXTO_INICIAL_PISTA);
-    setIndicePistaActivo(-1);
+    setPistaElegida(true);
+    setTextoPista("");
+    setIndicePistaActivo(0);
     setProgresoPistaActivo(0);
     setModalReproduciendo(false);
     setReinicioModal((valor) => valor + 1);
+
+    window.setTimeout(() => {
+      const audio = audioPistaRef.current;
+      if (!audio || !audio.src || modal !== "byte") return;
+
+      audio.currentTime = 0;
+      setModalReproduciendo(true);
+
+      void audio.play().catch(() => {
+        setModalReproduciendo(false);
+        setTextoPista(PISTAS_ACT8[id].guion[0]);
+      });
+    }, 120);
   };
 
   const reproducirPista = () => {
@@ -1196,6 +1288,7 @@ function Actividad8MathGeometry() {
     audioPistaRef.current?.pause();
     if (audioPistaRef.current) audioPistaRef.current.currentTime = 0;
     setPistaSeleccionada("frente");
+    setPistaElegida(false);
     setTextoPista(TEXTO_INICIAL_PISTA);
     setIndicePistaActivo(-1);
     setProgresoPistaActivo(0);
@@ -1386,7 +1479,7 @@ function Actividad8MathGeometry() {
             <span>›</span>
 
             <button type="button" className="act8geo-breadcrumb-current">
-              Act 6
+              Act 8
             </button>
           </div>
 
@@ -1394,8 +1487,8 @@ function Actividad8MathGeometry() {
             <div className="act8geo-title-area">
               <h1>Actividad 8: El Centro de Control</h1>
               <p className="act8geo-subtitle">
-                Observa cada ángulo y selecciona la línea que lo divide en dos
-                partes iguales para activar el escudo.
+                Observa cada cuadrilátero y reconoce la línea que une dos
+                vértices opuestos.
               </p>
 
               <div className="act8geo-pills">
@@ -1464,9 +1557,7 @@ function Actividad8MathGeometry() {
 
             <div className="act8geo-speech-cloud">
               <div className="act8geo-speech-main">
-                <span className="act8geo-cloud-label">
-                  Introducción de Nova
-                </span>
+                <span className="act8geo-cloud-label">Nova explica</span>
                 <p>
                   {textoNova}
                   {novaReproduciendo && (
@@ -1517,12 +1608,6 @@ function Actividad8MathGeometry() {
 
           <div className="act8geo-layout">
             <section className="act8geo-game-card">
-              <div className="act8geo-challenge-head">
-                <span>
-                  <FiFlag /> Reto {retoActual + 1} de {RETOS.length}
-                </span>
-              </div>
-
               <div className="act8geo-laser-frame">
                 <img
                   src={reto.imagen}
@@ -1536,8 +1621,6 @@ function Actividad8MathGeometry() {
                   </div>
                 )}
               </div>
-
-              <h2>{reto.pregunta}</h2>
 
               <div
                 className="act8geo-options"
@@ -1616,8 +1699,8 @@ function Actividad8MathGeometry() {
                 <div>
                   <h3>💡 Consejo del Profesor Astro</h3>
                   <p>
-                    Observa la distancia del punto a ambos extremos: si es
-                    igual, encontraste la bisectriz.
+                    Una diagonal une dos vértices opuestos y atraviesa el
+                    interior de la figura.
                   </p>
                   <span className="act8geo-guide-cta">
                     <FiVolume2 />
@@ -1635,8 +1718,8 @@ function Actividad8MathGeometry() {
                 <div>
                   <h3>✦ ¡Aviso de Sombra!</h3>
                   <p>
-                    No elijas un punto solo porque se ve cerca del centro;
-                    compara siempre ambos lados.
+                    No confundas una diagonal con un lado o con una línea que
+                    termina a la mitad.
                   </p>
                 </div>
               </article>
@@ -1654,7 +1737,7 @@ function Actividad8MathGeometry() {
                 <div>
                   <h3>Pista de Byte</h3>
                   <p>
-                    Abre una pista para identificar la bisectriz del reto
+                    Abre una pista para reconocer los vértices opuestos del reto
                     actual.
                   </p>
                   <span className="act8geo-guide-cta act8geo-guide-cta-byte">
@@ -1869,9 +1952,10 @@ function Actividad8MathGeometry() {
                 onTimeUpdate={actualizarTextoSombra}
                 onEnded={() => {
                   setModalReproduciendo(false);
-                  setTextoSombra(GUION_SOMBRA_ERROR.join(" "));
+                  setTextoSombra(TEXTO_FINAL_SOMBRA);
                   setIndiceSombraActivo(GUION_SOMBRA_ERROR.length - 1);
                   setProgresoSombraActivo(100);
+                  setReinicioModal((valor) => valor + 1);
                 }}
               />
             )}
@@ -1900,7 +1984,7 @@ function Actividad8MathGeometry() {
                         key={id}
                         type="button"
                         className={
-                          id === pistaSeleccionada
+                          pistaElegida && id === pistaSeleccionada
                             ? "act8geo-hint-tab-active"
                             : ""
                         }
@@ -1942,6 +2026,7 @@ function Actividad8MathGeometry() {
                         ? reproducirPista
                         : reproducirSombra
                   }
+                  disabled={modal === "byte" && !pistaElegida}
                 >
                   <FiPlay /> Reproducir
                 </button>
@@ -1955,7 +2040,9 @@ function Actividad8MathGeometry() {
                         ? pausarPista
                         : pausarSombra
                   }
-                  disabled={!modalReproduciendo}
+                  disabled={
+                    !modalReproduciendo || (modal === "byte" && !pistaElegida)
+                  }
                 >
                   <FiPause /> Pausar
                 </button>
@@ -1969,6 +2056,7 @@ function Actividad8MathGeometry() {
                         ? reiniciarPista
                         : reiniciarSombra
                   }
+                  disabled={modal === "byte" && !pistaElegida}
                 >
                   <FiRotateCcw /> Reiniciar
                 </button>
@@ -2135,9 +2223,10 @@ function Actividad8MathGeometry() {
               onTimeUpdate={actualizarTextoCompletado}
               onEnded={() => {
                 setCompletadoReproduciendo(false);
-                setTextoCompletado(GUION_NOVA_CIERRE.join(" "));
+                setTextoCompletado(TEXTO_FINAL_COMPLETADO);
                 setIndiceCompletadoActivo(GUION_NOVA_CIERRE.length - 1);
                 setProgresoCompletadoActivo(100);
+                setReinicioCompletado((valor) => valor + 1);
               }}
             />
 
