@@ -6,6 +6,7 @@ import {
   type FormEvent,
 } from "react";
 import { useNavigate } from "react-router-dom";
+import { clearAuthSession } from "../../utils/authSession";
 import "./AdministrarAlumnosDocente.css";
 
 import logo from "../../assets/logo_MathNova.png";
@@ -50,7 +51,6 @@ type Alumno = {
   usuario: string | null;
   grupo: string;
   modulo: string;
-  asistencia: number | null;
   promedio: number | null;
   estado: "Activo" | "Rezago";
   color: string;
@@ -62,7 +62,6 @@ type Resumen = {
   total: number;
   activos: number;
   rezago: number;
-  asistencia_baja: number;
   promedio_general: number | null;
   porcentaje_activos: number;
   porcentaje_rezago: number;
@@ -95,7 +94,6 @@ const resumenInicial: Resumen = {
   total: 0,
   activos: 0,
   rezago: 0,
-  asistencia_baja: 0,
   promedio_general: null,
   porcentaje_activos: 0,
   porcentaje_rezago: 0,
@@ -397,6 +395,10 @@ function AdministrarAlumnosDocente() {
   };
 
   const irARuta = (ruta: string, menu?: string) => {
+    if (ruta === "/login" || menu === "logout") {
+      clearAuthSession();
+    }
+
     if (menu) {
       setSelectedMenu(menu);
     }
@@ -637,7 +639,6 @@ function AdministrarAlumnosDocente() {
       "Usuario",
       "Grupo",
       "Modulo",
-      "Asistencia",
       "Promedio",
       "Estado",
     ];
@@ -648,7 +649,6 @@ function AdministrarAlumnosDocente() {
       alumno.usuario || "",
       alumno.grupo,
       alumno.modulo,
-      alumno.asistencia !== null ? `${alumno.asistencia}%` : "",
       alumno.promedio !== null ? String(alumno.promedio) : "",
       alumno.estado,
     ]);
@@ -990,7 +990,6 @@ function AdministrarAlumnosDocente() {
               <span>Alumno</span>
               <span>Grupo</span>
               <span>Módulo</span>
-              <span>Asistencia</span>
               <span>Promedio</span>
               <span>Estado</span>
               <span>Acciones</span>
@@ -999,7 +998,6 @@ function AdministrarAlumnosDocente() {
             {cargando ? (
               <div className="admin-table-row">
                 <span>Cargando alumnos...</span>
-                <span>—</span>
                 <span>—</span>
                 <span>—</span>
                 <span>—</span>
@@ -1022,11 +1020,6 @@ function AdministrarAlumnosDocente() {
 
                   <span>{alumno.grupo}</span>
                   <span>{alumno.modulo}</span>
-
-                  <span className="attendance-cell">
-                    {alumno.asistencia !== null ? `${alumno.asistencia}%` : "—"}
-                    <i className={`attendance-line ${alumno.barra}`}></i>
-                  </span>
 
                   <span
                     className={`average ${
@@ -1083,7 +1076,6 @@ function AdministrarAlumnosDocente() {
             ) : (
               <div className="admin-table-row">
                 <span>No se encontraron alumnos.</span>
-                <span>—</span>
                 <span>—</span>
                 <span>—</span>
                 <span>—</span>
@@ -1184,15 +1176,6 @@ function AdministrarAlumnosDocente() {
               <span></span>
               <p>
                 {resumen.rezago} alumnos presentan rezago o bajo rendimiento.
-              </p>
-              <button type="button">Ver detalles</button>
-            </div>
-
-            <div className="alert-line alert-orange">
-              <span></span>
-              <p>
-                {resumen.asistencia_baja} alumnos tienen asistencia menor al
-                70%.
               </p>
               <button type="button">Ver detalles</button>
             </div>
@@ -1339,25 +1322,6 @@ function AdministrarAlumnosDocente() {
             </div>
 
             <div className="admin-detail-performance">
-              <div className="admin-detail-metric">
-                <span>Asistencia</span>
-                <strong>
-                  {alumnoDetalle.asistencia !== null
-                    ? `${alumnoDetalle.asistencia}%`
-                    : "—"}
-                </strong>
-                <div className="admin-detail-progress">
-                  <i
-                    style={{
-                      width: `${Math.min(
-                        Math.max(alumnoDetalle.asistencia || 0, 0),
-                        100,
-                      )}%`,
-                    }}
-                  ></i>
-                </div>
-              </div>
-
               <div className="admin-detail-metric">
                 <span>Promedio</span>
                 <strong

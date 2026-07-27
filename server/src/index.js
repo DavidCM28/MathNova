@@ -17,6 +17,7 @@ const progresoGeneralRoutes = require("./routes/progresoGeneralRoutes").default;
 const docenteAlumnosRoutes = require("./routes/docenteAlumnos.routes");
 const docenteDashboardRoutes = require("./routes/docenteDashboard.routes");
 const docenteCalificacionesRoutes = require("./routes/docenteCalificaciones.routes").default;
+const gestionDocentesRoutes = require("./routes/gestionDocentes.routes").default;
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -50,6 +51,7 @@ app.use("/api/progreso-general", progresoGeneralRoutes);
 app.use("/api/docente/alumnos", docenteAlumnosRoutes);
 app.use("/api/docente/dashboard", docenteDashboardRoutes);
 app.use("/api/docente/calificaciones", docenteCalificacionesRoutes);
+app.use("/api/docente/gestion-docentes", gestionDocentesRoutes);
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Servidor corriendo en http://0.0.0.0:${PORT}`);

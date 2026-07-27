@@ -152,9 +152,26 @@ export default function RequireAuth({
 
   if (rolesPermitidos && rolesPermitidos.length > 0) {
     const rolesNormalizados = rolesPermitidos.map((rol) => normalizarRol(rol));
+    const rolParaValidar =
+      rolUsuario ||
+      (rolesNormalizados.includes("estudiante") ? "estudiante" : "");
 
-    if (!puedeEntrarPorRol(rolUsuario, rolesNormalizados)) {
-      return <Navigate to={obtenerRutaPorRol(rolUsuario)} replace />;
+    if (!puedeEntrarPorRol(rolParaValidar, rolesNormalizados)) {
+      if (!rolParaValidar) {
+        return (
+          <Navigate
+            to="/login"
+            replace
+            state={{
+              from: location.pathname,
+              authMessage:
+                "Tu sesión no tiene un rol válido. Inicia sesión nuevamente."
+            }}
+          />
+        );
+      }
+
+      return <Navigate to={obtenerRutaPorRol(rolParaValidar)} replace />;
     }
   }
 

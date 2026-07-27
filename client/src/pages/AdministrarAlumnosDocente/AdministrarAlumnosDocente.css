@@ -362,12 +362,12 @@
 }
 
 .admin-table {
-  min-width: 1050px;
+  min-width: 920px;
 }
 
 .admin-table-row {
   display: grid;
-  grid-template-columns: 2.1fr 0.6fr 1.35fr 1.1fr 0.7fr 0.9fr 0.9fr;
+  grid-template-columns: 2.1fr 0.7fr 1.45fr 0.8fr 0.9fr 0.9fr;
   align-items: center;
   min-height: 56px;
   border-bottom: 1px solid #edf1f8;
@@ -439,49 +439,6 @@
 
 .mini-avatar.pink {
   background: #ff3d87;
-}
-
-.attendance-cell {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.attendance-line {
-  width: 92px;
-  height: 6px;
-  border-radius: 999px;
-  background: #e5ebf4;
-  position: relative;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.attendance-line::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  border-radius: 999px;
-}
-
-.attendance-line.alta::before {
-  width: 90%;
-  background: #00a651;
-}
-
-.attendance-line.media::before {
-  width: 82%;
-  background: #00a651;
-}
-
-.attendance-line.baja::before {
-  width: 70%;
-  background: #ff8a00;
-}
-
-.attendance-line.critica::before {
-  width: 60%;
-  background: #ff3347;
 }
 
 .average {

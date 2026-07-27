@@ -9,15 +9,14 @@ function validarId(valor) {
   return Number.isSafeInteger(id) && id > 0 ? id : null;
 }
 
-async function obtenerGrupoDelDocente(idGrupo, idProfesor) {
+async function obtenerGrupoDelDocente(idGrupo) {
   const resultado = await pool.query(
     `
     SELECT id_grupo, nombre_grupo, id_profesor
     FROM public.grupos
     WHERE id_grupo = $1
-      AND id_profesor = $2
     `,
-    [idGrupo, idProfesor]
+    [idGrupo]
   );
 
   return resultado.rows[0] || null;
@@ -25,8 +24,6 @@ async function obtenerGrupoDelDocente(idGrupo, idProfesor) {
 
 router.get("/", verificarToken, async (req, res) => {
   try {
-    const idProfesor = req.usuario.id_usuario;
-
     const resultado = await pool.query(
       `
       SELECT
@@ -38,11 +35,9 @@ router.get("/", verificarToken, async (req, res) => {
       LEFT JOIN public.grupo_alumnos ga
         ON ga.id_grupo = g.id_grupo
         AND ga.estado = true
-      WHERE g.id_profesor = $1
       GROUP BY g.id_grupo, g.nombre_grupo, g.id_profesor
       ORDER BY g.id_grupo DESC
-      `,
-      [idProfesor]
+      `
     );
 
     return res.json({
@@ -106,7 +101,6 @@ router.put("/:idGrupo", verificarToken, async (req, res) => {
   try {
     const idGrupo = validarId(req.params.idGrupo);
     const nombreGrupo = req.body.nombre_grupo?.trim();
-    const idProfesor = req.usuario.id_usuario;
 
     if (!idGrupo) {
       return res.status(400).json({
@@ -134,16 +128,15 @@ router.put("/:idGrupo", verificarToken, async (req, res) => {
       UPDATE public.grupos
       SET nombre_grupo = $1
       WHERE id_grupo = $2
-        AND id_profesor = $3
       RETURNING id_grupo, nombre_grupo, id_profesor
       `,
-      [nombreGrupo, idGrupo, idProfesor]
+      [nombreGrupo, idGrupo]
     );
 
     if (resultado.rowCount === 0) {
       return res.status(404).json({
         ok: false,
-        mensaje: "No se encontró el grupo o no tienes permiso para editarlo.",
+        mensaje: "No se encontró el grupo.",
       });
     }
 
@@ -165,7 +158,6 @@ router.put("/:idGrupo", verificarToken, async (req, res) => {
 router.get("/:idGrupo/alumnos", verificarToken, async (req, res) => {
   try {
     const idGrupo = validarId(req.params.idGrupo);
-    const idProfesor = req.usuario.id_usuario;
 
     if (!idGrupo) {
       return res.status(400).json({
@@ -174,12 +166,12 @@ router.get("/:idGrupo/alumnos", verificarToken, async (req, res) => {
       });
     }
 
-    const grupo = await obtenerGrupoDelDocente(idGrupo, idProfesor);
+    const grupo = await obtenerGrupoDelDocente(idGrupo);
 
     if (!grupo) {
       return res.status(404).json({
         ok: false,
-        mensaje: "El grupo no existe o no pertenece a este docente.",
+        mensaje: "El grupo no existe.",
       });
     }
 
@@ -220,7 +212,6 @@ router.get("/:idGrupo/alumnos", verificarToken, async (req, res) => {
 router.get("/:idGrupo/alumnos-disponibles", verificarToken, async (req, res) => {
   try {
     const idGrupo = validarId(req.params.idGrupo);
-    const idProfesor = req.usuario.id_usuario;
     const buscar = String(req.query.buscar || "").trim();
 
     if (!idGrupo) {
@@ -230,12 +221,12 @@ router.get("/:idGrupo/alumnos-disponibles", verificarToken, async (req, res) => 
       });
     }
 
-    const grupo = await obtenerGrupoDelDocente(idGrupo, idProfesor);
+    const grupo = await obtenerGrupoDelDocente(idGrupo);
 
     if (!grupo) {
       return res.status(404).json({
         ok: false,
-        mensaje: "El grupo no existe o no pertenece a este docente.",
+        mensaje: "El grupo no existe.",
       });
     }
 
@@ -287,7 +278,6 @@ router.post("/:idGrupo/alumnos", verificarToken, async (req, res) => {
   try {
     const idGrupo = validarId(req.params.idGrupo);
     const idAlumno = validarId(req.body.id_alumno);
-    const idProfesor = req.usuario.id_usuario;
 
     if (!idGrupo || !idAlumno) {
       return res.status(400).json({
@@ -296,12 +286,12 @@ router.post("/:idGrupo/alumnos", verificarToken, async (req, res) => {
       });
     }
 
-    const grupo = await obtenerGrupoDelDocente(idGrupo, idProfesor);
+    const grupo = await obtenerGrupoDelDocente(idGrupo);
 
     if (!grupo) {
       return res.status(404).json({
         ok: false,
-        mensaje: "El grupo no existe o no pertenece a este docente.",
+        mensaje: "El grupo no existe.",
       });
     }
 
@@ -394,7 +384,6 @@ router.delete("/:idGrupo/alumnos/:idAlumno", verificarToken, async (req, res) =>
   try {
     const idGrupo = validarId(req.params.idGrupo);
     const idAlumno = validarId(req.params.idAlumno);
-    const idProfesor = req.usuario.id_usuario;
 
     if (!idGrupo || !idAlumno) {
       return res.status(400).json({
@@ -403,12 +392,12 @@ router.delete("/:idGrupo/alumnos/:idAlumno", verificarToken, async (req, res) =>
       });
     }
 
-    const grupo = await obtenerGrupoDelDocente(idGrupo, idProfesor);
+    const grupo = await obtenerGrupoDelDocente(idGrupo);
 
     if (!grupo) {
       return res.status(404).json({
         ok: false,
-        mensaje: "El grupo no existe o no pertenece a este docente.",
+        mensaje: "El grupo no existe.",
       });
     }
 

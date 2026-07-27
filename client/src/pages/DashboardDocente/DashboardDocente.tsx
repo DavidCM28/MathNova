@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { clearAuthSession } from "../../utils/authSession";
 import "./DashboardDocente.css";
 
 import logo from "../../assets/logo_MathNova.png";
@@ -120,7 +121,6 @@ function claseSituacion(situacion: string) {
   const texto = situacion.toLowerCase();
 
   if (texto.includes("bajo")) return "tag red-tag";
-  if (texto.includes("asistencia")) return "tag orange-tag";
   if (texto.includes("sin progreso")) return "tag orange-tag";
   if (texto.includes("sin grupo")) return "tag orange-tag";
   if (texto.includes("sin entregar")) return "tag strong-red-tag";
@@ -217,11 +217,7 @@ function DashboardDocente() {
   };
 
   const cerrarSesion = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("mathnova_token");
-    localStorage.removeItem("usuario");
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("mathnova_token");
+    clearAuthSession();
     navigate("/login");
   };
 

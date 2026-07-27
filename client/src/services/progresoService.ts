@@ -124,9 +124,51 @@ const obtenerToken = (): string | null => {
   return (
     localStorage.getItem("mathnova_token") ||
     sessionStorage.getItem("mathnova_token") ||
+    localStorage.getItem("mathnovaToken") ||
+    sessionStorage.getItem("mathnovaToken") ||
+    localStorage.getItem("authToken") ||
+    sessionStorage.getItem("authToken") ||
     localStorage.getItem("token") ||
     sessionStorage.getItem("token")
   );
+};
+
+const decodificarUsuarioDesdeToken = (): UsuarioSesion | null => {
+  const token = obtenerToken();
+
+  if (!token) return null;
+
+  const partes = token.split(".");
+
+  if (partes.length < 2) return null;
+
+  try {
+    const payload = partes[1]
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+
+    const payloadConPadding =
+      payload + "=".repeat((4 - (payload.length % 4)) % 4);
+
+    return JSON.parse(atob(payloadConPadding)) as UsuarioSesion;
+  } catch {
+    return null;
+  }
+};
+
+const obtenerIdDesdeUsuario = (usuario?: UsuarioSesion | null): number | null => {
+  const id = Number(
+    usuario?.id_usuario ??
+      usuario?.id ??
+      usuario?.usuario_id ??
+      usuario?.id_alumno,
+  );
+
+  if (!Number.isInteger(id) || id <= 0) {
+    return null;
+  }
+
+  return id;
 };
 
 const getAuthHeaders = (): HeadersInit => {
@@ -167,8 +209,11 @@ const leerUsuarioGuardado = (): UsuarioSesion | null => {
 
       try {
         const datos = JSON.parse(valor) as UsuarioSesion;
+        const usuario = datos.usuario ?? datos.user ?? datos;
 
-        return datos.usuario ?? datos.user ?? datos;
+        if (obtenerIdDesdeUsuario(usuario)) {
+          return usuario;
+        }
       } catch {
         continue;
       }
@@ -179,20 +224,20 @@ const leerUsuarioGuardado = (): UsuarioSesion | null => {
 };
 
 export const obtenerIdUsuarioAutenticado = (): number | null => {
-  const usuario = leerUsuarioGuardado();
+  const candidatos = [
+    leerUsuarioGuardado(),
+    decodificarUsuarioDesdeToken(),
+  ];
 
-  const id = Number(
-    usuario?.id_usuario ??
-      usuario?.id ??
-      usuario?.usuario_id ??
-      usuario?.id_alumno,
-  );
+  for (const usuario of candidatos) {
+    const id = obtenerIdDesdeUsuario(usuario);
 
-  if (!Number.isInteger(id) || id <= 0) {
-    return null;
+    if (id) {
+      return id;
+    }
   }
 
-  return id;
+  return null;
 };
 
 const manejarRespuesta = async <T>(

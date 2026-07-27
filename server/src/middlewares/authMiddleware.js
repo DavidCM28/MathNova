@@ -78,7 +78,7 @@ const verificarToken = async (req, res, next) => {
       });
     }
 
-    const result = await pool.query(
+    let result = await pool.query(
       `SELECT 
           id_usuario, 
           nombre_completo, 
@@ -86,15 +86,36 @@ const verificarToken = async (req, res, next) => {
           usuario, 
           rol, 
           estado,
-          grado,
-          escuela,
-          fecha_registro,
-          avatar_url
+          fecha_registro
        FROM public.registro
        WHERE id_usuario = $1
        LIMIT 1`,
       [usuarioId]
     );
+
+    if (result.rows.length === 0) {
+      try {
+        result = await pool.query(
+          `SELECT
+              id_usuario,
+              nombre_completo,
+              correo_electronico AS correo,
+              NULL::text AS usuario,
+              rol,
+              COALESCE(estado_cuenta, true) AS estado,
+              fecha_registro
+           FROM public.usuario
+           WHERE id_usuario = $1
+           LIMIT 1`,
+          [usuarioId]
+        );
+      } catch (fallbackError) {
+        console.warn(
+          "No se pudo consultar tabla usuario antigua:",
+          fallbackError.message
+        );
+      }
+    }
 
     if (result.rows.length === 0) {
       return res.status(401).json({
@@ -119,10 +140,10 @@ const verificarToken = async (req, res, next) => {
       usuario: usuario.usuario,
       rol: normalizarRol(usuario.rol),
       estado: usuario.estado,
-      grado: usuario.grado,
-      escuela: usuario.escuela,
+      grado: usuario.grado || null,
+      escuela: usuario.escuela || null,
       fecha_registro: usuario.fecha_registro,
-      avatar_url: usuario.avatar_url,
+      avatar_url: usuario.avatar_url || null,
     };
 
     req.usuario = usuarioAutenticado;

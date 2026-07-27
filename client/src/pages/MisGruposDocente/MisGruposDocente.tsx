@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { clearAuthSession } from "../../utils/authSession";
 import "./MisGruposDocente.css";
 
 import {
@@ -282,6 +283,10 @@ function MisGruposDocente() {
   };
 
   const irARuta = (ruta: string, menu?: string) => {
+    if (ruta === "/login" || menu === "logout") {
+      clearAuthSession();
+    }
+
     if (menu) {
       setSelectedMenu(menu);
     }

@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { clearAuthSession } from "../../utils/authSession";
 import "./GestionDocentes.css";
 
 import logo from "../../assets/logo_MathNova.png";
@@ -24,8 +25,6 @@ import {
   FiEyeOff,
   FiInfo,
   FiUserPlus,
-  FiUser,
-  FiClock,
   FiSearch,
   FiPlus,
   FiTrash2,
@@ -50,6 +49,7 @@ type MenuKey =
   | "estadisticas";
 
 type EstadoDocente = "Activo" | "Inactivo";
+type FiltroEstado = "Todos" | EstadoDocente;
 
 type Docente = {
   id: number;
@@ -59,8 +59,30 @@ type Docente = {
   usuario: string;
   rol: "Docente";
   estado: EstadoDocente;
+  estadoBooleano?: boolean;
   fechaRegistro: string;
   iniciales: string;
+  totalGrupos: number;
+};
+
+type ResumenDocentes = {
+  total: number;
+  activos: number;
+  inactivos: number;
+  grupos_asignados: number;
+};
+
+type GestionDocentesResponse = {
+  ok: boolean;
+  mensaje?: string;
+  docentes: Docente[];
+  resumen: ResumenDocentes;
+};
+
+type MutacionDocenteResponse = {
+  ok: boolean;
+  mensaje: string;
+  docente: Docente;
 };
 
 type FormDocente = {
@@ -69,276 +91,117 @@ type FormDocente = {
   usuario: string;
   contrasena: string;
   confirmarContrasena: string;
+  claveAcceso: string;
   estado: EstadoDocente;
 };
 
-const docentesIniciales: Docente[] = [
-  {
-    id: 1,
-    idUsuario: "1042",
-    nombre: "Mario Chacón",
-    correo: "mario.chacon@gmail.com",
-    usuario: "mario.chacon",
-    rol: "Docente",
-    estado: "Activo",
-    fechaRegistro: "15/06/2026",
-    iniciales: "MC",
-  },
-  {
-    id: 2,
-    idUsuario: "1047",
-    nombre: "Fernanda Soto",
-    correo: "fersoto@gmail.com",
-    usuario: "fersoto",
-    rol: "Docente",
-    estado: "Activo",
-    fechaRegistro: "20/06/2026",
-    iniciales: "FS",
-  },
-  {
-    id: 3,
-    idUsuario: "1051",
-    nombre: "Laura Medina",
-    correo: "laura.medina@mathnova.com",
-    usuario: "lmedina",
-    rol: "Docente",
-    estado: "Inactivo",
-    fechaRegistro: "23/06/2026",
-    iniciales: "LM",
-  },
-  {
-    id: 4,
-    idUsuario: "1056",
-    nombre: "Roberto Salas",
-    correo: "roberto.salas@mathnova.com",
-    usuario: "rsalas",
-    rol: "Docente",
-    estado: "Activo",
-    fechaRegistro: "25/06/2026",
-    iniciales: "RS",
-  },
+type Mensaje = {
+  tipo: "success" | "error";
+  texto: string;
+};
 
-  {
-    id: 5,
-    idUsuario: "1061",
-    nombre: "Daniela Torres",
-    correo: "daniela.torres@mathnova.com",
-    usuario: "dtorres",
-    rol: "Docente",
-    estado: "Activo",
-    fechaRegistro: "27/06/2026",
-    iniciales: "DT",
-  },
-  {
-    id: 6,
-    idUsuario: "1064",
-    nombre: "José Martínez",
-    correo: "jose.martinez@mathnova.com",
-    usuario: "jmartinez",
-    rol: "Docente",
-    estado: "Activo",
-    fechaRegistro: "29/06/2026",
-    iniciales: "JM",
-  },
-  {
-    id: 7,
-    idUsuario: "1068",
-    nombre: "Andrea Garza",
-    correo: "andrea.garza@mathnova.com",
-    usuario: "agarza",
-    rol: "Docente",
-    estado: "Inactivo",
-    fechaRegistro: "01/07/2026",
-    iniciales: "AG",
-  },
-  {
-    id: 8,
-    idUsuario: "1072",
-    nombre: "Carlos Méndez",
-    correo: "carlos.mendez@mathnova.com",
-    usuario: "cmendez",
-    rol: "Docente",
-    estado: "Activo",
-    fechaRegistro: "03/07/2026",
-    iniciales: "CM",
-  },
-  {
-    id: 9,
-    idUsuario: "1075",
-    nombre: "Patricia Ríos",
-    correo: "patricia.rios@mathnova.com",
-    usuario: "prios",
-    rol: "Docente",
-    estado: "Activo",
-    fechaRegistro: "05/07/2026",
-    iniciales: "PR",
-  },
-  {
-    id: 10,
-    idUsuario: "1079",
-    nombre: "Miguel Herrera",
-    correo: "miguel.herrera@mathnova.com",
-    usuario: "mherrera",
-    rol: "Docente",
-    estado: "Inactivo",
-    fechaRegistro: "07/07/2026",
-    iniciales: "MH",
-  },
-  {
-    id: 11,
-    idUsuario: "1083",
-    nombre: "Sofía Navarro",
-    correo: "sofia.navarro@mathnova.com",
-    usuario: "snavarro",
-    rol: "Docente",
-    estado: "Activo",
-    fechaRegistro: "09/07/2026",
-    iniciales: "SN",
-  },
-  {
-    id: 12,
-    idUsuario: "1087",
-    nombre: "Eduardo Campos",
-    correo: "eduardo.campos@mathnova.com",
-    usuario: "ecampos",
-    rol: "Docente",
-    estado: "Activo",
-    fechaRegistro: "11/07/2026",
-    iniciales: "EC",
-  },
-  {
-    id: 13,
-    idUsuario: "1091",
-    nombre: "Natalia Luna",
-    correo: "natalia.luna@mathnova.com",
-    usuario: "nluna",
-    rol: "Docente",
-    estado: "Activo",
-    fechaRegistro: "13/07/2026",
-    iniciales: "NL",
-  },
-  {
-    id: 14,
-    idUsuario: "1095",
-    nombre: "Ricardo Vega",
-    correo: "ricardo.vega@mathnova.com",
-    usuario: "rvega",
-    rol: "Docente",
-    estado: "Inactivo",
-    fechaRegistro: "15/07/2026",
-    iniciales: "RV",
-  },
-  {
-    id: 15,
-    idUsuario: "1099",
-    nombre: "Mariana Flores",
-    correo: "mariana.flores@mathnova.com",
-    usuario: "mflores",
-    rol: "Docente",
-    estado: "Activo",
-    fechaRegistro: "17/07/2026",
-    iniciales: "MF",
-  },
-  {
-    id: 16,
-    idUsuario: "1103",
-    nombre: "Alejandro Cruz",
-    correo: "alejandro.cruz@mathnova.com",
-    usuario: "acruz",
-    rol: "Docente",
-    estado: "Activo",
-    fechaRegistro: "19/07/2026",
-    iniciales: "AC",
-  },
-  {
-    id: 17,
-    idUsuario: "1107",
-    nombre: "Gabriela Ortiz",
-    correo: "gabriela.ortiz@mathnova.com",
-    usuario: "gortiz",
-    rol: "Docente",
-    estado: "Activo",
-    fechaRegistro: "21/07/2026",
-    iniciales: "GO",
-  },
-  {
-    id: 18,
-    idUsuario: "1111",
-    nombre: "Fernando Reyes",
-    correo: "fernando.reyes@mathnova.com",
-    usuario: "freyes",
-    rol: "Docente",
-    estado: "Inactivo",
-    fechaRegistro: "23/07/2026",
-    iniciales: "FR",
-  },
-];
+const API_GESTION_DOCENTES =
+  "http://localhost:3001/api/docente/gestion-docentes";
 
-const formularioInicial: FormDocente = {
+const formularioVacio: FormDocente = {
   nombre: "",
   correo: "",
   usuario: "",
   contrasena: "",
   confirmarContrasena: "",
+  claveAcceso: "",
   estado: "Activo",
 };
 
-function generarContrasenaSegura() {
-  const caracteres =
-    "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
-  let resultado = "";
+const resumenVacio: ResumenDocentes = {
+  total: 0,
+  activos: 0,
+  inactivos: 0,
+  grupos_asignados: 0,
+};
 
-  for (let i = 0; i < 12; i += 1) {
-    resultado += caracteres[Math.floor(Math.random() * caracteres.length)];
-  }
-
-  return resultado;
+function normalizarTexto(valor: string) {
+  return valor
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
 }
 
-function obtenerIniciales(nombre: string) {
-  return nombre
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((parte) => parte.charAt(0).toUpperCase())
-    .join("");
+function obtenerToken() {
+  return (
+    localStorage.getItem("token") ||
+    localStorage.getItem("mathnova_token") ||
+    sessionStorage.getItem("token") ||
+    sessionStorage.getItem("mathnova_token") ||
+    ""
+  );
+}
+
+function generarContrasenaSegura() {
+  const letras = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz";
+  const numeros = "23456789";
+  const simbolos = "@#$%";
+  const base = letras + numeros + simbolos;
+
+  let password = "Mn";
+
+  for (let i = 0; i < 8; i += 1) {
+    password += base[Math.floor(Math.random() * base.length)];
+  }
+
+  return `${password}${numeros[Math.floor(Math.random() * numeros.length)]}`;
+}
+
+async function leerRespuesta<T>(response: Response): Promise<T> {
+  const tipoContenido = response.headers.get("content-type") || "";
+
+  if (!tipoContenido.includes("application/json")) {
+    throw new Error(
+      "El backend no devolvió JSON. Revisa que la ruta esté registrada y reinicia el servidor.",
+    );
+  }
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data?.mensaje || "No se pudo completar la operación.");
+  }
+
+  return data;
 }
 
 function GestionDocentes() {
   const navigate = useNavigate();
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const [gruposOpen, setGruposOpen] = useState(
-    () => localStorage.getItem("docente-grupos-open") !== "false",
-  );
-  const [alumnosOpen, setAlumnosOpen] = useState(
-    () => localStorage.getItem("docente-alumnos-open") !== "false",
-  );
-  const [selectedMenu, setSelectedMenu] = useState<MenuKey>("gestion-docentes");
+  const [gruposOpen, setGruposOpen] = useState(() => {
+    return localStorage.getItem("docente-grupos-open") !== "false";
+  });
+  const [alumnosOpen, setAlumnosOpen] = useState(() => {
+    return localStorage.getItem("docente-alumnos-open") !== "false";
+  });
+  const [selectedMenu, setSelectedMenu] =
+    useState<MenuKey>("gestion-docentes");
 
-  const [accesoDesbloqueado, setAccesoDesbloqueado] = useState(false);
-  const [contrasenaAdmin, setContrasenaAdmin] = useState("");
-  const [mostrarContrasenaAdmin, setMostrarContrasenaAdmin] = useState(false);
-  const [mensajeAcceso, setMensajeAcceso] = useState("");
-
-  const [docentes, setDocentes] = useState<Docente[]>(docentesIniciales);
+  const [docentes, setDocentes] = useState<Docente[]>([]);
+  const [resumen, setResumen] = useState<ResumenDocentes>(resumenVacio);
   const [busqueda, setBusqueda] = useState("");
-  const [filtroEstado, setFiltroEstado] = useState<"Todos" | EstadoDocente>(
-    "Todos",
-  );
+  const [filtroEstado, setFiltroEstado] = useState<FiltroEstado>("Todos");
   const [pagina, setPagina] = useState(0);
+  const [cargando, setCargando] = useState(true);
+  const [guardando, setGuardando] = useState(false);
+  const [mensajeLista, setMensajeLista] = useState<Mensaje | null>(null);
+  const [mensajeFormulario, setMensajeFormulario] = useState<Mensaje | null>(
+    null,
+  );
 
-  const [formulario, setFormulario] = useState<FormDocente>(formularioInicial);
+  const [formulario, setFormulario] = useState<FormDocente>(formularioVacio);
+  const [docenteEditando, setDocenteEditando] = useState<Docente | null>(null);
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
-  const [mensajeFormulario, setMensajeFormulario] = useState("");
 
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "auto";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [menuOpen]);
+  const docentesPorPagina = 7;
 
   useEffect(() => {
     localStorage.setItem("docente-grupos-open", String(gruposOpen));
@@ -348,35 +211,56 @@ function GestionDocentes() {
     localStorage.setItem("docente-alumnos-open", String(alumnosOpen));
   }, [alumnosOpen]);
 
-  useEffect(() => {
-    setPagina(0);
-  }, [busqueda, filtroEstado]);
+  const cargarDocentes = async () => {
+    try {
+      setCargando(true);
+      setMensajeLista(null);
 
-  const irARuta = (ruta: string, menu?: MenuKey) => {
-    if (menu) setSelectedMenu(menu);
-    setMenuOpen(false);
-    navigate(ruta);
+      const token = obtenerToken();
+      const response = await fetch(API_GESTION_DOCENTES, {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
+
+      const data = await leerRespuesta<GestionDocentesResponse>(response);
+
+      setDocentes(data.docentes || []);
+      setResumen(data.resumen || resumenVacio);
+    } catch (error) {
+      setDocentes([]);
+      setResumen(resumenVacio);
+      setMensajeLista({
+        tipo: "error",
+        texto:
+          error instanceof Error
+            ? error.message
+            : "No se pudieron cargar los docentes.",
+      });
+    } finally {
+      setCargando(false);
+    }
   };
 
+  useEffect(() => {
+    cargarDocentes();
+  }, []);
+
   const docentesFiltrados = useMemo(() => {
-    const termino = busqueda.trim().toLowerCase();
+    const texto = normalizarTexto(busqueda);
 
     return docentes.filter((docente) => {
+      const coincideBusqueda =
+        !texto ||
+        normalizarTexto(
+          `${docente.idUsuario} ${docente.nombre} ${docente.correo} ${docente.usuario}`,
+        ).includes(texto);
+
       const coincideEstado =
         filtroEstado === "Todos" || docente.estado === filtroEstado;
 
-      const coincideBusqueda =
-        !termino ||
-        docente.nombre.toLowerCase().includes(termino) ||
-        docente.correo.toLowerCase().includes(termino) ||
-        docente.usuario.toLowerCase().includes(termino) ||
-        docente.idUsuario.includes(termino);
-
-      return coincideEstado && coincideBusqueda;
+      return coincideBusqueda && coincideEstado;
     });
   }, [docentes, busqueda, filtroEstado]);
 
-  const docentesPorPagina = 7;
   const totalPaginas = Math.max(
     1,
     Math.ceil(docentesFiltrados.length / docentesPorPagina),
@@ -387,129 +271,280 @@ function GestionDocentes() {
     pagina * docentesPorPagina + docentesPorPagina,
   );
 
-  const docentesActivos = docentes.filter(
-    (docente) => docente.estado === "Activo",
-  ).length;
-  const docentesInactivos = docentes.length - docentesActivos;
+  useEffect(() => {
+    setPagina(0);
+  }, [busqueda, filtroEstado]);
 
-  const validarAcceso = () => {
-    if (!contrasenaAdmin.trim()) {
-      setMensajeAcceso("Ingresa la contraseña de superadministrador.");
-      return;
+  useEffect(() => {
+    if (pagina > totalPaginas - 1) {
+      setPagina(totalPaginas - 1);
     }
+  }, [pagina, totalPaginas]);
 
-    setAccesoDesbloqueado(true);
-    setMensajeAcceso("Acceso validado correctamente.");
-    setContrasenaAdmin("");
+  const irARuta = (ruta: string, menu: MenuKey) => {
+    setSelectedMenu(menu);
+    setMenuOpen(false);
+    navigate(ruta);
   };
 
-  const actualizarFormulario = <K extends keyof FormDocente>(
-    campo: K,
-    valor: FormDocente[K],
-  ) => {
-    setFormulario((actual) => ({ ...actual, [campo]: valor }));
-    setMensajeFormulario("");
+  const cerrarSesion = () => {
+    clearAuthSession();
+    navigate("/login");
+  };
+
+  const actualizarCampo = (campo: keyof FormDocente, valor: string) => {
+    setFormulario((actual) => ({
+      ...actual,
+      [campo]: valor,
+    }));
+
+    if (mensajeFormulario?.tipo === "error") {
+      setMensajeFormulario(null);
+    }
   };
 
   const limpiarFormulario = () => {
-    setFormulario(formularioInicial);
-    setMensajeFormulario("");
+    setFormulario(formularioVacio);
+    setDocenteEditando(null);
+    setMensajeFormulario(null);
     setMostrarContrasena(false);
     setMostrarConfirmacion(false);
   };
 
-  const registrarDocente = () => {
-    if (!accesoDesbloqueado) {
-      setMensajeFormulario(
-        "Primero debes validar el acceso de superadministrador.",
-      );
-      return;
-    }
+  const usarContrasenaGenerada = () => {
+    const password = generarContrasenaSegura();
 
-    if (
-      !formulario.nombre.trim() ||
-      !formulario.correo.trim() ||
-      !formulario.usuario.trim() ||
-      !formulario.contrasena
-    ) {
-      setMensajeFormulario("Completa todos los campos obligatorios.");
-      return;
-    }
+    setFormulario((actual) => ({
+      ...actual,
+      contrasena: password,
+      confirmarContrasena: password,
+    }));
+    setMostrarContrasena(true);
+    setMostrarConfirmacion(true);
+  };
 
-    if (formulario.contrasena.length < 8) {
-      setMensajeFormulario("La contraseña debe tener mínimo 8 caracteres.");
-      return;
-    }
-
-    if (formulario.contrasena !== formulario.confirmarContrasena) {
-      setMensajeFormulario("Las contraseñas no coinciden.");
-      return;
-    }
-
-    const repetido = docentes.some(
-      (docente) =>
-        docente.usuario.toLowerCase() === formulario.usuario.toLowerCase() ||
-        docente.correo.toLowerCase() === formulario.correo.toLowerCase(),
-    );
-
-    if (repetido) {
-      setMensajeFormulario("El usuario o correo ya está registrado.");
-      return;
-    }
-
-    const nuevoDocente: Docente = {
-      id: Date.now(),
-      idUsuario: String(1060 + docentes.length),
-      nombre: formulario.nombre.trim(),
-      correo: formulario.correo.trim(),
-      usuario: formulario.usuario.trim(),
-      rol: "Docente",
-      estado: formulario.estado,
-      fechaRegistro: new Date().toLocaleDateString("es-MX"),
-      iniciales: obtenerIniciales(formulario.nombre) || "ND",
-    };
-
-    setDocentes((actuales) => [nuevoDocente, ...actuales]);
-    setPagina(0);
+  const abrirFormularioNuevo = () => {
     limpiarFormulario();
-    setMensajeFormulario("Docente registrado correctamente.");
+    setTimeout(() => {
+      document.getElementById("gestion-docentes-form")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 80);
   };
 
-  const cambiarEstadoDocente = (id: number) => {
-    if (!accesoDesbloqueado) {
-      setMensajeAcceso("Valida el acceso para modificar docentes.");
+  const prepararEdicion = (docente: Docente) => {
+    setDocenteEditando(docente);
+    setFormulario({
+      nombre: docente.nombre,
+      correo: docente.correo,
+      usuario: docente.usuario,
+      contrasena: "",
+      confirmarContrasena: "",
+      claveAcceso: "",
+      estado: docente.estado,
+    });
+    setMensajeFormulario(null);
+    setMostrarContrasena(false);
+    setMostrarConfirmacion(false);
+
+    setTimeout(() => {
+      document.getElementById("gestion-docentes-form")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 80);
+  };
+
+  const validarFormulario = () => {
+    const nombre = formulario.nombre.trim();
+    const correo = formulario.correo.trim().toLowerCase();
+    const usuario = formulario.usuario.trim().toLowerCase();
+    const password = formulario.contrasena.trim();
+    const confirmar = formulario.confirmarContrasena.trim();
+    const claveAcceso = formulario.claveAcceso.trim();
+
+    if (!nombre || !correo || !usuario) {
+      return "Completa nombre, correo y usuario.";
+    }
+
+    if (!correo.includes("@")) {
+      return "Ingresa un correo válido.";
+    }
+
+    if (!claveAcceso) {
+      return "Escribe la clave de acceso para crear o editar docentes.";
+    }
+
+    if (claveAcceso !== "1234") {
+      return "La clave de acceso no es correcta.";
+    }
+
+    if (password || confirmar) {
+      if (password.length < 4) {
+        return "La contraseña debe tener mínimo 4 caracteres.";
+      }
+
+      if (password !== confirmar) {
+        return "Las contraseñas no coinciden.";
+      }
+    }
+
+    return null;
+  };
+
+  const guardarDocente = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const errorValidacion = validarFormulario();
+
+    if (errorValidacion) {
+      setMensajeFormulario({ tipo: "error", texto: errorValidacion });
       return;
     }
 
-    setDocentes((actuales) =>
-      actuales.map((docente) =>
-        docente.id === id
-          ? {
-              ...docente,
-              estado: docente.estado === "Activo" ? "Inactivo" : "Activo",
-            }
-          : docente,
-      ),
+    try {
+      setGuardando(true);
+      setMensajeFormulario(null);
+
+      const token = obtenerToken();
+      const payload = {
+        id_usuario: docenteEditando?.id || null,
+        nombre: formulario.nombre.trim(),
+        correo: formulario.correo.trim().toLowerCase(),
+        usuario: formulario.usuario.trim().toLowerCase(),
+        contrasena: formulario.contrasena.trim(),
+        clave_acceso: formulario.claveAcceso.trim(),
+        estado: formulario.estado,
+      };
+
+      const response = await fetch(
+        docenteEditando
+          ? `${API_GESTION_DOCENTES}/${docenteEditando.id}`
+          : API_GESTION_DOCENTES,
+        {
+          method: docenteEditando ? "PUT" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify(payload),
+        },
+      );
+
+      const data = await leerRespuesta<MutacionDocenteResponse>(response);
+
+      setDocentes((actuales) => {
+        if (docenteEditando) {
+          return actuales.map((docente) =>
+            docente.id === data.docente.id ? data.docente : docente,
+          );
+        }
+
+        return [data.docente, ...actuales];
+      });
+
+      await cargarDocentes();
+      setMensajeFormulario({ tipo: "success", texto: data.mensaje });
+
+      if (!docenteEditando) {
+        setFormulario(formularioVacio);
+      } else {
+        setDocenteEditando(data.docente);
+        setFormulario({
+          nombre: data.docente.nombre,
+          correo: data.docente.correo,
+          usuario: data.docente.usuario,
+          contrasena: "",
+          confirmarContrasena: "",
+          claveAcceso: "",
+          estado: data.docente.estado,
+        });
+      }
+    } catch (error) {
+      setMensajeFormulario({
+        tipo: "error",
+        texto:
+          error instanceof Error
+            ? error.message
+            : "No se pudo guardar el docente.",
+      });
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  const cambiarEstadoDocente = async (docente: Docente) => {
+    const nuevoEstado: EstadoDocente =
+      docente.estado === "Activo" ? "Inactivo" : "Activo";
+
+    try {
+      setMensajeLista(null);
+      const token = obtenerToken();
+      const response = await fetch(
+        `${API_GESTION_DOCENTES}/${docente.id}/estado`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ estado: nuevoEstado }),
+        },
+      );
+
+      const data = await leerRespuesta<MutacionDocenteResponse>(response);
+
+      await cargarDocentes();
+      setMensajeLista({ tipo: "success", texto: data.mensaje });
+
+      if (docenteEditando?.id === docente.id) {
+        setFormulario((actual) => ({ ...actual, estado: data.docente.estado }));
+        setDocenteEditando(data.docente);
+      }
+    } catch (error) {
+      setMensajeLista({
+        tipo: "error",
+        texto:
+          error instanceof Error
+            ? error.message
+            : "No se pudo cambiar el estado.",
+      });
+    }
+  };
+
+  const eliminarDocente = async (docente: Docente) => {
+    const confirmar = window.confirm(
+      `¿Seguro que quieres desactivar a ${docente.nombre}?\n\nNo se borrará de la base; solo quedará inactivo.`,
     );
-  };
 
-  const eliminarDocente = (id: number) => {
-    if (!accesoDesbloqueado) {
-      setMensajeAcceso("Valida el acceso para eliminar docentes.");
-      return;
+    if (!confirmar) return;
+
+    try {
+      setMensajeLista(null);
+      const token = obtenerToken();
+      const response = await fetch(`${API_GESTION_DOCENTES}/${docente.id}`, {
+        method: "DELETE",
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
+
+      const data = await leerRespuesta<MutacionDocenteResponse>(response);
+
+      await cargarDocentes();
+      setMensajeLista({ tipo: "success", texto: data.mensaje });
+
+      if (docenteEditando?.id === docente.id) {
+        limpiarFormulario();
+      }
+    } catch (error) {
+      setMensajeLista({
+        tipo: "error",
+        texto:
+          error instanceof Error
+            ? error.message
+            : "No se pudo desactivar el docente.",
+      });
     }
-
-    setDocentes((actuales) => actuales.filter((docente) => docente.id !== id));
-    setPagina(0);
-  };
-
-  const cerrarSesion = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("mathnova_token");
-    localStorage.removeItem("usuario");
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("mathnova_token");
-    navigate("/login");
   };
 
   return (
@@ -703,7 +738,8 @@ function GestionDocentes() {
           <div className="gestion-docentes-hero-text">
             <h1>Gestión de docentes</h1>
             <p>
-              Administra el registro, acceso y estado de los usuarios docentes.
+              Administra las cuentas docentes registradas en MathNova. Crea
+              usuarios, actualiza datos y controla si pueden seguir activos.
             </p>
           </div>
 
@@ -714,146 +750,104 @@ function GestionDocentes() {
           />
         </section>
 
-        <section className="gestion-access-card">
-          <div className="gestion-access-intro">
-            <span className="gestion-access-icon">
-              <FiShield />
-            </span>
-
-            <div>
-              <h2>Acceso seguro requerido</h2>
-              <p>
-                Para desbloquear la gestión de docentes, valida tu contraseña de
-                superadministrador.
-              </p>
-            </div>
-          </div>
-
-          <label className="gestion-access-field">
-            <span>Contraseña de superadmin</span>
-
-            <div>
-              <input
-                type={mostrarContrasenaAdmin ? "text" : "password"}
-                value={contrasenaAdmin}
-                onChange={(event) => {
-                  setContrasenaAdmin(event.target.value);
-                  setMensajeAcceso("");
-                }}
-                placeholder="Ingresa tu contraseña"
-              />
-
-              <button
-                type="button"
-                onClick={() => setMostrarContrasenaAdmin((actual) => !actual)}
-                aria-label="Mostrar u ocultar contraseña"
-              >
-                {mostrarContrasenaAdmin ? <FiEyeOff /> : <FiEye />}
-              </button>
-            </div>
-          </label>
-
-          <button
-            type="button"
-            className={`gestion-validate-btn ${
-              accesoDesbloqueado ? "validated" : ""
-            }`}
-            onClick={validarAcceso}
-          >
-            {accesoDesbloqueado ? <FiCheck /> : <FiLock />}
-            {accesoDesbloqueado ? "Acceso validado" : "Validar acceso"}
-          </button>
-
-          <div className="gestion-access-note">
-            <FiInfo />
-            <p>
-              La contraseña de superadmin debe validarse cada vez que accedas a
-              esta sección por seguridad.
-            </p>
-          </div>
-        </section>
-
-        {mensajeAcceso && (
-          <p
-            className={`gestion-message ${
-              accesoDesbloqueado ? "success" : "warning"
-            }`}
-          >
-            {mensajeAcceso}
-          </p>
-        )}
-
         <section className="gestion-stats-row">
           <article className="gestion-stat-card active">
             <div>
+              <h3>Total docentes</h3>
+              <strong>{resumen.total}</strong>
+              <p>Usuarios con rol docente</p>
+            </div>
+            <span>
+              <FiUsers />
+            </span>
+          </article>
+
+          <article className="gestion-stat-card active">
+            <div>
               <h3>Docentes activos</h3>
-              <strong>{docentesActivos}</strong>
+              <strong>{resumen.activos}</strong>
               <p>
-                {docentes.length
-                  ? Math.round((docentesActivos / docentes.length) * 100)
+                {resumen.total
+                  ? Math.round((resumen.activos / resumen.total) * 100)
                   : 0}
                 % del total
               </p>
             </div>
             <span>
-              <FiUserCheck />
+              <FiCheck />
             </span>
           </article>
 
           <article className="gestion-stat-card inactive">
             <div>
               <h3>Docentes inactivos</h3>
-              <strong>{docentesInactivos}</strong>
+              <strong>{resumen.inactivos}</strong>
               <p>
-                {docentes.length
-                  ? Math.round((docentesInactivos / docentes.length) * 100)
+                {resumen.total
+                  ? Math.round((resumen.inactivos / resumen.total) * 100)
                   : 0}
                 % del total
               </p>
             </div>
             <span>
-              <FiUser />
+              <FiX />
             </span>
           </article>
 
           <article className="gestion-stat-card pending">
             <div>
-              <h3>Registros pendientes</h3>
-              <strong>0</strong>
-              <p>Sin solicitudes pendientes</p>
+              <h3>Grupos asignados</h3>
+              <strong>{resumen.grupos_asignados}</strong>
+              <p>Grupos creados por docentes</p>
             </div>
             <span>
-              <FiClock />
+              <FiShield />
             </span>
           </article>
         </section>
 
+        {mensajeLista && (
+          <div
+            className={`gestion-message ${
+              mensajeLista.tipo === "success" ? "success" : "warning"
+            }`}
+          >
+            {mensajeLista.texto}
+          </div>
+        )}
+
         <section className="gestion-main-layout">
-          <section className="gestion-list-column">
+          <div className="gestion-list-column">
             <article className="gestion-list-card">
-              <div className="gestion-section-title">
-                <h2>Lista de docentes</h2>
+              <div className="gestion-form-title">
+                <span>
+                  <FiUsers />
+                </span>
+                <div>
+                  <h2>Lista de docentes</h2>
+                  <p>Datos reales tomados de la tabla de usuarios.</p>
+                </div>
               </div>
 
               <div className="gestion-list-tools">
-                <div className="gestion-search-box">
+                <label className="gestion-search-box">
                   <FiSearch />
                   <input
-                    type="text"
+                    type="search"
                     value={busqueda}
                     onChange={(event) => setBusqueda(event.target.value)}
-                    placeholder="Buscar docente por nombre, correo o usuario..."
+                    placeholder="Buscar por nombre, correo, usuario o ID..."
                   />
-                </div>
+                </label>
 
                 <div className="gestion-status-filter">
                   <span>Estado</span>
                   <div>
-                    {(["Todos", "Activo", "Inactivo"] as const).map(
+                    {(["Todos", "Activo", "Inactivo"] as FiltroEstado[]).map(
                       (estado) => (
                         <button
-                          type="button"
                           key={estado}
+                          type="button"
                           className={filtroEstado === estado ? "active" : ""}
                           onClick={() => setFiltroEstado(estado)}
                         >
@@ -867,74 +861,67 @@ function GestionDocentes() {
                 <button
                   type="button"
                   className="gestion-scroll-form-btn"
-                  onClick={() =>
-                    document
-                      .querySelector(".gestion-form-card")
-                      ?.scrollIntoView({ behavior: "smooth", block: "start" })
-                  }
+                  onClick={abrirFormularioNuevo}
                 >
                   <FiPlus />
-                  Agregar docente
+                  Nuevo docente
                 </button>
               </div>
 
               <div className="gestion-table-wrap">
                 <div className="gestion-table gestion-table-head">
                   <span>ID</span>
-                  <span>Nombre completo</span>
+                  <span>Docente</span>
                   <span>Correo</span>
                   <span>Usuario</span>
-                  <span>Rol</span>
+                  <span>Grupos</span>
                   <span>Estado</span>
-                  <span>Fecha registro</span>
+                  <span>Registro</span>
                   <span>Acciones</span>
                 </div>
 
-                {docentesVisibles.length > 0 ? (
+                {cargando ? (
+                  <div className="gestion-empty-table">
+                    <p>Cargando docentes...</p>
+                  </div>
+                ) : docentesVisibles.length > 0 ? (
                   docentesVisibles.map((docente) => (
                     <div
                       className="gestion-table gestion-table-row"
                       key={docente.id}
                     >
                       <span>{docente.idUsuario}</span>
-
                       <span className="gestion-teacher-name">
                         <b>{docente.iniciales}</b>
                         {docente.nombre}
                       </span>
-
-                      <span>{docente.correo}</span>
-                      <span>{docente.usuario}</span>
-                      <span>{docente.rol}</span>
-
-                      <span>
-                        <button
-                          type="button"
-                          className={`gestion-status-pill ${docente.estado.toLowerCase()}`}
-                          onClick={() => cambiarEstadoDocente(docente.id)}
-                        >
-                          <i />
-                          {docente.estado}
-                        </button>
-                      </span>
-
+                      <span title={docente.correo}>{docente.correo}</span>
+                      <span>{docente.usuario || "â€”"}</span>
+                      <span>{docente.totalGrupos || 0}</span>
+                      <button
+                        type="button"
+                        className={`gestion-status-pill ${docente.estado.toLowerCase()}`}
+                        onClick={() => cambiarEstadoDocente(docente)}
+                        title="Cambiar estado"
+                      >
+                        <i />
+                        {docente.estado}
+                      </button>
                       <span>{docente.fechaRegistro}</span>
-
                       <span className="gestion-actions">
                         <button
                           type="button"
                           className="edit"
-                          onClick={() => cambiarEstadoDocente(docente.id)}
-                          aria-label={`Cambiar estado de ${docente.nombre}`}
+                          onClick={() => prepararEdicion(docente)}
+                          title="Editar docente"
                         >
-                          <FiRefreshCw />
+                          <FiEdit />
                         </button>
-
                         <button
                           type="button"
                           className="delete"
-                          onClick={() => eliminarDocente(docente.id)}
-                          aria-label={`Eliminar a ${docente.nombre}`}
+                          onClick={() => eliminarDocente(docente)}
+                          title="Desactivar docente"
                         >
                           <FiTrash2 />
                         </button>
@@ -943,7 +930,7 @@ function GestionDocentes() {
                   ))
                 ) : (
                   <div className="gestion-empty-table">
-                    No se encontraron docentes con esos filtros.
+                    <p>No se encontraron docentes con esos filtros.</p>
                   </div>
                 )}
               </div>
@@ -953,46 +940,25 @@ function GestionDocentes() {
                   Mostrando {docentesVisibles.length} de{" "}
                   {docentesFiltrados.length} docentes
                 </p>
-
-                <div className="gestion-pagination">
+                <div>
                   <button
                     type="button"
-                    className="gestion-pagination-arrow"
+                    disabled={pagina === 0}
                     onClick={() =>
-                      setPagina((actual) =>
-                        actual === 0 ? totalPaginas - 1 : actual - 1,
-                      )
+                      setPagina((actual) => Math.max(0, actual - 1))
                     }
-                    disabled={totalPaginas <= 1}
-                    aria-label="Página anterior"
                   >
                     <FiChevronLeft />
                   </button>
-
-                  {Array.from({ length: totalPaginas }, (_, indice) => (
-                    <button
-                      type="button"
-                      key={indice}
-                      className={`gestion-page-number ${
-                        pagina === indice ? "active" : ""
-                      }`}
-                      onClick={() => setPagina(indice)}
-                      aria-label={`Ir a la página ${indice + 1}`}
-                    >
-                      {indice + 1}
-                    </button>
-                  ))}
-
+                  <span>{pagina + 1}</span>
                   <button
                     type="button"
-                    className="gestion-pagination-arrow"
+                    disabled={pagina + 1 >= totalPaginas}
                     onClick={() =>
                       setPagina((actual) =>
-                        actual + 1 >= totalPaginas ? 0 : actual + 1,
+                        Math.min(totalPaginas - 1, actual + 1),
                       )
                     }
-                    disabled={totalPaginas <= 1}
-                    aria-label="Página siguiente"
                   >
                     <FiChevronRight />
                   </button>
@@ -1001,212 +967,231 @@ function GestionDocentes() {
             </article>
 
             <article className="gestion-important-card">
+              <span>
+                <FiInfo />
+              </span>
               <div>
-                <span>
-                  <FiShield />
-                </span>
-                <div>
-                  <h2>Información importante</h2>
-                  <p>
-                    El id_usuario y la fecha de registro se generan
-                    automáticamente.
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <span>
-                  <FiKey />
-                </span>
+                <h2>Cómo funciona</h2>
                 <p>
-                  La contraseña del docente debe guardarse protegida en el
-                  backend.
+                  Esta sección usa la tabla <strong>registro</strong>. Al crear
+                  un docente se guarda con rol docente y contraseña encriptada.
+                  Eliminar solo lo desactiva para no romper sus grupos.
                 </p>
               </div>
             </article>
-          </section>
-
-          <aside className="gestion-form-card">
+          </div>
+          <aside className="gestion-form-card" id="gestion-docentes-form">
             <div className="gestion-form-title">
               <span>
-                <FiUserPlus />
+                {docenteEditando ? <FiEdit /> : <FiUserPlus />}
               </span>
 
               <div>
-                <h2>Agregar nuevo docente</h2>
-                <p>Completa los datos para registrar una cuenta.</p>
+                <h2>{docenteEditando ? "Editar docente" : "Agregar nuevo docente"}</h2>
+                <p>
+                  {docenteEditando
+                    ? `Actualiza los datos de ${docenteEditando.nombre}.`
+                    : "Completa los datos para registrar una cuenta."}
+                </p>
               </div>
             </div>
 
-            <label className="gestion-form-field">
-              <span>Nombre completo</span>
-              <input
-                type="text"
-                value={formulario.nombre}
-                onChange={(event) =>
-                  actualizarFormulario("nombre", event.target.value)
-                }
-                placeholder="Ej. Ana Pérez Gómez"
-              />
-            </label>
+            <form onSubmit={guardarDocente}>
+              <label className="gestion-form-field">
+                <span>Nombre completo</span>
+                <input
+                  type="text"
+                  value={formulario.nombre}
+                  onChange={(event) =>
+                    actualizarCampo("nombre", event.target.value)
+                  }
+                  placeholder="Ej. Ana Pérez Gómez"
+                />
+              </label>
 
-            <label className="gestion-form-field">
-              <span>Correo electrónico</span>
-              <input
-                type="email"
-                value={formulario.correo}
-                onChange={(event) =>
-                  actualizarFormulario("correo", event.target.value)
-                }
-                placeholder="Ej. ana.perez@mathnova.com"
-              />
-            </label>
+              <label className="gestion-form-field">
+                <span>Correo electrónico</span>
+                <input
+                  type="email"
+                  value={formulario.correo}
+                  onChange={(event) =>
+                    actualizarCampo("correo", event.target.value)
+                  }
+                  placeholder="Ej. ana.perez@mathnova.com"
+                />
+              </label>
 
-            <label className="gestion-form-field">
-              <span>Nombre de usuario</span>
-              <input
-                type="text"
-                value={formulario.usuario}
-                onChange={(event) =>
-                  actualizarFormulario("usuario", event.target.value)
-                }
-                placeholder="Ej. aperez"
-              />
-            </label>
+              <label className="gestion-form-field">
+                <span>Nombre de usuario</span>
+                <input
+                  type="text"
+                  value={formulario.usuario}
+                  onChange={(event) =>
+                    actualizarCampo("usuario", event.target.value)
+                  }
+                  placeholder="Ej. aperez"
+                />
+              </label>
 
-            <label className="gestion-form-field">
-              <span>Contraseña</span>
+              <label className="gestion-form-field">
+                <span>
+                  {docenteEditando
+                    ? "Nueva contraseña (opcional)"
+                    : "Contraseña"}
+                </span>
 
-              <div className="gestion-password-row">
+                <div className="gestion-password-row">
+                  <div className="gestion-password-input">
+                    <input
+                      type={mostrarContrasena ? "text" : "password"}
+                      value={formulario.contrasena}
+                      onChange={(event) =>
+                        actualizarCampo("contrasena", event.target.value)
+                      }
+                      placeholder={
+                        docenteEditando
+                          ? "Solo si quieres cambiarla"
+                          : "Mínimo 6 caracteres"
+                      }
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setMostrarContrasena((actual) => !actual)
+                      }
+                      aria-label="Mostrar u ocultar contraseña"
+                    >
+                      {mostrarContrasena ? <FiEyeOff /> : <FiEye />}
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="gestion-generate-btn"
+                    onClick={usarContrasenaGenerada}
+                  >
+                    <FiRefreshCw />
+                    Generar
+                  </button>
+                </div>
+              </label>
+
+              <label className="gestion-form-field">
+                <span>Confirmar contraseña</span>
+
                 <div className="gestion-password-input">
                   <input
-                    type={mostrarContrasena ? "text" : "password"}
-                    value={formulario.contrasena}
+                    type={mostrarConfirmacion ? "text" : "password"}
+                    value={formulario.confirmarContrasena}
                     onChange={(event) =>
-                      actualizarFormulario("contrasena", event.target.value)
+                      actualizarCampo("confirmarContrasena", event.target.value)
                     }
-                    placeholder="Mínimo 8 caracteres"
+                    placeholder="Repite la contraseña"
                   />
 
                   <button
                     type="button"
-                    onClick={() => setMostrarContrasena((actual) => !actual)}
-                    aria-label="Mostrar u ocultar contraseña"
+                    onClick={() =>
+                      setMostrarConfirmacion((actual) => !actual)
+                    }
+                    aria-label="Mostrar u ocultar confirmación"
                   >
-                    {mostrarContrasena ? <FiEyeOff /> : <FiEye />}
+                    {mostrarConfirmacion ? <FiEyeOff /> : <FiEye />}
                   </button>
                 </div>
+              </label>
 
-                <button
-                  type="button"
-                  className="gestion-generate-btn"
-                  onClick={() => {
-                    const nueva = generarContrasenaSegura();
-                    setFormulario((actual) => ({
-                      ...actual,
-                      contrasena: nueva,
-                      confirmarContrasena: nueva,
-                    }));
-                    setMostrarContrasena(true);
-                    setMostrarConfirmacion(true);
-                  }}
-                >
-                  <FiRefreshCw />
-                  Generar
-                </button>
+              <label className="gestion-form-field">
+                <span>Rol</span>
+                <div className="gestion-locked-field">
+                  Docente
+                  <FiLock />
+                </div>
+              </label>
+
+              <div className="gestion-form-field">
+                <span>Estado</span>
+
+                <div className="gestion-form-status">
+                  <button
+                    type="button"
+                    className={formulario.estado === "Activo" ? "active" : ""}
+                    onClick={() => actualizarCampo("estado", "Activo")}
+                  >
+                    Activo
+                  </button>
+
+                  <button
+                    type="button"
+                    className={
+                      formulario.estado === "Inactivo" ? "inactive" : ""
+                    }
+                    onClick={() => actualizarCampo("estado", "Inactivo")}
+                  >
+                    Inactivo
+                  </button>
+                </div>
               </div>
-            </label>
 
-            <label className="gestion-form-field">
-              <span>Confirmar contraseña</span>
-
-              <div className="gestion-password-input">
+              <label className="gestion-form-field">
+                <span>Clave de acceso</span>
                 <input
-                  type={mostrarConfirmacion ? "text" : "password"}
-                  value={formulario.confirmarContrasena}
+                  type="password"
+                  value={formulario.claveAcceso}
                   onChange={(event) =>
-                    actualizarFormulario(
-                      "confirmarContrasena",
-                      event.target.value,
-                    )
+                    actualizarCampo("claveAcceso", event.target.value)
                   }
-                  placeholder="Repite la contraseña"
+                  placeholder="Clave para crear o editar docentes"
                 />
+              </label>
 
-                <button
-                  type="button"
-                  onClick={() => setMostrarConfirmacion((actual) => !actual)}
-                  aria-label="Mostrar u ocultar confirmación"
+              {mensajeFormulario && (
+                <div
+                  className={`gestion-form-message ${mensajeFormulario.tipo}`}
                 >
-                  {mostrarConfirmacion ? <FiEyeOff /> : <FiEye />}
-                </button>
-              </div>
-            </label>
+                  {mensajeFormulario.texto}
+                </div>
+              )}
 
-            <label className="gestion-form-field">
-              <span>Rol</span>
-              <div className="gestion-locked-field">
-                Docente
-                <FiLock />
-              </div>
-            </label>
-
-            <div className="gestion-form-field">
-              <span>Estado</span>
-
-              <div className="gestion-form-status">
-                <button
-                  type="button"
-                  className={formulario.estado === "Activo" ? "active" : ""}
-                  onClick={() => actualizarFormulario("estado", "Activo")}
-                >
-                  Activo
-                </button>
-
-                <button
-                  type="button"
-                  className={formulario.estado === "Inactivo" ? "inactive" : ""}
-                  onClick={() => actualizarFormulario("estado", "Inactivo")}
-                >
-                  Inactivo
-                </button>
-              </div>
-            </div>
-
-            {mensajeFormulario && (
-              <p
-                className={`gestion-form-message ${
-                  mensajeFormulario.includes("correctamente")
-                    ? "success"
-                    : "error"
-                }`}
+              <button
+                type="submit"
+                className="gestion-register-btn"
+                disabled={guardando}
               >
-                {mensajeFormulario}
-              </p>
-            )}
+                {guardando ? (
+                  <>
+                    <FiRefreshCw />
+                    Guardando...
+                  </>
+                ) : docenteEditando ? (
+                  <>
+                    <FiCheck />
+                    Guardar cambios
+                  </>
+                ) : (
+                  <>
+                    <FiUserPlus />
+                    Registrar docente
+                  </>
+                )}
+              </button>
 
-            <button
-              type="button"
-              className="gestion-register-btn"
-              onClick={registrarDocente}
-            >
-              <FiUserPlus />
-              Registrar docente
-            </button>
-
-            <button
-              type="button"
-              className="gestion-cancel-btn"
-              onClick={limpiarFormulario}
-            >
-              <FiX />
-              Cancelar
-            </button>
+              <button
+                type="button"
+                className="gestion-cancel-btn"
+                onClick={limpiarFormulario}
+              >
+                <FiX />
+                Cancelar
+              </button>
+            </form>
 
             <div className="gestion-form-note">
               <FiInfo />
               <p>
                 El id_usuario y la fecha de registro se generan automáticamente.
+                Si editas un docente y dejas la contraseña vacía, se conserva la que ya tenía.
               </p>
             </div>
           </aside>
@@ -1224,11 +1209,19 @@ function GestionDocentes() {
               <FiLogOut className="logout-icon" />
             </button>
 
-            <button type="button" aria-label="Ayuda">
+            <button
+              type="button"
+              onClick={() => navigate("/ayuda-docente")}
+              aria-label="Ayuda"
+            >
               <FiHelpCircle className="help-icon" />
             </button>
 
-            <button type="button" aria-label="Configuración">
+            <button
+              type="button"
+              onClick={() => navigate("/configuracion-docente")}
+              aria-label="Configuración"
+            >
               <FiSettings className="settings-icon" />
             </button>
           </div>
@@ -1239,3 +1232,4 @@ function GestionDocentes() {
 }
 
 export default GestionDocentes;
+

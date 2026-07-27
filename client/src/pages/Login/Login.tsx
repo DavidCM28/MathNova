@@ -1,6 +1,10 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { startGuestSession, saveAuthSession } from "../../utils/authSession";
+import {
+  clearAuthSession,
+  startGuestSession,
+  saveAuthSession,
+} from "../../utils/authSession";
 
 import "./Login.css";
 
@@ -43,16 +47,9 @@ function Login() {
   const [loginPassword, setLoginPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
- const limpiarSesionAnterior = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("authToken");
-  localStorage.removeItem("mathnova_token");
-  localStorage.removeItem("mathnovaToken");
-  localStorage.removeItem("usuario");
-  localStorage.removeItem("user");
-  localStorage.removeItem("mathnova_session");
-  sessionStorage.clear();
-};
+  const limpiarSesionAnterior = () => {
+    clearAuthSession();
+  };
 
   const normalizarRol = (usuario?: UsuarioLogin) => {
     const rolTexto = String(usuario?.rol || "").toLowerCase().trim();
@@ -77,33 +74,45 @@ function Login() {
   };
 
   const guardarSesion = (token: string, usuario: UsuarioLogin) => {
-  limpiarSesionAnterior();
+    limpiarSesionAnterior();
+    saveAuthSession(token, usuario);
+  };
 
-  localStorage.setItem("token", token);
-  localStorage.setItem("usuario", JSON.stringify(usuario));
+  const obtenerRutaPorRol = (rol: string) => {
+    if (rol === "docente") return "/dashboard-docente";
+    if (rol === "admin") return "/dashboard-admin";
+    return "/dashboard";
+  };
 
-  saveAuthSession(token, usuario);
-};
-
-  const redirigirPorRol = (usuario: UsuarioLogin) => {
-    const rol = normalizarRol(usuario);
-
-    if (state?.from) {
-      navigate(state.from, { replace: true });
-      return;
-    }
+  const rutaPerteneceAlRol = (ruta: string | undefined, rol: string) => {
+    if (!ruta || ruta === "/" || ruta === "/login") return false;
 
     if (rol === "docente") {
-      navigate("/dashboard-docente", { replace: true });
-      return;
+      return (
+        ruta.includes("-docente") ||
+        ruta === "/dashboard-docente" ||
+        ruta === "/gestion-docentes"
+      );
     }
 
     if (rol === "admin") {
-      navigate("/dashboard-admin", { replace: true });
+      return ruta.includes("-admin") || ruta.startsWith("/admin");
+    }
+
+    return !ruta.includes("-docente") && !ruta.includes("-admin");
+  };
+
+  const redirigirPorRol = (usuario: UsuarioLogin) => {
+    const rol = normalizarRol(usuario);
+    const rutaInicial = obtenerRutaPorRol(rol);
+    const rutaAnterior = state?.from;
+
+    if (rutaPerteneceAlRol(rutaAnterior, rol) && rutaAnterior) {
+      navigate(rutaAnterior, { replace: true });
       return;
     }
 
-    navigate("/dashboard", { replace: true });
+    navigate(rutaInicial, { replace: true });
   };
 
   const entrarComoEspectador = () => {

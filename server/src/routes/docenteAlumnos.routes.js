@@ -201,8 +201,8 @@ router.post("/", async (req, res) => {
   try {
     const nombreCompleto = req.body.nombre_completo?.trim();
     const correo = req.body.correo?.trim().toLowerCase();
-    const usuario = req.body.usuario?.trim();
-    const password = req.body.password?.trim();
+    const usuario = req.body.usuario?.trim().toLowerCase();
+    const password = String(req.body.password || req.body.contrasena || "").trim();
 
     if (!nombreCompleto || !correo || !usuario || !password) {
       return res.status(400).json({
@@ -229,7 +229,8 @@ router.post("/", async (req, res) => {
       `
       SELECT id_usuario
       FROM public.registro
-      WHERE correo = $1 OR usuario = $2
+      WHERE LOWER(TRIM(correo)) = $1
+         OR LOWER(TRIM(COALESCE(usuario, ''))) = $2
       LIMIT 1
       `,
       [correo, usuario]
@@ -282,8 +283,8 @@ router.put("/:id_alumno", async (req, res) => {
 
     const nombreCompleto = req.body.nombre_completo?.trim();
     const correo = req.body.correo?.trim().toLowerCase();
-    const usuario = req.body.usuario?.trim();
-    const password = req.body.password?.trim();
+    const usuario = req.body.usuario?.trim().toLowerCase();
+    const password = String(req.body.password || req.body.contrasena || "").trim();
 
     if (!idAlumno) {
       return res.status(400).json({
@@ -317,7 +318,10 @@ router.put("/:id_alumno", async (req, res) => {
       `
       SELECT id_usuario
       FROM public.registro
-      WHERE (correo = $1 OR usuario = $2)
+      WHERE (
+          LOWER(TRIM(correo)) = $1
+          OR LOWER(TRIM(COALESCE(usuario, ''))) = $2
+        )
         AND id_usuario <> $3
       LIMIT 1
       `,

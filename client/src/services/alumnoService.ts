@@ -1,3 +1,5 @@
+import { getAuthToken } from "../utils/authSession";
+
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 
 export type ActividadProgreso = {
@@ -52,7 +54,7 @@ export type EstadisticasAlumno = {
 };
 
 const getToken = () => {
-  return localStorage.getItem("token");
+  return getAuthToken();
 };
 
 const authHeaders = () => {

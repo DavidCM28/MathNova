@@ -1,5 +1,6 @@
 ﻿import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { clearAuthSession } from "../../utils/authSession";
 import "./CalificacionesDocente.css";
 
 import logo from "../../assets/logo_MathNova.png";
@@ -194,6 +195,10 @@ function CalificacionesDocente() {
   }, [alumnosOpen]);
 
   const irARuta = (ruta: string, menu?: string) => {
+    if (ruta === "/login" || menu === "logout") {
+      clearAuthSession();
+    }
+
     if (menu) {
       setSelectedMenu(menu);
     }

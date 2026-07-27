@@ -330,7 +330,7 @@
 
 .lista-table-row {
   display: grid;
-  grid-template-columns: 50px 2.35fr 0.7fr 0.6fr 1.65fr 1fr 0.85fr 1.15fr 34px;
+  grid-template-columns: 50px 2.35fr 0.8fr 0.6fr 1.75fr 0.85fr 1.15fr 34px;
   align-items: center;
   min-height: 55px;
   border-bottom: 1px solid #edf1f7;
@@ -422,36 +422,6 @@
 .lista-table-row:not(.lista-table-head):hover .lista-avatar {
   transform: scale(1.12) rotate(-5deg);
   box-shadow: 0 8px 16px rgba(0, 88, 255, 0.18);
-}
-
-.lista-assistance {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.lista-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  transition: transform 0.25s ease;
-}
-
-.lista-table-row:not(.lista-table-head):hover .lista-dot {
-  transform: scale(1.35);
-}
-
-.lista-dot.green {
-  background: #16a34a;
-}
-
-.lista-dot.orange {
-  background: #f59e0b;
-}
-
-.lista-dot.red {
-  background: #ef4444;
 }
 
 .lista-status {
@@ -625,139 +595,6 @@
 
 .red-number {
   color: #ff3b3b;
-}
-
-/* ========================= */
-/* GRÁFICA ASISTENCIA */
-/* ========================= */
-
-.asistencia-card {
-  min-height: 335px;
-  overflow: hidden;
-}
-
-.lista-chart {
-  width: calc(100% + 18px);
-  margin-top: 35px;
-  margin-left: -18px;
-  min-height: 205px;
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
-  gap: 10px;
-  overflow: visible;
-}
-
-.lista-chart-labels {
-  height: 175px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 900;
-  padding-top: 4px;
-  text-align: right;
-}
-
-.lista-chart-bars {
-  height: 180px;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(34px, 1fr));
-  align-items: end;
-  gap: 10px;
-  border-left: 1px solid #dbe7f6;
-  border-top: 1px solid #e7edf6;
-  border-bottom: 1px solid #dbe7f6;
-  background: linear-gradient(
-    to bottom,
-    transparent 48%,
-    #e7edf6 49%,
-    transparent 50%
-  );
-  padding: 0 10px 0 8px;
-  overflow: visible;
-}
-
-.lista-chart-item {
-  height: 176px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  cursor: pointer;
-  min-width: 0;
-}
-
-.lista-chart-item strong {
-  font-size: 13px;
-  color: #172033;
-  margin-bottom: 7px;
-  font-weight: 900;
-  transition:
-    transform 0.25s ease,
-    color 0.25s ease;
-}
-
-.lista-bar {
-  width: clamp(25px, 2.1vw, 34px);
-  border-radius: 8px 8px 0 0;
-  display: block;
-  flex-shrink: 0;
-  transition:
-    transform 0.28s ease,
-    filter 0.28s ease,
-    box-shadow 0.28s ease;
-}
-
-.lista-chart-item:hover .lista-bar {
-  transform: scaleY(1.06) translateY(-3px);
-  filter: brightness(1.08);
-  box-shadow: 0 8px 16px rgba(0, 88, 255, 0.18);
-}
-
-.lista-chart-item:hover strong {
-  transform: translateY(-4px) scale(1.08);
-  color: #0058ff;
-}
-
-.lista-blue-bar {
-  height: 118px;
-  background: #0058ff;
-}
-
-.lista-green-bar {
-  height: 113px;
-  background: #2fc777;
-}
-
-.lista-yellow-bar {
-  height: 96px;
-  background: #f7b900;
-}
-
-.lista-purple-bar {
-  height: 110px;
-  background: #6d3fdc;
-}
-
-.lista-red-bar {
-  height: 122px;
-  background: #ef4444;
-}
-
-.lista-chart-item small {
-  margin-top: 8px;
-  font-size: 11px;
-  color: #334155;
-  font-weight: 900;
-  transition:
-    color 0.25s ease,
-    transform 0.25s ease;
-}
-
-.lista-chart-item:hover small {
-  color: #0058ff;
-  transform: translateY(-1px);
 }
 
 /* =========================================================
@@ -1049,10 +886,6 @@
     font-size: 30px;
   }
 
-  .asistencia-card {
-    min-height: 270px;
-  }
-
   .lista-chart {
     min-height: 178px;
     grid-template-columns: 28px minmax(0, 1fr);
@@ -1232,20 +1065,9 @@
   font-weight: 800;
 }
 
-.lista-dot.gray {
-  background: #94a3b8;
-}
-
 .lista-status.sin-datos {
   background: #e5e7eb;
   color: #475569;
-}
-
-.lista-empty-chart {
-  margin-top: 28px;
-  color: #64748b;
-  font-weight: 800;
-  line-height: 1.5;
 }
 
 /* =========================================================
@@ -1444,12 +1266,6 @@
 }
 
 /* Gráfica alineada dentro de su tarjeta */
-.asistencia-card {
-  min-height: 335px;
-  display: flex;
-  flex-direction: column;
-}
-
 .lista-chart {
   width: 100%;
   max-width: 100%;

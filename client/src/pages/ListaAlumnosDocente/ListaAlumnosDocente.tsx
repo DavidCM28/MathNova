@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { clearAuthSession } from "../../utils/authSession";
 import "./ListaAlumnosDocente.css";
 
 import logo from "../../assets/logo_MathNova.png";
@@ -20,7 +21,6 @@ import {
   FiDownload,
   FiMoreVertical,
   FiUser,
-  FiCalendar,
   FiUserCheck,
   FiCheckCircle,
   FiChevronLeft,
@@ -35,7 +35,6 @@ type Alumno = {
   usuario?: string | null;
   grupo: string;
   modulo: string;
-  asistencia: number | null;
   promedio: number | null;
   estado: "Activo" | "Rezago";
   color: string;
@@ -133,25 +132,22 @@ function obtenerColorAvatar(color: string, idAlumno: number) {
 
 function obtenerEstadoLista(alumno: Alumno): Exclude<EstadoLista, "Todos"> {
   const sinPromedio = alumno.promedio === null || alumno.promedio === undefined;
-  const sinAsistencia =
-    alumno.asistencia === null || alumno.asistencia === undefined;
 
-  if (sinPromedio && sinAsistencia) {
+  if (sinPromedio) {
     return "Sin datos";
   }
 
-  const promedio = alumno.promedio ?? 10;
-  const asistencia = alumno.asistencia ?? 100;
+  const promedio = alumno.promedio ?? 0;
 
-  if (promedio < 6.5 || asistencia < 65) {
+  if (promedio < 6.5) {
     return "En riesgo";
   }
 
-  if (promedio < 7.5 || asistencia < 80) {
+  if (promedio < 7.5) {
     return "Regular";
   }
 
-  if (promedio >= 9 && asistencia >= 90) {
+  if (promedio >= 9) {
     return "Excelente";
   }
 
@@ -162,13 +158,6 @@ function obtenerClaseEstado(estado: EstadoLista) {
   return estado.toLowerCase().replace(" ", "-");
 }
 
-function obtenerClasePunto(asistencia: number | null) {
-  if (asistencia === null) return "gray";
-  if (asistencia < 65) return "red";
-  if (asistencia < 80) return "orange";
-  return "green";
-}
-
 function descargarCsv(alumnos: Alumno[]) {
   const encabezados = [
     "Nombre",
@@ -176,7 +165,6 @@ function descargarCsv(alumnos: Alumno[]) {
     "Usuario",
     "Grupo",
     "Modulo actual",
-    "Asistencia",
     "Promedio",
     "Estado",
   ];
@@ -187,7 +175,6 @@ function descargarCsv(alumnos: Alumno[]) {
     alumno.usuario || "",
     alumno.grupo,
     alumno.modulo,
-    alumno.asistencia !== null ? `${alumno.asistencia}%` : "",
     alumno.promedio !== null ? String(alumno.promedio) : "",
     obtenerEstadoLista(alumno),
   ]);
@@ -385,10 +372,6 @@ function ListaAlumnosDocente() {
       (alumno) => alumno.promedio !== null && alumno.promedio !== undefined,
     );
 
-    const conAsistencia = alumnosFiltrados.filter(
-      (alumno) => alumno.asistencia !== null && alumno.asistencia !== undefined,
-    );
-
     const promedioGeneral =
       conPromedio.length > 0
         ? Number(
@@ -401,16 +384,6 @@ function ListaAlumnosDocente() {
           )
         : null;
 
-    const asistenciaPromedio =
-      conAsistencia.length > 0
-        ? Math.round(
-            conAsistencia.reduce(
-              (suma, alumno) => suma + Number(alumno.asistencia),
-              0,
-            ) / conAsistencia.length,
-          )
-        : null;
-
     const alumnosEnRiesgo = alumnosFiltrados.filter(
       (alumno) => obtenerEstadoLista(alumno) === "En riesgo",
     ).length;
@@ -418,14 +391,9 @@ function ListaAlumnosDocente() {
     return {
       total,
       promedioGeneral,
-      asistenciaPromedio,
       alumnosEnRiesgo,
     };
   }, [alumnosFiltrados]);
-
-  const alumnosGrafica = alumnosFiltrados
-    .filter((alumno) => alumno.asistencia !== null)
-    .slice(0, 5);
 
   const manejarExportacion = () => {
     if (alumnosFiltrados.length === 0) {
@@ -454,6 +422,10 @@ function ListaAlumnosDocente() {
   };
 
   const irARuta = (ruta: string) => {
+    if (ruta === "/login") {
+      clearAuthSession();
+    }
+
     setMenuOpen(false);
     navigate(ruta);
   };
@@ -732,7 +704,6 @@ function ListaAlumnosDocente() {
                   <span>Grupo</span>
                   <span>Edad</span>
                   <span>Módulo actual</span>
-                  <span>Asistencia</span>
                   <span>Promedio</span>
                   <span>Estado</span>
                   <span></span>
@@ -742,7 +713,6 @@ function ListaAlumnosDocente() {
                   <div className="lista-table-row">
                     <span>—</span>
                     <span>Cargando alumnos...</span>
-                    <span>—</span>
                     <span>—</span>
                     <span>—</span>
                     <span>—</span>
@@ -778,17 +748,6 @@ function ListaAlumnosDocente() {
                         <span>{alumno.grupo || "Sin grupo"}</span>
                         <span>—</span>
                         <span>{alumno.modulo || "Sin módulo"}</span>
-
-                        <span className="lista-assistance">
-                          <span
-                            className={`lista-dot ${obtenerClasePunto(
-                              alumno.asistencia,
-                            )}`}
-                          ></span>
-                          {alumno.asistencia !== null
-                            ? `${alumno.asistencia}%`
-                            : "—"}
-                        </span>
 
                         <span>
                           {alumno.promedio !== null ? alumno.promedio : "—"}
@@ -827,7 +786,6 @@ function ListaAlumnosDocente() {
                   <div className="lista-table-row">
                     <span>—</span>
                     <span>No se encontraron alumnos.</span>
-                    <span>—</span>
                     <span>—</span>
                     <span>—</span>
                     <span>—</span>
@@ -924,67 +882,7 @@ function ListaAlumnosDocente() {
                   </strong>
                 </div>
 
-                <div>
-                  <p>Asistencia promedio</p>
-                  <strong className="blue-number">
-                    {resumen.asistenciaPromedio !== null
-                      ? `${resumen.asistenciaPromedio}%`
-                      : "—"}
-                  </strong>
-                </div>
               </div>
-            </article>
-
-            <article className="lista-side-card asistencia-card">
-              <div className="side-title-row">
-                <h2>Asistencia del grupo</h2>
-                <FiCalendar />
-              </div>
-
-              {alumnosGrafica.length > 0 ? (
-                <div className="lista-chart">
-                  <div className="lista-chart-labels">
-                    <span>100</span>
-                    <span>50</span>
-                    <span>0</span>
-                  </div>
-
-                  <div className="lista-chart-bars">
-                    {alumnosGrafica.map((alumno, index) => {
-                      const coloresBarra = [
-                        "lista-blue-bar",
-                        "lista-green-bar",
-                        "lista-yellow-bar",
-                        "lista-purple-bar",
-                        "lista-red-bar",
-                      ];
-
-                      return (
-                        <div
-                          className="lista-chart-item"
-                          key={alumno.id_alumno}
-                        >
-                          <strong>{alumno.asistencia}%</strong>
-                          <span
-                            className={`lista-bar ${coloresBarra[index]}`}
-                            style={{
-                              height: `${Math.max(
-                                10,
-                                Number(alumno.asistencia),
-                              )}%`,
-                            }}
-                          ></span>
-                          <small>{alumno.iniciales}</small>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : (
-                <p className="lista-empty-chart">
-                  Aún no hay datos reales de asistencia para mostrar.
-                </p>
-              )}
             </article>
           </aside>
         </section>

@@ -45,6 +45,10 @@ const obtenerJwtSecret = () => {
   return String(secret).trim();
 };
 
+const pareceHashBcrypt = (valor) => {
+  return typeof valor === "string" && /^\$2[aby]\$\d{2}\$/.test(valor);
+};
+
 router.post("/register", async (req, res) => {
   try {
     const {
@@ -62,7 +66,7 @@ router.post("/register", async (req, res) => {
 
     const nombreFinal = String(nombre_completo || nombreCompleto || "").trim();
     const correoLimpio = String(correo || email || "").trim().toLowerCase();
-    const passwordFinal = String(password || contrasena || "");
+    const passwordFinal = String(password || contrasena || "").trim();
     const confirmarFinal = String(confirmar_password || confirmarPassword || "");
 
     const usuarioLimpio =
@@ -190,7 +194,7 @@ router.post("/login", async (req, res) => {
       .trim()
       .toLowerCase();
 
-    const passwordFinal = String(password || contrasena || "");
+    const passwordFinal = String(password || contrasena || "").trim();
 
     if (!identificador || !passwordFinal) {
       return res.status(400).json({
@@ -199,7 +203,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    const usuarioEncontrado = await pool.query(
+    let usuarioEncontrado = await pool.query(
       `SELECT
           id_usuario,
           nombre_completo,
@@ -211,9 +215,38 @@ router.post("/login", async (req, res) => {
        FROM public.registro
        WHERE LOWER(TRIM(correo)) = $1
           OR LOWER(TRIM(COALESCE(usuario, ''))) = $1
+       ORDER BY
+          CASE
+            WHEN LOWER(TRIM(correo)) = $1 THEN 0
+            ELSE 1
+          END
        LIMIT 1`,
       [identificador]
     );
+
+    if (usuarioEncontrado.rows.length === 0) {
+      try {
+        usuarioEncontrado = await pool.query(
+          `SELECT
+              id_usuario,
+              nombre_completo,
+              correo_electronico AS correo,
+              NULL::text AS usuario,
+              contrasena AS password_hash,
+              rol,
+              COALESCE(estado_cuenta, true) AS estado
+           FROM public.usuario
+           WHERE LOWER(TRIM(correo_electronico)) = $1
+           LIMIT 1`,
+          [identificador]
+        );
+      } catch (fallbackError) {
+        console.warn(
+          "No se pudo consultar tabla usuario antigua:",
+          fallbackError.message
+        );
+      }
+    }
 
     if (usuarioEncontrado.rows.length === 0) {
       return res.status(401).json({
@@ -231,10 +264,27 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    const passwordCorrecto = await bcrypt.compare(
-      passwordFinal,
-      usuarioDB.password_hash
-    );
+    const passwordGuardado = String(usuarioDB.password_hash || "");
+
+    let passwordCorrecto = false;
+
+    if (pareceHashBcrypt(passwordGuardado)) {
+      passwordCorrecto = await bcrypt.compare(passwordFinal, passwordGuardado);
+    } else {
+      passwordCorrecto = passwordGuardado === passwordFinal;
+
+      if (passwordCorrecto) {
+        const nuevoPasswordHash = await bcrypt.hash(passwordFinal, 10);
+
+        await pool.query(
+          `UPDATE public.registro
+           SET password_hash = $1,
+               fecha_actualizacion = CURRENT_TIMESTAMP
+           WHERE id_usuario = $2`,
+          [nuevoPasswordHash, usuarioDB.id_usuario]
+        );
+      }
+    }
 
     if (!passwordCorrecto) {
       return res.status(401).json({
