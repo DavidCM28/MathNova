@@ -1365,3 +1365,51 @@
   .pb-video-wrap { width: 120px; height: 120px; }
   .pb-modal { padding: 26px 20px 22px; }
 }
+
+/* ========================================================= */
+/* PANTALLA DE CARGA INICIAL (evita el "salto" a éxito/fallo) */
+/* ========================================================= */
+
+.sen-loading-screen {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: #eef7ff;
+  font-family: "Poppins", Arial, sans-serif;
+}
+
+.sen-loading-logo {
+  width: 140px;
+  animation: senLoadingPulse 1.4s ease-in-out infinite;
+}
+
+.sen-loading-screen p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #315170;
+}
+
+@keyframes senLoadingPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.96);
+  }
+}
+
+/* ========================================================= */
+/* INPUTS DESHABILITADOS (celdas ya correctas o reveladas)   */
+/* ========================================================= */
+
+.sen-input:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}

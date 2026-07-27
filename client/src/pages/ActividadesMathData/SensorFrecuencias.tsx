@@ -1,6 +1,7 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
+import { getSessionUser } from "../../utils/authSession";
 
 import logo from "../../assets/logo_MathNova.png";
 import "./SensorFrecuencias.css";
@@ -49,6 +50,12 @@ import {
   FiRadio,
 } from "react-icons/fi";
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
+
+/* =========================================================
+   CONFIGURACIÓN DEL BACKEND
+========================================================= */
+
+const API_URL = "http://localhost:3001/api";
 
 /* =========================================================
    DATOS DE LA MISIÓN
@@ -100,9 +107,6 @@ const NOMBRE_ZONA: Record<Zona, string> = {
   este: "Zona Este",
   oeste: "Zona Oeste",
 };
-
-const SENAL_MAYOR_FRECUENCIA: Senal = "beta";
-const ZONA_MAS_PROBABLE: Zona = "sur";
 
 function palitos(n: number) {
   // grupos de 4 líneas + una diagonal representando 5
@@ -283,13 +287,25 @@ function PistaBaitModal({
 export default function SensorFrecuencias() {
   const navigate = useNavigate();
 
+  // El ID del estudiante se obtiene de la sesión activa en cada render
+  const usuarioSesion = getSessionUser();
+  const ID_ESTUDIANTE = usuarioSesion?.id_usuario;
+
   const [frecAbsoluta, setFrecAbsoluta] = useState<Record<Senal, string>>({
     alfa: "",
     beta: "",
     gamma: "",
     delta: "",
   });
-  const [frecAbsolutaVerificada, setFrecAbsolutaVerificada] = useState(false);
+  const [absolutaEstados, setAbsolutaEstados] = useState<
+    Record<Senal, "correcto" | "pendiente" | "incorrecto">
+  >({ alfa: "pendiente", beta: "pendiente", gamma: "pendiente", delta: "pendiente" });
+  const [absolutaBloqueada, setAbsolutaBloqueada] = useState<Record<Senal, boolean>>({
+    alfa: false,
+    beta: false,
+    gamma: false,
+    delta: false,
+  });
 
   const [frecRelativa, setFrecRelativa] = useState<Record<Senal, string>>({
     alfa: "",
@@ -297,54 +313,277 @@ export default function SensorFrecuencias() {
     gamma: "",
     delta: "",
   });
-  const [frecRelativaVerificada, setFrecRelativaVerificada] = useState(false);
+  const [relativaEstados, setRelativaEstados] = useState<
+    Record<Senal, "correcto" | "pendiente" | "incorrecto">
+  >({ alfa: "pendiente", beta: "pendiente", gamma: "pendiente", delta: "pendiente" });
+  const [relativaBloqueada, setRelativaBloqueada] = useState<Record<Senal, boolean>>({
+    alfa: false,
+    beta: false,
+    gamma: false,
+    delta: false,
+  });
 
   const [preguntaMayorFrecuencia, setPreguntaMayorFrecuencia] = useState<Senal | null>(null);
   const [preguntaZona, setPreguntaZona] = useState<Zona | null>(null);
 
   const [resultado, setResultado] = useState<"exito" | "fallo" | null>(null);
   const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
+  const [mensajePistaBait, setMensajePistaBait] = useState("");
   const [mostrarIntroBait, setMostrarIntroBait] = useState(false);
   const [mostrarBaitExito, setMostrarBaitExito] = useState(false);
   const [mostrarBaitFallo, setMostrarBaitFallo] = useState(false);
 
-  const absolutaEstado = (s: Senal): "correcto" | "pendiente" | "incorrecto" => {
-    if (!frecAbsolutaVerificada) return "pendiente";
-    return frecAbsoluta[s].trim() === String(FRECUENCIAS[s]) ? "correcto" : "incorrecto";
+  const [cargandoInicial, setCargandoInicial] = useState(true);
+  const [cargandoAbsoluta, setCargandoAbsoluta] = useState(false);
+  const [cargandoRelativa, setCargandoRelativa] = useState(false);
+  const [cargandoZona, setCargandoZona] = useState(false);
+
+  // ==========================================
+  // CARGAR PROGRESO GUARDADO
+  // ==========================================
+
+  useEffect(() => {
+    const cargarProgreso = async () => {
+      try {
+        const response = await fetch(`${API_URL}/sensor/progreso/${ID_ESTUDIANTE}`);
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const progreso = data.data;
+          const valoresAbs = (progreso.valores_absoluta || {}) as Record<string, number>;
+          const intentosAbs = (progreso.intentos_absoluta || {}) as Record<string, number>;
+          const valoresRel = (progreso.valores_relativa || {}) as Record<string, string>;
+          const intentosRel = (progreso.intentos_relativa || {}) as Record<string, number>;
+
+          (["alfa", "beta", "gamma", "delta"] as Senal[]).forEach((s) => {
+            if (valoresAbs[s] !== undefined) {
+              setFrecAbsoluta((prev) => ({ ...prev, [s]: String(valoresAbs[s]) }));
+              setAbsolutaEstados((prev) => ({
+                ...prev,
+                [s]: valoresAbs[s] === FRECUENCIAS[s] ? "correcto" : "incorrecto",
+              }));
+              setAbsolutaBloqueada((prev) => ({
+                ...prev,
+                [s]: (intentosAbs[s] || 0) >= 3 && valoresAbs[s] !== FRECUENCIAS[s],
+              }));
+            }
+
+            if (valoresRel[s] !== undefined) {
+              setFrecRelativa((prev) => ({ ...prev, [s]: String(valoresRel[s]) }));
+              setRelativaEstados((prev) => ({
+                ...prev,
+                [s]: valoresRel[s] === PORCENTAJES_CORRECTOS[s] ? "correcto" : "incorrecto",
+              }));
+              setRelativaBloqueada((prev) => ({
+                ...prev,
+                [s]: (intentosRel[s] || 0) >= 3 && valoresRel[s] !== PORCENTAJES_CORRECTOS[s],
+              }));
+            }
+          });
+
+          if (progreso.pregunta_senal_frecuente) {
+            setPreguntaMayorFrecuencia(progreso.pregunta_senal_frecuente as Senal);
+          }
+          if (progreso.pregunta_zona_origen) {
+            setPreguntaZona(progreso.pregunta_zona_origen as Zona);
+          }
+
+          if (progreso.completada) {
+            setResultado(progreso.resultado_correcto ? "exito" : "fallo");
+          }
+        }
+      } catch (error) {
+        console.error("Error al cargar progreso:", error);
+      } finally {
+        setCargandoInicial(false);
+      }
+    };
+
+    cargarProgreso();
+  }, []);
+
+  const absolutaEstado = (s: Senal) => absolutaEstados[s];
+  const relativaEstado = (s: Senal) => relativaEstados[s];
+
+  // ==========================================
+  // VERIFICAR FRECUENCIA ABSOLUTA (celda por celda)
+  // ==========================================
+
+  const verificarAbsoluta = async () => {
+    setCargandoAbsoluta(true);
+    try {
+      for (const s of Object.keys(FRECUENCIAS) as Senal[]) {
+        if (absolutaBloqueada[s] || absolutaEstados[s] === "correcto" || frecAbsoluta[s].trim() === "") {
+          continue;
+        }
+
+        const response = await fetch(`${API_URL}/sensor/validar-absoluta`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id_estudiante: ID_ESTUDIANTE,
+            senal: s,
+            valor: Number(frecAbsoluta[s]),
+          }),
+        });
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const r = data.data;
+
+          if (r.mostrar_pista_bait) {
+            setMensajePistaBait(r.mensaje);
+            setMostrarPistaBait(true);
+            fetch(`${API_URL}/sensor/pista-consultada`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, pantalla: 4 }),
+            }).catch((error) => console.error("Error al registrar consulta de pista:", error));
+          }
+
+          if (r.celda_completada && !r.correcto) {
+            setFrecAbsoluta((prev) => ({ ...prev, [s]: String(r.respuesta_correcta) }));
+            setAbsolutaEstados((prev) => ({ ...prev, [s]: "incorrecto" }));
+            setAbsolutaBloqueada((prev) => ({ ...prev, [s]: true }));
+          } else if (r.correcto) {
+            setAbsolutaEstados((prev) => ({ ...prev, [s]: "correcto" }));
+          } else {
+            setAbsolutaEstados((prev) => ({ ...prev, [s]: "incorrecto" }));
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error al verificar frecuencias absolutas:", error);
+    } finally {
+      setCargandoAbsoluta(false);
+    }
   };
 
-  const relativaEstado = (s: Senal): "correcto" | "pendiente" | "incorrecto" => {
-    if (!frecRelativaVerificada) return "pendiente";
-    return frecRelativa[s].trim() === PORCENTAJES_CORRECTOS[s] ? "correcto" : "incorrecto";
+  // ==========================================
+  // VERIFICAR FRECUENCIA RELATIVA (celda por celda)
+  // ==========================================
+
+  const verificarRelativa = async () => {
+    setCargandoRelativa(true);
+    try {
+      for (const s of Object.keys(PORCENTAJES_CORRECTOS) as Senal[]) {
+        if (relativaBloqueada[s] || relativaEstados[s] === "correcto" || frecRelativa[s].trim() === "") {
+          continue;
+        }
+
+        const response = await fetch(`${API_URL}/sensor/validar-relativa`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id_estudiante: ID_ESTUDIANTE,
+            senal: s,
+            valorTexto: frecRelativa[s],
+          }),
+        });
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const r = data.data;
+
+          if (r.mostrar_pista_bait) {
+            setMensajePistaBait(r.mensaje);
+            setMostrarPistaBait(true);
+            fetch(`${API_URL}/sensor/pista-consultada`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, pantalla: 6 }),
+            }).catch((error) => console.error("Error al registrar consulta de pista:", error));
+          }
+
+          if (r.celda_completada && !r.correcto) {
+            setFrecRelativa((prev) => ({ ...prev, [s]: String(r.respuesta_correcta) }));
+            setRelativaEstados((prev) => ({ ...prev, [s]: "incorrecto" }));
+            setRelativaBloqueada((prev) => ({ ...prev, [s]: true }));
+          } else if (r.correcto) {
+            setRelativaEstados((prev) => ({ ...prev, [s]: "correcto" }));
+          } else {
+            setRelativaEstados((prev) => ({ ...prev, [s]: "incorrecto" }));
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error al verificar frecuencias relativas:", error);
+    } finally {
+      setCargandoRelativa(false);
+    }
   };
 
-  const verificarAbsoluta = () => setFrecAbsolutaVerificada(true);
-  const verificarRelativa = () => setFrecRelativaVerificada(true);
+  // ==========================================
+  // CALCULAR ZONA DE ORIGEN (paso final)
+  // ==========================================
 
-  const calcularZonaOrigen = () => {
-    const absolutaOk = (Object.keys(FRECUENCIAS) as Senal[]).every(
-      (s) => frecAbsoluta[s].trim() === String(FRECUENCIAS[s])
-    );
-    const relativaOk = (Object.keys(PORCENTAJES_CORRECTOS) as Senal[]).every(
-      (s) => frecRelativa[s].trim() === PORCENTAJES_CORRECTOS[s]
-    );
-    const preguntasOk =
-      preguntaMayorFrecuencia === SENAL_MAYOR_FRECUENCIA && preguntaZona === ZONA_MAS_PROBABLE;
+  const calcularZonaOrigen = async () => {
+    if (!preguntaMayorFrecuencia || !preguntaZona) return;
 
-    setFrecAbsolutaVerificada(true);
-    setFrecRelativaVerificada(true);
-    setResultado(absolutaOk && relativaOk && preguntasOk ? "exito" : "fallo");
+    setCargandoZona(true);
+    try {
+      const response = await fetch(`${API_URL}/sensor/calcular-zona`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_estudiante: ID_ESTUDIANTE,
+          pregunta_senal_frecuente: preguntaMayorFrecuencia,
+          pregunta_zona_origen: preguntaZona,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        setResultado(data.data.correcto ? "exito" : "fallo");
+      }
+    } catch (error) {
+      console.error("Error al calcular la zona de origen:", error);
+      alert("❌ Error al conectar con el servidor.");
+    } finally {
+      setCargandoZona(false);
+    }
   };
 
-  const handleReiniciarActividad = () => {
+  // ==========================================
+  // REINICIAR ACTIVIDAD
+  // ==========================================
+
+  const handleReiniciarActividad = async () => {
+    try {
+      await fetch(`${API_URL}/sensor/reiniciar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE }),
+      });
+    } catch (error) {
+      console.error("Error al reiniciar actividad:", error);
+    }
+
     setFrecAbsoluta({ alfa: "", beta: "", gamma: "", delta: "" });
-    setFrecAbsolutaVerificada(false);
+    setAbsolutaEstados({ alfa: "pendiente", beta: "pendiente", gamma: "pendiente", delta: "pendiente" });
+    setAbsolutaBloqueada({ alfa: false, beta: false, gamma: false, delta: false });
     setFrecRelativa({ alfa: "", beta: "", gamma: "", delta: "" });
-    setFrecRelativaVerificada(false);
+    setRelativaEstados({ alfa: "pendiente", beta: "pendiente", gamma: "pendiente", delta: "pendiente" });
+    setRelativaBloqueada({ alfa: false, beta: false, gamma: false, delta: false });
     setPreguntaMayorFrecuencia(null);
     setPreguntaZona(null);
     setResultado(null);
   };
+
+  // ==========================================
+  // PANTALLA DE CARGA INICIAL (evita mostrar el
+  // tablero antes de saber si ya estaba completada)
+  // ==========================================
+
+  if (cargandoInicial) {
+    return (
+      <div className="sen-loading-screen">
+        <img src={logo} alt="MathNova" className="sen-loading-logo" />
+        <p>Cargando actividad...</p>
+      </div>
+    );
+  }
 
   // ==========================================
   // VENTANA EMERGENTE: ACTIVIDAD COMPLETADA
@@ -601,7 +840,10 @@ export default function SensorFrecuencias() {
       {mostrarPistaBait && (
         <PistaBaitModal
           titulo="Pista de Bait"
-          contenido="¡No te rindas! Cuenta con calma las marcas de conteo: Alfa 5, Beta 8, Gamma 4 y Delta 3. Cada grupo de 4 líneas con una diagonal es un grupo de 5 señales."
+          contenido={
+            mensajePistaBait ||
+            "¡No te rindas! Cuenta con calma las marcas de conteo: Alfa 5, Beta 8, Gamma 4 y Delta 3. Cada grupo de 4 líneas con una diagonal es un grupo de 5 señales."
+          }
           videoSrc={baitHablandoVideo}
           audioSrc={pistaBaitAudioSensor}
           onClose={() => setMostrarPistaBait(false)}
@@ -789,6 +1031,7 @@ export default function SensorFrecuencias() {
                             setFrecAbsoluta((prev) => ({ ...prev, [s]: e.target.value }))
                           }
                           aria-label={`Frecuencia absoluta de ${NOMBRE_SENAL[s]}`}
+                          disabled={cargandoAbsoluta || absolutaBloqueada[s] || absolutaEstados[s] === "correcto"}
                         />
                         {absolutaEstado(s) === "correcto" && <FiCheckCircle className="sen-check-verde" />}
                       </div>
@@ -807,8 +1050,13 @@ export default function SensorFrecuencias() {
               <FiInfo /> Cada grupo de 4 líneas con una diagonal representa 5 señales.
             </div>
 
-            <button type="button" className="sen-verificar-btn" onClick={verificarAbsoluta}>
-              <FiCheck /> Verificar frecuencias
+            <button
+              type="button"
+              className="sen-verificar-btn"
+              onClick={verificarAbsoluta}
+              disabled={cargandoAbsoluta}
+            >
+              <FiCheck /> {cargandoAbsoluta ? "Verificando..." : "Verificar frecuencias"}
             </button>
           </div>
 
@@ -847,6 +1095,7 @@ export default function SensorFrecuencias() {
                             setFrecRelativa((prev) => ({ ...prev, [s]: e.target.value }))
                           }
                           aria-label={`Frecuencia relativa de ${NOMBRE_SENAL[s]}`}
+                          disabled={cargandoRelativa || relativaBloqueada[s] || relativaEstados[s] === "correcto"}
                         />
                         <span>%</span>
                         {relativaEstado(s) === "correcto" && <FiCheckCircle className="sen-check-verde" />}
@@ -865,8 +1114,13 @@ export default function SensorFrecuencias() {
               <FiInfo /> Escribe solo el número del porcentaje, sin el símbolo %.
             </div>
 
-            <button type="button" className="sen-verificar-btn" onClick={verificarRelativa}>
-              <FiPercent /> Verificar porcentajes
+            <button
+              type="button"
+              className="sen-verificar-btn"
+              onClick={verificarRelativa}
+              disabled={cargandoRelativa}
+            >
+              <FiPercent /> {cargandoRelativa ? "Verificando..." : "Verificar porcentajes"}
             </button>
           </div>
 
@@ -928,7 +1182,15 @@ export default function SensorFrecuencias() {
             <button
               type="button"
               className="sen-pista-trigger"
-              onClick={() => setMostrarPistaBait(true)}
+              onClick={() => {
+                setMensajePistaBait("");
+                setMostrarPistaBait(true);
+                fetch(`${API_URL}/sensor/pista-consultada`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, pantalla: 4 }),
+                }).catch((error) => console.error("Error al registrar consulta de pista:", error));
+              }}
             >
               <img src={baitPistaImg} alt="" className="sen-pista-icono" />
               <strong>Pista de BIT</strong>
@@ -946,8 +1208,13 @@ export default function SensorFrecuencias() {
             </div>
           </div>
 
-          <button type="button" className="sen-calcular-btn" onClick={calcularZonaOrigen}>
-            <FiTarget /> Calcular Zona de Origen
+          <button
+            type="button"
+            className="sen-calcular-btn"
+            onClick={calcularZonaOrigen}
+            disabled={!preguntaMayorFrecuencia || !preguntaZona || cargandoZona}
+          >
+            <FiTarget /> {cargandoZona ? "Calculando..." : "Calcular Zona de Origen"}
           </button>
         </div>
       </main>
@@ -966,7 +1233,10 @@ export default function SensorFrecuencias() {
       {mostrarPistaBait && (
         <PistaBaitModal
           titulo="Pista de Bait"
-          contenido="¡No te rindas! Cuenta con calma las marcas de conteo: Alfa 5, Beta 8, Gamma 4 y Delta 3. Cada grupo de 4 líneas con una diagonal es un grupo de 5 señales."
+          contenido={
+            mensajePistaBait ||
+            "¡No te rindas! Cuenta con calma las marcas de conteo: Alfa 5, Beta 8, Gamma 4 y Delta 3. Cada grupo de 4 líneas con una diagonal es un grupo de 5 señales."
+          }
           videoSrc={baitHablandoVideo}
           audioSrc={pistaBaitAudioSensor}
           onClose={() => setMostrarPistaBait(false)}
