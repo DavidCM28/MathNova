@@ -14,17 +14,17 @@ import {
 import { activityListRoute } from "../constants";
 import { resultData } from "../data/resultData";
 import type { ResultKind } from "../types";
+import {
+  almostHeroAnimated,
+  completedHeroAnimated,
+  retryHeroAnimated,
+} from "../mathNumbersAssets";
 
 type ResultModalProps = {
   kind: ResultKind;
   nextRoute: string;
   retryRoute: string;
   onClose: () => void;
-
-  /*
-   * Función opcional que permite reiniciar la actividad
-   * actual sin navegar nuevamente a la misma ruta.
-   */
   onRetry?: () => void;
 };
 
@@ -46,7 +46,6 @@ const modalTextByKind: Record<
       "Cada actividad superada fortalece tus habilidades matemáticas.",
     primaryAction: "next",
   },
-
   almost: {
     badge: "Casi lo logras",
     sideLabel: "¡Estuviste muy cerca!",
@@ -55,7 +54,6 @@ const modalTextByKind: Record<
       "Observa tus respuestas, identifica el detalle que falta y prueba nuevamente.",
     primaryAction: "retry",
   },
-
   retry: {
     badge: "Vuelve a intentarlo",
     sideLabel: "¡No te rindas!",
@@ -64,7 +62,6 @@ const modalTextByKind: Record<
       "Usa la pista, revisa el procedimiento y vuelve a resolver la actividad.",
     primaryAction: "retry",
   },
-
   hint: {
     badge: "Aquí tienes una pista",
     sideLabel: "¡Pista disponible!",
@@ -73,6 +70,12 @@ const modalTextByKind: Record<
       "Lee la recomendación con calma y vuelve a la actividad para aplicar la estrategia.",
     primaryAction: "retry",
   },
+};
+
+const animatedHeroByKind: Partial<Record<ResultKind, string>> = {
+  completed: completedHeroAnimated,
+  almost: almostHeroAnimated,
+  retry: retryHeroAnimated,
 };
 
 export function ResultModal({
@@ -85,8 +88,9 @@ export function ResultModal({
   const navigate = useNavigate();
   const data = resultData[kind];
   const modalText = modalTextByKind[kind];
-
   const isCompleted = kind === "completed";
+  const heroSource =
+    animatedHeroByKind[kind] ?? data.hero;
 
   useEffect(() => {
     const previousOverflow =
@@ -122,13 +126,6 @@ export function ResultModal({
     navigate(nextRoute);
   };
 
-  /*
-   * Si la actividad proporciona onRetry, se ejecuta
-   * esa función para limpiar sus estados.
-   *
-   * Si no la proporciona, utiliza retryRoute como
-   * comportamiento de respaldo.
-   */
   const retry = () => {
     if (onRetry) {
       onRetry();
@@ -171,7 +168,6 @@ export function ResultModal({
         </button>
 
         <div className="result-modal-decoration result-modal-decoration--one" />
-
         <div className="result-modal-decoration result-modal-decoration--two" />
 
         <div className="result-modal-main">
@@ -206,8 +202,19 @@ export function ResultModal({
           <div className="result-modal-content">
             <div className="result-modal-character">
               <img
-                src={data.hero}
+                key={`${kind}-${heroSource}`}
+                src={heroSource}
                 alt={data.heroAlt}
+                draggable={false}
+                onError={(event) => {
+                  if (
+                    event.currentTarget.src !==
+                    data.hero
+                  ) {
+                    event.currentTarget.src =
+                      data.hero;
+                  }
+                }}
               />
             </div>
 
@@ -217,7 +224,6 @@ export function ResultModal({
               </span>
 
               <h2>{data.messageTitle}</h2>
-
               <p>{data.message}</p>
             </article>
           </div>
@@ -225,10 +231,7 @@ export function ResultModal({
           <article className="result-modal-summary">
             <header>
               <FiBarChart2 />
-
-              <h2>
-                Resumen de la actividad
-              </h2>
+              <h2>Resumen de la actividad</h2>
             </header>
 
             <div className="result-modal-stats">
@@ -247,15 +250,10 @@ export function ResultModal({
 
                   <div>
                     <span>{stat.label}</span>
-
-                    <strong>
-                      {stat.value}
-                    </strong>
+                    <strong>{stat.value}</strong>
 
                     {stat.note && (
-                      <small>
-                        {stat.note}
-                      </small>
+                      <small>{stat.note}</small>
                     )}
                   </div>
                 </article>
@@ -266,34 +264,19 @@ export function ResultModal({
 
         <aside className="result-modal-side">
           <article className="result-modal-side-message">
-            <span>
-              {modalText.sideLabel}
-            </span>
-
-            <strong>
-              {modalText.sideTitle}
-            </strong>
-
-            <p>
-              {modalText.sideMessage}
-            </p>
+            <span>{modalText.sideLabel}</span>
+            <strong>{modalText.sideTitle}</strong>
+            <p>{modalText.sideMessage}</p>
           </article>
 
           <div className="result-modal-progress">
             <div>
-              <span>
-                Progreso del tema
-              </span>
-
+              <span>Progreso del tema</span>
               <strong>60%</strong>
             </div>
 
             <div className="result-modal-progress-bar">
-              <span
-                style={{
-                  width: "60%",
-                }}
-              />
+              <span style={{ width: "60%" }} />
             </div>
           </div>
 
@@ -305,10 +288,7 @@ export function ResultModal({
                 onClick={goNext}
               >
                 <FiArrowRight />
-
-                <span>
-                  Siguiente actividad
-                </span>
+                <span>Siguiente actividad</span>
               </button>
             ) : (
               <button
@@ -317,10 +297,7 @@ export function ResultModal({
                 onClick={retry}
               >
                 <FiRefreshCw />
-
-                <span>
-                  Intentar de nuevo
-                </span>
+                <span>Intentar de nuevo</span>
               </button>
             )}
 
@@ -331,10 +308,7 @@ export function ResultModal({
                 onClick={retry}
               >
                 <FiRefreshCw />
-
-                <span>
-                  Repetir actividad
-                </span>
+                <span>Repetir actividad</span>
               </button>
             )}
 
@@ -344,10 +318,7 @@ export function ResultModal({
               onClick={backToActivities}
             >
               <FiGrid />
-
-              <span>
-                Volver a actividades
-              </span>
+              <span>Volver a actividades</span>
             </button>
           </div>
         </aside>
