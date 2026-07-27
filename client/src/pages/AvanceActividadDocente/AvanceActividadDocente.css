@@ -224,6 +224,14 @@
   box-shadow: 0 9px 18px rgba(0, 88, 255, 0.2);
 }
 
+.avance-secondary-button:disabled,
+.avance-primary-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 .avance-icon-button:hover,
 .avance-secondary-button:hover,
 .avance-primary-button:hover {
@@ -459,6 +467,13 @@
   border-bottom: 1px solid #edf1f6;
   color: #334155;
   font-size: 12px;
+}
+
+.avance-empty-row {
+  grid-template-columns: 1fr;
+  min-height: 64px;
+  color: #64748b;
+  font-weight: 800;
 }
 
 .avance-table-head {
@@ -846,6 +861,14 @@
   font-weight: 900;
 }
 
+.avance-side-empty {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 800;
+}
+
 /* =========================================================
    FOOTER Y TOAST
    ========================================================= */
@@ -877,6 +900,17 @@
 
 .avance-toast svg {
   font-size: 22px;
+}
+
+.avance-error-box {
+  margin: 0 0 18px;
+  padding: 15px 18px;
+  border: 1px solid #fecaca;
+  border-radius: 14px;
+  background: #fff1f2;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 800;
 }
 
 .sr-only {

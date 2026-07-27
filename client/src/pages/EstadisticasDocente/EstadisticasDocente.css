@@ -218,6 +218,31 @@
   box-shadow: 0 12px 22px rgba(0, 88, 255, 0.2);
 }
 
+.stats-export-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.stats-error-box {
+  margin: 0 0 16px;
+  padding: 15px 18px;
+  border: 1px solid #fecaca;
+  border-radius: 14px;
+  background: #fff1f2;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 800;
+  animation: statsFadeUp 0.35s ease both;
+}
+
+.stats-error-box.success {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #15803d;
+}
+
 /* ========================= */
 /* TARJETAS RESUMEN CORREGIDAS */
 /* ========================= */
@@ -570,6 +595,11 @@
   color: #ef4444;
 }
 
+.student-average.empty {
+  background: #edf1f6;
+  color: #64748b;
+}
+
 .student-status {
   width: fit-content;
   min-height: 30px;
@@ -595,6 +625,23 @@
 .student-status.rezago {
   background: #ffe2e5;
   color: #ef4444;
+}
+
+.student-status.sin-progreso {
+  background: #edf1f6;
+  color: #64748b;
+}
+
+.student-status.en-proceso {
+  background: #fff3cf;
+  color: #e89500;
+}
+
+.stats-empty-row {
+  grid-template-columns: 1fr;
+  min-height: 64px;
+  color: #64748b;
+  font-weight: 800;
 }
 
 .student-action-btn {
@@ -738,6 +785,19 @@
 
 .state-row.red strong {
   color: #ef4444;
+}
+
+.state-row.gray {
+  background: #f3f6fa;
+  border-color: #e2e8f0;
+}
+
+.state-row.gray span {
+  background: #64748b;
+}
+
+.state-row.gray strong {
+  color: #64748b;
 }
 
 /* ========================= */

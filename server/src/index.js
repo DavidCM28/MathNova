@@ -1,4 +1,5 @@
-﻿require("ts-node/register");
+// Permite cargar rutas TypeScript desde este servidor JavaScript.
+require("ts-node/register");
 require("dotenv").config();
 
 const express = require("express");
@@ -18,6 +19,9 @@ const sensorRoutes = require("./routes/sensorRoutes").default;
 const docenteAlumnosRoutes = require("./routes/docenteAlumnos.routes");
 const docenteDashboardRoutes = require("./routes/docenteDashboard.routes");
 const docenteCalificacionesRoutes = require("./routes/docenteCalificaciones.routes").default;
+const docenteActividadesRoutes = require("./routes/docenteActividades.routes").default;
+const docenteAvanceRoutes = require("./routes/docenteAvance.routes").default;
+const docenteEstadisticasRoutes = require("./routes/docenteEstadisticas.routes").default;
 const gestionDocentesRoutes = require("./routes/gestionDocentes.routes").default;
 
 const app = express();
@@ -53,6 +57,9 @@ app.use("/api/sensor", sensorRoutes);
 app.use("/api/docente/alumnos", docenteAlumnosRoutes);
 app.use("/api/docente/dashboard", docenteDashboardRoutes);
 app.use("/api/docente/calificaciones", docenteCalificacionesRoutes);
+app.use("/api/docente/actividades", docenteActividadesRoutes);
+app.use("/api/docente/avance-actividad", docenteAvanceRoutes);
+app.use("/api/docente/estadisticas", docenteEstadisticasRoutes);
 app.use("/api/docente/gestion-docentes", gestionDocentesRoutes);
 
 app.listen(PORT, "0.0.0.0", () => {

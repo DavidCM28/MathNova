@@ -45,24 +45,36 @@ type AlumnoCalificacion = {
   id_grupo: number | null;
   grupo: string;
   ultimo_modulo: string;
+  ultimo_mundo?: string | null;
+  ultima_actividad?: string | null;
   actividades_intentadas: number;
   actividades_completadas: number;
+  actividades_calificadas: number;
+  intentos_totales: number;
   promedio: number | null;
   estrellas: number;
+  tiempo_total_segundos?: number;
   estado: string;
   estado_clase: "excelente" | "bien" | "pendiente" | "alerta";
 };
 
 type PromedioActividad = {
   actividad_titulo: string;
-  promedio: number;
+  mundo?: string;
+  promedio: number | null;
   completadas: number;
+  intentadas?: number;
+  intentos?: number;
 };
 
 type ResumenCalificaciones = {
   total_alumnos: number;
   alumnos_con_progreso: number;
   alumnos_sin_progreso: number;
+  actividades_calificadas: number;
+  actividades_completadas: number;
+  intentos_totales: number;
+  estrellas_totales: number;
   promedio_general: number | null;
   mejor_promedio: number | null;
   mejor_alumno: string | null;
@@ -93,6 +105,10 @@ const datosIniciales: CalificacionesData = {
     total_alumnos: 0,
     alumnos_con_progreso: 0,
     alumnos_sin_progreso: 0,
+    actividades_calificadas: 0,
+    actividades_completadas: 0,
+    intentos_totales: 0,
+    estrellas_totales: 0,
     promedio_general: null,
     mejor_promedio: null,
     mejor_alumno: null,
@@ -135,6 +151,19 @@ function formatearPromedio(valor: number | null | undefined) {
   return Number(valor).toFixed(1);
 }
 
+function formatearFechaCorta(valor: string | null | undefined) {
+  if (!valor) return "";
+
+  const fecha = new Date(valor);
+
+  if (Number.isNaN(fecha.getTime())) return "";
+
+  return fecha.toLocaleDateString("es-MX", {
+    day: "2-digit",
+    month: "short",
+  });
+}
+
 function clasePromedio(promedio: number | null) {
   if (promedio === null) return "empty";
   if (promedio >= 8.5) return "good";
@@ -147,6 +176,12 @@ function obtenerIconoEstado(estado: string) {
 
   if (estadoNormalizado.includes("excelente")) return <FiAward />;
   if (estadoNormalizado.includes("bien")) return <FiCheckCircle />;
+  if (
+    estadoNormalizado.includes("sin progreso") ||
+    estadoNormalizado.includes("proceso")
+  ) {
+    return <FiClipboard />;
+  }
 
   return <FiAlertCircle />;
 }
@@ -245,7 +280,10 @@ function CalificacionesDocente() {
           alumnos: data.alumnos || [],
           promedio_por_actividad: data.promedio_por_actividad || [],
           top_alumnos: data.top_alumnos || [],
-          resumen: data.resumen || datosIniciales.resumen,
+          resumen: {
+            ...datosIniciales.resumen,
+            ...(data.resumen || {}),
+          },
         });
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") {
@@ -549,10 +587,10 @@ function CalificacionesDocente() {
 
           <article className="calif-stat-card blue">
             <div>
-              <h3>Con progreso</h3>
+              <h3>Resultados guardados</h3>
               <strong>
-                {datos.resumen.alumnos_con_progreso}
-                <small>alumnos</small>
+                {datos.resumen.actividades_calificadas}
+                <small>calificaciones</small>
               </strong>
             </div>
 
@@ -563,10 +601,10 @@ function CalificacionesDocente() {
 
           <article className="calif-stat-card orange">
             <div>
-              <h3>Sin progreso</h3>
+              <h3>Intentos registrados</h3>
               <strong>
-                {datos.resumen.alumnos_sin_progreso}
-                <small>alumnos</small>
+                {datos.resumen.intentos_totales}
+                <small>intentos</small>
               </strong>
             </div>
 
@@ -598,7 +636,7 @@ function CalificacionesDocente() {
                 <span>Alumno</span>
                 <span>Grupo</span>
                 <span>Completadas</span>
-                <span>Intentadas</span>
+                <span>Intentos</span>
                 <span>Promedio</span>
                 <span>Estrellas</span>
                 <span>Estado</span>
@@ -629,13 +667,20 @@ function CalificacionesDocente() {
                       </b>
                       <span className="calif-student-name-wrap">
                         <strong>{alumno.nombre}</strong>
-                        <small>{alumno.ultimo_modulo}</small>
+                        <small>
+                          {alumno.ultimo_modulo}
+                          {alumno.ultima_actividad
+                            ? ` · ${formatearFechaCorta(
+                                alumno.ultima_actividad,
+                              )}`
+                            : ""}
+                        </small>
                       </span>
                     </span>
 
                     <span>{alumno.grupo}</span>
                     <span>{alumno.actividades_completadas}</span>
-                    <span>{alumno.actividades_intentadas}</span>
+                    <span>{alumno.intentos_totales}</span>
 
                     <span>
                       <b
@@ -694,11 +739,12 @@ function CalificacionesDocente() {
 
               {datos.promedio_por_actividad.length === 0 ? (
                 <p className="calif-side-empty">
-                  Todavía no hay actividades completadas.
+                  Todavía no hay actividades calificadas.
                 </p>
               ) : (
                 <div className="calif-bar-chart">
                   {datos.promedio_por_actividad.map((actividad, index) => {
+                    const promedioActividad = Number(actividad.promedio || 0);
                     const colores = [
                       "blue-bar",
                       "green-bar",
@@ -709,16 +755,19 @@ function CalificacionesDocente() {
                     return (
                       <div
                         className="calif-bar-item"
-                        key={actividad.actividad_titulo}
+                        key={`${actividad.actividad_titulo}-${index}`}
                       >
                         <strong>{formatearPromedio(actividad.promedio)}</strong>
                         <span
                           className={`calif-bar ${colores[index % colores.length]}`}
                           style={{
-                            height: `${Math.max(18, actividad.promedio * 12)}px`,
+                            height: `${Math.max(18, promedioActividad * 12)}px`,
                           }}
                         ></span>
-                        <small>{actividad.actividad_titulo}</small>
+                        <small>
+                          {actividad.actividad_titulo}
+                          {actividad.mundo ? ` · ${actividad.mundo}` : ""}
+                        </small>
                       </div>
                     );
                   })}

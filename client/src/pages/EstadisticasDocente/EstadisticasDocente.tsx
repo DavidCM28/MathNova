@@ -5,10 +5,10 @@ import "./EstadisticasDocente.css";
 import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 import holaProfe from "../../assets/docente/common/hola-profe-docente.png";
+import { clearAuthSession } from "../../utils/authSession";
 import {
   FiGrid,
   FiUsers,
-  FiUser,
   FiEdit,
   FiBarChart2,
   FiChevronDown,
@@ -38,121 +38,121 @@ type MenuKey =
   | "avance-actividad"
   | "estadisticas";
 
-type EstadoAlumno = "Sobresaliente" | "Bien" | "Rezago";
+type EstadoClase =
+  | "sobresaliente"
+  | "bien"
+  | "rezago"
+  | "sin-progreso"
+  | "en-proceso";
 
 type AlumnoEstadistica = {
   id: number;
-  iniciales: string;
   nombre: string;
+  correo?: string | null;
+  usuario?: string | null;
+  iniciales: string;
   grupo: string;
-  promedio: number;
-  estado: EstadoAlumno;
-  estadoClase: "sobresaliente" | "bien" | "rezago";
-  color: "blue" | "green" | "orange" | "purple" | "pink" | "dark";
+  promedio: number | null;
+  estado: string;
+  estado_clase: string;
+  color: string;
+  ultimo_modulo?: string | null;
+  ultimo_mundo?: string | null;
+  actividades_intentadas: number;
+  actividades_completadas: number;
+  intentos_totales: number;
+  estrellas: number;
 };
 
-const alumnosEstadisticas: AlumnoEstadistica[] = [
-  {
-    id: 1,
-    iniciales: "MF",
-    nombre: "Mariana Fuentes Ruiz",
-    grupo: "2°A",
-    promedio: 9.6,
-    estado: "Sobresaliente",
-    estadoClase: "sobresaliente",
-    color: "blue",
+type GrupoApi = {
+  id_grupo: number;
+  nombre_grupo: string;
+  total_alumnos: number;
+};
+
+type RespuestaEstadisticas = {
+  ok: boolean;
+  mensaje?: string;
+  grupos: GrupoApi[];
+  alumnos: AlumnoEstadistica[];
+  top_alumnos: AlumnoEstadistica[];
+  resumen: {
+    total_alumnos: number;
+    alumnos_con_progreso: number;
+    alumnos_sin_progreso: number;
+    actividades_calificadas: number;
+    actividades_completadas: number;
+    intentos_totales: number;
+    estrellas_totales: number;
+    promedio_general: number | null;
+    mejor_promedio: number | null;
+    mejor_alumno: string | null;
+  };
+};
+
+const API_URL = "http://localhost:3001/api/docente/estadisticas";
+
+const datosIniciales: RespuestaEstadisticas = {
+  ok: true,
+  grupos: [],
+  alumnos: [],
+  top_alumnos: [],
+  resumen: {
+    total_alumnos: 0,
+    alumnos_con_progreso: 0,
+    alumnos_sin_progreso: 0,
+    actividades_calificadas: 0,
+    actividades_completadas: 0,
+    intentos_totales: 0,
+    estrellas_totales: 0,
+    promedio_general: null,
+    mejor_promedio: null,
+    mejor_alumno: null,
   },
-  {
-    id: 2,
-    iniciales: "SJ",
-    nombre: "Santiago Jiménez López",
-    grupo: "2°A",
-    promedio: 8.7,
-    estado: "Bien",
-    estadoClase: "bien",
-    color: "purple",
-  },
-  {
-    id: 3,
-    iniciales: "AG",
-    nombre: "Ana Sofía García Pérez",
-    grupo: "2°A",
-    promedio: 7.8,
-    estado: "Bien",
-    estadoClase: "bien",
-    color: "orange",
-  },
-  {
-    id: 4,
-    iniciales: "DH",
-    nombre: "Diego Hernández Torres",
-    grupo: "2°A",
-    promedio: 6.1,
-    estado: "Rezago",
-    estadoClase: "rezago",
-    color: "dark",
-  },
-  {
-    id: 5,
-    iniciales: "LM",
-    nombre: "Lucía Medina Chávez",
-    grupo: "2°B",
-    promedio: 9.2,
-    estado: "Sobresaliente",
-    estadoClase: "sobresaliente",
-    color: "green",
-  },
-  {
-    id: 6,
-    iniciales: "JV",
-    nombre: "José Valdez Ríos",
-    grupo: "2°B",
-    promedio: 8.3,
-    estado: "Bien",
-    estadoClase: "bien",
-    color: "pink",
-  },
-  {
-    id: 7,
-    iniciales: "VS",
-    nombre: "Valeria Sánchez Morales",
-    grupo: "1°C",
-    promedio: 7.1,
-    estado: "Bien",
-    estadoClase: "bien",
-    color: "purple",
-  },
-  {
-    id: 8,
-    iniciales: "JR",
-    nombre: "Juan Ramírez Díaz",
-    grupo: "1°C",
-    promedio: 5.8,
-    estado: "Rezago",
-    estadoClase: "rezago",
-    color: "blue",
-  },
-  {
-    id: 9,
-    iniciales: "CT",
-    nombre: "Carla Torres Aguilar",
-    grupo: "3°A",
-    promedio: 8.9,
-    estado: "Bien",
-    estadoClase: "bien",
-    color: "green",
-  },
-  {
-    id: 10,
-    iniciales: "OL",
-    nombre: "Óscar López Navarro",
-    grupo: "3°A",
-    promedio: 6.6,
-    estado: "Rezago",
-    estadoClase: "rezago",
-    color: "orange",
-  },
-];
+};
+
+const coloresValidos = ["blue", "green", "orange", "purple", "pink", "dark"];
+
+function normalizarColor(color: string, id: number) {
+  if (coloresValidos.includes(color)) return color;
+
+  const colores = ["blue", "green", "orange", "purple", "pink", "dark"];
+  return colores[Math.abs(id) % colores.length];
+}
+
+function obtenerEstadoVisual(alumno: AlumnoEstadistica): {
+  texto: string;
+  clase: EstadoClase;
+} {
+  const estado = (alumno.estado || "").toLowerCase();
+  const clase = (alumno.estado_clase || "").toLowerCase();
+
+  if (estado.includes("sin progreso")) {
+    return { texto: "Sin progreso", clase: "sin-progreso" };
+  }
+
+  if (estado.includes("proceso")) {
+    return { texto: "En proceso", clase: "en-proceso" };
+  }
+
+  if (clase === "excelente" || estado.includes("excelente")) {
+    return { texto: "Sobresaliente", clase: "sobresaliente" };
+  }
+
+  if (clase === "bien" || estado.includes("bien")) {
+    return { texto: "Bien", clase: "bien" };
+  }
+
+  return { texto: "Rezago", clase: "rezago" };
+}
+
+function obtenerPromedioTexto(promedio: number | null) {
+  return promedio === null || promedio === undefined ? "—" : promedio.toFixed(1);
+}
+
+function escaparCsv(valor: unknown) {
+  return `"${String(valor ?? "").replace(/"/g, '""')}"`;
+}
 
 function EstadisticasDocente() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -166,8 +166,13 @@ function EstadisticasDocente() {
   });
 
   const [selectedMenu, setSelectedMenu] = useState<MenuKey>("estadisticas");
-  const [grupoFiltro, setGrupoFiltro] = useState("Todos");
+  const [grupoFiltro, setGrupoFiltro] = useState("todos");
   const [busqueda, setBusqueda] = useState("");
+  const [datos, setDatos] =
+    useState<RespuestaEstadisticas>(datosIniciales);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState("");
+  const [mensaje, setMensaje] = useState("");
 
   const navigate = useNavigate();
 
@@ -187,6 +192,59 @@ function EstadisticasDocente() {
     localStorage.setItem("docente-alumnos-open", String(alumnosOpen));
   }, [alumnosOpen]);
 
+  useEffect(() => {
+    let activo = true;
+
+    const cargarEstadisticas = async () => {
+      setCargando(true);
+      setError("");
+
+      try {
+        const params = new URLSearchParams();
+
+        if (grupoFiltro !== "todos") {
+          params.set("grupo", grupoFiltro);
+        }
+
+        const response = await fetch(`${API_URL}?${params.toString()}`);
+        const contentType = response.headers.get("content-type") || "";
+
+        if (!contentType.includes("application/json")) {
+          throw new Error(
+            "El backend no devolvió JSON. Revisa que la ruta /api/docente/estadisticas esté registrada.",
+          );
+        }
+
+        const data: RespuestaEstadisticas = await response.json();
+
+        if (!response.ok || !data.ok) {
+          throw new Error(
+            data.mensaje || "No se pudieron cargar las estadísticas.",
+          );
+        }
+
+        if (!activo) return;
+        setDatos(data);
+      } catch (err) {
+        if (!activo) return;
+        setDatos(datosIniciales);
+        setError(
+          err instanceof Error
+            ? err.message
+            : "No se pudieron cargar las estadísticas.",
+        );
+      } finally {
+        if (activo) setCargando(false);
+      }
+    };
+
+    cargarEstadisticas();
+
+    return () => {
+      activo = false;
+    };
+  }, [grupoFiltro]);
+
   const irARuta = (ruta: string, menu?: MenuKey) => {
     if (menu) {
       setSelectedMenu(menu);
@@ -196,52 +254,132 @@ function EstadisticasDocente() {
     navigate(ruta);
   };
 
-  const grupos = useMemo(() => {
-    return [
-      "Todos",
-      ...Array.from(new Set(alumnosEstadisticas.map((alumno) => alumno.grupo))),
+  const cerrarSesion = () => {
+    clearAuthSession();
+    irARuta("/login");
+  };
+
+  const alumnosConEstado = useMemo(() => {
+    return datos.alumnos.map((alumno) => {
+      const estadoVisual = obtenerEstadoVisual(alumno);
+
+      return {
+        ...alumno,
+        estadoVisual: estadoVisual.texto,
+        estadoClaseVisual: estadoVisual.clase,
+        colorVisual: normalizarColor(alumno.color, alumno.id),
+      };
+    });
+  }, [datos.alumnos]);
+
+  const alumnosFiltrados = useMemo(() => {
+    const textoBusqueda = busqueda.trim().toLowerCase();
+
+    if (!textoBusqueda) return alumnosConEstado;
+
+    return alumnosConEstado.filter((alumno) => {
+      return (
+        alumno.nombre.toLowerCase().includes(textoBusqueda) ||
+        alumno.grupo.toLowerCase().includes(textoBusqueda) ||
+        alumno.estadoVisual.toLowerCase().includes(textoBusqueda) ||
+        (alumno.ultimo_modulo || "").toLowerCase().includes(textoBusqueda) ||
+        (alumno.correo || "").toLowerCase().includes(textoBusqueda)
+      );
+    });
+  }, [alumnosConEstado, busqueda]);
+
+  const resumenVisual = useMemo(() => {
+    const sobresalientes = alumnosConEstado.filter(
+      (alumno) => alumno.estadoClaseVisual === "sobresaliente",
+    ).length;
+    const bien = alumnosConEstado.filter(
+      (alumno) =>
+        alumno.estadoClaseVisual === "bien" ||
+        alumno.estadoClaseVisual === "en-proceso",
+    ).length;
+    const rezago = alumnosConEstado.filter(
+      (alumno) => alumno.estadoClaseVisual === "rezago",
+    ).length;
+    const sinProgreso = alumnosConEstado.filter(
+      (alumno) => alumno.estadoClaseVisual === "sin-progreso",
+    ).length;
+
+    return {
+      sobresalientes,
+      bien,
+      rezago,
+      sinProgreso,
+    };
+  }, [alumnosConEstado]);
+
+  const mejorAlumno =
+    [...alumnosConEstado]
+      .filter((alumno) => alumno.promedio !== null)
+      .sort((a, b) => Number(b.promedio) - Number(a.promedio))[0] || null;
+
+  const recomendacion = useMemo(() => {
+    if (datos.resumen.total_alumnos === 0) {
+      return "Todavía no hay alumnos registrados para este filtro.";
+    }
+
+    if (resumenVisual.rezago > 0) {
+      return "Empieza con los alumnos en rezago: tienen actividad registrada, pero su promedio indica que necesitan refuerzo.";
+    }
+
+    if (resumenVisual.sinProgreso > 0) {
+      return "Hay alumnos sin progreso. Conviene confirmar si ya tienen grupo y si han entrado al dashboard de alumno.";
+    }
+
+    return "El grupo va estable. Puedes identificar las actividades con menor promedio para preparar refuerzos.";
+  }, [datos.resumen.total_alumnos, resumenVisual.rezago, resumenVisual.sinProgreso]);
+
+  const mostrarMensaje = (texto: string) => {
+    setMensaje(texto);
+    window.setTimeout(() => setMensaje(""), 2500);
+  };
+
+  const descargarReporte = () => {
+    const encabezados = [
+      "Alumno",
+      "Correo",
+      "Grupo",
+      "Promedio",
+      "Estado",
+      "Actividades intentadas",
+      "Actividades completadas",
+      "Intentos",
+      "Última actividad",
     ];
-  }, []);
 
-  const alumnosFiltrados = alumnosEstadisticas.filter((alumno) => {
-    const coincideGrupo =
-      grupoFiltro === "Todos" || alumno.grupo === grupoFiltro;
+    const filas = alumnosFiltrados.map((alumno) => [
+      alumno.nombre,
+      alumno.correo || "",
+      alumno.grupo,
+      obtenerPromedioTexto(alumno.promedio),
+      alumno.estadoVisual,
+      alumno.actividades_intentadas,
+      alumno.actividades_completadas,
+      alumno.intentos_totales,
+      alumno.ultimo_modulo || "Sin actividades",
+    ]);
 
-    const textoBusqueda = busqueda.toLowerCase();
+    const csv = [encabezados, ...filas]
+      .map((fila) => fila.map(escaparCsv).join(","))
+      .join("\n");
 
-    const coincideBusqueda =
-      alumno.nombre.toLowerCase().includes(textoBusqueda) ||
-      alumno.grupo.toLowerCase().includes(textoBusqueda) ||
-      alumno.estado.toLowerCase().includes(textoBusqueda);
+    const archivo = new Blob([`\uFEFF${csv}`], {
+      type: "text/csv;charset=utf-8;",
+    });
 
-    return coincideGrupo && coincideBusqueda;
-  });
+    const url = URL.createObjectURL(archivo);
+    const enlace = document.createElement("a");
+    enlace.href = url;
+    enlace.download = "estadisticas-docente-mathnova.csv";
+    enlace.click();
+    URL.revokeObjectURL(url);
 
-  const promedioGeneral =
-    alumnosFiltrados.length > 0
-      ? (
-          alumnosFiltrados.reduce(
-            (total, alumno) => total + alumno.promedio,
-            0,
-          ) / alumnosFiltrados.length
-        ).toFixed(1)
-      : "0.0";
-
-  const sobresalientes = alumnosFiltrados.filter(
-    (alumno) => alumno.estado === "Sobresaliente",
-  ).length;
-
-  const bien = alumnosFiltrados.filter(
-    (alumno) => alumno.estado === "Bien",
-  ).length;
-
-  const rezago = alumnosFiltrados.filter(
-    (alumno) => alumno.estado === "Rezago",
-  ).length;
-
-  const mejorAlumno = [...alumnosFiltrados].sort(
-    (a, b) => b.promedio - a.promedio,
-  )[0];
+    mostrarMensaje("Reporte descargado correctamente.");
+  };
 
   return (
     <main className="docente-page">
@@ -430,12 +568,14 @@ function EstadisticasDocente() {
       </aside>
 
       <section className="stats-content">
+        {mensaje && <div className="stats-error-box success">{mensaje}</div>}
+
         <section className="stats-hero-card">
           <div className="stats-hero-text">
             <h1>Estadísticas</h1>
             <p>
-              Consulta el desempeño de tus estudiantes por grupo, promedio y
-              estado académico.
+              Consulta el desempeño real de tus estudiantes según las
+              actividades que realizan y se califican automáticamente.
             </p>
           </div>
         </section>
@@ -448,8 +588,11 @@ function EstadisticasDocente() {
               value={grupoFiltro}
               onChange={(event) => setGrupoFiltro(event.target.value)}
             >
-              {grupos.map((grupo) => (
-                <option key={grupo}>{grupo}</option>
+              <option value="todos">Todos los grupos</option>
+              {datos.grupos.map((grupo) => (
+                <option key={grupo.id_grupo} value={grupo.id_grupo}>
+                  {grupo.nombre_grupo}
+                </option>
               ))}
             </select>
           </label>
@@ -459,17 +602,28 @@ function EstadisticasDocente() {
 
             <input
               type="text"
-              placeholder="Buscar alumno, grupo o estado..."
+              placeholder="Buscar alumno, grupo, actividad o estado..."
               value={busqueda}
               onChange={(event) => setBusqueda(event.target.value)}
             />
           </label>
 
-          <button type="button" className="stats-export-btn">
+          <button
+            type="button"
+            className="stats-export-btn"
+            onClick={descargarReporte}
+            disabled={alumnosFiltrados.length === 0}
+          >
             <FiDownload />
             Exportar reporte
           </button>
         </section>
+
+        {error && (
+          <div className="stats-error-box" role="alert">
+            {error}
+          </div>
+        )}
 
         <section className="stats-summary-row">
           <article className="summary-card blue-summary">
@@ -478,8 +632,12 @@ function EstadisticasDocente() {
                 Promedio general <FiInfo />
               </h3>
 
-              <strong>{promedioGeneral}</strong>
-              <p>Promedio del grupo seleccionado</p>
+              <strong>
+                {datos.resumen.promedio_general === null
+                  ? "—"
+                  : datos.resumen.promedio_general.toFixed(1)}
+              </strong>
+              <p>Calculado con actividades reales</p>
             </div>
 
             <span className="summary-icon">
@@ -493,7 +651,7 @@ function EstadisticasDocente() {
                 Sobresalientes <FiInfo />
               </h3>
 
-              <strong>{sobresalientes}</strong>
+              <strong>{resumenVisual.sobresalientes}</strong>
               <p>Alumnos con alto desempeño</p>
             </div>
 
@@ -505,11 +663,11 @@ function EstadisticasDocente() {
           <article className="summary-card orange-summary">
             <div>
               <h3>
-                En buen avance <FiInfo />
+                Con progreso <FiInfo />
               </h3>
 
-              <strong>{bien}</strong>
-              <p>Alumnos con desempeño estable</p>
+              <strong>{datos.resumen.alumnos_con_progreso}</strong>
+              <p>Ya realizaron al menos una actividad</p>
             </div>
 
             <span className="summary-icon">
@@ -520,11 +678,11 @@ function EstadisticasDocente() {
           <article className="summary-card red-summary">
             <div>
               <h3>
-                En rezago <FiInfo />
+                Necesitan apoyo <FiInfo />
               </h3>
 
-              <strong>{rezago}</strong>
-              <p>Necesitan seguimiento</p>
+              <strong>{resumenVisual.rezago + resumenVisual.sinProgreso}</strong>
+              <p>Rezago o sin progreso registrado</p>
             </div>
 
             <span className="summary-icon">
@@ -543,11 +701,16 @@ function EstadisticasDocente() {
                 </h2>
 
                 <p>
-                  Nombre, grupo, promedio y estado académico de cada alumno.
+                  Nombre, grupo, promedio real, progreso e intentos de cada
+                  alumno.
                 </p>
               </div>
 
-              <span>{alumnosFiltrados.length} alumnos</span>
+              <span>
+                {cargando
+                  ? "Cargando..."
+                  : `${alumnosFiltrados.length} alumnos`}
+              </span>
             </div>
 
             <div className="students-table-wrap">
@@ -561,49 +724,65 @@ function EstadisticasDocente() {
                   <span>Acción</span>
                 </div>
 
-                {alumnosFiltrados.map((alumno, index) => (
-                  <div className="students-row" key={alumno.id}>
-                    <span className="student-number">{index + 1}</span>
-
-                    <span className="student-name-cell">
-                      <b className={`student-avatar ${alumno.color}`}>
-                        {alumno.iniciales}
-                      </b>
-
-                      {alumno.nombre}
-                    </span>
-
-                    <span>{alumno.grupo}</span>
-
-                    <span>
-                      <b
-                        className={`student-average ${
-                          alumno.promedio >= 9
-                            ? "high"
-                            : alumno.promedio >= 7
-                              ? "medium"
-                              : "low"
-                        }`}
-                      >
-                        {alumno.promedio}
-                      </b>
-                    </span>
-
-                    <span>
-                      <b className={`student-status ${alumno.estadoClase}`}>
-                        {alumno.estado}
-                      </b>
-                    </span>
-
-                    <button
-                      type="button"
-                      className="student-action-btn"
-                      onClick={() => irARuta("/lista-alumnos-docente", "lista")}
-                    >
-                      Ver <FiArrowRight />
-                    </button>
+                {cargando ? (
+                  <div className="students-row stats-empty-row">
+                    <span>Cargando estadísticas...</span>
                   </div>
-                ))}
+                ) : alumnosFiltrados.length === 0 ? (
+                  <div className="students-row stats-empty-row">
+                    <span>No se encontraron estudiantes.</span>
+                  </div>
+                ) : (
+                  alumnosFiltrados.map((alumno, index) => (
+                    <div className="students-row" key={alumno.id}>
+                      <span className="student-number">{index + 1}</span>
+
+                      <span className="student-name-cell">
+                        <b className={`student-avatar ${alumno.colorVisual}`}>
+                          {alumno.iniciales}
+                        </b>
+
+                        {alumno.nombre}
+                      </span>
+
+                      <span>{alumno.grupo}</span>
+
+                      <span>
+                        <b
+                          className={`student-average ${
+                            alumno.promedio === null
+                              ? "empty"
+                              : alumno.promedio >= 9
+                                ? "high"
+                                : alumno.promedio >= 7
+                                  ? "medium"
+                                  : "low"
+                          }`}
+                        >
+                          {obtenerPromedioTexto(alumno.promedio)}
+                        </b>
+                      </span>
+
+                      <span>
+                        <b
+                          className={`student-status ${alumno.estadoClaseVisual}`}
+                        >
+                          {alumno.estadoVisual}
+                        </b>
+                      </span>
+
+                      <button
+                        type="button"
+                        className="student-action-btn"
+                        onClick={() =>
+                          irARuta("/calificaciones-docente", "calificaciones")
+                        }
+                      >
+                        Ver <FiArrowRight />
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </article>
@@ -621,19 +800,25 @@ function EstadisticasDocente() {
                 <div className="state-row green">
                   <span></span>
                   <p>Sobresaliente</p>
-                  <strong>{sobresalientes}</strong>
+                  <strong>{resumenVisual.sobresalientes}</strong>
                 </div>
 
                 <div className="state-row orange">
                   <span></span>
-                  <p>Bien</p>
-                  <strong>{bien}</strong>
+                  <p>Bien / en proceso</p>
+                  <strong>{resumenVisual.bien}</strong>
                 </div>
 
                 <div className="state-row red">
                   <span></span>
                   <p>Rezago</p>
-                  <strong>{rezago}</strong>
+                  <strong>{resumenVisual.rezago}</strong>
+                </div>
+
+                <div className="state-row gray">
+                  <span></span>
+                  <p>Sin progreso</p>
+                  <strong>{resumenVisual.sinProgreso}</strong>
                 </div>
               </div>
             </article>
@@ -648,14 +833,14 @@ function EstadisticasDocente() {
               {mejorAlumno ? (
                 <>
                   <p>{mejorAlumno.nombre}</p>
-                  <strong>{mejorAlumno.promedio}</strong>
+                  <strong>{obtenerPromedioTexto(mejorAlumno.promedio)}</strong>
                   <span>{mejorAlumno.grupo}</span>
                 </>
               ) : (
                 <>
-                  <p>No hay alumnos para mostrar</p>
-                  <strong>0.0</strong>
-                  <span>Sin grupo</span>
+                  <p>No hay promedios para mostrar</p>
+                  <strong>—</strong>
+                  <span>Sin datos</span>
                 </>
               )}
             </article>
@@ -666,16 +851,15 @@ function EstadisticasDocente() {
                 Recomendación rápida
               </h2>
 
-              <p>
-                Revisa primero a los alumnos en rezago para identificar qué
-                temas necesitan refuerzo.
-              </p>
+              <p>{recomendacion}</p>
 
               <button
                 type="button"
-                onClick={() => irARuta("/lista-alumnos-docente", "lista")}
+                onClick={() =>
+                  irARuta("/avance-actividad-docente", "avance-actividad")
+                }
               >
-                Ir a lista de alumnos <FiArrowRight />
+                Ver avance de actividad <FiArrowRight />
               </button>
             </article>
           </aside>
@@ -687,7 +871,7 @@ function EstadisticasDocente() {
           <div className="docente-footer-icons">
             <button
               type="button"
-              onClick={() => irARuta("/login")}
+              onClick={cerrarSesion}
               aria-label="Cerrar sesión"
             >
               <FiLogOut className="logout-icon" />

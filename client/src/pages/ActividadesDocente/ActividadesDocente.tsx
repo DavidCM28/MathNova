@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
+import { clearAuthSession } from "../../utils/authSession";
 import "./ActividadesDocente.css";
 
 import logo from "../../assets/logo_MathNova.png";
@@ -24,8 +24,7 @@ import {
   FiSearch,
   FiCheckCircle,
   FiLock,
-  FiUsers as FiUsersIcon,
-  FiUser,
+  FiUserCheck,
   FiShuffle,
   FiBookOpen,
   FiBox,
@@ -33,12 +32,14 @@ import {
   FiHash,
   FiPlayCircle,
   FiStar,
-  FiUserCheck,
   FiClock,
   FiLayers,
   FiChevronLeft,
   FiChevronRight,
   FiSliders,
+  FiAlertCircle,
+  FiMessageSquare,
+  FiAward,
 } from "react-icons/fi";
 
 type MenuKey =
@@ -51,185 +52,184 @@ type MenuKey =
   | "gestion-docentes"
   | "actividades"
   | "avance-actividad"
-  | "estadisticas";
+  | "estadisticas"
+  | "logout";
 
-type Mundo = "MathData" | "MathGeometry" | "MathNumbers";
+type Mundo = "MathData" | "MathGeometry" | "MathNumbers" | "MathNova";
+type ColorActividad = "blue" | "green" | "orange" | "purple";
+type EstadoActividadClase = "enabled" | "disabled" | "warning";
 
-type ModoAsignacion = "individual" | "equipos";
-type EstrategiaEquipos = "seleccionar" | "aleatorio";
+type RespuestaAbierta = {
+  id_usuario: number;
+  alumno: string;
+  iniciales: string;
+  actividad_codigo: string;
+  actividad_titulo: string;
+  campo: string;
+  respuesta: string;
+  fecha: string | null;
+};
 
-type Actividad = {
+type ActividadReal = {
   id: number;
+  codigo: string;
   titulo: string;
-  mundo: Mundo;
+  mundo: Mundo | string;
   tema: string;
   descripcion: string;
-  dificultad: "Básica" | "Media" | "Reto";
+  dificultad: "Básica" | "Media" | "Reto" | string;
   duracion: string;
-  habilitada: boolean;
-  color: "blue" | "green" | "orange" | "purple";
-  icono: ReactNode;
+  color: ColorActividad;
+  estudiantes_intentaron: number;
+  estudiantes_completaron: number;
+  completadas: number;
+  intentos: number;
+  promedio: number | null;
+  estrellas: number;
+  tiempo_total_segundos: number;
+  respuestas_abiertas: number;
+  muestras_respuestas: RespuestaAbierta[];
+  ultima_actividad: string | null;
+  estado: string;
+  estado_clase: EstadoActividadClase;
 };
 
-type AlumnoAsignacion = {
-  id: number;
-  iniciales: string;
-  nombre: string;
-  grupo: string;
-  color: string;
+type ResumenActividades = {
+  total_actividades: number;
+  actividades_con_intentos: number;
+  actividades_sin_intentos: number;
+  estudiantes_alcanzados: number;
+  intentos_totales: number;
+  completadas_totales: number;
+  respuestas_abiertas: number;
+  promedio_general: number | null;
 };
 
-const actividadesIniciales: Actividad[] = [
-  {
-    id: 1,
-    titulo: "El Generador de Energía Inversa",
-    mundo: "MathData",
-    tema: "Proporcionalidad y funciones",
-    descripcion:
-      "Reconoce relaciones de proporcionalidad inversa usando tablas y gráficas.",
-    dificultad: "Media",
-    duracion: "20 min",
-    habilitada: true,
-    color: "blue",
-    icono: <FiDatabase />,
-  },
-  {
-    id: 2,
-    titulo: "Gráficas de barras",
-    mundo: "MathData",
-    tema: "Estadística",
-    descripcion:
-      "Interpreta datos, compara cantidades y analiza resultados con gráficas.",
-    dificultad: "Básica",
-    duracion: "15 min",
-    habilitada: true,
-    color: "purple",
-    icono: <FiBarChart2 />,
-  },
-  {
-    id: 3,
-    titulo: "La Ruta Perdida",
-    mundo: "MathGeometry",
-    tema: "Rectas y ángulos",
-    descripcion:
-      "Identifica segmentos faltantes para completar caminos dentro de un mapa.",
-    dificultad: "Básica",
-    duracion: "18 min",
-    habilitada: true,
-    color: "green",
-    icono: <FiBox />,
-  },
-  {
-    id: 4,
-    titulo: "Detectores de Giro",
-    mundo: "MathGeometry",
-    tema: "Ángulos",
-    descripcion:
-      "Reconoce ángulos agudos, rectos y obtusos mediante giros visuales.",
-    dificultad: "Media",
-    duracion: "20 min",
-    habilitada: false,
-    color: "green",
-    icono: <FiLayers />,
-  },
-  {
-    id: 5,
-    titulo: "Operaciones con fracciones",
-    mundo: "MathNumbers",
-    tema: "Números y operaciones",
-    descripcion:
-      "Resuelve operaciones con fracciones mediante una práctica guiada.",
-    dificultad: "Media",
-    duracion: "25 min",
-    habilitada: true,
-    color: "orange",
-    icono: <FiHash />,
-  },
-  {
-    id: 6,
-    titulo: "Reto de cálculo mental",
-    mundo: "MathNumbers",
-    tema: "Cálculo mental",
-    descripcion:
-      "Ejercicios rápidos para mejorar agilidad numérica y toma de decisiones.",
-    dificultad: "Reto",
-    duracion: "12 min",
-    habilitada: false,
-    color: "orange",
-    icono: <FiStar />,
-  },
-  {
-    id: 7,
-    titulo: "Pictogramas inteligentes",
-    mundo: "MathData",
-    tema: "Representación de datos",
-    descripcion:
-      "Organiza información usando pictogramas sencillos y lectura visual.",
-    dificultad: "Básica",
-    duracion: "16 min",
-    habilitada: true,
-    color: "blue",
-    icono: <FiDatabase />,
-  },
-  {
-    id: 8,
-    titulo: "El Escudo Perfecto",
-    mundo: "MathGeometry",
-    tema: "Construcciones geométricas",
-    descripcion:
-      "Reconoce divisiones iguales y construcciones visuales dentro de figuras.",
-    dificultad: "Media",
-    duracion: "22 min",
-    habilitada: false,
-    color: "green",
-    icono: <FiBox />,
-  },
-];
+type ActividadesData = {
+  actividades: ActividadReal[];
+  respuestas_abiertas_recientes: RespuestaAbierta[];
+  resumen: ResumenActividades;
+};
 
-const alumnosAsignacion: AlumnoAsignacion[] = [
-  {
-    id: 1,
-    iniciales: "MF",
-    nombre: "Mariana Fuentes Ruiz",
-    grupo: "2°A",
-    color: "#0058ff",
-  },
-  {
-    id: 2,
-    iniciales: "SJ",
-    nombre: "Santiago Jiménez López",
-    grupo: "2°A",
-    color: "#7c3aed",
-  },
-  {
-    id: 3,
-    iniciales: "AG",
-    nombre: "Ana Sofía García Pérez",
-    grupo: "2°A",
-    color: "#f59e0b",
-  },
-  {
-    id: 4,
-    iniciales: "DH",
-    nombre: "Diego Hernández Torres",
-    grupo: "2°A",
-    color: "#334155",
-  },
-  {
-    id: 5,
-    iniciales: "LM",
-    nombre: "Lucía Medina Chávez",
-    grupo: "2°A",
-    color: "#00a651",
-  },
-  {
-    id: 6,
-    iniciales: "VS",
-    nombre: "Valeria Sánchez Morales",
-    grupo: "2°A",
-    color: "#ec4899",
-  },
-];
+type ActividadesResponse = {
+  ok: boolean;
+  mensaje?: string;
+} & ActividadesData;
+
+const API_ACTIVIDADES_DOCENTE =
+  "http://localhost:3001/api/docente/actividades";
+
+const resumenInicial: ResumenActividades = {
+  total_actividades: 0,
+  actividades_con_intentos: 0,
+  actividades_sin_intentos: 0,
+  estudiantes_alcanzados: 0,
+  intentos_totales: 0,
+  completadas_totales: 0,
+  respuestas_abiertas: 0,
+  promedio_general: null,
+};
+
+const datosIniciales: ActividadesData = {
+  actividades: [],
+  respuestas_abiertas_recientes: [],
+  resumen: resumenInicial,
+};
+
+function obtenerToken() {
+  return (
+    localStorage.getItem("token") ||
+    localStorage.getItem("mathnova_token") ||
+    sessionStorage.getItem("token") ||
+    sessionStorage.getItem("mathnova_token")
+  );
+}
+
+async function leerRespuesta<T>(response: Response): Promise<T> {
+  const texto = await response.text();
+
+  try {
+    return texto ? JSON.parse(texto) : ({} as T);
+  } catch {
+    throw new Error(
+      "El backend no devolvió JSON. Revisa que la ruta /api/docente/actividades esté registrada.",
+    );
+  }
+}
+
+function normalizarTexto(texto: string) {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function formatearPromedio(valor: number | null | undefined) {
+  if (valor === null || valor === undefined || Number.isNaN(Number(valor))) {
+    return "—";
+  }
+
+  return Number(valor).toFixed(1);
+}
+
+function formatearFechaCorta(valor: string | null | undefined) {
+  if (!valor) return "Sin intentos";
+
+  const fecha = new Date(valor);
+
+  if (Number.isNaN(fecha.getTime())) return "Sin intentos";
+
+  return fecha.toLocaleDateString("es-MX", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function formatearTiempo(segundos: number | null | undefined) {
+  const totalSegundos = Number(segundos || 0);
+
+  if (totalSegundos <= 0) return "—";
+
+  const minutos = Math.floor(totalSegundos / 60);
+  const horas = Math.floor(minutos / 60);
+
+  if (horas > 0) {
+    const minutosRestantes = minutos % 60;
+    return `${horas} h ${minutosRestantes} min`;
+  }
+
+  return `${Math.max(1, minutos)} min`;
+}
+
+function clasePromedio(promedio: number | null) {
+  if (promedio === null) return "empty";
+  if (promedio >= 8.5) return "good";
+  if (promedio >= 7) return "medium";
+  return "bad";
+}
+
+function obtenerIconoActividad(actividad: ActividadReal) {
+  const mundo = normalizarTexto(String(actividad.mundo));
+  const codigo = normalizarTexto(actividad.codigo);
+
+  if (mundo.includes("mathdata")) return <FiDatabase />;
+  if (mundo.includes("mathgeometry")) return <FiBox />;
+  if (codigo.includes("enigma") || codigo.includes("espejos")) {
+    return <FiStar />;
+  }
+  if (codigo.includes("escuadron") || codigo.includes("puente")) {
+    return <FiLayers />;
+  }
+
+  return <FiHash />;
+}
+
+function obtenerTextoEstado(clase: EstadoActividadClase) {
+  if (clase === "disabled") return <FiLock />;
+  if (clase === "warning") return <FiAlertCircle />;
+  return <FiCheckCircle />;
+}
 
 function ActividadesDocente() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -243,30 +243,16 @@ function ActividadesDocente() {
   });
 
   const [selectedMenu, setSelectedMenu] = useState<MenuKey>("actividades");
-
-  const [actividadesSistema, setActividadesSistema] =
-    useState<Actividad[]>(actividadesIniciales);
-
+  const [datos, setDatos] = useState<ActividadesData>(datosIniciales);
   const [mundoFiltro, setMundoFiltro] = useState("Todos");
   const [temaFiltro, setTemaFiltro] = useState("Todos");
   const [busqueda, setBusqueda] = useState("");
   const [paginaActividades, setPaginaActividades] = useState(0);
-
   const [actividadSeleccionadaId, setActividadSeleccionadaId] = useState<
     number | null
-  >(1);
-
-  const [modoAsignacion, setModoAsignacion] =
-    useState<ModoAsignacion>("equipos");
-
-  const [estrategiaEquipos, setEstrategiaEquipos] =
-    useState<EstrategiaEquipos>("seleccionar");
-
-  const [cantidadEquipos, setCantidadEquipos] = useState(4);
-
-  const [alumnosSeleccionados, setAlumnosSeleccionados] = useState<number[]>(
-    alumnosAsignacion.map((alumno) => alumno.id),
-  );
+  >(null);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
@@ -290,7 +276,58 @@ function ActividadesDocente() {
     setPaginaActividades(0);
   }, [mundoFiltro, temaFiltro, busqueda]);
 
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function cargarActividades() {
+      try {
+        setCargando(true);
+        setError("");
+
+        const token = obtenerToken();
+        const response = await fetch(API_ACTIVIDADES_DOCENTE, {
+          signal: controller.signal,
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+
+        const data = await leerRespuesta<ActividadesResponse>(response);
+
+        if (!response.ok || data.ok === false) {
+          throw new Error(
+            data.mensaje || "No se pudieron cargar las actividades.",
+          );
+        }
+
+        setDatos({
+          actividades: data.actividades || [],
+          respuestas_abiertas_recientes:
+            data.respuestas_abiertas_recientes || [],
+          resumen: data.resumen || resumenInicial,
+        });
+      } catch (err) {
+        if ((err as Error).name === "AbortError") return;
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : "No se pudieron cargar las actividades.",
+        );
+        setDatos(datosIniciales);
+      } finally {
+        setCargando(false);
+      }
+    }
+
+    cargarActividades();
+
+    return () => controller.abort();
+  }, []);
+
   const irARuta = (ruta: string, menu?: MenuKey) => {
+    if (ruta === "/login" || menu === "logout") {
+      clearAuthSession();
+    }
+
     if (menu) {
       setSelectedMenu(menu);
     }
@@ -301,28 +338,32 @@ function ActividadesDocente() {
 
   const temas = useMemo(() => {
     const temasUnicos = Array.from(
-      new Set(actividadesSistema.map((actividad) => actividad.tema)),
-    );
+      new Set(datos.actividades.map((actividad) => actividad.tema)),
+    ).filter(Boolean);
 
     return ["Todos", ...temasUnicos];
-  }, [actividadesSistema]);
+  }, [datos.actividades]);
 
   const actividadesFiltradas = useMemo(() => {
-    return actividadesSistema.filter((actividad) => {
+    const busquedaNormalizada = normalizarTexto(busqueda);
+
+    return datos.actividades.filter((actividad) => {
       const coincideMundo =
         mundoFiltro === "Todos" || actividad.mundo === mundoFiltro;
 
       const coincideTema =
         temaFiltro === "Todos" || actividad.tema === temaFiltro;
 
+      const textoActividad = normalizarTexto(
+        `${actividad.titulo} ${actividad.descripcion} ${actividad.tema} ${actividad.mundo}`,
+      );
+
       const coincideBusqueda =
-        actividad.titulo.toLowerCase().includes(busqueda.toLowerCase()) ||
-        actividad.descripcion.toLowerCase().includes(busqueda.toLowerCase()) ||
-        actividad.tema.toLowerCase().includes(busqueda.toLowerCase());
+        !busquedaNormalizada || textoActividad.includes(busquedaNormalizada);
 
       return coincideMundo && coincideTema && coincideBusqueda;
     });
-  }, [actividadesSistema, mundoFiltro, temaFiltro, busqueda]);
+  }, [datos.actividades, mundoFiltro, temaFiltro, busqueda]);
 
   const actividadesPorPagina = 4;
 
@@ -340,15 +381,22 @@ function ActividadesDocente() {
   );
 
   const actividadSeleccionada =
-    actividadesSistema.find(
+    datos.actividades.find(
       (actividad) => actividad.id === actividadSeleccionadaId,
-    ) ?? null;
+    ) ||
+    actividadesFiltradas[0] ||
+    null;
 
-  const totalHabilitadas = actividadesSistema.filter(
-    (actividad) => actividad.habilitada,
-  ).length;
-
-  const totalNoHabilitadas = actividadesSistema.length - totalHabilitadas;
+  useEffect(() => {
+    if (
+      actividadesFiltradas.length > 0 &&
+      !actividadesFiltradas.some(
+        (actividad) => actividad.id === actividadSeleccionadaId,
+      )
+    ) {
+      setActividadSeleccionadaId(actividadesFiltradas[0].id);
+    }
+  }, [actividadesFiltradas, actividadSeleccionadaId]);
 
   const cambiarPagina = (direccion: "anterior" | "siguiente") => {
     setPaginaActividades((paginaActual) => {
@@ -359,66 +407,6 @@ function ActividadesDocente() {
       return paginaActual + 1 >= totalPaginas ? 0 : paginaActual + 1;
     });
   };
-
-  const cambiarEstadoActividad = (id: number) => {
-    setActividadesSistema((actividadesActuales) =>
-      actividadesActuales.map((actividad) =>
-        actividad.id === id
-          ? { ...actividad, habilitada: !actividad.habilitada }
-          : actividad,
-      ),
-    );
-  };
-
-  const cambiarAlumnoSeleccionado = (id: number) => {
-    setAlumnosSeleccionados((alumnosActuales) => {
-      if (alumnosActuales.includes(id)) {
-        return alumnosActuales.filter((alumnoId) => alumnoId !== id);
-      }
-
-      return [...alumnosActuales, id];
-    });
-  };
-
-  const alumnosParaAsignar = useMemo(() => {
-    if (modoAsignacion === "equipos" && estrategiaEquipos === "aleatorio") {
-      return alumnosAsignacion;
-    }
-
-    return alumnosAsignacion.filter((alumno) =>
-      alumnosSeleccionados.includes(alumno.id),
-    );
-  }, [alumnosSeleccionados, estrategiaEquipos, modoAsignacion]);
-
-  const cuposPorEquipo =
-    modoAsignacion === "equipos"
-      ? Math.max(1, Math.ceil(alumnosParaAsignar.length / cantidadEquipos))
-      : 0;
-
-  const equiposPreview = useMemo(() => {
-    const equipos = Array.from({ length: cantidadEquipos }, (_, index) => ({
-      numero: index + 1,
-      alumnos: [] as AlumnoAsignacion[],
-    }));
-
-    alumnosParaAsignar.forEach((alumno, index) => {
-      equipos[index % cantidadEquipos].alumnos.push(alumno);
-    });
-
-    return equipos.map((equipo) => ({
-      ...equipo,
-      cuposDisponibles: Math.max(cuposPorEquipo - equipo.alumnos.length, 0),
-    }));
-  }, [alumnosParaAsignar, cantidadEquipos, cuposPorEquipo]);
-
-  const totalCuposEquipos = cuposPorEquipo * cantidadEquipos;
-  const cuposDisponiblesTotales = Math.max(
-    totalCuposEquipos - alumnosParaAsignar.length,
-    0,
-  );
-
-  const puedeAsignar =
-    Boolean(actividadSeleccionada?.habilitada) && alumnosParaAsignar.length > 0;
 
   return (
     <main className="docente-page">
@@ -564,6 +552,7 @@ function ActividadesDocente() {
               <FiUserCheck />
               <span>Gestión de docentes</span>
             </button>
+
             <button
               type="button"
               className={`docente-menu-item ${
@@ -612,8 +601,9 @@ function ActividadesDocente() {
           <div className="actividades-hero-text">
             <h1>Actividades</h1>
             <p>
-              Elige actividades del sistema, habilítalas o déjalas
-              deshabilitadas y asígnalas a tus alumnos.
+              Consulta el uso real de las actividades: intentos, completadas,
+              promedios automáticos y respuestas abiertas guardadas por tus
+              alumnos.
             </p>
           </div>
 
@@ -644,12 +634,14 @@ function ActividadesDocente() {
           </div>
         </section>
 
+        {error && <section className="act-error-box">{error}</section>}
+
         <section className="act-stats-row">
           <article className="act-stat-card green">
             <div>
-              <h3>Habilitadas</h3>
-              <strong>{totalHabilitadas}</strong>
-              <p>Disponibles para asignar</p>
+              <h3>Con intentos</h3>
+              <strong>{datos.resumen.actividades_con_intentos}</strong>
+              <p>{datos.resumen.total_actividades} actividades del catálogo</p>
             </div>
 
             <span>
@@ -659,9 +651,9 @@ function ActividadesDocente() {
 
           <article className="act-stat-card gray">
             <div>
-              <h3>Deshabilitadas</h3>
-              <strong>{totalNoHabilitadas}</strong>
-              <p>No visibles para alumnos</p>
+              <h3>Sin intentos</h3>
+              <strong>{datos.resumen.actividades_sin_intentos}</strong>
+              <p>Disponibles cuando un alumno las trabaje</p>
             </div>
 
             <span>
@@ -671,9 +663,9 @@ function ActividadesDocente() {
 
           <article className="act-stat-card blue">
             <div>
-              <h3>Actividades del sistema</h3>
-              <strong>{actividadesSistema.length}</strong>
-              <p>No se crean manualmente</p>
+              <h3>Intentos registrados</h3>
+              <strong>{datos.resumen.intentos_totales}</strong>
+              <p>{datos.resumen.estudiantes_alcanzados} alumnos alcanzados</p>
             </div>
 
             <span>
@@ -688,7 +680,7 @@ function ActividadesDocente() {
 
             <input
               type="text"
-              placeholder="Buscar actividad, tema o descripción..."
+              placeholder="Buscar actividad, tema o mundo..."
               value={busqueda}
               onChange={(event) => setBusqueda(event.target.value)}
             />
@@ -705,6 +697,7 @@ function ActividadesDocente() {
               <option>MathData</option>
               <option>MathGeometry</option>
               <option>MathNumbers</option>
+              <option>MathNova</option>
             </select>
           </label>
 
@@ -724,8 +717,8 @@ function ActividadesDocente() {
           <div className="system-load-pill">
             <FiSliders />
             <div>
-              <span>Catálogo del sistema</span>
-              <b>Solo habilitar o deshabilitar</b>
+              <span>Seguimiento automático</span>
+              <b>Sin revisión manual</b>
             </div>
           </div>
         </section>
@@ -734,7 +727,7 @@ function ActividadesDocente() {
           <section className="activities-zone">
             <div className="activities-list-header">
               <div>
-                <h2>Actividades disponibles</h2>
+                <h2>Actividades del sistema</h2>
                 <p>
                   Mostrando {actividadesVisibles.length} de{" "}
                   {actividadesFiltradas.length} actividades
@@ -763,178 +756,148 @@ function ActividadesDocente() {
               </div>
             </div>
 
-            <section className="teams-wide-card">
+            <section className="teams-wide-card real-overview-card">
               <div className="teams-wide-header">
                 <div>
-                  <h2>
-                    {modoAsignacion === "equipos"
-                      ? "Equipos creados"
-                      : "Alumnos seleccionados"}
-                  </h2>
-
+                  <h2>Resumen real de actividades</h2>
                   <p>
-                    {modoAsignacion === "equipos"
-                      ? `${alumnosParaAsignar.length} alumnos organizados en ${cantidadEquipos} equipos · ${cuposDisponiblesTotales} cupos disponibles`
-                      : `${alumnosParaAsignar.length} alumnos recibirán la actividad de forma individual`}
+                    Se alimenta con los intentos guardados cuando los alumnos
+                    completan actividades desde su dashboard.
                   </p>
                 </div>
-
-                {modoAsignacion === "equipos" && (
-                  <div className="wide-team-count-options">
-                    {[2, 3, 4].map((numero) => (
-                      <button
-                        type="button"
-                        key={numero}
-                        className={cantidadEquipos === numero ? "active" : ""}
-                        onClick={() => setCantidadEquipos(numero)}
-                      >
-                        {numero} equipos
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
 
-              {modoAsignacion === "equipos" ? (
-                <div className="teams-wide-grid">
-                  {equiposPreview.map((equipo) => (
-                    <article className="team-wide-box" key={equipo.numero}>
-                      <div className="team-wide-box-head">
-                        <div>
-                          <h3>Equipo {equipo.numero}</h3>
-                          <p>Cupos disponibles: {equipo.cuposDisponibles}</p>
-                        </div>
+              <div className="real-overview-grid">
+                <article>
+                  <span>Promedio general</span>
+                  <strong>{formatearPromedio(datos.resumen.promedio_general)}</strong>
+                </article>
 
-                        <span>
-                          {equipo.alumnos.length}/{cuposPorEquipo}
-                        </span>
-                      </div>
+                <article>
+                  <span>Completadas</span>
+                  <strong>{datos.resumen.completadas_totales}</strong>
+                </article>
 
-                      <div className="team-wide-members">
-                        {equipo.alumnos.length > 0 ? (
-                          equipo.alumnos.map((alumno) => (
-                            <div className="team-wide-member" key={alumno.id}>
-                              <b style={{ background: alumno.color }}>
-                                {alumno.iniciales}
-                              </b>
+                <article>
+                  <span>Respuestas abiertas</span>
+                  <strong>{datos.resumen.respuestas_abiertas}</strong>
+                </article>
 
-                              <span>{alumno.nombre}</span>
-                            </div>
-                          ))
-                        ) : (
-                          <small>Sin alumnos todavía</small>
-                        )}
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              ) : (
-                <div className="individual-wide-grid">
-                  {alumnosParaAsignar.length > 0 ? (
-                    alumnosParaAsignar.map((alumno) => (
-                      <article className="individual-wide-card" key={alumno.id}>
-                        <b style={{ background: alumno.color }}>
-                          {alumno.iniciales}
-                        </b>
-
-                        <div>
-                          <h3>{alumno.nombre}</h3>
-                          <p>{alumno.grupo} · Individual</p>
-                        </div>
-                      </article>
-                    ))
-                  ) : (
-                    <small className="empty-wide-text">
-                      Selecciona alumnos para verlos aquí.
-                    </small>
-                  )}
-                </div>
-              )}
+                <article>
+                  <span>Alumnos con actividad</span>
+                  <strong>{datos.resumen.estudiantes_alcanzados}</strong>
+                </article>
+              </div>
             </section>
 
             <section className="activities-grid">
-              {actividadesVisibles.map((actividad) => (
-                <article
-                  className={`activity-card ${
-                    actividad.habilitada ? "enabled" : "disabled"
-                  } ${actividad.color} ${
-                    actividadSeleccionadaId === actividad.id ? "selected" : ""
-                  }`}
-                  key={actividad.id}
-                  onClick={() => {
-                    if (actividad.habilitada) {
-                      setActividadSeleccionadaId(actividad.id);
-                    }
-                  }}
-                >
+              {cargando ? (
+                <article className="activity-card empty-real">
                   <div className="activity-card-top">
-                    <span className={`activity-icon ${actividad.color}`}>
-                      {actividad.icono}
+                    <span className="activity-icon blue">
+                      <FiBookOpen />
                     </span>
+                  </div>
+
+                  <h2>Cargando actividades...</h2>
+                  <p>Estamos leyendo el progreso real de tus alumnos.</p>
+                </article>
+              ) : actividadesVisibles.length > 0 ? (
+                actividadesVisibles.map((actividad) => (
+                  <article
+                    className={`activity-card ${actividad.color} ${
+                      actividadSeleccionada?.id === actividad.id
+                        ? "selected"
+                        : ""
+                    }`}
+                    key={actividad.id}
+                    onClick={() => setActividadSeleccionadaId(actividad.id)}
+                  >
+                    <div className="activity-card-top">
+                      <span className={`activity-icon ${actividad.color}`}>
+                        {obtenerIconoActividad(actividad)}
+                      </span>
+
+                      <button
+                        type="button"
+                        className={`enable-toggle-btn ${actividad.estado_clase}`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setActividadSeleccionadaId(actividad.id);
+                        }}
+                      >
+                        {obtenerTextoEstado(actividad.estado_clase)}
+                        {actividad.estado}
+                      </button>
+                    </div>
+
+                    <h2>{actividad.titulo}</h2>
+
+                    <p>{actividad.descripcion}</p>
+
+                    <div className="activity-tags">
+                      <span>{actividad.mundo}</span>
+                      <span>{actividad.tema}</span>
+                    </div>
+
+                    <div className="activity-real-metrics">
+                      <article>
+                        <span>Alumnos</span>
+                        <strong>{actividad.estudiantes_intentaron}</strong>
+                      </article>
+
+                      <article>
+                        <span>Hechas</span>
+                        <strong>{actividad.completadas}</strong>
+                      </article>
+
+                      <article>
+                        <span>Intentos</span>
+                        <strong>{actividad.intentos}</strong>
+                      </article>
+
+                      <article className={clasePromedio(actividad.promedio)}>
+                        <span>Promedio</span>
+                        <strong>{formatearPromedio(actividad.promedio)}</strong>
+                      </article>
+                    </div>
+
+                    <div className="activity-bottom">
+                      <small>
+                        <FiClock />
+                        {actividad.duracion}
+                      </small>
+
+                      <small>
+                        <FiStar />
+                        {actividad.dificultad}
+                      </small>
+                    </div>
 
                     <button
                       type="button"
-                      className={`enable-toggle-btn ${
-                        actividad.habilitada ? "enabled" : "disabled"
-                      }`}
+                      className="activity-action-btn"
                       onClick={(event) => {
                         event.stopPropagation();
-                        cambiarEstadoActividad(actividad.id);
+                        setActividadSeleccionadaId(actividad.id);
                       }}
                     >
-                      {actividad.habilitada ? (
-                        <>
-                          <FiCheckCircle />
-                          Habilitada
-                        </>
-                      ) : (
-                        <>
-                          <FiLock />
-                          Deshabilitada
-                        </>
-                      )}
+                      Ver detalle
                     </button>
+                  </article>
+                ))
+              ) : (
+                <article className="activity-card empty-real">
+                  <div className="activity-card-top">
+                    <span className="activity-icon gray">
+                      <FiSearch />
+                    </span>
                   </div>
 
-                  <h2>{actividad.titulo}</h2>
-
-                  <p>{actividad.descripcion}</p>
-
-                  <div className="activity-tags">
-                    <span>{actividad.mundo}</span>
-                    <span>{actividad.tema}</span>
-                  </div>
-
-                  <div className="activity-bottom">
-                    <small>
-                      <FiClock />
-                      {actividad.duracion}
-                    </small>
-
-                    <small>
-                      <FiStar />
-                      {actividad.dificultad}
-                    </small>
-                  </div>
-
-                  <button
-                    type="button"
-                    className="activity-action-btn"
-                    disabled={!actividad.habilitada}
-                    onClick={(event) => {
-                      event.stopPropagation();
-
-                      if (actividad.habilitada) {
-                        setActividadSeleccionadaId(actividad.id);
-                      }
-                    }}
-                  >
-                    {actividad.habilitada
-                      ? "Seleccionar para asignar"
-                      : "Actividad bloqueada"}
-                  </button>
+                  <h2>No se encontraron actividades</h2>
+                  <p>Cambia los filtros o limpia la búsqueda.</p>
                 </article>
-              ))}
+              )}
             </section>
           </section>
 
@@ -945,169 +908,126 @@ function ActividadesDocente() {
               </span>
 
               <div>
-                <h2>Asignar actividad</h2>
-                <p>Selecciona alumnos o usa equipos aleatorios.</p>
+                <h2>Detalle de actividad</h2>
+                <p>Información real generada por el progreso del alumno.</p>
               </div>
             </div>
 
             {actividadSeleccionada ? (
               <>
-                <article
-                  className={`selected-activity-box ${
-                    actividadSeleccionada.habilitada ? "" : "blocked"
-                  }`}
-                >
+                <article className="selected-activity-box">
                   <small>Actividad seleccionada</small>
                   <h3>{actividadSeleccionada.titulo}</h3>
                   <p>
                     {actividadSeleccionada.mundo} · {actividadSeleccionada.tema}
                   </p>
 
-                  {!actividadSeleccionada.habilitada && (
-                    <b className="blocked-text">
-                      Debes habilitar esta actividad para poder asignarla.
-                    </b>
-                  )}
+                  <b className={`activity-detail-status ${actividadSeleccionada.estado_clase}`}>
+                    {actividadSeleccionada.estado}
+                  </b>
                 </article>
 
-                <div className="assignment-options">
-                  <button
-                    type="button"
-                    className={modoAsignacion === "individual" ? "active" : ""}
-                    onClick={() => setModoAsignacion("individual")}
-                  >
-                    <FiUser />
-                    Individual
-                  </button>
+                <div className="activity-detail-grid">
+                  <article>
+                    <span>Promedio</span>
+                    <strong>
+                      {formatearPromedio(actividadSeleccionada.promedio)}
+                    </strong>
+                  </article>
 
-                  <button
-                    type="button"
-                    className={modoAsignacion === "equipos" ? "active" : ""}
-                    onClick={() => setModoAsignacion("equipos")}
-                  >
-                    <FiUsersIcon />
-                    Equipos
-                  </button>
+                  <article>
+                    <span>Completadas</span>
+                    <strong>{actividadSeleccionada.completadas}</strong>
+                  </article>
+
+                  <article>
+                    <span>Intentos</span>
+                    <strong>{actividadSeleccionada.intentos}</strong>
+                  </article>
+
+                  <article>
+                    <span>Tiempo total</span>
+                    <strong>
+                      {formatearTiempo(
+                        actividadSeleccionada.tiempo_total_segundos,
+                      )}
+                    </strong>
+                  </article>
                 </div>
 
                 <article className="students-assignment-card">
                   <div className="students-assignment-title">
-                    <h3>Alumnos del grupo</h3>
-                    <span>
-                      {modoAsignacion === "equipos"
-                        ? estrategiaEquipos === "aleatorio"
-                          ? "Equipos aleatorios"
-                          : `${alumnosSeleccionados.length} para equipos`
-                        : `${alumnosSeleccionados.length} seleccionados`}
-                    </span>
+                    <h3>Respuestas abiertas</h3>
+                    <span>{actividadSeleccionada.respuestas_abiertas}</span>
                   </div>
 
-                  <div className="students-list">
-                    {alumnosAsignacion.map((alumno) => (
-                      <label
-                        className={`student-check-row ${
-                          modoAsignacion === "equipos" ? "random-mode" : ""
-                        }`}
-                        key={alumno.id}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={
-                            (modoAsignacion === "equipos" &&
-                              estrategiaEquipos === "aleatorio") ||
-                            alumnosSeleccionados.includes(alumno.id)
-                          }
-                          disabled={
-                            modoAsignacion === "equipos" &&
-                            estrategiaEquipos === "aleatorio"
-                          }
-                          onChange={() => cambiarAlumnoSeleccionado(alumno.id)}
-                        />
+                  <div className="open-answer-list">
+                    {actividadSeleccionada.muestras_respuestas.length > 0 ? (
+                      actividadSeleccionada.muestras_respuestas.map(
+                        (respuesta, index) => (
+                          <article
+                            className="open-answer-row"
+                            key={`${respuesta.id_usuario}-${respuesta.campo}-${index}`}
+                          >
+                            <b>{respuesta.iniciales}</b>
 
-                        <span
-                          className="student-mini-avatar"
-                          style={{ background: alumno.color }}
-                        >
-                          {alumno.iniciales}
-                        </span>
-
-                        <div>
-                          <p>{alumno.nombre}</p>
-                          <small>{alumno.grupo}</small>
-                        </div>
-                      </label>
-                    ))}
+                            <div>
+                              <h4>{respuesta.alumno}</h4>
+                              <small>
+                                {respuesta.campo} ·{" "}
+                                {formatearFechaCorta(respuesta.fecha)}
+                              </small>
+                              <p>{respuesta.respuesta}</p>
+                            </div>
+                          </article>
+                        ),
+                      )
+                    ) : (
+                      <div className="open-answer-empty">
+                        <FiMessageSquare />
+                        <p>
+                          Esta actividad todavía no tiene respuestas abiertas
+                          guardadas.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </article>
 
-                <article className="random-card">
+                <article className="random-card activity-note-card">
                   <div>
                     <span>
                       <FiShuffle />
                     </span>
 
                     <div>
-                      <h3>
-                        {modoAsignacion === "equipos"
-                          ? estrategiaEquipos === "aleatorio"
-                            ? "Equipos aleatorios"
-                            : "Equipos con alumnos seleccionados"
-                          : "Asignación individual"}
-                      </h3>
+                      <h3>Sin revisión manual</h3>
 
                       <p>
-                        {modoAsignacion === "equipos"
-                          ? estrategiaEquipos === "aleatorio"
-                            ? "El sistema formará los equipos automáticamente."
-                            : "Marca los alumnos que participarán y después se organizarán en equipos."
-                          : "Puedes marcar los alumnos que recibirán la actividad."}
+                        Las calificaciones se calculan en automático cuando el
+                        alumno responde. Las respuestas abiertas se muestran
+                        como evidencia, no como pendientes por revisar.
                       </p>
-
-                      {modoAsignacion === "equipos" && (
-                        <div className="team-strategy-options">
-                          <button
-                            type="button"
-                            className={
-                              estrategiaEquipos === "seleccionar"
-                                ? "active"
-                                : ""
-                            }
-                            onClick={() => setEstrategiaEquipos("seleccionar")}
-                          >
-                            Seleccionar alumnos
-                          </button>
-
-                          <button
-                            type="button"
-                            className={
-                              estrategiaEquipos === "aleatorio" ? "active" : ""
-                            }
-                            onClick={() => setEstrategiaEquipos("aleatorio")}
-                          >
-                            Aleatorio
-                          </button>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </article>
 
                 <article className="assignment-mini-summary">
                   <span>
-                    <FiUsersIcon />
+                    <FiAward />
                   </span>
 
                   <div>
                     <h3>
-                      {modoAsignacion === "equipos"
-                        ? `${cantidadEquipos} equipos listos`
-                        : `${alumnosParaAsignar.length} alumnos listos`}
+                      Último intento:{" "}
+                      {formatearFechaCorta(
+                        actividadSeleccionada.ultima_actividad,
+                      )}
                     </h3>
 
                     <p>
-                      {modoAsignacion === "equipos"
-                        ? "La lista completa de equipos aparece a la izquierda."
-                        : "La lista de alumnos seleccionados aparece a la izquierda."}
+                      Estrellas obtenidas por alumnos:{" "}
+                      {actividadSeleccionada.estrellas}
                     </p>
                   </div>
                 </article>
@@ -1115,17 +1035,22 @@ function ActividadesDocente() {
                 <button
                   type="button"
                   className="publish-btn"
-                  disabled={!puedeAsignar}
+                  onClick={() =>
+                    irARuta("/calificaciones-docente", "calificaciones")
+                  }
                 >
                   <FiCheckCircle />
-                  Asignar actividad
+                  Ver calificaciones
                 </button>
               </>
             ) : (
               <article className="empty-selection">
                 <FiBookOpen />
                 <h3>Selecciona una actividad</h3>
-                <p>Solo las actividades habilitadas se pueden asignar.</p>
+                <p>
+                  Cuando haya progreso real, aquí aparecerá el detalle de cada
+                  actividad.
+                </p>
               </article>
             )}
           </aside>
@@ -1137,7 +1062,7 @@ function ActividadesDocente() {
           <div className="docente-footer-icons">
             <button
               type="button"
-              onClick={() => irARuta("/login")}
+              onClick={() => irARuta("/login", "logout")}
               aria-label="Cerrar sesión"
             >
               <FiLogOut className="logout-icon" />

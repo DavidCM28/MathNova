@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "nodemon src/index.js",
+    "dev": "nodemon --ext js,mjs,cjs,json,ts src/index.js",
     "start": "node src/index.js"
   },
   "dependencies": {
