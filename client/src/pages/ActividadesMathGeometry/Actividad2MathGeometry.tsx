@@ -1,5 +1,10 @@
 import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  getSessionUser,
+  hasAuthSession,
+  isGuestSession,
+} from "../../utils/authSession";
 import "./Actividad2MathGeometry.css";
 
 import logo from "../../assets/logo_MathNova.png";
@@ -67,6 +72,15 @@ type EstadoPuenteAct2 =
   | "finalizado-error";
 type PistaAct2Id = "recto" | "giro" | "diagonal";
 type PersonajePistaAct2 = "byte" | "profesor";
+
+type SessionUser = {
+  rol?: string;
+  role?: string;
+  tipo_usuario?: string;
+  role_id?: number | string;
+  roleId?: number | string;
+  id_rol?: number | string;
+};
 
 const VELOCIDAD_TEXTO_NOVA_ACT2 = 1.55;
 const VELOCIDAD_TEXTO_PISTA_ACT2 = 1.75;
@@ -402,13 +416,14 @@ function dibujarVideoNovaAct2SinEstirar(
 
 function Actividad2MathGeometry() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [actividadPausadaAct2, setActividadPausadaAct2] = useState(false);
   const [segmentoSeleccionado, setSegmentoSeleccionado] =
     useState<SegmentoId | null>(null);
   const [segmentoColocado, setSegmentoColocado] = useState<SegmentoId | null>(
     null,
   );
   const [revisado, setRevisado] = useState(false);
-  const [intentosAct2, setIntentosAct2] = useState(0);
+  const [erroresAct2, setErroresAct2] = useState(0);
   const [estadoPuenteAct2, setEstadoPuenteAct2] =
     useState<EstadoPuenteAct2>("reposo");
   const [piezaRotaVisibleAct2, setPiezaRotaVisibleAct2] = useState(false);
@@ -482,6 +497,49 @@ function Actividad2MathGeometry() {
 
   const navigate = useNavigate();
   const pistaActiva = pistasAct2[pistaSeleccionada];
+
+  const obtenerDashboardPrincipal = () => {
+    if (isGuestSession() && !hasAuthSession()) {
+      return "/dashboard";
+    }
+
+    const usuario = getSessionUser() as SessionUser | null;
+
+    const rol = String(
+      usuario?.rol || usuario?.role || usuario?.tipo_usuario || "",
+    )
+      .toLowerCase()
+      .trim();
+
+    const roleId = Number(
+      usuario?.role_id || usuario?.roleId || usuario?.id_rol || 0,
+    );
+
+    if (rol === "admin" || rol === "administrador" || roleId === 3) {
+      return "/dashboard-admin";
+    }
+
+    if (
+      [
+        "docente",
+        "profesor",
+        "maestro",
+        "docente_estudiante",
+        "docente-estudiante",
+        "docente_alumno",
+        "docente-alumno",
+        "maestro_estudiante",
+        "maestro-estudiante",
+        "mixto",
+      ].includes(rol) ||
+      roleId === 1 ||
+      roleId === 4
+    ) {
+      return "/dashboard-docente";
+    }
+
+    return "/dashboard";
+  };
 
   useEffect(() => {
     document.body.style.overflow =
@@ -1158,6 +1216,7 @@ function Actividad2MathGeometry() {
   };
 
   const iniciarPistaAct2 = async () => {
+    if (actividadPausadaAct2) return;
     if (!modalPistasOpen) {
       abrirPistasAct2(true);
       return;
@@ -1191,6 +1250,7 @@ function Actividad2MathGeometry() {
   };
 
   const repetirPistaAct2 = async () => {
+    if (actividadPausadaAct2) return;
     const audio = audioPistaRef.current;
     const video = videoPistaRef.current;
 
@@ -1265,6 +1325,7 @@ function Actividad2MathGeometry() {
   };
 
   const iniciarProfesorAstroAct2 = async () => {
+    if (actividadPausadaAct2) return;
     if (!modalProfesorOpen) {
       abrirProfesorAstroAct2(true);
       return;
@@ -1298,6 +1359,7 @@ function Actividad2MathGeometry() {
   };
 
   const repetirProfesorAstroAct2 = async () => {
+    if (actividadPausadaAct2) return;
     const audio = audioProfesorRef.current;
     const video = videoProfesorRef.current;
 
@@ -1406,6 +1468,7 @@ function Actividad2MathGeometry() {
   };
 
   const iniciarSombraAct2 = async () => {
+    if (actividadPausadaAct2) return;
     if (!modalSombraOpen) {
       abrirSombraAct2(true);
       return;
@@ -1439,6 +1502,7 @@ function Actividad2MathGeometry() {
   };
 
   const repetirSombraAct2 = async () => {
+    if (actividadPausadaAct2) return;
     const audio = audioSombraRef.current;
     const video = videoSombraRef.current;
 
@@ -1513,6 +1577,7 @@ function Actividad2MathGeometry() {
   };
 
   const iniciarCompletadoAct2 = async () => {
+    if (actividadPausadaAct2) return;
     if (!modalCompletadoOpen) {
       abrirCompletadoAct2(true);
       return;
@@ -1546,6 +1611,7 @@ function Actividad2MathGeometry() {
   };
 
   const repetirCompletadoAct2 = async () => {
+    if (actividadPausadaAct2) return;
     const audio = audioCompletadoRef.current;
     const video = videoCompletadoRef.current;
 
@@ -1598,7 +1664,7 @@ function Actividad2MathGeometry() {
   const reiniciarActividadAct2 = () => {
     cerrarSombraAct2();
     cerrarCompletadoAct2();
-    reiniciarEstadoInicialAct2();
+    reiniciarEstadoInicialAct2(true);
   };
 
   const volverAActividadesAct2 = () => {
@@ -1608,7 +1674,7 @@ function Actividad2MathGeometry() {
 
   const irASiguienteActividadAct2 = () => {
     cerrarCompletadoAct2();
-    navigate("/actividades/geometria");
+    navigate("/actividades/geometria/actividad-3");
   };
 
   const obtenerClaseLineaSombraAct2 = (indice: number) => {
@@ -1711,13 +1777,17 @@ function Actividad2MathGeometry() {
     setEstadoBienvenidaNova("inicio");
   };
 
-  const reiniciarEstadoInicialAct2 = () => {
+  const reiniciarEstadoInicialAct2 = (reiniciarErrores = false) => {
     limpiarControlPausaPuenteAct2();
     detenerVideoPuenteAct2();
     setSegmentoSeleccionado(null);
     setSegmentoColocado(null);
     setRevisado(false);
-    setIntentosAct2(0);
+
+    if (reiniciarErrores) {
+      setErroresAct2(0);
+    }
+
     setEstadoPuenteAct2("reposo");
     reiniciarBienvenidaNovaAct2();
   };
@@ -1869,6 +1939,33 @@ function Actividad2MathGeometry() {
     }
   };
 
+  const pausarTodoAct2 = () => {
+    pausarExplicacionNova();
+    pausarPistaAct2();
+    pausarProfesorAstroAct2();
+    pausarSombraAct2();
+    pausarCompletadoAct2();
+
+    if (estaCruzandoPuenteAct2 && !puentePausadoAct2) {
+      pausarCrucePuenteAct2();
+    }
+  };
+
+  const alternarPausaActividadAct2 = () => {
+    if (actividadPausadaAct2) {
+      setActividadPausadaAct2(false);
+
+      if (estaCruzandoPuenteAct2 && puentePausadoAct2) {
+        void reanudarCrucePuenteAct2();
+      }
+
+      return;
+    }
+
+    pausarTodoAct2();
+    setActividadPausadaAct2(true);
+  };
+
   const cerrarSombraYReiniciarAct2 = () => {
     cerrarSombraAct2();
     reiniciarEstadoInicialAct2();
@@ -1880,6 +1977,7 @@ function Actividad2MathGeometry() {
   };
 
   const puedeElegirSegmentoAct2 =
+    !actividadPausadaAct2 &&
     estadoPuenteAct2 !== "corriendo-correcto" &&
     estadoPuenteAct2 !== "corriendo-error";
 
@@ -1953,7 +2051,11 @@ function Actividad2MathGeometry() {
     setSegmentoColocado(id);
     setPiezaRotaVisibleAct2(false);
     setRevisado(false);
-    setIntentosAct2((intentosActuales) => Math.min(intentosActuales + 1, 3));
+
+    if (!esCorrecta) {
+      setErroresAct2((erroresActuales) => erroresActuales + 1);
+    }
+
     setEstadoPuenteAct2(esCorrecta ? "corriendo-correcto" : "corriendo-error");
 
     if (video) {
@@ -1998,6 +2100,7 @@ function Actividad2MathGeometry() {
   };
 
   const iniciarExplicacionNova = async () => {
+    if (actividadPausadaAct2) return;
     const audio = audioNovaRef.current;
     const video = videoNovaRef.current;
 
@@ -2024,6 +2127,7 @@ function Actividad2MathGeometry() {
   };
 
   const repetirExplicacionNova = async () => {
+    if (actividadPausadaAct2) return;
     const audio = audioNovaRef.current;
     const video = videoNovaRef.current;
 
@@ -2051,7 +2155,11 @@ function Actividad2MathGeometry() {
   };
 
   return (
-    <main className="act2geo-page">
+    <main
+      className={`act2geo-page ${
+        actividadPausadaAct2 ? "act2geo-activity-paused" : ""
+      }`}
+    >
       <button
         className={`act2geo-hamburger-btn ${
           menuOpen ? "act2geo-hamburger-open" : ""
@@ -2074,12 +2182,17 @@ function Actividad2MathGeometry() {
         <img src={logo} alt="MathNova" className="act2geo-sidebar-logo" />
 
         <nav className="act2geo-sidebar-menu">
-          <button className="act2geo-menu-item" onClick={() => irARuta("/")}>
+          <button
+            type="button"
+            className="act2geo-menu-item"
+            onClick={() => irARuta(obtenerDashboardPrincipal())}
+          >
             <FiGrid />
             <span>Dashboard principal</span>
           </button>
 
           <button
+            type="button"
             className="act2geo-menu-item act2geo-active"
             onClick={() => irARuta("/seleccion-mundos")}
           >
@@ -2088,6 +2201,7 @@ function Actividad2MathGeometry() {
           </button>
 
           <button
+            type="button"
             className="act2geo-menu-item"
             onClick={() => irARuta("/retroalimentacion")}
           >
@@ -2096,6 +2210,7 @@ function Actividad2MathGeometry() {
           </button>
 
           <button
+            type="button"
             className="act2geo-menu-item"
             onClick={() => irARuta("/recompensas")}
           >
@@ -2104,6 +2219,7 @@ function Actividad2MathGeometry() {
           </button>
 
           <button
+            type="button"
             className="act2geo-menu-item"
             onClick={() => irARuta("/perfil-alumno")}
           >
@@ -2112,6 +2228,7 @@ function Actividad2MathGeometry() {
           </button>
 
           <button
+            type="button"
             className="act2geo-menu-item"
             onClick={() => irARuta("/estadisticas")}
           >
@@ -2129,11 +2246,9 @@ function Actividad2MathGeometry() {
 
             <div className="act2geo-side-progress">
               <span>★</span>
-
               <div>
-                <b></b>
+                <b style={{ width: "60%" }} />
               </div>
-
               <strong>60%</strong>
             </div>
           </article>
@@ -2180,14 +2295,14 @@ function Actividad2MathGeometry() {
               <div className="act2geo-pills">
                 <span>Introductorio</span>
                 <span>8–12 min</span>
-                <span>3 intentos</span>
+                <span>Conteo de errores</span>
               </div>
             </div>
 
             <div className="act2geo-actions-top">
-              <button type="button" onClick={pausarExplicacionNova}>
-                <FiPause />
-                Pausa
+              <button type="button" onClick={alternarPausaActividadAct2}>
+                {actividadPausadaAct2 ? <FiPlay /> : <FiPause />}
+                {actividadPausadaAct2 ? "Continuar" : "Pausar"}
               </button>
 
               <button
@@ -2289,6 +2404,13 @@ function Actividad2MathGeometry() {
 
           <section className="act2geo-layout">
             <article className="act2geo-challenge-card">
+              {actividadPausadaAct2 && (
+                <div className="act2geo-activity-pause-overlay">
+                  <FiPause />
+                  <strong>Actividad pausada</strong>
+                  <span>Presiona Continuar para seguir.</span>
+                </div>
+              )}
               <div
                 className={`act2geo-map-wrap act2geo-map-wrap-${estadoPuenteAct2} ${
                   puentePausadoAct2 ? "act2geo-bridge-paused" : ""
@@ -2482,7 +2604,9 @@ function Actividad2MathGeometry() {
               <button
                 type="button"
                 className="act2geo-tip-card act2geo-profesor-card"
-                onClick={() => abrirProfesorAstroAct2(false)}
+                onClick={() =>
+                  !actividadPausadaAct2 && abrirProfesorAstroAct2(false)
+                }
               >
                 <img src={profesorExplicando} alt="Profesor Astro" />
                 <div>
@@ -2495,7 +2619,7 @@ function Actividad2MathGeometry() {
               <button
                 type="button"
                 className="act2geo-tip-card act2geo-open-pistas-card"
-                onClick={() => abrirPistasAct2(false)}
+                onClick={() => !actividadPausadaAct2 && abrirPistasAct2(false)}
               >
                 <img src={byteAct2} alt="Byte" />
                 <div>
@@ -2540,8 +2664,8 @@ function Actividad2MathGeometry() {
             <article>
               <FiTarget />
               <div>
-                <span>Intentos</span>
-                <strong>{intentosAct2}/3</strong>
+                <span>Errores</span>
+                <strong>{erroresAct2}</strong>
               </div>
             </article>
 
@@ -2911,7 +3035,7 @@ function Actividad2MathGeometry() {
                 <button
                   type="button"
                   className="act2geo-sombra-try-btn"
-                  onClick={reiniciarActividadAct2}
+                  onClick={cerrarSombraYReiniciarAct2}
                 >
                   Volver a intentarlo
                 </button>

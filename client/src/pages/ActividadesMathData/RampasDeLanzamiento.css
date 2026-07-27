@@ -1119,17 +1119,16 @@
 
 .res-villano-exito-group {
   position: absolute;
-  top: 220px;
-  right: 24px;
+  top: 130px;
+  right: 20px;
   z-index: 10;
   pointer-events: none;
-  max-height: 230px;
+  max-height: 290px;
   overflow: hidden;
-  background: red; /* TEMPORAL: solo para ver el contorno, lo quitamos después */
 }
 .res-villano-trofeo-img {
-  height: 230px;
-  max-height: 230px;
+  height: 290px;
+  max-height: 290px;
   width: auto;
   object-fit: contain;
   display: block;
@@ -1138,16 +1137,16 @@
 
 .res-villano-fallo-group {
   position: absolute;
-  top: 220px;
-  right: 24px;
+  top: 130px;
+  right: 20px;
   z-index: 10;
   pointer-events: none;
-  max-height: 230px;
+  max-height: 290px;
   overflow: hidden;
 }
 .res-villano-fallo-group .res-villano-img {
-  height: 230px;
-  max-height: 230px;
+  height: 290px;
+  max-height: 290px;
   width: auto;
   object-fit: contain;
   display: block;

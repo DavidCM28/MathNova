@@ -90,22 +90,18 @@ import videoProfesor from "../../assets/mathGeometry/actividad6/instrucciones_pr
 import videoByte from "../../assets/mathGeometry/actividad6/byte_aciertos_y_pistas_act_6_MathGeometry.mp4";
 import videoSombra from "../../assets/mathGeometry/actividad6/act_6_sombra_error_MathGeometry_.mp4";
 
-/*
-  AUDIOS DE ACTIVIDAD 6
-  Por ahora se dejan vacíos para que el componente compile aunque todavía no
-  hayas agregado los MP3. Cuando tengas los audios, impórtalos aquí y sustituye
-  cada cadena vacía por la variable correspondiente.
-*/
-const audioNovaIntroduccion = "";
-const audioProfesorAstro = "";
-const audioPistaNova = "";
-const audioPistaProfesor = "";
-const audioPistaByte = "";
+/* AUDIOS COMPLETOS DE LA ACTIVIDAD 6 */
+import audioNovaIntroduccion from "../../assets/mathGeometry/actividad6/act6_bienvenida_nova_MathGeometry.mp3";
+import audioProfesorAstro from "../../assets/mathGeometry/actividad6/act6_instrucciones_astro_MathGeometry.mp3";
+import audioPistaNova from "../../assets/mathGeometry/actividad6/act6_nova_Pista_1_Busca_el_centro_del_ángulo_MathGeometry.mp3";
+import audioPistaProfesor from "../../assets/mathGeometry/actividad6/act6_profe_Pista_2_Compara_los_dos_lados_MathGeometry.mp3";
+import audioPistaByte from "../../assets/mathGeometry/actividad6/act6_byte_Pista_3_Misma_apertura_MathGeometry.mp3";
+import audioSombraError from "../../assets/mathGeometry/actividad6/act6_sombra_error_MathGeometry.mp3";
+import audioNovaCierre from "../../assets/mathGeometry/actividad6/act6_cierre_nova_MathGeometry.mp3";
+
 const audioByteAcierto = "";
 const audioProfesorAcierto = "";
 const audioNovaAcierto = "";
-const audioSombraError = "";
-const audioNovaCierre = "";
 
 const RETOS: Reto[] = [
   {
@@ -114,8 +110,8 @@ const RETOS: Reto[] = [
     pregunta:
       "Observa el ángulo y selecciona la línea que lo divide en dos partes iguales.",
     opciones: [
-      { id: "A", texto: "Línea A" },
       { id: "B", texto: "Línea B" },
+      { id: "A", texto: "Línea A" },
       { id: "C", texto: "Línea C" },
     ],
     correcta: "B",
@@ -127,8 +123,8 @@ const RETOS: Reto[] = [
       "Selecciona la línea que queda exactamente al centro de la apertura del ángulo.",
     opciones: [
       { id: "A", texto: "Línea D" },
-      { id: "B", texto: "Línea E" },
       { id: "C", texto: "Línea F" },
+      { id: "B", texto: "Línea E" },
     ],
     correcta: "B",
   },
@@ -137,9 +133,9 @@ const RETOS: Reto[] = [
     imagen: reto3,
     pregunta: "¿Qué línea divide este ángulo en dos regiones del mismo tamaño?",
     opciones: [
-      { id: "A", texto: "Línea G" },
-      { id: "B", texto: "Línea H" },
       { id: "C", texto: "Línea I" },
+      { id: "B", texto: "Línea H" },
+      { id: "A", texto: "Línea G" },
     ],
     correcta: "B",
   },
@@ -149,9 +145,9 @@ const RETOS: Reto[] = [
     pregunta:
       "Observa el ángulo inclinado y elige la línea que funciona como bisectriz.",
     opciones: [
-      { id: "A", texto: "Línea J" },
       { id: "B", texto: "Línea K" },
       { id: "C", texto: "Línea L" },
+      { id: "A", texto: "Línea J" },
     ],
     correcta: "B",
   },
@@ -161,9 +157,9 @@ const RETOS: Reto[] = [
     pregunta:
       "Selecciona la línea que divide de manera equilibrada el ángulo mostrado.",
     opciones: [
+      { id: "C", texto: "Línea P" },
       { id: "A", texto: "Línea M" },
       { id: "B", texto: "Línea N" },
-      { id: "C", texto: "Línea P" },
     ],
     correcta: "B",
   },
@@ -183,48 +179,51 @@ const RETOS: Reto[] = [
 
 const GUION_NOVA_INTRODUCCION = [
   "¡Hola, explorador de MathNova!",
-  "Hoy activaremos el Escudo Perfecto.",
-  "Observa cada ángulo y compara el espacio que queda a ambos lados de las líneas.",
-  "Tu misión es seleccionar la línea que divide el ángulo en dos partes iguales.",
-  "¡Activa los seis cristales y completa la misión!",
+  "Hoy activaremos El Escudo Perfecto.",
+  "Para lograrlo, observa cada ángulo y encuentra la línea que lo divide en dos partes iguales.",
+  "También tendrás que comparar ángulos y elegir los que tengan la misma apertura.",
+  "¡Vamos a cargar la energía del escudo!",
 ];
 
 const GUION_PROFESOR_ASTRO = [
-  "La bisectriz es la línea que divide un ángulo en dos partes iguales.",
-  "Observa los dos lados blancos que forman cada ángulo.",
-  "Después busca la línea que queda exactamente equilibrada entre ambos lados.",
-  "No necesitas medir; compara visualmente la apertura.",
+  "Observa con atención cada ángulo.",
+  "La línea correcta es la que divide el ángulo en dos partes iguales.",
+  "No necesitas medir ni usar transportador.",
+  "Solo compara visualmente ambos lados y elige la opción que se vea más equilibrada.",
+  "Cuando selecciones tu respuesta, comprobaremos si el escudo recibió energía correctamente.",
 ];
 
 const TEXTO_INICIAL_NOVA =
   "Presiona reproducir para escuchar la introducción de Nova.";
-const TEXTO_FINAL_NOVA = "¡Comencemos a activar el escudo!";
+const TEXTO_FINAL_NOVA = "¡Vamos a cargar la energía del escudo!";
 const TEXTO_INICIAL_PROFESOR =
   "Presiona reproducir para escuchar las instrucciones del Profesor Astro.";
 const TEXTO_FINAL_PROFESOR =
-  "Compara visualmente las dos partes del ángulo antes de responder.";
+  "Comprobaremos si el escudo recibió energía correctamente.";
 
 const GUION_SOMBRA_ERROR = [
   "Casi lo logras.",
-  "Observa nuevamente los dos lados que forman el ángulo.",
-  "La línea correcta debe quedar equilibrada entre ambos.",
-  "Compara las dos partes e inténtalo otra vez.",
+  "Observa otra vez el ángulo y compara sus dos partes.",
+  "Si un lado se ve más grande que el otro, quizá esa no es la respuesta correcta.",
+  "No pasa nada, inténtalo de nuevo con calma.",
 ];
 
 const TEXTO_INICIAL_SOMBRA =
   "Presiona reproducir para escuchar el mensaje de Sombra.";
-const TEXTO_FINAL_SOMBRA = "Inténtalo de nuevo.";
+const TEXTO_FINAL_SOMBRA = "No pasa nada, inténtalo de nuevo con calma.";
 
 const GUION_NOVA_CIERRE = [
-  "¡Escudo activado!",
-  "Completaste los seis cristales identificando correctamente las bisectrices.",
-  "Aprendiste que una bisectriz divide un ángulo en dos partes iguales.",
-  "¡Excelente trabajo, guardián de MathNova!",
+  "¡Misión completada!",
+  "Activaste El Escudo Perfecto con tu observación.",
+  "Hoy aprendiste a identificar líneas que dividen ángulos en dos partes iguales.",
+  "También comparaste ángulos con la misma apertura.",
+  "Cada reto completado fortaleció la energía del escudo.",
+  "¡Excelente trabajo, explorador de MathNova!",
 ];
 
 const TEXTO_INICIAL_COMPLETADO =
   "Presiona reproducir para escuchar el mensaje final de Nova.";
-const TEXTO_FINAL_COMPLETADO = "¡Excelente trabajo, guardián del escudo!";
+const TEXTO_FINAL_COMPLETADO = "¡Excelente trabajo, explorador de MathNova!";
 
 const PISTAS_ACT6: Record<
   PistaAct6Id,
@@ -240,38 +239,44 @@ const PISTAS_ACT6: Record<
 > = {
   frente: {
     id: "frente",
-    titulo: "Pista: observa los lados",
-    subtitulo: "Comienza por los dos límites del ángulo",
+    titulo: "Pista 1: Centro",
+    subtitulo: "Pista espacial",
     personaje: "Nova",
     audio: audioPistaNova,
     video: videoNova,
     guion: [
-      "Mira primero los dos lados blancos que forman el ángulo.",
-      "La respuesta debe quedar entre ambos, no pegada solamente a uno.",
+      "Pista espacial:",
+      "Observa cuál línea está más centrada dentro del ángulo.",
+      "Si parece dejar el mismo espacio a ambos lados, puede ser la respuesta correcta.",
+      "¡El equilibrio es la clave del escudo!",
     ],
   },
   linea: {
     id: "linea",
-    titulo: "Pista: compara las dos partes",
-    subtitulo: "Busca una división equilibrada",
+    titulo: "Pista 2: Dos lados",
+    subtitulo: "Pista importante",
     personaje: "Profesor Astro",
     audio: audioPistaProfesor,
     video: videoProfesor,
     guion: [
-      "Imagina que la línea divide la apertura en dos regiones.",
-      "Elige la opción que deja las dos regiones con el mismo tamaño.",
+      "Pista importante:",
+      "La línea correcta forma dos partes del mismo tamaño.",
+      "Antes de responder, compara si ambos lados del ángulo se ven iguales.",
+      "Si una parte se ve mucho más grande, revisa otra opción.",
     ],
   },
   letras: {
     id: "letras",
-    titulo: "Pista: revisa la posición",
-    subtitulo: "No elijas solo por el color o la letra",
+    titulo: "Pista 3: Apertura",
+    subtitulo: "Pista de análisis",
     personaje: "Byte",
     audio: audioPistaByte,
     video: videoByte,
     guion: [
-      "No elijas una línea solamente por su color o por su letra.",
-      "Compara su posición real dentro del ángulo antes de responder.",
+      "Pista de análisis:",
+      "Cuando compares ángulos, fíjate solo en la apertura.",
+      "Aunque estén girados o en otra posición, pueden tener la misma abertura.",
+      "Observa la separación entre sus lados y elige con cuidado.",
     ],
   },
 };
@@ -564,7 +569,7 @@ function Actividad6MathGeometry() {
   const [retoActual, setRetoActual] = useState(0);
   const [seleccion, setSeleccion] = useState<OpcionId | null>(null);
   const [revision, setRevision] = useState<EstadoRevision>("pendiente");
-  const [intentos, setIntentos] = useState(0);
+  const [errores, setErrores] = useState(0);
   const [completados, setCompletados] = useState(0);
   const [modal, setModal] = useState<ModalId>(null);
   const [pausado, setPausado] = useState(false);
@@ -1170,8 +1175,6 @@ function Actividad6MathGeometry() {
   const comprobar = () => {
     if (!seleccion || pausado || aciertoEspecial !== null) return;
 
-    setIntentos((valor) => valor + 1);
-
     if (seleccion === reto.correcta) {
       setRevision("correcto");
 
@@ -1184,6 +1187,7 @@ function Actividad6MathGeometry() {
       return;
     }
 
+    setErrores((valor) => valor + 1);
     setRevision("incorrecto");
     setModal("sombra");
   };
@@ -1209,7 +1213,7 @@ function Actividad6MathGeometry() {
     setRetoActual(0);
     setSeleccion(null);
     setRevision("pendiente");
-    setIntentos(0);
+    setErrores(0);
     setCompletados(0);
     setSegundos(0);
     setModal(null);
@@ -1259,6 +1263,23 @@ function Actividad6MathGeometry() {
     setAciertoEspecial(null);
     setAciertoEspecialReproduciendo(false);
     setReinicioAciertoEspecial((valor) => valor + 1);
+  };
+
+  const volverAIntentarlo = () => {
+    audioSombraRef.current?.pause();
+
+    if (audioSombraRef.current) {
+      audioSombraRef.current.currentTime = 0;
+    }
+
+    setModalReproduciendo(false);
+    setModal(null);
+    setSeleccion(null);
+    setRevision("pendiente");
+    setTextoSombra(TEXTO_INICIAL_SOMBRA);
+    setIndiceSombraActivo(-1);
+    setProgresoSombraActivo(0);
+    setReinicioModal((valor) => valor + 1);
   };
 
   const videoModal =
@@ -1419,7 +1440,7 @@ function Actividad6MathGeometry() {
                   <FiClock /> 8–12 min
                 </span>
                 <span>
-                  <FiRotateCcw /> 3 intentos
+                  <FiTarget /> Conteo de errores
                 </span>
               </div>
             </div>
@@ -1706,8 +1727,8 @@ function Actividad6MathGeometry() {
             <article>
               <FiTarget />
               <div>
-                <span>Intentos</span>
-                <strong>{intentos}/3</strong>
+                <span>Errores</span>
+                <strong>{errores}</strong>
               </div>
             </article>
 
@@ -1803,7 +1824,7 @@ function Actividad6MathGeometry() {
           }}
         >
           <section
-            className={`act6geo-character-modal act6geo-modal-sin-contenido ${
+            className={`act6geo-character-modal ${
               modalReproduciendo ? "act6geo-profe-modal-playing" : ""
             } ${modal === "byte" ? "act6geo-hints-modal" : ""}`}
             role="dialog"
@@ -1887,14 +1908,6 @@ function Actividad6MathGeometry() {
                   setTextoSombra(GUION_SOMBRA_ERROR.join(" "));
                   setIndiceSombraActivo(GUION_SOMBRA_ERROR.length - 1);
                   setProgresoSombraActivo(100);
-                  window.setTimeout(() => {
-                    setModal(null);
-                    setSeleccion(null);
-                    setRevision("pendiente");
-                    setTextoSombra(TEXTO_INICIAL_SOMBRA);
-                    setIndiceSombraActivo(-1);
-                    setProgresoSombraActivo(0);
-                  }, 450);
                 }}
               />
             )}
@@ -1995,6 +2008,17 @@ function Actividad6MathGeometry() {
                 >
                   <FiRotateCcw /> Reiniciar
                 </button>
+
+                {modal === "sombra" && (
+                  <button
+                    type="button"
+                    className="act6geo-try-again-btn"
+                    onClick={volverAIntentarlo}
+                  >
+                    <FiRotateCcw />
+                    Volver a intentarlo
+                  </button>
+                )}
               </div>
             </div>
 
@@ -2101,7 +2125,7 @@ function Actividad6MathGeometry() {
       {modal === "completado" && (
         <div className="act6geo-modal-overlay">
           <section
-            className="act6geo-complete-modal act6geo-modal-sin-contenido"
+            className="act6geo-complete-modal"
             role="dialog"
             aria-modal="true"
             aria-label="Actividad completada"
@@ -2245,10 +2269,10 @@ function Actividad6MathGeometry() {
               <div className="act6geo-complete-actions">
                 <button
                   type="button"
-                  onClick={() => irARuta("/actividades/geometria")}
+                  onClick={() => irARuta("/actividades/geometria/actividad-7")}
                 >
                   <FiArrowRight />
-                  Continuar explorando
+                  Siguiente actividad
                 </button>
 
                 <button type="button" onClick={reiniciar}>

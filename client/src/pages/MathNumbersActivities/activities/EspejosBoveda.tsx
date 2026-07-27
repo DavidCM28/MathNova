@@ -54,7 +54,7 @@ type QuestionKey = "q1" | "q2";
 type AnswerValue = "a" | "b";
 
 const correctAnswers: Record<QuestionKey, AnswerValue> = {
-  q1: "b",
+  q1: "a",
   q2: "b",
 };
 
@@ -1237,7 +1237,7 @@ export function EspejosBoveda() {
                                   }
                                 >
                                   <span>A</span>
-                                  <strong>7 − 4</strong>
+                                  <strong>7 + 4</strong>
                                   <i>
                                     <FiCheck />
                                   </i>
@@ -1257,7 +1257,7 @@ export function EspejosBoveda() {
                                   }
                                 >
                                   <span>B</span>
-                                  <strong>7 + 4</strong>
+                                  <strong>7 − 4</strong>
                                   <i>
                                     <FiCheck />
                                   </i>

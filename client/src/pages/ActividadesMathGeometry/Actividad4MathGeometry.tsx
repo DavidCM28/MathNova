@@ -581,7 +581,7 @@ function Actividad4MathGeometry() {
   const [retoActual, setRetoActual] = useState(0);
   const [seleccion, setSeleccion] = useState<OpcionId | null>(null);
   const [revision, setRevision] = useState<EstadoRevision>("pendiente");
-  const [intentos, setIntentos] = useState(0);
+  const [errores, setErrores] = useState(0);
   const [completados, setCompletados] = useState(0);
   const [modal, setModal] = useState<ModalId>(null);
   const [pausado, setPausado] = useState(false);
@@ -925,6 +925,23 @@ function Actividad4MathGeometry() {
     setModalReproduciendo(false);
   };
 
+  const volverAIntentarlo = () => {
+    audioSombraRef.current?.pause();
+
+    if (audioSombraRef.current) {
+      audioSombraRef.current.currentTime = 0;
+    }
+
+    setModalReproduciendo(false);
+    setModal(null);
+    setSeleccion(null);
+    setRevision("pendiente");
+    setTextoSombra(TEXTO_INICIAL_SOMBRA);
+    setIndiceSombraActivo(-1);
+    setProgresoSombraActivo(0);
+    setReinicioModal((valor) => valor + 1);
+  };
+
   const reiniciarSombra = () => {
     const audio = audioSombraRef.current;
     if (!audio || modal !== "sombra") return;
@@ -1187,8 +1204,6 @@ function Actividad4MathGeometry() {
   const comprobar = () => {
     if (!seleccion || pausado || aciertoEspecial !== null) return;
 
-    setIntentos((valor) => valor + 1);
-
     if (seleccion === reto.correcta) {
       setRevision("correcto");
 
@@ -1201,6 +1216,7 @@ function Actividad4MathGeometry() {
       return;
     }
 
+    setErrores((valor) => valor + 1);
     setRevision("incorrecto");
     setModal("sombra");
   };
@@ -1226,7 +1242,7 @@ function Actividad4MathGeometry() {
     setRetoActual(0);
     setSeleccion(null);
     setRevision("pendiente");
-    setIntentos(0);
+    setErrores(0);
     setCompletados(0);
     setSegundos(0);
     setModal(null);
@@ -1432,7 +1448,7 @@ function Actividad4MathGeometry() {
                   <FiClock /> 8–12 min
                 </span>
                 <span>
-                  <FiRotateCcw /> 3 intentos
+                  <FiTarget /> Conteo de errores
                 </span>
               </div>
             </div>
@@ -1708,8 +1724,8 @@ function Actividad4MathGeometry() {
             <article>
               <FiTarget />
               <div>
-                <span>Intentos</span>
-                <strong>{intentos}/3</strong>
+                <span>Errores</span>
+                <strong>{errores}</strong>
               </div>
             </article>
 
@@ -1889,14 +1905,7 @@ function Actividad4MathGeometry() {
                   setTextoSombra(GUION_SOMBRA_ERROR.join(" "));
                   setIndiceSombraActivo(GUION_SOMBRA_ERROR.length - 1);
                   setProgresoSombraActivo(100);
-                  window.setTimeout(() => {
-                    setModal(null);
-                    setSeleccion(null);
-                    setRevision("pendiente");
-                    setTextoSombra(TEXTO_INICIAL_SOMBRA);
-                    setIndiceSombraActivo(-1);
-                    setProgresoSombraActivo(0);
-                  }, 450);
+                  setReinicioModal((valor) => valor + 1);
                 }}
               />
             )}
@@ -1998,6 +2007,17 @@ function Actividad4MathGeometry() {
                   <FiRotateCcw /> Reiniciar
                 </button>
               </div>
+
+              {modal === "sombra" && (
+                <button
+                  type="button"
+                  className="act4geo-sombra-try-btn"
+                  onClick={volverAIntentarlo}
+                >
+                  <FiRotateCcw />
+                  Volver a intentarlo
+                </button>
+              )}
             </div>
 
             <aside className="act4geo-modal-script-panel">
@@ -2247,7 +2267,7 @@ function Actividad4MathGeometry() {
               <div className="act4geo-complete-actions">
                 <button
                   type="button"
-                  onClick={() => irARuta("/actividades/geometria")}
+                  onClick={() => irARuta("/actividades/geometria/actividad-5")}
                 >
                   <FiArrowRight />
                   Siguiente actividad

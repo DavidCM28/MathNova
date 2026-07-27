@@ -23,12 +23,17 @@ import Actividad3MathGeometry from "./pages/ActividadesMathGeometry/Actividad3Ma
 import Actividad4MathGeometry from "./pages/ActividadesMathGeometry/Actividad4MathGeometry";
 import Actividad5MathGeometry from "./pages/ActividadesMathGeometry/Actividad5MathGeometry";
 import Actividad6MathGeometry from "./pages/ActividadesMathGeometry/Actividad6MathGeometry";
+import Actividad7MathGeometry from "./pages/ActividadesMathGeometry/Actividad7MathGeometry";
+import Actividad8MathGeometry from "./pages/ActividadesMathGeometry/Actividad8MathGeometry";
 
 import ActividadesMathData from "./pages/ActividadesMathData/ActividadesMathData";
 import GeneradorEnergiaInversa from "./pages/ActividadesMathData/GeneradorEnergiaInversa";
 import RampasDeLanzamiento from "./pages/ActividadesMathData/RampasDeLanzamiento";
 import EncuestaTripulacion from "./pages/ActividadesMathData/EncuestaTripulacion";
 import HologramaReportes from "./pages/ActividadesMathData/HologramaReportes";
+import SensorFrecuencias from "./pages/ActividadesMathData/SensorFrecuencias";
+import NucleoDecisiones from "./pages/ActividadesMathData/NucleoDecisiones";
+import OraculoEstacion from "./pages/ActividadesMathData/OraculoEstacion";
 
 import ActividadesMathNumbers from "./pages/ActividadesMathNumbers/ActividadesMathNumbers";
 import MathNumbersActivityRouter from "./pages/MathNumbersActivities/MathNumbersActivityRouter";
@@ -200,14 +205,41 @@ function App() {
             </RequireAuth>
           }
         />
-        <Route
-          path="/actividades-math-data/holograma-reportes"
-          element={
-            <RequireAuth>
-              <HologramaReportes />
-            </RequireAuth>
-          }
-        />
+<Route
+  path="/actividades-math-data/holograma-reportes"
+  element={
+    <RequireAuth>
+      <HologramaReportes />
+    </RequireAuth>
+  }
+/>
+
+<Route
+  path="/actividades-math-data/sensor-frecuencias"
+  element={
+    <RequireAuth>
+      <SensorFrecuencias />
+    </RequireAuth>
+  }
+/>
+
+<Route
+  path="/actividades-math-data/nucleo-decisiones"
+  element={
+    <RequireAuth>
+      <NucleoDecisiones />
+    </RequireAuth>
+  }
+/>
+
+<Route
+  path="/actividades-math-data/oraculo-estacion"
+  element={
+    <RequireAuth>
+      <OraculoEstacion />
+    </RequireAuth>
+  }
+/>
         <Route
           path="/retroalimentacion"
           element={
@@ -281,6 +313,24 @@ function App() {
           element={
             <RequireAuth rolesPermitidos={["estudiante"]}>
               <Actividad6MathGeometry />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/actividades/geometria/actividad-7"
+          element={
+            <RequireAuth rolesPermitidos={["estudiante"]}>
+              <Actividad7MathGeometry />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/actividades/geometria/actividad-8"
+          element={
+            <RequireAuth rolesPermitidos={["estudiante"]}>
+              <Actividad8MathGeometry />
             </RequireAuth>
           }
         />

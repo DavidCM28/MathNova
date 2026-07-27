@@ -6,6 +6,11 @@ import {
   useState,
 } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  getSessionUser,
+  hasAuthSession,
+  isGuestSession,
+} from "../../utils/authSession";
 import "./Actividad3MathGeometry.css";
 
 import logo from "../../assets/logo_MathNova.png";
@@ -85,6 +90,15 @@ type Reto = {
   respuesta: AnguloId;
   pistaByte: string;
   consejo: string;
+};
+
+type SessionUser = {
+  rol?: string;
+  role?: string;
+  tipo_usuario?: string;
+  role_id?: number | string;
+  roleId?: number | string;
+  id_rol?: number | string;
 };
 
 /* =========================================================
@@ -632,6 +646,7 @@ function Actividad3MathGeometry() {
   const audioCierreRef = useRef<HTMLAudioElement | null>(null);
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [pausado, setPausado] = useState(false);
   const [textoBienvenida, setTextoBienvenida] = useState("");
   const [estadoExplicacion, setEstadoExplicacion] =
     useState<EstadoExplicacion>("inicio");
@@ -658,7 +673,6 @@ function Actividad3MathGeometry() {
   const [seleccion, setSeleccion] = useState<AnguloId | "">("");
   const [estadoRespuesta, setEstadoRespuesta] =
     useState<EstadoRespuesta>("pendiente");
-  const [intentosReto, setIntentosReto] = useState(1);
   const [erroresTotales, setErroresTotales] = useState(0);
   const [modalCompletado, setModalCompletado] = useState(false);
   const [textoCierre, setTextoCierre] = useState("");
@@ -1195,14 +1209,28 @@ function Actividad3MathGeometry() {
   }, [modalCompletado, autoPlayCierre]);
 
   useEffect(() => {
+    if (
+      pausado ||
+      modalCompletado ||
+      modalProfeOpen ||
+      modalSombraOpen ||
+      modalPistasOpen
+    ) {
+      return;
+    }
+
     const timer = window.setInterval(() => {
-      if (!modalCompletado) {
-        setSegundos((prev) => prev + 1);
-      }
+      setSegundos((prev) => prev + 1);
     }, 1000);
 
     return () => window.clearInterval(timer);
-  }, [modalCompletado]);
+  }, [
+    pausado,
+    modalCompletado,
+    modalProfeOpen,
+    modalSombraOpen,
+    modalPistasOpen,
+  ]);
 
   useEffect(() => {
     const bloquearPantalla =
@@ -1250,6 +1278,7 @@ function Actividad3MathGeometry() {
   }, []);
 
   const iniciarExplicacion = async () => {
+    if (pausado) return;
     const audio = audioNovaRef.current;
     const video = videoNovaRef.current;
     if (!audio || !video) return;
@@ -1275,6 +1304,7 @@ function Actividad3MathGeometry() {
   };
 
   const repetirExplicacion = async () => {
+    if (pausado) return;
     const audio = audioNovaRef.current;
     const video = videoNovaRef.current;
     if (!audio || !video) return;
@@ -1336,6 +1366,7 @@ function Actividad3MathGeometry() {
   };
 
   const iniciarPista = async () => {
+    if (pausado) return;
     const audio = audioPistaRef.current;
     const video = videoPistaRef.current;
     if (!audio || !video) return;
@@ -1363,6 +1394,7 @@ function Actividad3MathGeometry() {
   };
 
   const reiniciarPista = async () => {
+    if (pausado) return;
     const audio = audioPistaRef.current;
     const video = videoPistaRef.current;
     if (!audio || !video) return;
@@ -1399,6 +1431,7 @@ function Actividad3MathGeometry() {
   };
 
   const iniciarSombra = async () => {
+    if (pausado) return;
     const audio = audioSombraRef.current;
     const video = videoSombraRef.current;
     if (!audio || !video) return;
@@ -1426,6 +1459,7 @@ function Actividad3MathGeometry() {
   };
 
   const repetirSombra = async () => {
+    if (pausado) return;
     const audio = audioSombraRef.current;
     const video = videoSombraRef.current;
     if (!audio || !video) return;
@@ -1489,6 +1523,7 @@ function Actividad3MathGeometry() {
   };
 
   const reproducirProfe = async () => {
+    if (pausado) return;
     const audio = audioProfeRef.current;
     const video = videoProfeRef.current;
     if (!audio || !video) return;
@@ -1516,6 +1551,7 @@ function Actividad3MathGeometry() {
   };
 
   const reiniciarProfe = async () => {
+    if (pausado) return;
     const audio = audioProfeRef.current;
     const video = videoProfeRef.current;
     if (!audio || !video) return;
@@ -1536,6 +1572,46 @@ function Actividad3MathGeometry() {
     }
   };
 
+  const obtenerDashboardPrincipal = () => {
+    if (isGuestSession() && !hasAuthSession()) return "/dashboard";
+
+    const usuario = getSessionUser() as SessionUser | null;
+    const rol = String(
+      usuario?.rol || usuario?.role || usuario?.tipo_usuario || "",
+    )
+      .toLowerCase()
+      .trim();
+
+    const roleId = Number(
+      usuario?.role_id || usuario?.roleId || usuario?.id_rol || 0,
+    );
+
+    if (rol === "admin" || rol === "administrador" || roleId === 3) {
+      return "/dashboard-admin";
+    }
+
+    if (
+      [
+        "docente",
+        "profesor",
+        "maestro",
+        "docente_estudiante",
+        "docente-estudiante",
+        "docente_alumno",
+        "docente-alumno",
+        "maestro_estudiante",
+        "maestro-estudiante",
+        "mixto",
+      ].includes(rol) ||
+      roleId === 1 ||
+      roleId === 4
+    ) {
+      return "/dashboard-docente";
+    }
+
+    return "/dashboard";
+  };
+
   const irARuta = (ruta: string) => {
     if (timeoutCambioRef.current) {
       window.clearTimeout(timeoutCambioRef.current);
@@ -1546,6 +1622,8 @@ function Actividad3MathGeometry() {
   };
 
   const pasarAlSiguienteReto = () => {
+    if (pausado) return;
+
     if (retoActual + 1 >= RETOS.length) {
       setTextoCierre("");
       setEstadoCierre("inicio");
@@ -1559,10 +1637,11 @@ function Actividad3MathGeometry() {
     setRetoActual((prev) => prev + 1);
     setSeleccion("");
     setEstadoRespuesta("pendiente");
-    setIntentosReto(1);
   };
 
   const comprobarRespuesta = () => {
+    if (pausado) return;
+
     if (!seleccion || estadoRespuesta === "cambiando") {
       setEstadoRespuesta("incorrecto");
 
@@ -1588,12 +1667,12 @@ function Actividad3MathGeometry() {
     }
 
     setErroresTotales((prev) => prev + 1);
-    setIntentosReto((prev) => Math.min(prev + 1, 3));
     setEstadoRespuesta("incorrecto");
     abrirModalSombra();
   };
 
   const reproducirCierre = async () => {
+    if (pausado) return;
     const audio = audioCierreRef.current;
     const video = videoCierreRef.current;
     if (!audio || !video) return;
@@ -1663,7 +1742,6 @@ function Actividad3MathGeometry() {
     setRetoActual(0);
     setSeleccion("");
     setEstadoRespuesta("pendiente");
-    setIntentosReto(1);
     setErroresTotales(0);
     detenerCierre();
     setModalCompletado(false);
@@ -1675,8 +1753,33 @@ function Actividad3MathGeometry() {
     setModalCompletado(false);
   };
 
+  const pausarTodo = () => {
+    pausarExplicacion();
+    pausarPista();
+    pausarProfe();
+    pausarSombra();
+    pausarCierre();
+
+    if (timeoutCambioRef.current) {
+      window.clearTimeout(timeoutCambioRef.current);
+      timeoutCambioRef.current = null;
+    }
+  };
+
+  const alternarPausaActividad = () => {
+    if (pausado) {
+      setPausado(false);
+      return;
+    }
+
+    pausarTodo();
+    setPausado(true);
+  };
+
   return (
-    <main className="act3geo-page">
+    <main
+      className={`act3geo-page ${pausado ? "act3geo-activity-paused" : ""}`}
+    >
       <button
         type="button"
         className={`act3geo-hamburger-btn ${
@@ -1704,7 +1807,7 @@ function Actividad3MathGeometry() {
           <button
             type="button"
             className="act3geo-menu-item"
-            onClick={() => irARuta("/")}
+            onClick={() => irARuta(obtenerDashboardPrincipal())}
           >
             <FiGrid />
             <span>Dashboard principal</span>
@@ -1766,7 +1869,7 @@ function Actividad3MathGeometry() {
             <div className="act3geo-side-progress">
               <span>★</span>
               <div>
-                <b></b>
+                <b style={{ width: "60%" }} />
               </div>
               <strong>60%</strong>
             </div>
@@ -1800,7 +1903,6 @@ function Actividad3MathGeometry() {
               <div className="act3geo-pills">
                 <span>▣ Introducción</span>
                 <span>◉ 8–12 min</span>
-                <span>★ 3 intentos</span>
               </div>
 
               <h1>Actividad 3 Detectores de Giro</h1>
@@ -1809,6 +1911,21 @@ function Actividad3MathGeometry() {
                 Observa la apertura de la puerta y selecciona si el ángulo es
                 agudo, recto u obtuso.
               </p>
+            </div>
+
+            <div className="act3geo-actions-top">
+              <button type="button" onClick={alternarPausaActividad}>
+                {pausado ? <FiPlay /> : <FiPause />}
+                {pausado ? "Continuar" : "Pausar"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => irARuta("/actividades/geometria")}
+              >
+                <FiLogOut />
+                Salir
+              </button>
             </div>
           </header>
 
@@ -1934,6 +2051,14 @@ function Actividad3MathGeometry() {
               </section>
 
               <div className="act3geo-door-stage">
+                {pausado && (
+                  <div className="act3geo-pause-layer">
+                    <FiPause />
+                    <strong>Actividad pausada</strong>
+                    <span>Presiona Continuar para seguir.</span>
+                  </div>
+                )}
+
                 <img
                   src={reto.imagen}
                   alt={`Puerta del reto ${reto.id}`}
@@ -1967,10 +2092,11 @@ function Actividad3MathGeometry() {
                         esIncorrecta ? "act3geo-option-wrong" : ""
                       }`}
                       onClick={() => {
-                        if (estadoRespuesta === "cambiando") return;
+                        if (pausado || estadoRespuesta === "cambiando") return;
                         setSeleccion(opcion.id);
                         setEstadoRespuesta("pendiente");
                       }}
+                      disabled={pausado}
                     >
                       <span className="act3geo-angle-icon">
                         {opcion.simbolo}
@@ -1994,6 +2120,7 @@ function Actividad3MathGeometry() {
                   type="button"
                   className="act3geo-check-btn"
                   onClick={comprobarRespuesta}
+                  disabled={pausado}
                 >
                   <FiCheck /> Comprobar
                 </button>
@@ -2024,11 +2151,11 @@ function Actividad3MathGeometry() {
                 className="act3geo-tip-card act3geo-byte-card act3geo-open-pistas-card act3geo-assistant-card"
                 role="button"
                 tabIndex={0}
-                onClick={abrirModalPistas}
+                onClick={() => !pausado && abrirModalPistas()}
                 onKeyDown={(evento) => {
                   if (evento.key === "Enter" || evento.key === " ") {
                     evento.preventDefault();
-                    abrirModalPistas();
+                    if (!pausado) abrirModalPistas();
                   }
                 }}
               >
@@ -2057,7 +2184,7 @@ function Actividad3MathGeometry() {
                 className="act3geo-tip-card act3geo-profe-card act3geo-profe-open-card act3geo-assistant-card"
                 role="button"
                 tabIndex={0}
-                onClick={abrirModalProfe}
+                onClick={() => !pausado && abrirModalProfe()}
                 onKeyDown={(evento) => {
                   if (evento.key === "Enter" || evento.key === " ") {
                     evento.preventDefault();
@@ -2101,14 +2228,6 @@ function Actividad3MathGeometry() {
                     <strong>
                       {retosCompletados}/{RETOS.length}
                     </strong>
-                  </div>
-                </article>
-
-                <article>
-                  <FiTarget />
-                  <div>
-                    <span>Intentos</span>
-                    <strong>{intentosReto}/3</strong>
                   </div>
                 </article>
 

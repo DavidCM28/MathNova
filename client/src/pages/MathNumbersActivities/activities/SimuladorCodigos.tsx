@@ -1,0 +1,1786 @@
+import "./SimuladorCodigos.css";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import {
+  FiBarChart2,
+  FiBookOpen,
+  FiCheck,
+  FiCheckCircle,
+  FiCircle,
+  FiClipboard,
+  FiFlag,
+  FiGrid,
+  FiHelpCircle,
+  FiInfo,
+  FiLock,
+  FiLogOut,
+  FiMessageSquare,
+  FiPause,
+  FiPlay,
+  FiRotateCcw,
+  FiSave,
+  FiTarget,
+  FiTrendingUp,
+  FiUser,
+  FiVolume2,
+  FiX,
+  FiZap,
+} from "react-icons/fi";
+
+import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
+
+import activityScene from "../../../assets/mathnumbers/12-simulador/eferas rtx.webp";
+import audioConsejoSumaSimulador from "../../../assets/mathnumbers/12-simulador/consejo8.mp3";
+import audioIntroSimulador from "../../../assets/mathnumbers/12-simulador/introact8.mp3";
+import comandanteSumaHablando from "../../../assets/mathnumbers/12-simulador/comandante_suma_hablando.webp";
+import comandanteSumaIdle from "../../../assets/mathnumbers/12-simulador/comandante_suma_idle.png";
+import bytePista from "../../../assets/mathnumbers/byte_pista.png";
+
+import { clearAuthSession } from "../../../utils/authSession";
+import { guardarProgresoActividad } from "../../../services/progresoService";
+
+import { activityListRoute } from "../constants";
+import { ResultModal } from "../components/ResultModal";
+import { Toast } from "../components/Toast";
+import { useToast } from "../hooks/useToast";
+import type { ResultKind } from "../types";
+
+import {
+  logo,
+  menuHamburguesa,
+  zorritoConsejo,
+} from "../mathNumbersAssets";
+
+type AudioStatus = "idle" | "playing" | "paused" | "ended";
+
+type BasicRule = "2n" | "n+2" | "3n";
+type CombinedRule = "2n+3" | "2+n+3" | "3n+2";
+
+const basicRuleOptions: BasicRule[] = [
+  "2n",
+  "n+2",
+  "3n",
+];
+
+const combinedRuleOptions: CombinedRule[] = [
+  "2n+3",
+  "2+n+3",
+  "3n+2",
+];
+
+function shuffleArray<T>(items: T[]) {
+  const copy = [...items];
+
+  for (
+    let index = copy.length - 1;
+    index > 0;
+    index -= 1
+  ) {
+    const randomIndex = Math.floor(
+      Math.random() * (index + 1),
+    );
+
+    [copy[index], copy[randomIndex]] = [
+      copy[randomIndex],
+      copy[index],
+    ];
+  }
+
+  return copy;
+}
+
+function shuffleAnswers<T>(
+  items: T[],
+  correctAnswer: T,
+) {
+  const shuffled = shuffleArray(items);
+
+  if (shuffled[0] === correctAnswer) {
+    [shuffled[0], shuffled[1]] = [
+      shuffled[1],
+      shuffled[0],
+    ];
+  }
+
+  return shuffled;
+}
+
+const activityRoute =
+  "/actividades/mathnumbers/simulador-codigos";
+
+const INTRO_AUDIO_SRC = audioIntroSimulador;
+const GUIDE_AUDIO_SRC = audioConsejoSumaSimulador;
+
+const INTRO_INITIAL_TEXT =
+  "Presiona reproducir para escuchar la introducción del Comandante Suma.";
+
+const INTRO_FULL_TEXT =
+  "El simulador de la base conoce los primeros códigos de energía, pero necesita una regla general basada en la variable n para generar cualquier nivel futuro sin tener que calcularlos uno por uno.";
+
+const GUIDE_INITIAL_TEXT =
+  "Presiona reproducir para escuchar el consejo del Comandante Suma.";
+
+const GUIDE_FULL_TEXT =
+  "Prueba siempre la regla descubierta con todos los valores conocidos de la tabla para asegurarte de que encaja a la perfección en cada una de las filas antes de darla por buena.";
+
+function HelpModal({
+  onClose,
+}: {
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const previousOverflow =
+      document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+
+    const closeWithEscape = (
+      event: KeyboardEvent,
+    ) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener(
+      "keydown",
+      closeWithEscape,
+    );
+
+    return () => {
+      document.body.style.overflow =
+        previousOverflow;
+
+      window.removeEventListener(
+        "keydown",
+        closeWithEscape,
+      );
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      className="mnx-simulador-help-overlay"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (
+          event.target ===
+          event.currentTarget
+        ) {
+          onClose();
+        }
+      }}
+    >
+      <section
+        className="mnx-simulador-help-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="mnx-simulador-help-title"
+      >
+        <button
+          type="button"
+          className="mnx-simulador-help-close"
+          onClick={onClose}
+          aria-label="Cerrar pista"
+        >
+          <FiX />
+        </button>
+
+        <div className="mnx-simulador-help-media">
+          <img
+            src={bytePista}
+            alt="Byte ofreciendo una pista"
+          />
+        </div>
+
+        <div className="mnx-simulador-help-copy">
+          <span>Pista de Byte</span>
+
+          <h2 id="mnx-simulador-help-title">
+            Compara cuánto aumenta el código
+          </h2>
+
+          <p>
+            En la regla básica, cada nivel se multiplica por 2.
+            En la regla combinada, primero multiplicas el nivel
+            por 2 y después sumas 3. Usa la misma regla para
+            predecir códigos de niveles futuros.
+          </p>
+
+          <div className="mnx-simulador-help-steps">
+            <article>
+              <strong>1</strong>
+              <span>n representa el número de nivel.</span>
+            </article>
+
+            <article>
+              <strong>2</strong>
+              <span>2n significa dos veces el nivel.</span>
+            </article>
+
+            <article>
+              <strong>3</strong>
+              <span>2n + 3 agrega una parte fija de 3.</span>
+            </article>
+          </div>
+
+          <button
+            type="button"
+            className="mnx-simulador-help-understood"
+            onClick={onClose}
+          >
+            <FiCheckCircle />
+            Entendido, continuar
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+export function SimuladorCodigos() {
+  const navigate = useNavigate();
+  const { toast, showToast } = useToast();
+
+  const [menuOpen, setMenuOpen] =
+    useState(false);
+
+  const [helpOpen, setHelpOpen] =
+    useState(false);
+
+  const [introAudioStatus, setIntroAudioStatus] =
+    useState<AudioStatus>("idle");
+
+  const [guideAudioStatus, setGuideAudioStatus] =
+    useState<AudioStatus>("idle");
+
+  const [shuffleKey, setShuffleKey] =
+    useState(0);
+
+  const [basicRule, setBasicRule] =
+    useState<BasicRule | null>(null);
+
+  const [combinedRule, setCombinedRule] =
+    useState<CombinedRule | null>(null);
+
+  const [predictionFive, setPredictionFive] =
+    useState("");
+
+  const [predictionTen, setPredictionTen] =
+    useState("");
+
+  const [explanation, setExplanation] =
+    useState("");
+
+  const [
+    activityResolved,
+    setActivityResolved,
+  ] = useState(false);
+
+  const [
+    resultModalOpen,
+    setResultModalOpen,
+  ] = useState(false);
+
+  const [resultModalKind, setResultModalKind] =
+    useState<ResultKind>("completed");
+
+  const introAudioRef =
+    useRef<HTMLAudioElement | null>(null);
+
+  const guideAudioRef =
+    useRef<HTMLAudioElement | null>(null);
+
+  const shuffledBasicRules = useMemo(
+    () => shuffleAnswers(basicRuleOptions, "2n"),
+    [shuffleKey],
+  );
+
+  const shuffledCombinedRules = useMemo(
+    () => shuffleAnswers(combinedRuleOptions, "2n+3"),
+    [shuffleKey],
+  );
+
+  const basicReady = basicRule !== null;
+  const combinedReady = combinedRule !== null;
+
+  const predictionsReady =
+    predictionFive.trim() !== "" &&
+    predictionTen.trim() !== "";
+
+  const progress = useMemo(
+    () =>
+      Number(basicReady) +
+      Number(combinedReady) +
+      Number(predictionsReady),
+    [
+      basicReady,
+      combinedReady,
+      predictionsReady,
+    ],
+  );
+
+  const energy = Math.round(
+    (progress / 3) * 100,
+  );
+
+  const basicCorrect =
+    basicRule === "2n";
+
+  const combinedCorrect =
+    combinedRule === "2n+3";
+
+  const predictionsCorrect =
+    Number(predictionFive.trim()) === 13 &&
+    Number(predictionTen.trim()) === 23;
+
+  useEffect(() => {
+    if (helpOpen || resultModalOpen) {
+      return;
+    }
+
+    document.body.style.overflow =
+      menuOpen ? "hidden" : "auto";
+
+    return () => {
+      document.body.style.overflow =
+        "auto";
+    };
+  }, [
+    menuOpen,
+    helpOpen,
+    resultModalOpen,
+  ]);
+
+  useEffect(() => {
+    return () => {
+      const introAudio =
+        introAudioRef.current;
+
+      const guideAudio =
+        guideAudioRef.current;
+
+      if (introAudio) {
+        introAudio.pause();
+        introAudio.currentTime = 0;
+      }
+
+      if (guideAudio) {
+        guideAudio.pause();
+        guideAudio.currentTime = 0;
+      }
+    };
+  }, []);
+
+  const reproducirIntroduccion = async () => {
+    const audio = introAudioRef.current;
+    const guideAudio = guideAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    if (guideAudio && !guideAudio.paused) {
+      guideAudio.pause();
+      setGuideAudioStatus("paused");
+    }
+
+    if (audio.ended) {
+      audio.currentTime = 0;
+    }
+
+    try {
+      await audio.play();
+      setIntroAudioStatus("playing");
+    } catch (error) {
+      setIntroAudioStatus("paused");
+
+      console.error(
+        "No se pudo reproducir la introducción de El Simulador de Códigos Algebraicos:",
+        error,
+      );
+    }
+  };
+
+  const pausarIntroduccion = () => {
+    const audio = introAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    audio.pause();
+    setIntroAudioStatus("paused");
+  };
+
+  const repetirIntroduccion = async () => {
+    const audio = introAudioRef.current;
+    const guideAudio = guideAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    if (guideAudio && !guideAudio.paused) {
+      guideAudio.pause();
+      setGuideAudioStatus("paused");
+    }
+
+    audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setIntroAudioStatus("playing");
+    } catch (error) {
+      setIntroAudioStatus("paused");
+
+      console.error(
+        "No se pudo repetir la introducción de El Simulador de Códigos Algebraicos:",
+        error,
+      );
+    }
+  };
+
+  const reproducirConsejo = async () => {
+    const audio = guideAudioRef.current;
+    const introAudio = introAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    if (introAudio && !introAudio.paused) {
+      introAudio.pause();
+      setIntroAudioStatus("paused");
+    }
+
+    if (audio.ended) {
+      audio.currentTime = 0;
+    }
+
+    try {
+      await audio.play();
+      setGuideAudioStatus("playing");
+    } catch (error) {
+      setGuideAudioStatus("paused");
+
+      console.error(
+        "No se pudo reproducir el Consejo de Suma de El Simulador de Códigos Algebraicos:",
+        error,
+      );
+    }
+  };
+
+  const pausarConsejo = () => {
+    const audio = guideAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    audio.pause();
+    setGuideAudioStatus("paused");
+  };
+
+  const repetirConsejo = async () => {
+    const audio = guideAudioRef.current;
+    const introAudio = introAudioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    if (introAudio && !introAudio.paused) {
+      introAudio.pause();
+      setIntroAudioStatus("paused");
+    }
+
+    audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setGuideAudioStatus("playing");
+    } catch (error) {
+      setGuideAudioStatus("paused");
+
+      console.error(
+        "No se pudo repetir el Consejo de Suma de El Simulador de Códigos Algebraicos:",
+        error,
+      );
+    }
+  };
+
+  const detenerAudios = () => {
+    const introAudio = introAudioRef.current;
+    const guideAudio = guideAudioRef.current;
+
+    if (introAudio) {
+      introAudio.pause();
+      introAudio.currentTime = 0;
+    }
+
+    if (guideAudio) {
+      guideAudio.pause();
+      guideAudio.currentTime = 0;
+    }
+
+    setIntroAudioStatus("idle");
+    setGuideAudioStatus("idle");
+  };
+
+  const introStatusText =
+    introAudioStatus === "playing"
+      ? "Suma está hablando"
+      : introAudioStatus === "paused"
+        ? "Audio en pausa"
+        : introAudioStatus === "ended"
+          ? "Introducción completada"
+          : "Listo para escuchar";
+
+  const guideStatusText =
+    guideAudioStatus === "playing"
+      ? "Suma está hablando"
+      : guideAudioStatus === "paused"
+        ? "Audio en pausa"
+        : guideAudioStatus === "ended"
+          ? "Consejo completado"
+          : "Listo para escuchar";
+
+  const irARuta = (route: string) => {
+    detenerAudios();
+    setMenuOpen(false);
+    navigate(route);
+  };
+
+  const cerrarSesion = () => {
+    detenerAudios();
+    clearAuthSession();
+
+    navigate("/login", {
+      replace: true,
+    });
+  };
+
+  const guardarExplicacion = () => {
+    const explanationText = explanation.trim();
+
+    if (!explanationText) {
+      showToast(
+        "Escribe una explicación antes de guardarla.",
+        true,
+      );
+      return;
+    }
+
+    localStorage.setItem(
+      "simulador_codigos_explicacion",
+      explanationText,
+    );
+
+    showToast(
+      "Explicación guardada correctamente.",
+    );
+  };
+
+  const limpiarActividad = () => {
+    setShuffleKey((current) => current + 1);
+    setBasicRule(null);
+    setCombinedRule(null);
+    setPredictionFive("");
+    setPredictionTen("");
+    setExplanation("");
+    setActivityResolved(false);
+  };
+
+  const repetirActividad = () => {
+    detenerAudios();
+    limpiarActividad();
+    setResultModalOpen(false);
+    setResultModalKind("completed");
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
+    showToast(
+      "Simulador reiniciado. ¡Descubre las reglas nuevamente!",
+    );
+  };
+
+  const cerrarResultado = () => {
+    setResultModalOpen(false);
+
+    if (resultModalKind !== "completed") {
+      limpiarActividad();
+      setResultModalKind("completed");
+    }
+  };
+
+  const comprobar = async () => {
+    if (progress !== 3) {
+      showToast(
+        "Completa las dos reglas y las predicciones antes de probar.",
+        true,
+      );
+      return;
+    }
+
+    const totalCorrect =
+      Number(basicCorrect) +
+      Number(combinedCorrect) +
+      Number(predictionsCorrect);
+
+    const completed =
+      totalCorrect === 3;
+
+    const stars = completed
+      ? 3
+      : totalCorrect === 2
+        ? 2
+        : totalCorrect === 1
+          ? 1
+          : 0;
+
+    let userId = 17;
+
+    try {
+      const sessionString =
+        localStorage.getItem(
+          "auth_session",
+        );
+
+      if (sessionString) {
+        const session =
+          JSON.parse(sessionString);
+
+        if (session?.id_usuario) {
+          userId = Number(
+            session.id_usuario,
+          );
+        }
+      }
+    } catch (error) {
+      console.error(
+        "No se pudo leer la sesión:",
+        error,
+      );
+    }
+
+    const payload = {
+      id_usuario: userId,
+      mundo: "mathnumbers",
+      tema:
+        "Tema 4: Introducción al álgebra",
+      actividad_codigo:
+        "simulador-codigos",
+      actividad_titulo:
+        "El Simulador de Códigos Algebraicos",
+      respuestas: {
+        regla_basica:
+          basicRule,
+        regla_combinada:
+          combinedRule,
+        prediccion_n_5:
+          predictionFive,
+        prediccion_n_10:
+          predictionTen,
+        explicacion_texto:
+          explanation,
+      },
+      aciertos: totalCorrect,
+      total_preguntas: 3,
+      precision:
+        (totalCorrect / 3) * 100,
+      estrellas_obtenidas: stars,
+      xp_obtenido:
+        totalCorrect * 20,
+      completada: completed,
+      tiempo_segundos: 0,
+      xp_base: 60,
+    };
+
+    try {
+      const progressKey =
+        `progreso_${userId}_simulador-codigos`;
+
+      const previousProgressRaw =
+        localStorage.getItem(
+          progressKey,
+        );
+
+      let previousStars = 0;
+
+      if (previousProgressRaw) {
+        const previousProgress =
+          JSON.parse(
+            previousProgressRaw,
+          );
+
+        previousStars =
+          Number(
+            previousProgress
+              ?.estrellas_obtenidas,
+          ) || 0;
+      }
+
+      await guardarProgresoActividad(
+        payload,
+      );
+
+      localStorage.setItem(
+        progressKey,
+        JSON.stringify({
+          estrellas_obtenidas:
+            Math.max(
+              previousStars,
+              stars,
+            ),
+        }),
+      );
+
+      if (completed) {
+        setActivityResolved(true);
+
+        showToast(
+          previousStars > 0
+            ? `¡Simulador completado otra vez! Conservas tus ${Math.max(
+                previousStars,
+                stars,
+              )} estrellas.`
+            : "¡Simulador sincronizado! Ganaste 3 estrellas.",
+        );
+
+        window.setTimeout(() => {
+          setResultModalKind(
+            "completed",
+          );
+          setResultModalOpen(true);
+        }, 900);
+
+        return;
+      }
+
+      setActivityResolved(false);
+
+      showToast(
+        totalCorrect === 2
+          ? "¡Casi lo logras! Revisa una de las reglas o predicciones."
+          : "El simulador detectó códigos incorrectos. Usa la pista de Byte.",
+        true,
+      );
+
+      window.setTimeout(() => {
+        setResultModalKind(
+          totalCorrect === 2
+            ? "almost"
+            : "retry",
+        );
+        setResultModalOpen(true);
+      }, 900);
+    } catch (error) {
+      console.error(
+        "No se pudo guardar el progreso:",
+        error,
+      );
+
+      showToast(
+        "No se pudo guardar el progreso. Revisa la conexión con el servidor.",
+        true,
+      );
+    }
+  };
+
+  return (
+    <main className="mnx-simulador-page mnx-simulador-cofre-layout">
+      <button
+        type="button"
+        className={`mnx-simulador-hamburger ${
+          menuOpen
+            ? "mnx-simulador-hamburger-open"
+            : ""
+        }`}
+        onClick={() =>
+          setMenuOpen(
+            (current) => !current,
+          )
+        }
+        aria-label="Abrir menú"
+      >
+        <img
+          src={menuHamburguesa}
+          alt="Menú"
+        />
+      </button>
+
+      {menuOpen && (
+        <div
+          className="mnx-simulador-menu-overlay"
+          onClick={() =>
+            setMenuOpen(false)
+          }
+        />
+      )}
+
+      <aside
+        className={`mnx-simulador-sidebar ${
+          menuOpen
+            ? "mnx-simulador-sidebar-open"
+            : ""
+        }`}
+      >
+        <img
+          src={logo}
+          alt="MathNova"
+          className="mnx-simulador-sidebar-logo"
+        />
+
+        <nav className="mnx-simulador-sidebar-menu">
+          <button
+            type="button"
+            className="mnx-simulador-menu-item"
+            onClick={() =>
+              irARuta("/dashboard")
+            }
+          >
+            <FiGrid />
+            <span>
+              Panel de control principal
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className="mnx-simulador-menu-item mnx-simulador-menu-active"
+            onClick={() =>
+              irARuta(
+                "/seleccion-mundos",
+              )
+            }
+          >
+            <GiRingedPlanet />
+            <span>
+              Selección de mundos
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className="mnx-simulador-menu-item"
+            onClick={() =>
+              irARuta(
+                "/retroalimentacion",
+              )
+            }
+          >
+            <FiMessageSquare />
+            <span>
+              Retroalimentación
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className="mnx-simulador-menu-item"
+            onClick={() =>
+              irARuta("/recompensas")
+            }
+          >
+            <GiTrophyCup />
+            <span>Recompensas</span>
+          </button>
+
+          <button
+            type="button"
+            className="mnx-simulador-menu-item"
+            onClick={() =>
+              irARuta("/perfil-alumno")
+            }
+          >
+            <FiUser />
+            <span>
+              Perfil del alumno
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className="mnx-simulador-menu-item"
+            onClick={() =>
+              irARuta("/estadisticas")
+            }
+          >
+            <FiBarChart2 />
+            <span>Estadísticas</span>
+          </button>
+        </nav>
+
+        <article className="mnx-simulador-week-card">
+          <div className="mnx-simulador-week-head">
+            <strong>
+              Progreso semanal
+            </strong>
+            <span>Nivel 4</span>
+          </div>
+
+          <div className="mnx-simulador-week-progress">
+            <span>★</span>
+            <b><i /></b>
+            <strong>60%</strong>
+          </div>
+
+          <img
+            src={zorritoConsejo}
+            alt="Nova acompañando el progreso"
+          />
+        </article>
+      </aside>
+
+      <section className="mnx-simulador-content">
+        <div className="mnx-simulador-decoration mnx-simulador-decoration-one" />
+        <div className="mnx-simulador-decoration mnx-simulador-decoration-two" />
+
+        <div
+          className="mnx-simulador-stars"
+          aria-hidden="true"
+        >
+          <span>✦</span>
+          <span>✧</span>
+          <span>✦</span>
+          <span>✧</span>
+        </div>
+
+        <section className="mnx-simulador-main">
+          <div className="mnx-simulador-top-actions">
+            <button
+              type="button"
+              onClick={() =>
+                setHelpOpen(true)
+              }
+            >
+              <FiHelpCircle />
+              Ayuda
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                irARuta(
+                  activityListRoute,
+                )
+              }
+            >
+              <FiLogOut />
+              Salir de la actividad
+            </button>
+          </div>
+
+          <header className="mnx-simulador-header">
+            <div className="mnx-simulador-header-copy">
+              <div className="mnx-simulador-breadcrumb">
+                <strong>
+                  MathNumbers
+                </strong>
+                <span>/</span>
+                <span>
+                  Tema 4: Introducción al álgebra
+                </span>
+              </div>
+
+              <div className="mnx-simulador-title-row">
+                <span className="mnx-simulador-title-icon">
+                  <FiBookOpen />
+                </span>
+
+                <h1>
+                  8. El Simulador de Códigos Algebraicos
+                </h1>
+              </div>
+
+              <p>
+                Descubre reglas con n para generar códigos
+                y predecir niveles futuros.
+              </p>
+
+              <div className="mnx-simulador-pills">
+                <span>Patrones</span>
+                <span>12–16 min</span>
+                <span>3 retos</span>
+                <span>+60 XP</span>
+              </div>
+            </div>
+
+            <div className="mnx-simulador-welcome">
+              <article className="mnx-simulador-speech">
+                <span>
+                  Comandante Suma explica
+                </span>
+
+                <p aria-live="polite">
+                  {introAudioStatus === "idle"
+                    ? INTRO_INITIAL_TEXT
+                    : INTRO_FULL_TEXT}
+                </p>
+
+                <div className="mnx-simulador-audio-controls">
+                  <audio
+                    ref={introAudioRef}
+                    src={INTRO_AUDIO_SRC}
+                    preload="metadata"
+                    onPlay={() =>
+                      setIntroAudioStatus("playing")
+                    }
+                    onPause={() => {
+                      if (!introAudioRef.current?.ended) {
+                        setIntroAudioStatus("paused");
+                      }
+                    }}
+                    onEnded={() =>
+                      setIntroAudioStatus("ended")
+                    }
+                  />
+
+                  <button
+                    type="button"
+                    onClick={reproducirIntroduccion}
+                    disabled={
+                      introAudioStatus === "playing"
+                    }
+                    aria-label="Reproducir introducción del Comandante Suma"
+                  >
+                    <FiPlay />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={pausarIntroduccion}
+                    disabled={
+                      introAudioStatus !== "playing"
+                    }
+                    aria-label="Pausar introducción del Comandante Suma"
+                  >
+                    <FiPause />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={repetirIntroduccion}
+                    aria-label="Repetir introducción del Comandante Suma"
+                  >
+                    <FiRotateCcw />
+                  </button>
+
+                  <span
+                    className={`mnx-simulador-audio-status ${
+                      introAudioStatus === "playing"
+                        ? "is-playing"
+                        : ""
+                    }`}
+                  >
+                    <FiVolume2 />
+                    {introStatusText}
+                  </span>
+                </div>
+              </article>
+
+              <img
+                key={
+                  introAudioStatus === "playing"
+                    ? "simulador-suma-hablando"
+                    : "simulador-suma-idle"
+                }
+                src={
+                  introAudioStatus === "playing"
+                    ? comandanteSumaHablando
+                    : comandanteSumaIdle
+                }
+                alt={
+                  introAudioStatus === "playing"
+                    ? "Comandante Suma explicando la misión"
+                    : "Comandante Suma listo para explicar"
+                }
+                className="mnx-simulador-intro-character"
+                draggable={false}
+                onError={(event) => {
+                  event.currentTarget.src =
+                    comandanteSumaIdle;
+                }}
+              />
+            </div>
+          </header>
+
+          <section className="mnx-simulador-activity-grid">
+            <div className="mnx-simulador-left-column">
+  <article className="mnx-simulador-art">
+                <img
+                  src={activityScene}
+                  alt="El Simulador de Códigos Algebraicos"
+                  draggable={false}
+                />
+
+                <div className="mnx-simulador-mission">
+                  <FiTarget />
+
+                  <div>
+                    <strong>
+                      Tu misión
+                    </strong>
+
+                    <p>
+                      Descubre la regla del simulador,
+                      valida las reglas, y predice los
+                      códigos futuros.
+                    </p>
+
+                    <div className="mnx-simulador-energy-track">
+                      <b
+                        style={{
+                          width: `${energy}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+  <section className="mnx-simulador-reminder-card">
+                <img
+                  key={
+                    guideAudioStatus === "playing"
+                      ? "simulador-consejo-hablando"
+                      : "simulador-consejo-idle"
+                  }
+                  src={
+                    guideAudioStatus === "playing"
+                      ? comandanteSumaHablando
+                      : comandanteSumaIdle
+                  }
+                  alt={
+                    guideAudioStatus === "playing"
+                      ? "Comandante Suma dando el consejo"
+                      : "Comandante Suma listo para dar el consejo"
+                  }
+                  draggable={false}
+                />
+
+                <div className="mnx-simulador-reminder-copy">
+                  <span>
+                    Consejo de Suma
+                  </span>
+
+                  <h3>
+                    Comprueba la regla completa
+                  </h3>
+
+                  <p aria-live="polite">
+                    {guideAudioStatus === "idle"
+                      ? GUIDE_INITIAL_TEXT
+                      : GUIDE_FULL_TEXT}
+                  </p>
+
+                  <div className="mnx-simulador-reminder-audio-controls">
+                    <audio
+                      ref={guideAudioRef}
+                      src={GUIDE_AUDIO_SRC}
+                      preload="metadata"
+                      onPlay={() =>
+                        setGuideAudioStatus("playing")
+                      }
+                      onPause={() => {
+                        if (!guideAudioRef.current?.ended) {
+                          setGuideAudioStatus("paused");
+                        }
+                      }}
+                      onEnded={() =>
+                        setGuideAudioStatus("ended")
+                      }
+                    />
+
+                    <button
+                      type="button"
+                      onClick={reproducirConsejo}
+                      disabled={
+                        guideAudioStatus === "playing"
+                      }
+                      aria-label="Reproducir Consejo de Suma"
+                    >
+                      <FiPlay />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={pausarConsejo}
+                      disabled={
+                        guideAudioStatus !== "playing"
+                      }
+                      aria-label="Pausar Consejo de Suma"
+                    >
+                      <FiPause />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={repetirConsejo}
+                      aria-label="Repetir Consejo de Suma"
+                    >
+                      <FiRotateCcw />
+                    </button>
+
+                    <span
+                      className={`mnx-simulador-reminder-audio-status ${
+                        guideAudioStatus === "playing"
+                          ? "is-playing"
+                          : ""
+                      }`}
+                    >
+                      <FiVolume2 />
+                      {guideStatusText}
+                    </span>
+                  </div>
+                </div>
+              </section>
+
+  <section className="mnx-simulador-quick-notes">
+                <header>
+                  <FiClipboard />
+
+                  <strong>
+                    Notas rápidas
+                  </strong>
+                </header>
+
+                <ul>
+                  <li>
+                    n representa el número de nivel.
+                  </li>
+
+                  <li>
+                    Encuentra una regla que funcione para
+                    todos los valores de la tabla.
+                  </li>
+
+                  <li>
+                    Usa la regla para predecir códigos de
+                    niveles futuros.
+                  </li>
+                </ul>
+              </section>
+
+              <button
+                type="button"
+                className="mnx-simulador-check-button mnx-simulador-check-button-left"
+                onClick={comprobar}
+              >
+                <FiPlay />
+                Probar reglas
+                <span>
+                  {progress}/3
+                </span>
+              </button>
+
+              <section className="mnx-simulador-stats mnx-simulador-stats-compact">
+                <article>
+                  <FiFlag />
+                  <div>
+                    <span>Segmentos</span>
+                    <strong>
+                      {progress}/3
+                    </strong>
+                  </div>
+                </article>
+
+                <article>
+                  <FiTarget />
+                  <div>
+                    <span>Retos</span>
+                    <strong>3</strong>
+                  </div>
+                </article>
+
+                <article>
+                  <FiZap />
+                  <div>
+                    <span>Energía</span>
+                    <strong>
+                      {energy}%
+                    </strong>
+                  </div>
+                </article>
+
+                <article>
+                  <span className="mnx-simulador-xp-star">
+                    ★
+                  </span>
+                  <div>
+                    <span>Recompensa</span>
+                    <strong>60 XP</strong>
+                  </div>
+                </article>
+              </section>
+
+              <div className="mnx-simulador-left-status">
+                {activityResolved && (
+                  <article className="mnx-simulador-evidence-card mnx-simulador-evidence-card-left">
+                    <div className="mnx-simulador-evidence-title">
+                      <FiClipboard />
+
+                      <strong>
+                        Evidencia guardada
+                      </strong>
+                    </div>
+
+                    <p>
+                      Tus reglas, predicciones e intentos se
+                      registraron correctamente.
+                    </p>
+
+                    <div className="mnx-simulador-info-row">
+                      <FiInfo />
+
+                      <p>
+                        Podrás revisar tus aciertos y errores
+                        en Retroalimentación.
+                      </p>
+                    </div>
+                  </article>
+                )}
+
+                <article className="mnx-simulador-status-card mnx-simulador-status-card-left">
+                  <header>
+                    <FiZap />
+
+                    <strong>
+                      Estado del simulador
+                    </strong>
+                  </header>
+
+                  <div>
+                    <span className="is-blue">
+                      ✦
+                    </span>
+
+                    <p>
+                      Regla básica
+                    </p>
+
+                    {basicCorrect
+                      ? <FiCheckCircle />
+                      : <FiCircle />}
+                  </div>
+
+                  <div>
+                    <span className="is-purple">
+                      ✦
+                    </span>
+
+                    <p>
+                      Regla combinada
+                    </p>
+
+                    {combinedCorrect
+                      ? <FiCheckCircle />
+                      : <FiCircle />}
+                  </div>
+
+                  <div>
+                    <span className="is-green">
+                      ✦
+                    </span>
+
+                    <p>
+                      Predicción futura
+                    </p>
+
+                    {predictionsCorrect
+                      ? <FiCheckCircle />
+                      : <FiCircle />}
+                  </div>
+
+                  <small>
+                    Resuelve todos los retos para desbloquear
+                    los niveles futuros.
+                  </small>
+                </article>
+              </div>
+            </div>
+
+            <div className="mnx-simulador-right-column">
+  <section className="mnx-simulador-guide-card">
+                <div className="mnx-simulador-section-heading">
+                  <span>
+                    <FiZap />
+                  </span>
+
+                  <div>
+                    <strong>
+                      Guía visual rápida
+                    </strong>
+
+                    <p>
+                      Observa cómo cambia el código en cada nivel.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mnx-simulador-guide-steps">
+                  <article>
+                    <b>1</b>
+                    <strong>
+                      n representa el nivel
+                    </strong>
+
+                    <div className="mnx-simulador-mini-table">
+                      <span>n</span>
+                      <span>código</span>
+                      <b>1</b>
+                      <b>3</b>
+                      <b>2</b>
+                      <b>6</b>
+                      <b>3</b>
+                      <b>9</b>
+                    </div>
+
+                    <em>3n</em>
+                  </article>
+
+                  <i>→</i>
+
+                  <article>
+                    <b>2</b>
+                    <strong>
+                      Regla básica
+                    </strong>
+
+                    <div className="mnx-simulador-mini-table">
+                      <span>n</span>
+                      <span>código</span>
+                      <b>1</b>
+                      <b>2</b>
+                      <b>2</b>
+                      <b>4</b>
+                      <b>3</b>
+                      <b>6</b>
+                    </div>
+
+                    <em>2n</em>
+                  </article>
+
+                  <i>→</i>
+
+                  <article>
+                    <b>3</b>
+                    <strong>
+                      Regla combinada
+                    </strong>
+
+                    <div className="mnx-simulador-mini-table">
+                      <span>n</span>
+                      <span>código</span>
+                      <b>1</b>
+                      <b>5</b>
+                      <b>2</b>
+                      <b>7</b>
+                      <b>3</b>
+                      <b>9</b>
+                    </div>
+
+                    <em>2n + 3</em>
+                  </article>
+                </div>
+              </section>
+
+  <section className="mnx-simulador-challenges">
+                <article className="mnx-simulador-challenge-card">
+                  <div className="mnx-simulador-challenge-head">
+                    <span>1</span>
+
+                    <div>
+                      <h2>
+                        Reto 1: Regla proporcional
+                      </h2>
+
+                      <p>
+                        Observa la tabla y selecciona la regla.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mnx-simulador-code-table">
+                    <span>n</span>
+                    <b>1</b>
+                    <b>2</b>
+                    <b>3</b>
+
+                    <span>código</span>
+                    <b>2</b>
+                    <b>4</b>
+                    <b>6</b>
+                  </div>
+
+                  <div className="mnx-simulador-rule-options">
+                    {shuffledBasicRules.map(
+                      (rule) => (
+                        <button
+                          key={rule}
+                          type="button"
+                          className={
+                            basicRule === rule
+                              ? "is-selected"
+                              : ""
+                          }
+                          onClick={() =>
+                            setBasicRule(rule)
+                          }
+                        >
+                          <span>
+                            {rule}
+                          </span>
+
+                          <i>
+                            <FiCheck />
+                          </i>
+                        </button>
+                      ),
+                    )}
+                  </div>
+
+                  <div className="mnx-simulador-note">
+                    <FiInfo />
+                    La regla debe funcionar para todas las filas.
+                  </div>
+                </article>
+
+                <article className="mnx-simulador-challenge-card">
+                  <div className="mnx-simulador-challenge-head">
+                    <span>2</span>
+
+                    <div>
+                      <h2>
+                        Reto 2: Regla con parte fija
+                      </h2>
+
+                      <p>
+                        Encuentra la regla de la segunda tabla.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mnx-simulador-code-table">
+                    <span>n</span>
+                    <b>1</b>
+                    <b>2</b>
+                    <b>3</b>
+
+                    <span>código</span>
+                    <b>5</b>
+                    <b>7</b>
+                    <b>9</b>
+                  </div>
+
+                  <div className="mnx-simulador-rule-options">
+                    {shuffledCombinedRules.map(
+                      (rule) => (
+                        <button
+                          key={rule}
+                          type="button"
+                          className={
+                            combinedRule === rule
+                              ? "is-selected"
+                              : ""
+                          }
+                          onClick={() =>
+                            setCombinedRule(rule)
+                          }
+                        >
+                          <span>
+                            {rule}
+                          </span>
+
+                          <i>
+                            <FiCheck />
+                          </i>
+                        </button>
+                      ),
+                    )}
+                  </div>
+
+                  <div className="mnx-simulador-formula-clues">
+                    <span>
+                      <FiTrendingUp />
+                      2 por nivel
+                    </span>
+
+                    <span>
+                      <FiLock />
+                      +3 fijo
+                    </span>
+                  </div>
+                </article>
+
+                <article className="mnx-simulador-challenge-card mnx-simulador-predictions">
+                  <div className="mnx-simulador-challenge-head">
+                    <span>3</span>
+
+                    <div>
+                      <h2>
+                        Reto 3: Predicciones
+                      </h2>
+
+                      <p>
+                        Usa la regla 2n + 3.
+                      </p>
+                    </div>
+                  </div>
+
+                  <label>
+                    <span>
+                      n = 5
+                    </span>
+
+                    <i>→</i>
+
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9-]*"
+                      value={predictionFive}
+                      onChange={(event) =>
+                        setPredictionFive(
+                          event.target.value,
+                        )
+                      }
+                      placeholder="?"
+                    />
+
+                    {predictionFive && (
+                      predictionsReady &&
+                      Number(predictionFive) === 13
+                        ? <FiCheckCircle />
+                        : <FiCircle />
+                    )}
+                  </label>
+
+                  <label>
+                    <span>
+                      n = 10
+                    </span>
+
+                    <i>→</i>
+
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9-]*"
+                      value={predictionTen}
+                      onChange={(event) =>
+                        setPredictionTen(
+                          event.target.value,
+                        )
+                      }
+                      placeholder="?"
+                    />
+
+                    {predictionTen && (
+                      predictionsReady &&
+                      Number(predictionTen) === 23
+                        ? <FiCheckCircle />
+                        : <FiCircle />
+                    )}
+                  </label>
+
+                  <div className="mnx-simulador-prediction-rule">
+                    <span>
+                      Estas predicciones usan:
+                    </span>
+
+                    <strong>
+                      2n + 3
+                    </strong>
+                  </div>
+                </article>
+            
+
+                <article className="mnx-simulador-challenge-card mnx-simulador-explanation-card">
+                  <div className="mnx-simulador-challenge-head">
+                    <span>4</span>
+
+                    <div>
+                      <h2>
+                        Reto extra: Explica con tus palabras
+                      </h2>
+
+                      <p>
+                        ¿Qué representa n en este simulador?
+                      </p>
+                    </div>
+                  </div>
+
+                  <label className="mnx-simulador-answer-box">
+                    <textarea
+                      maxLength={200}
+                      value={explanation}
+                      onChange={(event) =>
+                        setExplanation(
+                          event.target.value,
+                        )
+                      }
+                      placeholder="Escribe tu explicación aquí..."
+                    />
+
+                    <span>
+                      {explanation.length} / 200
+                    </span>
+                  </label>
+
+                  <div className="mnx-simulador-explanation-actions">
+                    <button
+                      type="button"
+                      className="mnx-simulador-save-button mnx-simulador-save-explanation"
+                      onClick={guardarExplicacion}
+                    >
+                      <FiSave />
+                      Guardar explicación
+                    </button>
+                  </div>
+                </article>
+              </section>
+
+            </div>
+          </section>
+
+        </section>
+      </section>
+
+      <button
+        className="mnx-simulador-logout"
+        type="button"
+        onClick={cerrarSesion}
+        aria-label="Cerrar sesión"
+      >
+        <FiLogOut />
+      </button>
+
+      {helpOpen && (
+        <HelpModal
+          onClose={() =>
+            setHelpOpen(false)
+          }
+        />
+      )}
+
+      {resultModalOpen && (
+        <ResultModal
+          kind={resultModalKind}
+          nextRoute={activityListRoute}
+          retryRoute={activityRoute}
+          onClose={cerrarResultado}
+          onRetry={repetirActividad}
+        />
+      )}
+
+      <Toast toast={toast} />
+    </main>
+  );
+}

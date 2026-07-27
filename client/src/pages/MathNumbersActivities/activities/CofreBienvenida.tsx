@@ -62,8 +62,8 @@ type CharacterMediaConfig = {
 
 
 const correctAnswers: Record<QuestionKey, AnswerValue> = {
-  q1: "b",
-  q2: "b",
+  q1: "c",
+  q2: "d",
 };
 
 const cofreRoute = "/actividades/mathnumbers/cofre-bienvenida";
@@ -1565,7 +1565,7 @@ export function CofreBienvenida() {
                     disabled={guardandoProgreso}
                   >
                     <span>B</span>
-                    <strong>0.5</strong>
+                    <strong>1.5</strong>
                     <i><FiCheck /></i>
                   </button>
 
@@ -1576,7 +1576,7 @@ export function CofreBienvenida() {
                     disabled={guardandoProgreso}
                   >
                     <span>C</span>
-                    <strong>1.5</strong>
+                    <strong>0.5</strong>
                     <i><FiCheck /></i>
                   </button>
 
@@ -1621,7 +1621,7 @@ export function CofreBienvenida() {
                     disabled={guardandoProgreso}
                   >
                     <span>B</span>
-                    <Fraction top="1" bottom="4" />
+                    <Fraction top="4" bottom="1" />
                     <i><FiCheck /></i>
                   </button>
 
@@ -1643,7 +1643,7 @@ export function CofreBienvenida() {
                     disabled={guardandoProgreso}
                   >
                     <span>D</span>
-                    <Fraction top="4" bottom="1" />
+                    <Fraction top="1" bottom="4" />
                     <i><FiCheck /></i>
                   </button>
                 </div>

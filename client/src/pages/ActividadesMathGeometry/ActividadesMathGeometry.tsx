@@ -14,6 +14,8 @@ import actividad3 from "../../assets/mathGeometry/actividades/actividad-3-mathge
 import actividad4 from "../../assets/mathGeometry/actividades/actividad-4-mathgeometry.png";
 import actividad5 from "../../assets/mathGeometry/actividades/actividad-5-mathgeometry.png";
 import actividad6 from "../../assets/mathGeometry/actividades/actividad-6-mathgeometry.png";
+import actividad7 from "../../assets/mathGeometry/actividades/actividad-7-mathgeometry.png";
+import actividad8 from "../../assets/mathGeometry/actividades/actividad-8-mathgeometry.png";
 
 import {
   FiGrid,
@@ -118,6 +120,26 @@ function ActividadesMathGeometry() {
       tiempo: "12 min",
       estado: "Pendiente",
       ruta: "/actividades/geometria/actividad-6",
+    },
+    {
+      img: actividad7,
+      numero: "07",
+      titulo: "La Fortaleza Triangular",
+      texto: "Identifica rectas importantes dentro de triángulos.",
+      nivel: "Medio",
+      tiempo: "12 min",
+      estado: "Pendiente",
+      ruta: "/actividades/geometria/actividad-7",
+    },
+    {
+      img: actividad8,
+      numero: "08",
+      titulo: "El Centro de Control",
+      texto: "Reconoce las diagonales en cuadriláteros.",
+      nivel: "Fácil",
+      tiempo: "10 min",
+      estado: "Pendiente",
+      ruta: "/actividades/geometria/actividad-8",
     },
   ];
 
@@ -258,7 +280,7 @@ function ActividadesMathGeometry() {
             <article>
               <FiBookOpen />
               <div>
-                <strong>6</strong>
+                <strong>8</strong>
                 <span>Actividades</span>
               </div>
             </article>
@@ -359,8 +381,8 @@ function ActividadesMathGeometry() {
                     Construcción y propiedades de las figuras planas y cuerpos
                   </h2>
                   <p>
-                    Continúa con retos visuales para reconocer puntos medios y
-                    divisiones iguales en ángulos.
+                    Continúa con retos visuales para reconocer puntos medios,
+                    divisiones de ángulos, rectas en triángulos y diagonales.
                   </p>
                 </div>
               </div>

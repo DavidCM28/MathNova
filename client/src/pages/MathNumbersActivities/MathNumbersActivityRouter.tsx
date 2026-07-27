@@ -7,6 +7,8 @@ import { AscensorBunker } from "./activities/AscensorBunker";
 import { EscuadronTactico } from "./activities/EscuadronTactico";
 import { EspejosBoveda } from "./activities/EspejosBoveda";
 import { PuentePrioridades } from "./activities/PuentePrioridades";
+import { EnigmaVariables } from "./activities/EnigmaVariables";
+import { SimuladorCodigos } from "./activities/SimuladorCodigos";
 
 import { ResultScreen } from "./components/ResultScreen";
 
@@ -35,6 +37,14 @@ function MathNumbersActivityRouter() {
 
   if (activitySlug === "puente-prioridades") {
     return <PuentePrioridades />;
+  }
+
+  if (activitySlug === "enigma-variables") {
+    return <EnigmaVariables />;
+  }
+
+  if (activitySlug === "simulador-codigos") {
+    return <SimuladorCodigos />;
   }
 
   if (activitySlug === "actividad-completada") {

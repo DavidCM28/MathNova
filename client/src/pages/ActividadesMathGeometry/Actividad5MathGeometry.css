@@ -9774,3 +9774,311 @@ body:has(.act5geo-modal-overlay) {
     font-size: 11.5px !important;
   }
 }
+
+/* =========================================================
+   CORRECCIÓN DEFINITIVA — TEXTO COMPLETO DEL PROFESOR ASTRO
+   Este bloque debe permanecer AL FINAL del archivo.
+   Permite mostrar las 5 frases completas sin recortar la última.
+   ========================================================= */
+
+.act5geo-character-modal .act5geo-modal-script-panel {
+  height: 520px !important;
+  max-height: 520px !important;
+  padding: 22px 22px 18px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-gutter: stable;
+}
+
+.act5geo-character-modal .act5geo-modal-script-lines {
+  width: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 4px 4px 18px 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  overflow: visible !important;
+}
+
+.act5geo-character-modal .act5geo-modal-script-lines p {
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 10px 12px 12px !important;
+  border-radius: 14px !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  word-break: normal !important;
+}
+
+.act5geo-character-modal .act5geo-modal-script-lines p span {
+  display: block !important;
+  width: 100% !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  line-height: 1.28 !important;
+}
+
+/* Barra de desplazamiento discreta para resoluciones pequeñas. */
+.act5geo-character-modal .act5geo-modal-script-panel::-webkit-scrollbar {
+  width: 7px;
+}
+
+.act5geo-character-modal .act5geo-modal-script-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.act5geo-character-modal .act5geo-modal-script-panel::-webkit-scrollbar-thumb {
+  background: rgba(0, 88, 255, 0.2);
+  border-radius: 999px;
+}
+
+/* En pantallas medianas, el panel crece y sigue permitiendo scroll. */
+@media (max-width: 1100px) {
+  .act5geo-character-modal .act5geo-modal-script-panel {
+    height: 300px !important;
+    max-height: 300px !important;
+  }
+}
+
+/* En móviles se conserva todo el contenido visible mediante scroll interno. */
+@media (max-width: 760px) {
+  .act5geo-character-modal .act5geo-modal-script-panel {
+    height: 280px !important;
+    max-height: 280px !important;
+  }
+
+  .act5geo-character-modal .act5geo-modal-script-lines p {
+    padding: 9px 10px 11px !important;
+  }
+}
+
+/* =========================================================
+   ACTIVIDAD 5 — AUDIOS Y TEXTOS COMPLETOS
+   PISTAS, SOMBRA Y MISIÓN COMPLETADA
+   Este bloque debe permanecer al final.
+   ========================================================= */
+
+/* Todos los paneles de transcripción muestran el contenido completo. */
+.act5geo-character-modal .act5geo-modal-script-panel,
+.act5geo-complete-modal .act5geo-complete-transcript {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-gutter: stable;
+}
+
+.act5geo-character-modal .act5geo-modal-script-lines,
+.act5geo-complete-modal .act5geo-modal-script-lines {
+  height: auto !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 9px !important;
+  overflow: visible !important;
+  padding-bottom: 18px !important;
+}
+
+.act5geo-character-modal .act5geo-modal-script-lines p,
+.act5geo-complete-modal .act5geo-modal-script-lines p {
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 9px 11px 11px !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+.act5geo-character-modal .act5geo-modal-script-lines p span,
+.act5geo-complete-modal .act5geo-modal-script-lines p span {
+  display: block !important;
+  width: 100% !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  line-height: 1.28 !important;
+}
+
+/* El modal de misión completada ya tiene contenido y controles activos. */
+.act5geo-complete-modal .act5geo-complete-cloud p,
+.act5geo-complete-modal .act5geo-complete-transcript h3,
+.act5geo-complete-modal
+  .act5geo-complete-transcript
+  .act5geo-modal-script-lines {
+  display: block !important;
+}
+
+.act5geo-complete-modal .act5geo-complete-controls {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Ajuste para las pistas con cuatro frases. */
+.act5geo-hints-modal .act5geo-modal-script-panel {
+  height: 520px !important;
+  max-height: 520px !important;
+}
+
+/* Scroll visual discreto. */
+.act5geo-modal-script-panel::-webkit-scrollbar,
+.act5geo-complete-transcript::-webkit-scrollbar {
+  width: 7px;
+}
+
+.act5geo-modal-script-panel::-webkit-scrollbar-track,
+.act5geo-complete-transcript::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.act5geo-modal-script-panel::-webkit-scrollbar-thumb,
+.act5geo-complete-transcript::-webkit-scrollbar-thumb {
+  background: rgba(0, 88, 255, 0.22);
+  border-radius: 999px;
+}
+
+@media (max-width: 1100px) {
+  .act5geo-hints-modal .act5geo-modal-script-panel,
+  .act5geo-character-modal .act5geo-modal-script-panel {
+    height: 300px !important;
+    max-height: 300px !important;
+  }
+
+  .act5geo-complete-modal .act5geo-complete-transcript {
+    max-height: 280px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .act5geo-hints-modal .act5geo-modal-script-panel,
+  .act5geo-character-modal .act5geo-modal-script-panel {
+    height: 280px !important;
+    max-height: 280px !important;
+  }
+
+  .act5geo-complete-modal .act5geo-complete-transcript {
+    max-height: 300px !important;
+  }
+}
+
+/* =========================================================
+   ACTIVIDAD 5 — BOTÓN VOLVER A INTENTARLO EN MODAL DE SOMBRA
+   ========================================================= */
+
+.act5geo-try-again-btn {
+  background: #8b2be2 !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  box-shadow: 0 14px 26px rgba(139, 43, 226, 0.24) !important;
+}
+
+.act5geo-try-again-btn:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  background: #7420c8 !important;
+  box-shadow: 0 18px 30px rgba(139, 43, 226, 0.3) !important;
+}
+
+@media (max-width: 760px) {
+  .act5geo-try-again-btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+/* =========================================================
+   CORRECCIÓN FINAL — BOTÓN "VOLVER A INTENTARLO"
+   Igual al estilo de las demás actividades:
+   ocupa una fila completa debajo de los controles.
+   ========================================================= */
+
+.act5geo-character-modal .act5geo-modal-controls {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+}
+
+.act5geo-character-modal .act5geo-modal-controls .act5geo-try-again-btn {
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  min-height: 58px !important;
+  margin: 4px 0 0 !important;
+  padding: 0 24px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: linear-gradient(
+    90deg,
+    #6f4cff 0%,
+    #7654ff 55%,
+    #7c57ff 100%
+  ) !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.15px !important;
+  box-shadow: 0 16px 30px rgba(111, 76, 255, 0.28) !important;
+  cursor: pointer !important;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    filter 0.22s ease !important;
+}
+
+.act5geo-character-modal .act5geo-modal-controls .act5geo-try-again-btn svg {
+  flex: 0 0 auto !important;
+  font-size: 18px !important;
+  stroke-width: 2.4 !important;
+}
+
+.act5geo-character-modal .act5geo-modal-controls .act5geo-try-again-btn:hover {
+  transform: translateY(-3px) scale(1.01) !important;
+  background: linear-gradient(
+    90deg,
+    #6743f6 0%,
+    #714cf9 55%,
+    #754fff 100%
+  ) !important;
+  filter: brightness(1.03) !important;
+  box-shadow: 0 20px 34px rgba(111, 76, 255, 0.34) !important;
+}
+
+.act5geo-character-modal .act5geo-modal-controls .act5geo-try-again-btn:active {
+  transform: translateY(-1px) scale(0.995) !important;
+}
+
+.act5geo-character-modal
+  .act5geo-modal-controls
+  .act5geo-try-again-btn:focus-visible {
+  outline: 3px solid rgba(111, 76, 255, 0.34) !important;
+  outline-offset: 4px !important;
+}
+
+@media (max-width: 760px) {
+  .act5geo-character-modal .act5geo-modal-controls {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+  }
+
+  .act5geo-character-modal .act5geo-modal-controls > button,
+  .act5geo-character-modal .act5geo-modal-controls .act5geo-try-again-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    justify-content: center !important;
+  }
+
+  .act5geo-character-modal .act5geo-modal-controls .act5geo-try-again-btn {
+    min-height: 54px !important;
+    font-size: 15px !important;
+  }
+}

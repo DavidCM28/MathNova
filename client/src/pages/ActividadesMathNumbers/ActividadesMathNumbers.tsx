@@ -17,10 +17,10 @@ import actividad3 from "../../assets/Actividad-3-MathNumbers.png";
 import escuadronTactico from "../../assets/escuadron-tactico.png";
 import espejosBoveda from "../../assets/espejo.png";
 
-import actividad5 from "../../assets/Actividad-5-MathNumbers.png";
+
 import puentePrioridades from "../../assets/puente-prioridades.png";
-import actividad7 from "../../assets/Actividad-7-MathNumbers.png";
-import actividad8 from "../../assets/Actividad-8-MathNumbers.png";
+import enigmaVariables from "../../assets/enigma.png";
+import simuladorCodigos from "../../assets/simulador.png";
 import actividad9 from "../../assets/Actividad-9-MathNumbers.png";
 import actividad10 from "../../assets/Actividad-10-MathNumbers.png";
 
@@ -133,22 +133,22 @@ function ActividadesMathNumbers() {
         slug: "puente-prioridades",
       },
       {
-        img: actividad7,
-        titulo: "7. Escalera de Escape",
+        img: enigmaVariables,
+        titulo: "7. El Enigma de Variables",
         texto:
-          "Identifica aumentos constantes en figuras de hexágonos.",
-        nivel: "Fácil",
-        tiempo: "10 min",
-        slug: "",
+          "Descubre variables, constantes y valores ocultos en expresiones sencillas.",
+        nivel: "Medio",
+        tiempo: "12 min",
+        slug: "enigma-variables",
       },
       {
-        img: actividad8,
-        titulo: "8. Traductor del Sistema",
+        img: simuladorCodigos,
+        titulo: "8. El Simulador de Códigos Algebraicos",
         texto:
-          "Traduce lenguaje común al algebraico con una interfaz.",
-        nivel: "Fácil",
-        tiempo: "9 min",
-        slug: "",
+          "Traduce instrucciones cotidianas a expresiones algebraicas.",
+        nivel: "Medio",
+        tiempo: "12 min",
+        slug: "simulador-codigos",
       },
       {
         img: actividad9,
