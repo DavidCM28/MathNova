@@ -323,7 +323,7 @@ function ActividadesMathData() {
 
           <div className="mathdatax-activities-grid">
             {actividades.map((item, index) => {
-              const bloqueada = index < 4 ? !estaDesbloqueada(index) : true;
+              const bloqueada = !estaDesbloqueada(index);
 
               return (
                 <article
@@ -376,6 +376,12 @@ function ActividadesMathData() {
                             navigate("/actividades-math-data/encuesta-tripulacion");
                           } else if (index === 3) {
                             navigate("/actividades-math-data/holograma-reportes");
+                          } else if (index === 4) {
+                            navigate("/actividades-math-data/sensor-frecuencias");
+                          } else if (index === 5) {
+                            navigate("/actividades-math-data/nucleo-decisiones");
+                          } else if (index === 6) {
+                            navigate("/actividades-math-data/oraculo-estacion");
                           }
                         }}
                       >

@@ -32,6 +32,8 @@ import RampasDeLanzamiento from "./pages/ActividadesMathData/RampasDeLanzamiento
 import EncuestaTripulacion from "./pages/ActividadesMathData/EncuestaTripulacion";
 import HologramaReportes from "./pages/ActividadesMathData/HologramaReportes";
 import SensorFrecuencias from "./pages/ActividadesMathData/SensorFrecuencias";
+import NucleoDecisiones from "./pages/ActividadesMathData/NucleoDecisiones";
+import OraculoEstacion from "./pages/ActividadesMathData/OraculoEstacion";
 
 import ActividadesMathNumbers from "./pages/ActividadesMathNumbers/ActividadesMathNumbers";
 import MathNumbersActivityRouter from "./pages/MathNumbersActivities/MathNumbersActivityRouter";
@@ -217,6 +219,24 @@ function App() {
   element={
     <RequireAuth>
       <SensorFrecuencias />
+    </RequireAuth>
+  }
+/>
+
+<Route
+  path="/actividades-math-data/nucleo-decisiones"
+  element={
+    <RequireAuth>
+      <NucleoDecisiones />
+    </RequireAuth>
+  }
+/>
+
+<Route
+  path="/actividades-math-data/oraculo-estacion"
+  element={
+    <RequireAuth>
+      <OraculoEstacion />
     </RequireAuth>
   }
 />
