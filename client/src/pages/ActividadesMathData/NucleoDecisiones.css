@@ -990,6 +990,7 @@
   inset: 0;
   z-index: 400;
   background: rgba(5, 10, 25, 0.72);
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -1357,6 +1358,7 @@
   inset: 0;
   z-index: 500;
   background: rgba(5, 10, 25, 0.72);
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -1540,4 +1542,100 @@
 @media (max-width: 480px) {
   .pb-video-wrap { width: 120px; height: 120px; }
   .pb-modal { padding: 26px 20px 22px; }
+}
+/* ========================================================= */
+/* ESTADO "RESUELTO CON APOYO" (naranja) — nuevo             */
+/* ========================================================= */
+
+.nuc-input-asistido {
+  border-color: #ea580c;
+  background: #fff7ed;
+}
+
+.nuc-orden-chip-pista {
+  border-color: #ea580c;
+  background: #fff7ed;
+  animation: nucPistaParpadeo 1s ease-in-out infinite;
+}
+
+@keyframes nucPistaParpadeo {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.4);
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 0 6px rgba(234, 88, 12, 0);
+  }
+}
+
+.nuc-check-asistido {
+  color: #ea580c;
+}
+
+/* ========================================================= */
+/* TARJETA DE TIEMPO TRANSCURRIDO (sidebar)                  */
+/* ========================================================= */
+
+.nuc-tiempo-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin-top: 12px;
+  box-shadow: 0 8px 20px rgba(21, 91, 160, 0.1);
+  text-align: center;
+}
+
+.nuc-tiempo-card small {
+  display: block;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.nuc-tiempo-card strong {
+  font-size: 20px;
+  color: #071331;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ========================================================= */
+/* PANTALLA DE CARGA INICIAL (evita el "salto" a éxito/fallo) */
+/* ========================================================= */
+
+.nuc-loading-screen {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: #eef7ff;
+  font-family: "Poppins", Arial, sans-serif;
+}
+
+.nuc-loading-logo {
+  width: 140px;
+  animation: nucLoadingPulse 1.4s ease-in-out infinite;
+}
+
+.nuc-loading-screen p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #315170;
+}
+
+@keyframes nucLoadingPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.96);
+  }
 }

@@ -1,7 +1,8 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { DragEvent } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
+import { getSessionUser } from "../../utils/authSession";
 
 import logo from "../../assets/logo_MathNova.png";
 import "./NucleoDecisiones.css";
@@ -55,6 +56,12 @@ import {
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
 /* =========================================================
+   CONFIGURACIÓN DEL BACKEND
+========================================================= */
+
+const API_URL = "http://localhost:3001/api";
+
+/* =========================================================
    DATOS DE LA MISIÓN
 ========================================================= */
 
@@ -87,6 +94,25 @@ const RANGO_CORRECTA = "16";
 const CAPACIDAD_CORRECTA = Number(MEDIA_CORRECTA) + Number(RANGO_CORRECTA); // 67
 
 type EstadoCampo = "correcto" | "pendiente" | "incorrecto";
+type Pantalla = "orden" | "media" | "mediana" | "moda" | "rango" | "decision";
+
+// Reconstruye un arreglo de IDs de expedición que coincida con la
+// secuencia de valores dada (necesario porque el 44 aparece dos veces).
+function construirOrdenDesdeValores(valores: number[]): number[] {
+  const usados = new Set<number>();
+  return valores.map((v) => {
+    const candidato = EXPEDICIONES.find((e) => e.minutos === v && !usados.has(e.id));
+    const id = candidato?.id ?? EXPEDICIONES[0].id;
+    usados.add(id);
+    return id;
+  });
+}
+
+function formatearTiempo(segundos: number): string {
+  const m = Math.floor(segundos / 60);
+  const s = segundos % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
 
 /* =========================================================
    COMPONENTE: PISTA DE BAIT (modal con video real)
@@ -240,56 +266,164 @@ function PistaBaitModal({
 export default function NucleoDecisiones() {
   const navigate = useNavigate();
 
+  // El ID del estudiante se obtiene de la sesión activa en cada render
+  const usuarioSesion = getSessionUser();
+  const ID_ESTUDIANTE = usuarioSesion?.id_usuario;
+
   /* ---- Paso 2: ordenamiento (drag & drop) ---- */
   const [orden, setOrden] = useState<number[]>(ORDEN_INICIAL);
-  const [ordenVerificado, setOrdenVerificado] = useState(false);
+  const [posicionesCorrectas, setPosicionesCorrectas] = useState<boolean[]>([false, false, false, false, false, false]);
+  const [posicionesPista, setPosicionesPista] = useState<boolean[]>([false, false, false, false, false, false]);
+  const [ordenVerificadoAlMenos1Vez, setOrdenVerificadoAlMenos1Vez] = useState(false);
   const [pasosDesbloqueados, setPasosDesbloqueados] = useState(false);
   const dragIndexRef = useRef<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   /* ---- Pasos 3 a 6: medidas estadísticas ---- */
   const [media, setMedia] = useState("");
-  const [mediaVerificada, setMediaVerificada] = useState(false);
+  const [mediaEstado, setMediaEstado] = useState<EstadoCampo>("pendiente");
+  const [mediaAsistida, setMediaAsistida] = useState(false);
+
   const [mediana, setMediana] = useState("");
-  const [medianaVerificada, setMedianaVerificada] = useState(false);
+  const [medianaEstado, setMedianaEstado] = useState<EstadoCampo>("pendiente");
+  const [medianaAsistida, setMedianaAsistida] = useState(false);
+
   const [moda, setModa] = useState("");
-  const [modaVerificada, setModaVerificada] = useState(false);
+  const [modaEstado, setModaEstado] = useState<EstadoCampo>("pendiente");
+  const [modaAsistida, setModaAsistida] = useState(false);
+
   const [rango, setRango] = useState("");
-  const [rangoVerificada, setRangoVerificada] = useState(false);
+  const [rangoEstado, setRangoEstado] = useState<EstadoCampo>("pendiente");
+  const [rangoAsistida, setRangoAsistida] = useState(false);
 
   const [resultado, setResultado] = useState<"exito" | "fallo" | null>(null);
   const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
+  const [mensajePistaBait, setMensajePistaBait] = useState("");
   const [mostrarIntroBait, setMostrarIntroBait] = useState(false);
   const [mostrarBaitExito, setMostrarBaitExito] = useState(false);
   const [mostrarBaitFallo, setMostrarBaitFallo] = useState(false);
 
+  const [cargandoInicial, setCargandoInicial] = useState(true);
+  const [cargandoOrden, setCargandoOrden] = useState(false);
+  const [cargandoMedia, setCargandoMedia] = useState(false);
+  const [cargandoMediana, setCargandoMediana] = useState(false);
+  const [cargandoModa, setCargandoModa] = useState(false);
+  const [cargandoRango, setCargandoRango] = useState(false);
+  const [cargandoEnvio, setCargandoEnvio] = useState(false);
+
+  /* ---- Temporizador ---- */
+  const tiempoInicioRef = useRef<number>(Date.now());
+  const [segundosTranscurridos, setSegundosTranscurridos] = useState(0);
+
+  useEffect(() => {
+    if (cargandoInicial || resultado !== null) return;
+
+    const intervalo = setInterval(() => {
+      setSegundosTranscurridos(Math.floor((Date.now() - tiempoInicioRef.current) / 1000));
+    }, 1000);
+
+    return () => clearInterval(intervalo);
+  }, [cargandoInicial, resultado]);
+
   /* ---- Derivados ---- */
-  const secuenciaActual = orden.map((id) => VALOR_POR_ID[id]);
-  const ordenEsCorrecto = secuenciaActual.every((v, i) => v === SECUENCIA_CORRECTA[i]);
+  const ordenResuelto = posicionesCorrectas.every(Boolean);
+  const mediaValida = mediaEstado === "correcto" || mediaAsistida;
+  const medianaValida = medianaEstado === "correcto" || medianaAsistida;
+  const modaValida = modaEstado === "correcto" || modaAsistida;
+  const rangoValido = rangoEstado === "correcto" || rangoAsistida;
 
-  const estadoCampo = (verificado: boolean, valor: string, correcto: string): EstadoCampo => {
-    if (!verificado) return "pendiente";
-    return valor.trim() === correcto ? "correcto" : "incorrecto";
-  };
-
-  const mediaEstado = estadoCampo(mediaVerificada, media, MEDIA_CORRECTA);
-  const medianaEstado = estadoCampo(medianaVerificada, mediana, MEDIANA_CORRECTA);
-  const modaEstado = estadoCampo(modaVerificada, moda, MODA_CORRECTA);
-  const rangoEstado = estadoCampo(rangoVerificada, rango, RANGO_CORRECTA);
-
-  const mediaValida = media.trim() === MEDIA_CORRECTA;
-  const rangoValido = rango.trim() === RANGO_CORRECTA;
   const capacidadTotal = mediaValida && rangoValido ? Number(media) + Number(rango) : null;
   const capacidadCorrecta = capacidadTotal === CAPACIDAD_CORRECTA;
 
+  // ¿Desde qué pantalla debe registrarse la próxima consulta de "Ver Pista"?
+  const pantallaActual = (): Pantalla => {
+    if (!ordenResuelto) return "orden";
+    if (!mediaValida) return "media";
+    if (!medianaValida) return "mediana";
+    if (!modaValida) return "moda";
+    if (!rangoValido) return "rango";
+    return "decision";
+  };
+
+  const abrirPistaManual = () => {
+    setMensajePistaBait("");
+    setMostrarPistaBait(true);
+    fetch(`${API_URL}/nucleo/pista-consultada`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, pantalla: pantallaActual() }),
+    }).catch((error) => console.error("Error al registrar consulta de pista:", error));
+  };
+
+  // ==========================================
+  // CARGAR PROGRESO GUARDADO
+  // ==========================================
+
+  useEffect(() => {
+    const cargarProgreso = async () => {
+      try {
+        const response = await fetch(`${API_URL}/nucleo/progreso/${ID_ESTUDIANTE}`);
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const progreso = data.data;
+
+          const ordenGuardado = (progreso.orden_valores || []) as number[];
+          const posicionesGuardadas = (progreso.orden_posiciones_correctas || []) as boolean[];
+          if (ordenGuardado.length === 6) {
+            setOrden(construirOrdenDesdeValores(ordenGuardado));
+            setOrdenVerificadoAlMenos1Vez(true);
+          }
+          if (posicionesGuardadas.length === 6) {
+            setPosicionesCorrectas(posicionesGuardadas);
+            if (posicionesGuardadas.every(Boolean)) setPasosDesbloqueados(true);
+          }
+
+          if (progreso.valor_media) {
+            setMedia(String(progreso.valor_media));
+            setMediaEstado(String(progreso.valor_media) === MEDIA_CORRECTA ? "correcto" : "incorrecto");
+            setMediaAsistida(!!progreso.media_asistida);
+          }
+          if (progreso.valor_mediana) {
+            setMediana(String(progreso.valor_mediana));
+            setMedianaEstado(String(progreso.valor_mediana) === MEDIANA_CORRECTA ? "correcto" : "incorrecto");
+            setMedianaAsistida(!!progreso.mediana_asistida);
+          }
+          if (progreso.valor_moda) {
+            setModa(String(progreso.valor_moda));
+            setModaEstado(String(progreso.valor_moda) === MODA_CORRECTA ? "correcto" : "incorrecto");
+            setModaAsistida(!!progreso.moda_asistida);
+          }
+          if (progreso.valor_rango) {
+            setRango(String(progreso.valor_rango));
+            setRangoEstado(String(progreso.valor_rango) === RANGO_CORRECTA ? "correcto" : "incorrecto");
+            setRangoAsistida(!!progreso.rango_asistida);
+          }
+
+          if (progreso.completada) {
+            setResultado(progreso.resultado_correcto ? "exito" : "fallo");
+          }
+        }
+      } catch (error) {
+        console.error("Error al cargar progreso:", error);
+      } finally {
+        setCargandoInicial(false);
+      }
+    };
+
+    cargarProgreso();
+  }, []);
+
   /* ---- Drag & drop del paso 2 ---- */
   const manejarDragStart = (index: number) => (e: DragEvent<HTMLDivElement>) => {
+    if (posicionesCorrectas[index]) return; // no se puede mover una posición ya correcta
     dragIndexRef.current = index;
     e.dataTransfer.effectAllowed = "move";
   };
 
   const manejarDragOver = (index: number) => (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+    if (posicionesCorrectas[index]) return;
     setDragOverIndex(index);
   };
 
@@ -298,72 +432,204 @@ export default function NucleoDecisiones() {
     const origen = dragIndexRef.current;
     setDragOverIndex(null);
     if (origen === null || origen === index) return;
+    if (posicionesCorrectas[index] || posicionesCorrectas[origen]) return;
     setOrden((prev) => {
+      // Intercambio directo entre las 2 posiciones (nunca desplaza a las
+      // demás tarjetas, ni siquiera a las que ya están bloqueadas en verde).
       const copia = [...prev];
-      const [movido] = copia.splice(origen, 1);
-      copia.splice(index, 0, movido);
+      const temporal = copia[origen];
+      copia[origen] = copia[index];
+      copia[index] = temporal;
       return copia;
     });
     dragIndexRef.current = null;
-    setOrdenVerificado(false);
-    setPasosDesbloqueados(false);
+    setPosicionesPista([false, false, false, false, false, false]);
   };
 
-  const verificarOrden = () => {
-    setOrdenVerificado(true);
-    if (ordenEsCorrecto) setPasosDesbloqueados(true);
+  // ==========================================
+  // VERIFICAR ORDEN
+  // ==========================================
+
+  const verificarOrden = async () => {
+    if (ordenResuelto) return;
+
+    setCargandoOrden(true);
+    try {
+      const secuenciaActual = orden.map((id) => VALOR_POR_ID[id]);
+
+      const response = await fetch(`${API_URL}/nucleo/validar-orden`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, orden: secuenciaActual }),
+      });
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        const r = data.data;
+
+        setOrdenVerificadoAlMenos1Vez(true);
+        setPosicionesCorrectas(r.posiciones_correctas || posicionesCorrectas);
+        setPosicionesPista(r.posiciones_pista || [false, false, false, false, false, false]);
+
+        if (r.mostrar_pista_bait) {
+          setMensajePistaBait(r.mensaje);
+          setMostrarPistaBait(true);
+          fetch(`${API_URL}/nucleo/pista-consultada`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, pantalla: "orden" }),
+          }).catch((error) => console.error("Error al registrar consulta de pista:", error));
+        }
+
+        if (r.correcto) {
+          setPasosDesbloqueados(true);
+        }
+      }
+    } catch (error) {
+      console.error("Error al verificar el orden:", error);
+    } finally {
+      setCargandoOrden(false);
+    }
   };
 
-  const verificarMedia = () => setMediaVerificada(true);
-  const verificarMediana = () => setMedianaVerificada(true);
-  const verificarModa = () => setModaVerificada(true);
-  const verificarRango = () => setRangoVerificada(true);
+  // ==========================================
+  // Validador genérico para media, mediana, moda y rango
+  // ==========================================
+
+  const verificarCampo = async (
+    endpoint: string,
+    valorActual: string,
+    pantalla: Pantalla,
+    setEstado: (v: EstadoCampo) => void,
+    setAsistida: (v: boolean) => void,
+    setValor: (v: string) => void,
+    setCargando: (v: boolean) => void
+  ) => {
+    setCargando(true);
+    try {
+      const response = await fetch(`${API_URL}/nucleo/${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, valor: valorActual }),
+      });
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        const r = data.data;
+
+        if (r.mostrar_pista_bait) {
+          setMensajePistaBait(r.mensaje);
+          setMostrarPistaBait(true);
+          fetch(`${API_URL}/nucleo/pista-consultada`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, pantalla }),
+          }).catch((error) => console.error("Error al registrar consulta de pista:", error));
+        }
+
+        if (r.celda_completada && !r.correcto) {
+          setValor(r.respuesta_correcta);
+          setEstado("incorrecto");
+          setAsistida(true);
+        } else if (r.correcto) {
+          setEstado("correcto");
+        } else {
+          setEstado("incorrecto");
+        }
+      }
+    } catch (error) {
+      console.error(`Error al verificar ${pantalla}:`, error);
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  const verificarMedia = () =>
+    verificarCampo("validar-media", media, "media", setMediaEstado, setMediaAsistida, setMedia, setCargandoMedia);
+  const verificarMediana = () =>
+    verificarCampo("validar-mediana", mediana, "mediana", setMedianaEstado, setMedianaAsistida, setMediana, setCargandoMediana);
+  const verificarModa = () =>
+    verificarCampo("validar-moda", moda, "moda", setModaEstado, setModaAsistida, setModa, setCargandoModa);
+  const verificarRango = () =>
+    verificarCampo("validar-rango", rango, "rango", setRangoEstado, setRangoAsistida, setRango, setCargandoRango);
 
   /* ---- Envío final de la decisión ---- */
-  const handleEnviarDecision = () => {
-    setOrdenVerificado(true);
-    setMediaVerificada(true);
-    setMedianaVerificada(true);
-    setModaVerificada(true);
-    setRangoVerificada(true);
+  const handleEnviarDecision = async () => {
+    setCargandoEnvio(true);
+    try {
+      const response = await fetch(`${API_URL}/nucleo/enviar-decision`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_estudiante: ID_ESTUDIANTE,
+          tiempo_total: segundosTranscurridos,
+        }),
+      });
+      const data = await response.json();
 
-    const todoCorrecto =
-      ordenEsCorrecto &&
-      mediaValida &&
-      mediana.trim() === MEDIANA_CORRECTA &&
-      moda.trim() === MODA_CORRECTA &&
-      rangoValido;
-
-    if (ordenEsCorrecto) setPasosDesbloqueados(true);
-    setResultado(todoCorrecto ? "exito" : "fallo");
+      if (data.success && data.data) {
+        setResultado(data.data.correcto ? "exito" : "fallo");
+      }
+    } catch (error) {
+      console.error("Error al enviar la decisión:", error);
+      alert("❌ Error al conectar con el servidor.");
+    } finally {
+      setCargandoEnvio(false);
+    }
   };
 
-  const handleReiniciarActividad = () => {
+  const handleReiniciarActividad = async () => {
+    try {
+      await fetch(`${API_URL}/nucleo/reiniciar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE }),
+      });
+    } catch (error) {
+      console.error("Error al reiniciar actividad:", error);
+    }
+
     setOrden(ORDEN_INICIAL);
-    setOrdenVerificado(false);
+    setPosicionesCorrectas([false, false, false, false, false, false]);
+    setPosicionesPista([false, false, false, false, false, false]);
+    setOrdenVerificadoAlMenos1Vez(false);
     setPasosDesbloqueados(false);
     setMedia("");
-    setMediaVerificada(false);
+    setMediaEstado("pendiente");
+    setMediaAsistida(false);
     setMediana("");
-    setMedianaVerificada(false);
+    setMedianaEstado("pendiente");
+    setMedianaAsistida(false);
     setModa("");
-    setModaVerificada(false);
+    setModaEstado("pendiente");
+    setModaAsistida(false);
     setRango("");
-    setRangoVerificada(false);
+    setRangoEstado("pendiente");
+    setRangoAsistida(false);
     setResultado(null);
+    tiempoInicioRef.current = Date.now();
+    setSegundosTranscurridos(0);
   };
 
   /* ---- Resumen para las pantallas de resultado ---- */
-  const aciertos = [
-    ordenEsCorrecto,
-    mediaValida,
-    mediana.trim() === MEDIANA_CORRECTA,
-    moda.trim() === MODA_CORRECTA,
-    rangoValido,
-  ].filter(Boolean).length;
+  const aciertos = [ordenResuelto, mediaValida, medianaValida, modaValida, rangoValido].filter(Boolean).length;
   const totalPasos = 5;
   const precision = Math.round((aciertos / totalPasos) * 100);
   const puntosGanados = resultado === "exito" ? 50 : 10;
+
+  // ==========================================
+  // PANTALLA DE CARGA INICIAL (evita mostrar el
+  // tablero antes de saber si ya estaba completada)
+  // ==========================================
+
+  if (cargandoInicial) {
+    return (
+      <div className="nuc-loading-screen">
+        <img src={logo} alt="MathNova" className="nuc-loading-logo" />
+        <p>Cargando actividad...</p>
+      </div>
+    );
+  }
 
   // ==========================================
   // VENTANA EMERGENTE: ACTIVIDAD COMPLETADA
@@ -439,7 +705,7 @@ export default function NucleoDecisiones() {
                 <div className="res-stat-sep" />
                 <div className="res-stat">
                   <img src={iconoTiempo} alt="" className="res-stat-img" />
-                  <strong>—</strong>
+                  <strong>{formatearTiempo(segundosTranscurridos)}</strong>
                   <small>Tiempo</small>
                   <em>min</em>
                 </div>
@@ -560,7 +826,7 @@ export default function NucleoDecisiones() {
                 <div className="res-stat-sep" />
                 <div className="res-stat">
                   <img src={iconoTiempo} alt="" className="res-stat-img" />
-                  <strong>—</strong>
+                  <strong>{formatearTiempo(segundosTranscurridos)}</strong>
                   <small>Tiempo</small>
                   <em>min</em>
                 </div>
@@ -593,7 +859,7 @@ export default function NucleoDecisiones() {
             <button className="res-btn res-btn-azul" onClick={handleReiniciarActividad}>
               Intentar de nuevo
             </button>
-            <button className="res-btn res-btn-outline" onClick={() => setMostrarPistaBait(true)}>
+            <button className="res-btn res-btn-outline" onClick={abrirPistaManual}>
               Ver pista
             </button>
             <button
@@ -620,7 +886,10 @@ export default function NucleoDecisiones() {
       {mostrarPistaBait && (
         <PistaBaitModal
           titulo="Pista de Bait"
-          contenido="Revisa cada parte del análisis. Primero, ordena los tiempos de menor a mayor. Para obtener la media, suma los seis valores y divídelos entre seis. La mediana se obtiene con los dos valores centrales del conjunto ordenado. La moda es el tiempo que más se repite. El rango se calcula restando el valor menor al mayor. Finalmente, utiliza la media como estimación general y el rango como reserva adicional. ¡Tú puedes, agente!"
+          contenido={
+            mensajePistaBait ||
+            "Revisa cada parte del análisis. Primero, ordena los tiempos de menor a mayor. Para obtener la media, suma los seis valores y divídelos entre seis. La mediana se obtiene con los dos valores centrales del conjunto ordenado. La moda es el tiempo que más se repite. El rango se calcula restando el valor menor al mayor. Finalmente, utiliza la media como estimación general y el rango como reserva adicional. ¡Tú puedes, agente!"
+          }
           videoSrc={baitHablandoVideo}
           audioSrc={pistaBaitAudioNucleo}
           onClose={() => setMostrarPistaBait(false)}
@@ -670,6 +939,11 @@ export default function NucleoDecisiones() {
             <div className="nuc-progreso-fill" style={{ width: "83%" }} />
           </div>
           <small>5/6 actividad</small>
+        </div>
+
+        <div className="nuc-tiempo-card">
+          <small>Tiempo transcurrido</small>
+          <strong>{formatearTiempo(segundosTranscurridos)}</strong>
         </div>
 
         <div className="nuc-xp-card">
@@ -739,10 +1013,9 @@ export default function NucleoDecisiones() {
               <div className="nuc-paso-header">
                 <span className="nuc-paso-num">2</span>
                 <strong>Ordenamiento de tiempos</strong>
-                {ordenVerificado && (
-                  ordenEsCorrecto
-                    ? <FiCheckCircle className="nuc-check-verde" />
-                    : <FiAlertTriangle className="nuc-check-alerta" />
+                {ordenResuelto && <FiCheckCircle className="nuc-check-verde" />}
+                {!ordenResuelto && ordenVerificadoAlMenos1Vez && (
+                  <FiAlertTriangle className="nuc-check-alerta" />
                 )}
               </div>
 
@@ -753,13 +1026,15 @@ export default function NucleoDecisiones() {
                       className={`nuc-orden-chip ${
                         dragOverIndex === index ? "nuc-orden-chip-sobre" : ""
                       } ${
-                        ordenVerificado
-                          ? ordenEsCorrecto
-                            ? "nuc-orden-chip-correcto"
-                            : "nuc-orden-chip-incorrecto"
-                          : ""
+                        posicionesCorrectas[index]
+                          ? "nuc-orden-chip-correcto"
+                          : posicionesPista[index]
+                            ? "nuc-orden-chip-pista"
+                            : ordenVerificadoAlMenos1Vez
+                              ? "nuc-orden-chip-incorrecto"
+                              : ""
                       }`}
-                      draggable
+                      draggable={!posicionesCorrectas[index]}
                       onDragStart={manejarDragStart(index)}
                       onDragOver={manejarDragOver(index)}
                       onDrop={manejarDrop(index)}
@@ -776,8 +1051,13 @@ export default function NucleoDecisiones() {
 
               <small className="nuc-orden-ayuda">Arrastra para reordenar</small>
 
-              <button type="button" className="nuc-verificar-btn" onClick={verificarOrden}>
-                <FiCheck /> Verificar orden
+              <button
+                type="button"
+                className="nuc-verificar-btn"
+                onClick={verificarOrden}
+                disabled={cargandoOrden || ordenResuelto}
+              >
+                <FiCheck /> {cargandoOrden ? "Verificando..." : "Verificar orden"}
               </button>
             </div>
 
@@ -789,6 +1069,7 @@ export default function NucleoDecisiones() {
                   <span className="nuc-paso-num">3</span>
                   <strong>Media (promedio)</strong>
                   {mediaEstado === "correcto" && <FiCheckCircle className="nuc-check-verde" />}
+                  {mediaAsistida && <FiCheckCircle className="nuc-check-asistido" />}
                 </div>
                 <p className="nuc-formula">
                   {SECUENCIA_CORRECTA.join("+")}={SUMA_TOTAL}
@@ -798,9 +1079,9 @@ export default function NucleoDecisiones() {
                   <input
                     type="text"
                     inputMode="numeric"
-                    className={`nuc-input nuc-input-${mediaEstado}`}
+                    className={`nuc-input nuc-input-${mediaAsistida ? "asistido" : mediaEstado}`}
                     value={media}
-                    disabled={!pasosDesbloqueados}
+                    disabled={!pasosDesbloqueados || cargandoMedia || mediaValida}
                     onChange={(e) => setMedia(e.target.value)}
                     aria-label="Resultado de la media"
                   />
@@ -809,10 +1090,10 @@ export default function NucleoDecisiones() {
                 <button
                   type="button"
                   className="nuc-mini-verificar-btn"
-                  disabled={!pasosDesbloqueados}
+                  disabled={!pasosDesbloqueados || cargandoMedia || mediaValida}
                   onClick={verificarMedia}
                 >
-                  Verificar
+                  {cargandoMedia ? "..." : "Verificar"}
                 </button>
               </div>
 
@@ -822,6 +1103,7 @@ export default function NucleoDecisiones() {
                   <span className="nuc-paso-num">4</span>
                   <strong>Mediana</strong>
                   {medianaEstado === "correcto" && <FiCheckCircle className="nuc-check-verde" />}
+                  {medianaAsistida && <FiCheckCircle className="nuc-check-asistido" />}
                 </div>
                 <p className="nuc-formula">
                   44, 44, <span className="nuc-formula-resaltado">48, 52</span>, 58, 60
@@ -831,9 +1113,9 @@ export default function NucleoDecisiones() {
                   <input
                     type="text"
                     inputMode="numeric"
-                    className={`nuc-input nuc-input-${medianaEstado}`}
+                    className={`nuc-input nuc-input-${medianaAsistida ? "asistido" : medianaEstado}`}
                     value={mediana}
-                    disabled={!pasosDesbloqueados}
+                    disabled={!pasosDesbloqueados || cargandoMediana || medianaValida}
                     onChange={(e) => setMediana(e.target.value)}
                     aria-label="Resultado de la mediana"
                   />
@@ -842,10 +1124,10 @@ export default function NucleoDecisiones() {
                 <button
                   type="button"
                   className="nuc-mini-verificar-btn"
-                  disabled={!pasosDesbloqueados}
+                  disabled={!pasosDesbloqueados || cargandoMediana || medianaValida}
                   onClick={verificarMediana}
                 >
-                  Verificar
+                  {cargandoMediana ? "..." : "Verificar"}
                 </button>
               </div>
 
@@ -855,6 +1137,7 @@ export default function NucleoDecisiones() {
                   <span className="nuc-paso-num">5</span>
                   <strong>Moda</strong>
                   {modaEstado === "correcto" && <FiCheckCircle className="nuc-check-verde" />}
+                  {modaAsistida && <FiCheckCircle className="nuc-check-asistido" />}
                 </div>
                 <p className="nuc-formula">
                   <span className="nuc-formula-resaltado">44, 44</span>, 48, 52, 58, 60
@@ -864,9 +1147,9 @@ export default function NucleoDecisiones() {
                   <input
                     type="text"
                     inputMode="numeric"
-                    className={`nuc-input nuc-input-${modaEstado}`}
+                    className={`nuc-input nuc-input-${modaAsistida ? "asistido" : modaEstado}`}
                     value={moda}
-                    disabled={!pasosDesbloqueados}
+                    disabled={!pasosDesbloqueados || cargandoModa || modaValida}
                     onChange={(e) => setModa(e.target.value)}
                     aria-label="Resultado de la moda"
                   />
@@ -875,10 +1158,10 @@ export default function NucleoDecisiones() {
                 <button
                   type="button"
                   className="nuc-mini-verificar-btn"
-                  disabled={!pasosDesbloqueados}
+                  disabled={!pasosDesbloqueados || cargandoModa || modaValida}
                   onClick={verificarModa}
                 >
-                  Verificar
+                  {cargandoModa ? "..." : "Verificar"}
                 </button>
               </div>
 
@@ -888,6 +1171,7 @@ export default function NucleoDecisiones() {
                   <span className="nuc-paso-num">6</span>
                   <strong>Rango</strong>
                   {rangoEstado === "correcto" && <FiCheckCircle className="nuc-check-verde" />}
+                  {rangoAsistida && <FiCheckCircle className="nuc-check-asistido" />}
                 </div>
                 <p className="nuc-formula">Máximo − Mínimo</p>
                 <p className="nuc-formula">60 − 44 =</p>
@@ -895,9 +1179,9 @@ export default function NucleoDecisiones() {
                   <input
                     type="text"
                     inputMode="numeric"
-                    className={`nuc-input nuc-input-${rangoEstado}`}
+                    className={`nuc-input nuc-input-${rangoAsistida ? "asistido" : rangoEstado}`}
                     value={rango}
-                    disabled={!pasosDesbloqueados}
+                    disabled={!pasosDesbloqueados || cargandoRango || rangoValido}
                     onChange={(e) => setRango(e.target.value)}
                     aria-label="Resultado del rango"
                   />
@@ -906,10 +1190,10 @@ export default function NucleoDecisiones() {
                 <button
                   type="button"
                   className="nuc-mini-verificar-btn"
-                  disabled={!pasosDesbloqueados}
+                  disabled={!pasosDesbloqueados || cargandoRango || rangoValido}
                   onClick={verificarRango}
                 >
-                  Verificar
+                  {cargandoRango ? "..." : "Verificar"}
                 </button>
               </div>
             </div>
@@ -951,7 +1235,7 @@ export default function NucleoDecisiones() {
               <button
                 type="button"
                 className="nuc-pista-btn"
-                onClick={() => setMostrarPistaBait(true)}
+                onClick={abrirPistaManual}
               >
                 <img src={baitPistaImg} alt="" className="nuc-pista-icono" />
                 Ver pista
@@ -1012,8 +1296,13 @@ export default function NucleoDecisiones() {
                 </div>
               </div>
 
-              <button type="button" className="nuc-enviar-btn" onClick={handleEnviarDecision}>
-                <FiSend /> Enviar decisión
+              <button
+                type="button"
+                className="nuc-enviar-btn"
+                onClick={handleEnviarDecision}
+                disabled={!ordenResuelto || !mediaValida || !medianaValida || !modaValida || !rangoValido || cargandoEnvio}
+              >
+                <FiSend /> {cargandoEnvio ? "Enviando..." : "Enviar decisión"}
               </button>
             </div>
           </div>
@@ -1034,7 +1323,10 @@ export default function NucleoDecisiones() {
       {mostrarPistaBait && (
         <PistaBaitModal
           titulo="Pista de Bait"
-          contenido="Revisa cada parte del análisis. Primero, ordena los tiempos de menor a mayor. Para obtener la media, suma los seis valores y divídelos entre seis. La mediana se obtiene con los dos valores centrales del conjunto ordenado. La moda es el tiempo que más se repite. El rango se calcula restando el valor menor al mayor. Finalmente, utiliza la media como estimación general y el rango como reserva adicional. ¡Tú puedes, agente!"
+          contenido={
+            mensajePistaBait ||
+            "Revisa cada parte del análisis. Primero, ordena los tiempos de menor a mayor. Para obtener la media, suma los seis valores y divídelos entre seis. La mediana se obtiene con los dos valores centrales del conjunto ordenado. La moda es el tiempo que más se repite. El rango se calcula restando el valor menor al mayor. Finalmente, utiliza la media como estimación general y el rango como reserva adicional. ¡Tú puedes, agente!"
+          }
           videoSrc={baitHablandoVideo}
           audioSrc={pistaBaitAudioNucleo}
           onClose={() => setMostrarPistaBait(false)}

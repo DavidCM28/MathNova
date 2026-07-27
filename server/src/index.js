@@ -1,4 +1,4 @@
-// Permite cargar rutas TypeScript desde este servidor JavaScript.
+﻿// Permite cargar rutas TypeScript desde este servidor JavaScript.
 require("ts-node/register");
 require("dotenv").config();
 
@@ -16,6 +16,7 @@ const tripulacionRoutes = require("./routes/tripulacionRoutes").default;
 const hologramaRoutes = require("./routes/hologramaRoutes").default;
 const progresoGeneralRoutes = require("./routes/progresoGeneralRoutes").default;
 const sensorRoutes = require("./routes/sensorRoutes").default;
+const nucleoRoutes = require("./routes/nucleoRoutes").default;
 const docenteAlumnosRoutes = require("./routes/docenteAlumnos.routes");
 const docenteDashboardRoutes = require("./routes/docenteDashboard.routes");
 const docenteCalificacionesRoutes = require("./routes/docenteCalificaciones.routes").default;
@@ -54,6 +55,7 @@ app.use("/api/tripulacion", tripulacionRoutes);
 app.use("/api/holograma", hologramaRoutes);
 app.use("/api/progreso-general", progresoGeneralRoutes);
 app.use("/api/sensor", sensorRoutes);
+app.use("/api/nucleo", nucleoRoutes);
 app.use("/api/docente/alumnos", docenteAlumnosRoutes);
 app.use("/api/docente/dashboard", docenteDashboardRoutes);
 app.use("/api/docente/calificaciones", docenteCalificacionesRoutes);
