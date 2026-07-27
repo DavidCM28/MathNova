@@ -1364,6 +1364,368 @@
   border-top: 1px solid #e5eee7;
 }
 
+
+/* =========================================================
+   BYTE · PISTA FLOTANTE
+   La imagen global byte_pista.png se usa en el botón.
+   El MP4 de la actividad se muestra dentro del panel.
+   ========================================================= */
+
+.mnx-escuadron-byte-float {
+  position: fixed;
+  right: 24px;
+  bottom: 84px;
+  z-index: 160;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.mnx-escuadron-byte-launcher,
+.mnx-escuadron-byte-panel,
+.mnx-escuadron-byte-panel * {
+  pointer-events: auto;
+}
+
+.mnx-escuadron-byte-launcher {
+  width: 112px;
+  min-height: 138px;
+  padding: 8px 8px 4px;
+  border: 0;
+  border-radius: 30px 30px 24px 24px;
+  background: transparent;
+  position: relative;
+  cursor: pointer;
+  filter: drop-shadow(
+    0 16px 18px rgba(24, 72, 110, 0.24)
+  );
+  transition: transform 180ms ease;
+}
+
+.mnx-escuadron-byte-launcher:hover {
+  transform: translateY(-6px) scale(1.04);
+}
+
+.mnx-escuadron-byte-launcher > span {
+  position: absolute;
+  left: 50%;
+  top: -8px;
+  z-index: 3;
+  transform: translateX(-50%);
+  min-width: 74px;
+  min-height: 28px;
+  padding: 0 12px;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  background: linear-gradient(
+    135deg,
+    #2d7ff0,
+    #1d63ca
+  );
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 950;
+  box-shadow:
+    0 8px 18px rgba(45, 127, 240, 0.28);
+}
+
+.mnx-escuadron-byte-launcher img {
+  width: 102px;
+  height: 126px;
+  display: block;
+  object-fit: contain;
+  animation:
+    mnxEscuadronByteFloat 2.8s ease-in-out infinite;
+}
+
+.mnx-escuadron-byte-launcher > i {
+  position: absolute;
+  right: 3px;
+  top: 31px;
+  z-index: 3;
+  width: 29px;
+  height: 29px;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  background: #ffbd32;
+  color: #604100;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  font-size: 17px;
+  font-weight: 950;
+}
+
+.mnx-escuadron-byte-panel {
+  width: min(450px, calc(100vw - 32px));
+  min-height: 256px;
+  padding: 18px;
+  display: grid;
+  grid-template-columns: 138px minmax(0, 1fr);
+  gap: 15px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba(45, 127, 240, 0.24);
+  border-radius: 27px;
+  background:
+    radial-gradient(
+      circle at 16% 12%,
+      rgba(91, 181, 255, 0.28),
+      transparent 31%
+    ),
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #edf6ff
+    );
+  box-shadow:
+    0 24px 56px rgba(25, 70, 120, 0.25);
+  animation:
+    mnxEscuadronBytePanelIn 220ms ease;
+}
+
+.mnx-escuadron-byte-close {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  z-index: 5;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  background: #ffffff;
+  color: #33475f;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow:
+    0 8px 18px rgba(25, 70, 120, 0.12);
+}
+
+.mnx-escuadron-byte-close:hover {
+  color: #ffffff;
+  background: #2d7ff0;
+}
+
+.mnx-escuadron-byte-panel-media {
+  width: 138px;
+  height: 194px;
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+.mnx-escuadron-byte-panel-character {
+  width: 138px;
+  height: 194px;
+  display: block;
+  object-fit: contain;
+  filter:
+    drop-shadow(
+      0 14px 15px rgba(25, 70, 120, 0.18)
+    );
+}
+
+.mnx-escuadron-byte-panel-copy {
+  min-width: 0;
+  padding-right: 18px;
+}
+
+.mnx-escuadron-byte-panel-label {
+  min-height: 27px;
+  padding: 0 11px;
+  border-radius: 999px;
+  background: #e5f1ff;
+  color: #2363bb;
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.mnx-escuadron-byte-panel h3 {
+  margin: 9px 0 7px;
+  color: #10223b;
+  font-size: 18px;
+  line-height: 1.15;
+  font-weight: 950;
+}
+
+.mnx-escuadron-byte-panel p {
+  margin: 0;
+  color: #3b4f68;
+  font-size: 11px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.mnx-escuadron-byte-controls {
+  margin-top: 11px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mnx-escuadron-byte-controls button {
+  width: 31px;
+  height: 31px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(
+    145deg,
+    #2d7ff0,
+    #1d63ca
+  );
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow:
+    0 8px 16px rgba(45, 127, 240, 0.20);
+  transition:
+    transform 180ms ease,
+    opacity 180ms ease;
+}
+
+.mnx-escuadron-byte-controls button:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.mnx-escuadron-byte-controls button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mnx-escuadron-byte-status {
+  min-height: 31px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: #edf3f9;
+  color: #607087;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9.5px;
+  font-weight: 850;
+}
+
+.mnx-escuadron-byte-status.is-playing {
+  color: #2363bb;
+  background: #e2efff;
+  animation:
+    mnxEscuadronByteAudioPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes mnxEscuadronByteFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+@keyframes mnxEscuadronBytePanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes mnxEscuadronByteAudioPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(45, 127, 240, 0.13);
+  }
+
+  50% {
+    box-shadow:
+      0 0 0 7px rgba(45, 127, 240, 0);
+  }
+}
+
+@media (max-width: 980px) {
+  .mnx-escuadron-byte-float {
+    right: 14px;
+    bottom: 72px;
+  }
+}
+
+@media (max-width: 720px) {
+  .mnx-escuadron-byte-panel {
+    grid-template-columns: 94px minmax(0, 1fr);
+    min-height: 220px;
+    padding: 14px;
+  }
+
+  .mnx-escuadron-byte-panel-media,
+  .mnx-escuadron-byte-panel-character {
+    width: 94px;
+    height: 148px;
+  }
+
+  .mnx-escuadron-byte-launcher {
+    width: 88px;
+    min-height: 114px;
+  }
+
+  .mnx-escuadron-byte-launcher img {
+    width: 82px;
+    height: 104px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mnx-escuadron-byte-float {
+    right: 8px;
+    bottom: 66px;
+  }
+
+  .mnx-escuadron-byte-panel {
+    width: min(360px, calc(100vw - 16px));
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .mnx-escuadron-byte-panel-media {
+    margin: 0 auto -14px;
+  }
+
+  .mnx-escuadron-byte-panel-copy {
+    padding-right: 0;
+  }
+
+  .mnx-escuadron-byte-panel-label,
+  .mnx-escuadron-byte-controls {
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+  }
+
+  .mnx-escuadron-byte-status {
+    flex-basis: 100%;
+    justify-content: center;
+  }
+}
+
 /* CERRAR SESIÓN */
 
 .mnx-escuadron-logout-float {

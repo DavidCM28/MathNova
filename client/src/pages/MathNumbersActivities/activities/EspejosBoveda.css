@@ -2763,3 +2763,364 @@ body,
     justify-content: center;
   }
 }
+
+/* =========================================================
+   BYTE · PISTA FLOTANTE
+   byte_pista.png se usa en el botón flotante.
+   El MP4 16:9 de esta actividad se muestra dentro del panel.
+   ========================================================= */
+
+.mnx-espejos-byte-float {
+  position: fixed;
+  right: 24px;
+  bottom: 84px;
+  z-index: 160;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.mnx-espejos-byte-launcher,
+.mnx-espejos-byte-panel,
+.mnx-espejos-byte-panel * {
+  pointer-events: auto;
+}
+
+.mnx-espejos-byte-launcher {
+  width: 112px;
+  min-height: 138px;
+  padding: 8px 8px 4px;
+  border: 0;
+  border-radius: 30px 30px 24px 24px;
+  background: transparent;
+  position: relative;
+  cursor: pointer;
+  filter: drop-shadow(
+    0 16px 18px rgba(24, 72, 110, 0.24)
+  );
+  transition: transform 180ms ease;
+}
+
+.mnx-espejos-byte-launcher:hover {
+  transform: translateY(-6px) scale(1.04);
+}
+
+.mnx-espejos-byte-launcher > span {
+  position: absolute;
+  left: 50%;
+  top: -8px;
+  z-index: 3;
+  transform: translateX(-50%);
+  min-width: 74px;
+  min-height: 28px;
+  padding: 0 12px;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  background: linear-gradient(
+    135deg,
+    #2d7ff0,
+    #1d63ca
+  );
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 950;
+  box-shadow:
+    0 8px 18px rgba(45, 127, 240, 0.28);
+}
+
+.mnx-espejos-byte-launcher img {
+  width: 102px;
+  height: 126px;
+  display: block;
+  object-fit: contain;
+  animation:
+    mnxEspejosByteFloat 2.8s ease-in-out infinite;
+}
+
+.mnx-espejos-byte-launcher > i {
+  position: absolute;
+  right: 3px;
+  top: 31px;
+  z-index: 3;
+  width: 29px;
+  height: 29px;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  background: #ffbd32;
+  color: #604100;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  font-size: 17px;
+  font-weight: 950;
+}
+
+.mnx-espejos-byte-panel {
+  width: min(540px, calc(100vw - 32px));
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba(45, 127, 240, 0.24);
+  border-radius: 27px;
+  background:
+    radial-gradient(
+      circle at 16% 12%,
+      rgba(91, 181, 255, 0.22),
+      transparent 31%
+    ),
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #edf6ff
+    );
+  box-shadow:
+    0 24px 56px rgba(25, 70, 120, 0.25);
+  animation:
+    mnxEspejosBytePanelIn 220ms ease;
+}
+
+.mnx-espejos-byte-close {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  z-index: 5;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #33475f;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow:
+    0 8px 18px rgba(25, 70, 120, 0.16);
+}
+
+.mnx-espejos-byte-close:hover {
+  color: #ffffff;
+  background: #2d7ff0;
+}
+
+.mnx-espejos-byte-panel-media {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(98, 211, 255, 0.42);
+  border-radius: 20px;
+  background:
+    linear-gradient(
+      145deg,
+      #071c36,
+      #0c3856
+    );
+  box-shadow:
+    inset 0 0 22px rgba(48, 211, 255, 0.13);
+}
+
+.mnx-espejos-byte-panel-character {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.mnx-espejos-byte-panel-media > img {
+  width: 142px;
+  height: 100%;
+  margin: 0 auto;
+  object-fit: contain;
+  filter:
+    drop-shadow(
+      0 14px 15px rgba(25, 70, 120, 0.18)
+    );
+}
+
+.mnx-espejos-byte-panel-copy {
+  min-width: 0;
+  padding: 14px 4px 2px;
+}
+
+.mnx-espejos-byte-panel-label {
+  min-height: 27px;
+  padding: 0 11px;
+  border-radius: 999px;
+  background: #e5f1ff;
+  color: #2363bb;
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.mnx-espejos-byte-panel h3 {
+  margin: 9px 0 7px;
+  color: #10223b;
+  font-size: 18px;
+  line-height: 1.15;
+  font-weight: 950;
+}
+
+.mnx-espejos-byte-panel p {
+  margin: 0;
+  color: #3b4f68;
+  font-size: 11px;
+  line-height: 1.5;
+  font-weight: 700;
+}
+
+.mnx-espejos-byte-controls {
+  margin-top: 11px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mnx-espejos-byte-controls button {
+  width: 31px;
+  height: 31px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(
+    145deg,
+    #2d7ff0,
+    #1d63ca
+  );
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow:
+    0 8px 16px rgba(45, 127, 240, 0.20);
+  transition:
+    transform 180ms ease,
+    opacity 180ms ease;
+}
+
+.mnx-espejos-byte-controls button:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.mnx-espejos-byte-controls button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mnx-espejos-byte-status {
+  min-height: 31px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: #edf3f9;
+  color: #607087;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9.5px;
+  font-weight: 850;
+}
+
+.mnx-espejos-byte-status.is-playing {
+  color: #2363bb;
+  background: #e2efff;
+  animation:
+    mnxEspejosByteAudioPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes mnxEspejosByteFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+@keyframes mnxEspejosBytePanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes mnxEspejosByteAudioPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(45, 127, 240, 0.13);
+  }
+
+  50% {
+    box-shadow:
+      0 0 0 7px rgba(45, 127, 240, 0);
+  }
+}
+
+@media (max-width: 980px) {
+  .mnx-espejos-byte-float {
+    right: 14px;
+    bottom: 72px;
+  }
+}
+
+@media (max-width: 720px) {
+  .mnx-espejos-byte-panel {
+    width: min(470px, calc(100vw - 24px));
+    padding: 13px;
+  }
+
+  .mnx-espejos-byte-launcher {
+    width: 88px;
+    min-height: 114px;
+  }
+
+  .mnx-espejos-byte-launcher img {
+    width: 82px;
+    height: 104px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mnx-espejos-byte-float {
+    right: 8px;
+    bottom: 66px;
+  }
+
+  .mnx-espejos-byte-panel {
+    width: calc(100vw - 16px);
+  }
+
+  .mnx-espejos-byte-panel-copy {
+    text-align: center;
+  }
+
+  .mnx-espejos-byte-panel-label,
+  .mnx-espejos-byte-controls {
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+  }
+
+  .mnx-espejos-byte-status {
+    flex-basis: 100%;
+    justify-content: center;
+  }
+}

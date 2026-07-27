@@ -29,6 +29,8 @@ import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 import puenteScene from "../../../assets/mathnumbers/10-prioridades/puente.webp";
 import bytePista from "../../../assets/mathnumbers/byte_pista.png";
 import audioConsejoSumaPuente from "../../../assets/mathnumbers/10-prioridades/consejo_suma_puente.mp3";
+import audioPistaBytePuente from "../../../assets/mathnumbers/10-prioridades/pista_byte_puente.mp3";
+import videoByteHablandoPuente from "../../../assets/mathnumbers/10-prioridades/byte_hablando_puente.mp4";
 import audioIntroPuente from "../../../assets/mathnumbers/10-prioridades/intro_puente.mp3";
 import comandanteSumaHablando from "../../../assets/mathnumbers/10-prioridades/comandante_suma_hablando.webp";
 import comandanteSumaIdle from "../../../assets/mathnumbers/10-prioridades/comandante_suma_idle.png";
@@ -71,117 +73,298 @@ const GUIDE_INITIAL_TEXT =
 const GUIDE_FULL_TEXT =
   "Revisa dos veces tus signos y operaciones intermedias antes de dar la respuesta definitiva.";
 
-function HelpModal({
+const HINT_AUDIO_SRC = audioPistaBytePuente;
+
+const BYTE_HINT_FULL_TEXT =
+  "Escribe el desglose de cada paso en orden. Si alteras el orden de resolución, el puente colapsará.";
+
+function BytePuenteMedia({
+  active,
+}: {
+  active: boolean;
+}) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+
+    if (!video) {
+      return;
+    }
+
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+
+    if (active) {
+      video.play().catch((error) => {
+        console.error(
+          "No se pudo reproducir la animación de Byte:",
+          error,
+        );
+      });
+      return;
+    }
+
+    video.pause();
+    video.currentTime = 0;
+  }, [active]);
+
+  return (
+    <video
+      ref={videoRef}
+      className="mnx-puente-byte-panel-video"
+      src={videoByteHablandoPuente}
+      muted
+      loop
+      playsInline
+      preload="auto"
+      poster={bytePista}
+      aria-label="Byte mostrando la pista del Puente de Prioridades"
+    />
+  );
+}
+
+function FloatingByteHint({
+  open,
+  onOpen,
   onClose,
 }: {
+  open: boolean;
+  onOpen: () => void;
   onClose: () => void;
 }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [status, setStatus] =
+    useState<AudioStatus>("idle");
+
   useEffect(() => {
-    const previousOverflow =
-      document.body.style.overflow;
+    return () => {
+      const audio = audioRef.current;
 
-    document.body.style.overflow = "hidden";
-
-    const closeWithEscape = (
-      event: KeyboardEvent,
-    ) => {
-      if (event.key === "Escape") {
-        onClose();
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
       }
     };
+  }, []);
 
-    window.addEventListener(
-      "keydown",
-      closeWithEscape,
-    );
+  useEffect(() => {
+    const audio = audioRef.current;
 
-    return () => {
-      document.body.style.overflow =
-        previousOverflow;
+    if (!audio) {
+      return;
+    }
 
-      window.removeEventListener(
-        "keydown",
-        closeWithEscape,
+    if (!open) {
+      audio.pause();
+      audio.currentTime = 0;
+      setStatus("idle");
+      return;
+    }
+
+    audio.currentTime = 0;
+
+    audio
+      .play()
+      .then(() => setStatus("playing"))
+      .catch((error) => {
+        setStatus("paused");
+        console.error(
+          "No se pudo reproducir automáticamente la pista de Byte:",
+          error,
+        );
+      });
+  }, [open]);
+
+  const abrirPista = () => {
+    if (open) {
+      void repetirPista();
+      return;
+    }
+
+    onOpen();
+  };
+
+  const cerrarPista = () => {
+    const audio = audioRef.current;
+
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    setStatus("idle");
+    onClose();
+  };
+
+  const reproducirPista = async () => {
+    const audio = audioRef.current;
+
+    if (!audio || !HINT_AUDIO_SRC) {
+      return;
+    }
+
+    if (audio.ended) {
+      audio.currentTime = 0;
+    }
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error(
+        "No se pudo reproducir la pista de Byte:",
+        error,
       );
-    };
-  }, [onClose]);
+    }
+  };
+
+  const pausarPista = () => {
+    const audio = audioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    audio.pause();
+    setStatus("paused");
+  };
+
+  const repetirPista = async () => {
+    const audio = audioRef.current;
+
+    if (!audio || !HINT_AUDIO_SRC) {
+      return;
+    }
+
+    audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error(
+        "No se pudo repetir la pista de Byte:",
+        error,
+      );
+    }
+  };
+
+  const statusText =
+    status === "playing"
+      ? "Byte está hablando"
+      : status === "paused"
+        ? "Audio en pausa"
+        : status === "ended"
+          ? "Pista completada"
+          : "Pista preparada";
 
   return (
     <div
-      className="mnx-puente-help-overlay"
-      role="presentation"
-      onMouseDown={(event) => {
-        if (
-          event.target ===
-          event.currentTarget
-        ) {
-          onClose();
-        }
-      }}
+      className={`mnx-puente-byte-float ${
+        open ? "is-open" : ""
+      }`}
     >
-      <section
-        className="mnx-puente-help-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="mnx-puente-help-title"
-      >
-        <button
-          type="button"
-          className="mnx-puente-help-close"
-          onClick={onClose}
-          aria-label="Cerrar pista"
-        >
-          <FiX />
-        </button>
+      <audio
+        ref={audioRef}
+        src={HINT_AUDIO_SRC}
+        preload="metadata"
+        onPlay={() => setStatus("playing")}
+        onPause={() => {
+          if (!audioRef.current?.ended) {
+            setStatus("paused");
+          }
+        }}
+        onEnded={() => setStatus("ended")}
+      />
 
-        <div className="mnx-puente-help-media">
-          <img
-            src={bytePista}
-            alt="Byte ofreciendo una pista"
-          />
-        </div>
-
-        <div className="mnx-puente-help-copy">
-          <span>Pista de Byte</span>
-
-          <h2 id="mnx-puente-help-title">
-            Sigue el orden de prioridad
-          </h2>
-
-          <p>
-            Resuelve primero los paréntesis. Después
-            realiza multiplicaciones o divisiones y,
-            al final, sumas o restas. No avances de
-            izquierda a derecha sin revisar qué
-            operación tiene mayor prioridad.
-          </p>
-
-          <div className="mnx-puente-help-examples">
-            <article>
-              <strong>8 + 2 × 5</strong>
-              <span>
-                Primero 2 × 5 = 10; después 8 + 10 = 18.
-              </span>
-            </article>
-
-            <article>
-              <strong>(6 + 4) ÷ 2</strong>
-              <span>
-                Primero 6 + 4 = 10; después 10 ÷ 2 = 5.
-              </span>
-            </article>
-          </div>
-
+      {open && (
+        <article className="mnx-puente-byte-panel">
           <button
             type="button"
-            className="mnx-puente-help-understood"
-            onClick={onClose}
+            className="mnx-puente-byte-close"
+            onClick={cerrarPista}
+            aria-label="Cerrar pista de Byte"
           >
-            <FiCheckCircle />
-            Entendido, continuar
+            <FiX />
           </button>
-        </div>
-      </section>
+
+          <div className="mnx-puente-byte-panel-media">
+            <BytePuenteMedia
+              active={status === "playing"}
+            />
+          </div>
+
+          <div className="mnx-puente-byte-panel-copy">
+            <span className="mnx-puente-byte-panel-label">
+              Pista de Byte
+            </span>
+
+            <h3>Desglosa los pasos en orden</h3>
+            <p>{BYTE_HINT_FULL_TEXT}</p>
+
+            <div className="mnx-puente-byte-controls">
+              <button
+                type="button"
+                onClick={reproducirPista}
+                disabled={status === "playing"}
+                aria-label="Reproducir pista de Byte"
+              >
+                <FiPlay />
+              </button>
+
+              <button
+                type="button"
+                onClick={pausarPista}
+                disabled={status !== "playing"}
+                aria-label="Pausar pista de Byte"
+              >
+                <FiPause />
+              </button>
+
+              <button
+                type="button"
+                onClick={repetirPista}
+                aria-label="Repetir pista de Byte"
+              >
+                <FiRotateCcw />
+              </button>
+
+              <span
+                className={`mnx-puente-byte-status ${
+                  status === "playing"
+                    ? "is-playing"
+                    : ""
+                }`}
+              >
+                <FiVolume2 />
+                {statusText}
+              </span>
+            </div>
+          </div>
+        </article>
+      )}
+
+      <button
+        type="button"
+        className="mnx-puente-byte-launcher"
+        onClick={abrirPista}
+        aria-label="Abrir pista de Byte"
+        aria-expanded={open}
+      >
+        <span>PISTA</span>
+
+        <img
+          src={bytePista}
+          alt="Byte"
+          draggable={false}
+        />
+
+        <i aria-hidden="true">?</i>
+      </button>
     </div>
   );
 }
@@ -1394,13 +1577,11 @@ export function PuentePrioridades() {
         <FiLogOut />
       </button>
 
-      {helpOpen && (
-        <HelpModal
-          onClose={() =>
-            setHelpOpen(false)
-          }
-        />
-      )}
+      <FloatingByteHint
+        open={helpOpen}
+        onOpen={() => setHelpOpen(true)}
+        onClose={() => setHelpOpen(false)}
+      />
 
       {resultModalOpen && (
         <ResultModal

@@ -31,6 +31,8 @@ import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
 import activityScene from "../../../assets/mathnumbers/11-enigma/enigma.webp";
 import audioConsejoSumaEnigma from "../../../assets/mathnumbers/11-enigma/consejo_suma_enigma.mp3";
+import audioPistaByteEnigma from "../../../assets/mathnumbers/11-enigma/pista_byte_enigma.mp3";
+import videoByteHablandoEnigma from "../../../assets/mathnumbers/11-enigma/byte_hablando_enigma.mp4";
 import audioIntroEnigma from "../../../assets/mathnumbers/11-enigma/intro_enigma.mp3";
 import comandanteSumaHablando from "../../../assets/mathnumbers/11-enigma/comandante_suma_hablando.webp";
 import comandanteSumaIdle from "../../../assets/mathnumbers/11-enigma/comandante_suma_idle.png";
@@ -142,118 +144,299 @@ const GUIDE_INITIAL_TEXT =
 const GUIDE_FULL_TEXT =
   "No intentes resolver ecuaciones complejas todavía. Concéntrate en comprender qué representa la variable y en sustituir el valor conocido para comprobar el resultado numérico.";
 
-function HelpModal({
+const HINT_AUDIO_SRC = audioPistaByteEnigma;
+
+const BYTE_HINT_FULL_TEXT =
+  "Identifica primero qué cantidad todavía no se conoce. Recuerda que palabras como «aumentado» indican una suma (+4) y frases como «por cada» se representan mediante una multiplicación (2x).";
+
+function ByteEnigmaMedia({
+  active,
+}: {
+  active: boolean;
+}) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+
+    if (!video) {
+      return;
+    }
+
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+
+    if (active) {
+      video.play().catch((error) => {
+        console.error(
+          "No se pudo reproducir la animación de Byte:",
+          error,
+        );
+      });
+
+      return;
+    }
+
+    video.pause();
+    video.currentTime = 0;
+  }, [active]);
+
+  return (
+    <video
+      ref={videoRef}
+      className="mnx-enigma-byte-panel-video"
+      src={videoByteHablandoEnigma}
+      muted
+      loop
+      playsInline
+      preload="auto"
+      poster={bytePista}
+      aria-label="Byte mostrando una pista sobre variables y expresiones algebraicas"
+    />
+  );
+}
+
+function FloatingByteHint({
+  open,
+  onOpen,
   onClose,
 }: {
+  open: boolean;
+  onOpen: () => void;
   onClose: () => void;
 }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [status, setStatus] =
+    useState<AudioStatus>("idle");
+
   useEffect(() => {
-    const previousOverflow =
-      document.body.style.overflow;
+    return () => {
+      const audio = audioRef.current;
 
-    document.body.style.overflow = "hidden";
-
-    const closeWithEscape = (
-      event: KeyboardEvent,
-    ) => {
-      if (event.key === "Escape") {
-        onClose();
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
       }
     };
+  }, []);
 
-    window.addEventListener(
-      "keydown",
-      closeWithEscape,
-    );
+  useEffect(() => {
+    const audio = audioRef.current;
 
-    return () => {
-      document.body.style.overflow =
-        previousOverflow;
+    if (!audio) {
+      return;
+    }
 
-      window.removeEventListener(
-        "keydown",
-        closeWithEscape,
+    if (!open) {
+      audio.pause();
+      audio.currentTime = 0;
+      setStatus("idle");
+      return;
+    }
+
+    audio.currentTime = 0;
+
+    audio
+      .play()
+      .then(() => setStatus("playing"))
+      .catch((error) => {
+        setStatus("paused");
+        console.error(
+          "No se pudo reproducir automáticamente la pista de Byte:",
+          error,
+        );
+      });
+  }, [open]);
+
+  const abrirPista = () => {
+    if (open) {
+      void repetirPista();
+      return;
+    }
+
+    onOpen();
+  };
+
+  const cerrarPista = () => {
+    const audio = audioRef.current;
+
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    setStatus("idle");
+    onClose();
+  };
+
+  const reproducirPista = async () => {
+    const audio = audioRef.current;
+
+    if (!audio || !HINT_AUDIO_SRC) {
+      return;
+    }
+
+    if (audio.ended) {
+      audio.currentTime = 0;
+    }
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error(
+        "No se pudo reproducir la pista de Byte:",
+        error,
       );
-    };
-  }, [onClose]);
+    }
+  };
+
+  const pausarPista = () => {
+    const audio = audioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    audio.pause();
+    setStatus("paused");
+  };
+
+  const repetirPista = async () => {
+    const audio = audioRef.current;
+
+    if (!audio || !HINT_AUDIO_SRC) {
+      return;
+    }
+
+    audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error(
+        "No se pudo repetir la pista de Byte:",
+        error,
+      );
+    }
+  };
+
+  const statusText =
+    status === "playing"
+      ? "Byte está hablando"
+      : status === "paused"
+        ? "Audio en pausa"
+        : status === "ended"
+          ? "Pista completada"
+          : "Pista preparada";
 
   return (
     <div
-      className="mnx-enigma-help-overlay"
-      role="presentation"
-      onMouseDown={(event) => {
-        if (
-          event.target ===
-          event.currentTarget
-        ) {
-          onClose();
-        }
-      }}
+      className={`mnx-enigma-byte-float ${
+        open ? "is-open" : ""
+      }`}
     >
-      <section
-        className="mnx-enigma-help-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="mnx-enigma-help-title"
-      >
-        <button
-          type="button"
-          className="mnx-enigma-help-close"
-          onClick={onClose}
-          aria-label="Cerrar pista"
-        >
-          <FiX />
-        </button>
+      <audio
+        ref={audioRef}
+        src={HINT_AUDIO_SRC}
+        preload="metadata"
+        onPlay={() => setStatus("playing")}
+        onPause={() => {
+          if (!audioRef.current?.ended) {
+            setStatus("paused");
+          }
+        }}
+        onEnded={() => setStatus("ended")}
+      />
 
-        <div className="mnx-enigma-help-media">
-          <img
-            src={bytePista}
-            alt="Byte ofreciendo una pista"
-          />
-        </div>
-
-        <div className="mnx-enigma-help-copy">
-          <span>Pista de Byte</span>
-
-          <h2 id="mnx-enigma-help-title">
-            Descifra la variable paso a paso
-          </h2>
-
-          <p>
-            Una variable es una letra que representa una
-            cantidad desconocida. Para construir la expresión,
-            coloca primero la variable, después la operación y
-            al final la constante. Luego sustituye la variable
-            por el valor indicado.
-          </p>
-
-          <div className="mnx-enigma-help-steps">
-            <article>
-              <strong>1</strong>
-              <span>x representa lo desconocido.</span>
-            </article>
-
-            <article>
-              <strong>2</strong>
-              <span>x + 4 aumenta la cantidad en cuatro.</span>
-            </article>
-
-            <article>
-              <strong>3</strong>
-              <span>Si x = 5, entonces x + 4 = 9.</span>
-            </article>
-          </div>
-
+      {open && (
+        <article className="mnx-enigma-byte-panel">
           <button
             type="button"
-            className="mnx-enigma-help-understood"
-            onClick={onClose}
+            className="mnx-enigma-byte-close"
+            onClick={cerrarPista}
+            aria-label="Cerrar pista de Byte"
           >
-            <FiCheckCircle />
-            Entendido, continuar
+            <FiX />
           </button>
-        </div>
-      </section>
+
+          <div className="mnx-enigma-byte-panel-media">
+            <ByteEnigmaMedia
+              active={status === "playing"}
+            />
+          </div>
+
+          <div className="mnx-enigma-byte-panel-copy">
+            <span className="mnx-enigma-byte-panel-label">
+              Pista de Byte
+            </span>
+
+            <h3>Encuentra lo desconocido</h3>
+            <p>{BYTE_HINT_FULL_TEXT}</p>
+
+            <div className="mnx-enigma-byte-controls">
+              <button
+                type="button"
+                onClick={reproducirPista}
+                disabled={status === "playing"}
+                aria-label="Reproducir pista de Byte"
+              >
+                <FiPlay />
+              </button>
+
+              <button
+                type="button"
+                onClick={pausarPista}
+                disabled={status !== "playing"}
+                aria-label="Pausar pista de Byte"
+              >
+                <FiPause />
+              </button>
+
+              <button
+                type="button"
+                onClick={repetirPista}
+                aria-label="Repetir pista de Byte"
+              >
+                <FiRotateCcw />
+              </button>
+
+              <span
+                className={`mnx-enigma-byte-status ${
+                  status === "playing"
+                    ? "is-playing"
+                    : ""
+                }`}
+              >
+                <FiVolume2 />
+                {statusText}
+              </span>
+            </div>
+          </div>
+        </article>
+      )}
+
+      <button
+        type="button"
+        className="mnx-enigma-byte-launcher"
+        onClick={abrirPista}
+        aria-label="Abrir pista de Byte"
+        aria-expanded={open}
+      >
+        <span>PISTA</span>
+
+        <img
+          src={bytePista}
+          alt="Byte"
+          draggable={false}
+        />
+
+        <i aria-hidden="true">?</i>
+      </button>
     </div>
   );
 }
@@ -1740,13 +1923,11 @@ export function EnigmaVariables() {
         <FiLogOut />
       </button>
 
-      {helpOpen && (
-        <HelpModal
-          onClose={() =>
-            setHelpOpen(false)
-          }
-        />
-      )}
+      <FloatingByteHint
+        open={helpOpen}
+        onOpen={() => setHelpOpen(true)}
+        onClose={() => setHelpOpen(false)}
+      />
 
       {resultModalOpen && (
         <ResultModal

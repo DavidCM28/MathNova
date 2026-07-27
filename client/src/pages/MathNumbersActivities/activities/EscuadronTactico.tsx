@@ -29,6 +29,8 @@ import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
 import audioConsejoSumaEscuadron from "../../../assets/mathnumbers/08-escuadron-tactico/consejo_suma_escuadron.mp3";
 import audioIntroEscuadron from "../../../assets/mathnumbers/08-escuadron-tactico/intro_escuadron.mp3";
+import audioPistaByteEscuadron from "../../../assets/mathnumbers/08-escuadron-tactico/pista_byte_escuadron.mp3";
+import videoByteHablandoEscuadron from "../../../assets/mathnumbers/08-escuadron-tactico/byte_hablando_escuadron.mp4";
 import comandanteSumaHablando from "../../../assets/mathnumbers/08-escuadron-tactico/comandante_suma_hablando.webp";
 import comandanteSumaIdle from "../../../assets/mathnumbers/08-escuadron-tactico/comandante_suma_idle.png";
 import escuadronAnimado from "../../../assets/mathnumbers/08-escuadron-tactico/escuadron.webp";
@@ -82,6 +84,18 @@ const GUIDE_INITIAL_TEXT =
 
 const GUIDE_FULL_TEXT =
   "Anota paso a paso cada operación resuelta en un papel para mantener el control táctico del circuito.";
+
+const HINT_AUDIO_SRC = audioPistaByteEscuadron;
+
+const BYTE_HINT_SCRIPT = [
+  "¡Atención, explorador!",
+  "Sigue el protocolo estricto",
+  "primero los paréntesis",
+  "luego las fuerzas especiales de la multiplicación y división",
+  "y al final las sumas y restas.",
+];
+
+const BYTE_HINT_FULL_TEXT = BYTE_HINT_SCRIPT.join(" ");
 
 type AudioStatus = "idle" | "playing" | "paused" | "ended";
 
@@ -289,92 +303,497 @@ function SequenceChallenge({
   );
 }
 
-function HelpModal({
-  onClose,
-}: {
-  onClose: () => void;
-}) {
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+function limpiarFondoByteEscuadron(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+) {
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const data = imageData.data;
+  const total = width * height;
+  const visitado = new Uint8Array(total);
+  const pila: number[] = [];
 
-    const closeWithEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
+  const esFondoRemovible = (index: number) => {
+    const pixel = index * 4;
+    const r = data[pixel];
+    const g = data[pixel + 1];
+    const b = data[pixel + 2];
+
+    const esClaro = r > 224 && g > 224 && b > 224;
+    const casiSinColor =
+      Math.abs(r - g) < 34 &&
+      Math.abs(r - b) < 34 &&
+      Math.abs(g - b) < 34;
+
+    const esMagenta =
+      r > 175 &&
+      b > 175 &&
+      g < 135 &&
+      Math.abs(r - b) < 90;
+
+    return (esClaro && casiSinColor) || esMagenta;
+  };
+
+  const agregar = (index: number) => {
+    if (index < 0 || index >= total) return;
+    if (visitado[index]) return;
+    if (!esFondoRemovible(index)) return;
+
+    visitado[index] = 1;
+    pila.push(index);
+  };
+
+  for (let x = 0; x < width; x += 1) {
+    agregar(x);
+    agregar((height - 1) * width + x);
+  }
+
+  for (let y = 0; y < height; y += 1) {
+    agregar(y * width);
+    agregar(y * width + width - 1);
+  }
+
+  while (pila.length > 0) {
+    const index = pila.pop();
+
+    if (index === undefined) continue;
+
+    const pixel = index * 4;
+    data[pixel + 3] = 0;
+
+    const x = index % width;
+    const y = Math.floor(index / width);
+
+    if (x > 0) agregar(index - 1);
+    if (x < width - 1) agregar(index + 1);
+    if (y > 0) agregar(index - width);
+    if (y < height - 1) agregar(index + width);
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+}
+
+function dibujarVideoByteEscuadron(
+  ctx: CanvasRenderingContext2D,
+  video: HTMLVideoElement,
+  width: number,
+  height: number,
+) {
+  const videoWidth = video.videoWidth || width;
+  const videoHeight = video.videoHeight || height;
+  const escala = Math.min(
+    width / videoWidth,
+    height / videoHeight,
+  );
+
+  const drawWidth = videoWidth * escala;
+  const drawHeight = videoHeight * escala;
+  const offsetX = (width - drawWidth) / 2;
+  const offsetY = (height - drawHeight) / 2;
+
+  ctx.drawImage(
+    video,
+    offsetX,
+    offsetY,
+    drawWidth,
+    drawHeight,
+  );
+}
+
+function ByteEscuadronMedia({
+  active,
+  className = "mnx-escuadron-byte-panel-character",
+}: {
+  active: boolean;
+  className?: string;
+}) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [videoReady, setVideoReady] = useState(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+
+    if (!video || !canvas) {
+      return;
+    }
+
+    const ctx = canvas.getContext("2d", {
+      willReadFrequently: true,
+    });
+
+    if (!ctx) {
+      return;
+    }
+
+    const canvasWidth = 480;
+    const canvasHeight = 520;
+
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    let animationFrame = 0;
+    let lastDraw = 0;
+
+    const drawFrame = () => {
+      if (video.readyState < 2) {
+        return;
       }
+
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      dibujarVideoByteEscuadron(
+        ctx,
+        video,
+        canvasWidth,
+        canvasHeight,
+      );
+      limpiarFondoByteEscuadron(
+        ctx,
+        canvasWidth,
+        canvasHeight,
+      );
     };
 
-    window.addEventListener("keydown", closeWithEscape);
+    const drawAnimation = (time: number) => {
+      if (
+        time - lastDraw >= 45 &&
+        video.readyState >= 2
+      ) {
+        drawFrame();
+        lastDraw = time;
+      }
+
+      animationFrame =
+        window.requestAnimationFrame(drawAnimation);
+    };
+
+    const prepare = () => {
+      drawFrame();
+      setVideoReady(true);
+    };
+
+    video.addEventListener("loadeddata", prepare);
+
+    if (video.readyState >= 2) {
+      prepare();
+    }
+
+    animationFrame =
+      window.requestAnimationFrame(drawAnimation);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", closeWithEscape);
+      video.removeEventListener("loadeddata", prepare);
+      window.cancelAnimationFrame(animationFrame);
+      video.pause();
     };
-  }, [onClose]);
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+
+    if (!video) {
+      return;
+    }
+
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+
+    if (active) {
+      video.play().catch((error) => {
+        console.error(
+          "No se pudo reproducir la animación de Byte:",
+          error,
+        );
+      });
+    } else {
+      video.pause();
+      video.currentTime = 0;
+    }
+  }, [active]);
+
+  return (
+    <>
+      <video
+        ref={videoRef}
+        src={videoByteHablandoEscuadron}
+        muted
+        loop
+        playsInline
+        preload="auto"
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          width: "1px",
+          height: "1px",
+          opacity: 0,
+          pointerEvents: "none",
+        }}
+      />
+
+      {!videoReady && (
+        <img
+          className={className}
+          src={bytePista}
+          alt="Byte ofreciendo una pista"
+          draggable={false}
+        />
+      )}
+
+      <canvas
+        ref={canvasRef}
+        className={className}
+        role="img"
+        aria-label="Byte hablando y ofreciendo una pista"
+        style={{
+          display: videoReady ? "block" : "none",
+        }}
+      />
+    </>
+  );
+}
+
+function FloatingByteHint({
+  open,
+  onOpen,
+  onClose,
+}: {
+  open: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+}) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [status, setStatus] =
+    useState<AudioStatus>("idle");
+
+  useEffect(() => {
+    return () => {
+      const audio = audioRef.current;
+
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    if (!open) {
+      audio.pause();
+      audio.currentTime = 0;
+      setStatus("idle");
+      return;
+    }
+
+    audio.currentTime = 0;
+
+    audio.play()
+      .then(() => setStatus("playing"))
+      .catch((error) => {
+        setStatus("paused");
+        console.error(
+          "No se pudo reproducir automáticamente la pista de Byte:",
+          error,
+        );
+      });
+  }, [open]);
+
+  const abrirPista = () => {
+    if (open) {
+      void repetirPista();
+      return;
+    }
+
+    onOpen();
+  };
+
+  const cerrarPista = () => {
+    const audio = audioRef.current;
+
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    setStatus("idle");
+    onClose();
+  };
+
+  const reproducirPista = async () => {
+    const audio = audioRef.current;
+
+    if (!audio || !HINT_AUDIO_SRC) {
+      return;
+    }
+
+    if (audio.ended) {
+      audio.currentTime = 0;
+    }
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error(
+        "No se pudo reproducir la pista de Byte:",
+        error,
+      );
+    }
+  };
+
+  const pausarPista = () => {
+    const audio = audioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    audio.pause();
+    setStatus("paused");
+  };
+
+  const repetirPista = async () => {
+    const audio = audioRef.current;
+
+    if (!audio || !HINT_AUDIO_SRC) {
+      return;
+    }
+
+    audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error(
+        "No se pudo repetir la pista de Byte:",
+        error,
+      );
+    }
+  };
+
+  const statusText =
+    status === "playing"
+      ? "Byte está hablando"
+      : status === "paused"
+        ? "Audio en pausa"
+        : status === "ended"
+          ? "Pista completada"
+          : "Pista preparada";
 
   return (
     <div
-      className="mnx-escuadron-help-overlay"
-      role="presentation"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) {
-          onClose();
-        }
-      }}
+      className={`mnx-escuadron-byte-float ${
+        open ? "is-open" : ""
+      }`}
     >
-      <section
-        className="mnx-escuadron-help-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="mnx-escuadron-help-title"
-      >
-        <button
-          type="button"
-          className="mnx-escuadron-help-close"
-          onClick={onClose}
-          aria-label="Cerrar ayuda"
-        >
-          <FiX />
-        </button>
+      <audio
+        ref={audioRef}
+        src={HINT_AUDIO_SRC}
+        preload="metadata"
+        onPlay={() => setStatus("playing")}
+        onPause={() => {
+          if (!audioRef.current?.ended) {
+            setStatus("paused");
+          }
+        }}
+        onEnded={() => setStatus("ended")}
+      />
 
-        <div className="mnx-escuadron-help-character">
-          <img src={bytePista} alt="Byte ofreciendo una pista" />
-        </div>
-
-        <div className="mnx-escuadron-help-copy">
-          <span>Pista de Byte</span>
-
-          <h2 id="mnx-escuadron-help-title">
-            Sigue la jerarquía de operaciones
-          </h2>
-
-          <p>
-            Resuelve primero lo que está dentro de paréntesis.
-            Después continúa con multiplicaciones o divisiones y,
-            al final, realiza sumas o restas.
-          </p>
-
-          <div className="mnx-escuadron-help-order">
-            <strong>1</strong>
-            <span>Paréntesis</span>
-            <b>→</b>
-            <strong>2</strong>
-            <span>Multiplicación o división</span>
-            <b>→</b>
-            <strong>3</strong>
-            <span>Suma o resta</span>
-          </div>
-
+      {open && (
+        <article className="mnx-escuadron-byte-panel">
           <button
             type="button"
-            className="mnx-escuadron-help-understood"
-            onClick={onClose}
+            className="mnx-escuadron-byte-close"
+            onClick={cerrarPista}
+            aria-label="Cerrar pista de Byte"
           >
-            <FiCheckCircle />
-            Entendido, continuar
+            <FiX />
           </button>
-        </div>
-      </section>
+
+          <div className="mnx-escuadron-byte-panel-media">
+            <ByteEscuadronMedia
+              active={status === "playing"}
+            />
+          </div>
+
+          <div className="mnx-escuadron-byte-panel-copy">
+            <span className="mnx-escuadron-byte-panel-label">
+              Pista de Byte
+            </span>
+
+            <h3>Sigue la jerarquía de operaciones</h3>
+            <p>{BYTE_HINT_FULL_TEXT}</p>
+
+            <div className="mnx-escuadron-byte-controls">
+              <button
+                type="button"
+                onClick={reproducirPista}
+                disabled={status === "playing"}
+                aria-label="Reproducir pista de Byte"
+              >
+                <FiPlay />
+              </button>
+
+              <button
+                type="button"
+                onClick={pausarPista}
+                disabled={status !== "playing"}
+                aria-label="Pausar pista de Byte"
+              >
+                <FiPause />
+              </button>
+
+              <button
+                type="button"
+                onClick={repetirPista}
+                aria-label="Repetir pista de Byte"
+              >
+                <FiRotateCcw />
+              </button>
+
+              <span
+                className={`mnx-escuadron-byte-status ${
+                  status === "playing"
+                    ? "is-playing"
+                    : ""
+                }`}
+              >
+                <FiVolume2 />
+                {statusText}
+              </span>
+            </div>
+          </div>
+        </article>
+      )}
+
+      <button
+        type="button"
+        className="mnx-escuadron-byte-launcher"
+        onClick={abrirPista}
+        aria-label="Abrir pista de Byte"
+        aria-expanded={open}
+      >
+        <span>PISTA</span>
+
+        <img
+          src={bytePista}
+          alt="Byte"
+          draggable={false}
+        />
+
+        <i aria-hidden="true">?</i>
+      </button>
     </div>
   );
 }
@@ -421,10 +840,6 @@ export function EscuadronTactico() {
   const resultTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (helpOpen) {
-      return;
-    }
-
     document.body.style.overflow = menuOpen
       ? "hidden"
       : "auto";
@@ -432,7 +847,7 @@ export function EscuadronTactico() {
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [menuOpen, helpOpen]);
+  }, [menuOpen]);
 
   useEffect(() => {
     return () => {
@@ -1470,9 +1885,11 @@ export function EscuadronTactico() {
         <FiLogOut />
       </button>
 
-      {helpOpen && (
-        <HelpModal onClose={() => setHelpOpen(false)} />
-      )}
+      <FloatingByteHint
+        open={helpOpen}
+        onOpen={() => setHelpOpen(true)}
+        onClose={() => setHelpOpen(false)}
+      />
 
       {resultModalOpen && (
         <ResultModal

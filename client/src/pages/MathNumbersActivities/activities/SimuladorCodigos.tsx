@@ -33,7 +33,9 @@ import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
 import activityScene from "../../../assets/mathnumbers/12-simulador/eferas rtx.webp";
 import audioConsejoSumaSimulador from "../../../assets/mathnumbers/12-simulador/consejo8.mp3";
+import audioPistaByteSimulador from "../../../assets/mathnumbers/12-simulador/pista_byte_simulador.mp3";
 import audioIntroSimulador from "../../../assets/mathnumbers/12-simulador/introact8.mp3";
+import videoByteHablandoSimulador from "../../../assets/mathnumbers/12-simulador/byte_hablando_simulador.mp4";
 import comandanteSumaHablando from "../../../assets/mathnumbers/12-simulador/comandante_suma_hablando.webp";
 import comandanteSumaIdle from "../../../assets/mathnumbers/12-simulador/comandante_suma_idle.png";
 import bytePista from "../../../assets/mathnumbers/byte_pista.png";
@@ -125,117 +127,299 @@ const GUIDE_INITIAL_TEXT =
 const GUIDE_FULL_TEXT =
   "Prueba siempre la regla descubierta con todos los valores conocidos de la tabla para asegurarte de que encaja a la perfección en cada una de las filas antes de darla por buena.";
 
-function HelpModal({
+const HINT_AUDIO_SRC = audioPistaByteSimulador;
+
+const BYTE_HINT_FULL_TEXT =
+  "Analiza la tabla calculando cuánto aumenta el código de una fila a otra. Eso te indicará si el patrón avanza sumando un término constante o multiplicando de forma proporcional.";
+
+function ByteSimuladorMedia({
+  active,
+}: {
+  active: boolean;
+}) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+
+    if (!video) {
+      return;
+    }
+
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+
+    if (active) {
+      video.play().catch((error) => {
+        console.error(
+          "No se pudo reproducir la animación de Byte:",
+          error,
+        );
+      });
+
+      return;
+    }
+
+    video.pause();
+    video.currentTime = 0;
+  }, [active]);
+
+  return (
+    <video
+      ref={videoRef}
+      className="mnx-simulador-byte-panel-video"
+      src={videoByteHablandoSimulador}
+      muted
+      loop
+      playsInline
+      preload="auto"
+      poster={bytePista}
+      aria-label="Byte mostrando una pista sobre patrones y reglas generales"
+    />
+  );
+}
+
+function FloatingByteHint({
+  open,
+  onOpen,
   onClose,
 }: {
+  open: boolean;
+  onOpen: () => void;
   onClose: () => void;
 }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [status, setStatus] =
+    useState<AudioStatus>("idle");
+
   useEffect(() => {
-    const previousOverflow =
-      document.body.style.overflow;
+    return () => {
+      const audio = audioRef.current;
 
-    document.body.style.overflow = "hidden";
-
-    const closeWithEscape = (
-      event: KeyboardEvent,
-    ) => {
-      if (event.key === "Escape") {
-        onClose();
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
       }
     };
+  }, []);
 
-    window.addEventListener(
-      "keydown",
-      closeWithEscape,
-    );
+  useEffect(() => {
+    const audio = audioRef.current;
 
-    return () => {
-      document.body.style.overflow =
-        previousOverflow;
+    if (!audio) {
+      return;
+    }
 
-      window.removeEventListener(
-        "keydown",
-        closeWithEscape,
+    if (!open) {
+      audio.pause();
+      audio.currentTime = 0;
+      setStatus("idle");
+      return;
+    }
+
+    audio.currentTime = 0;
+
+    audio
+      .play()
+      .then(() => setStatus("playing"))
+      .catch((error) => {
+        setStatus("paused");
+        console.error(
+          "No se pudo reproducir automáticamente la pista de Byte:",
+          error,
+        );
+      });
+  }, [open]);
+
+  const abrirPista = () => {
+    if (open) {
+      void repetirPista();
+      return;
+    }
+
+    onOpen();
+  };
+
+  const cerrarPista = () => {
+    const audio = audioRef.current;
+
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    setStatus("idle");
+    onClose();
+  };
+
+  const reproducirPista = async () => {
+    const audio = audioRef.current;
+
+    if (!audio || !HINT_AUDIO_SRC) {
+      return;
+    }
+
+    if (audio.ended) {
+      audio.currentTime = 0;
+    }
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error(
+        "No se pudo reproducir la pista de Byte:",
+        error,
       );
-    };
-  }, [onClose]);
+    }
+  };
+
+  const pausarPista = () => {
+    const audio = audioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    audio.pause();
+    setStatus("paused");
+  };
+
+  const repetirPista = async () => {
+    const audio = audioRef.current;
+
+    if (!audio || !HINT_AUDIO_SRC) {
+      return;
+    }
+
+    audio.currentTime = 0;
+
+    try {
+      await audio.play();
+      setStatus("playing");
+    } catch (error) {
+      setStatus("paused");
+      console.error(
+        "No se pudo repetir la pista de Byte:",
+        error,
+      );
+    }
+  };
+
+  const statusText =
+    status === "playing"
+      ? "Byte está hablando"
+      : status === "paused"
+        ? "Audio en pausa"
+        : status === "ended"
+          ? "Pista completada"
+          : "Pista preparada";
 
   return (
     <div
-      className="mnx-simulador-help-overlay"
-      role="presentation"
-      onMouseDown={(event) => {
-        if (
-          event.target ===
-          event.currentTarget
-        ) {
-          onClose();
-        }
-      }}
+      className={`mnx-simulador-byte-float ${
+        open ? "is-open" : ""
+      }`}
     >
-      <section
-        className="mnx-simulador-help-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="mnx-simulador-help-title"
-      >
-        <button
-          type="button"
-          className="mnx-simulador-help-close"
-          onClick={onClose}
-          aria-label="Cerrar pista"
-        >
-          <FiX />
-        </button>
+      <audio
+        ref={audioRef}
+        src={HINT_AUDIO_SRC}
+        preload="metadata"
+        onPlay={() => setStatus("playing")}
+        onPause={() => {
+          if (!audioRef.current?.ended) {
+            setStatus("paused");
+          }
+        }}
+        onEnded={() => setStatus("ended")}
+      />
 
-        <div className="mnx-simulador-help-media">
-          <img
-            src={bytePista}
-            alt="Byte ofreciendo una pista"
-          />
-        </div>
-
-        <div className="mnx-simulador-help-copy">
-          <span>Pista de Byte</span>
-
-          <h2 id="mnx-simulador-help-title">
-            Compara cuánto aumenta el código
-          </h2>
-
-          <p>
-            En la regla básica, cada nivel se multiplica por 2.
-            En la regla combinada, primero multiplicas el nivel
-            por 2 y después sumas 3. Usa la misma regla para
-            predecir códigos de niveles futuros.
-          </p>
-
-          <div className="mnx-simulador-help-steps">
-            <article>
-              <strong>1</strong>
-              <span>n representa el número de nivel.</span>
-            </article>
-
-            <article>
-              <strong>2</strong>
-              <span>2n significa dos veces el nivel.</span>
-            </article>
-
-            <article>
-              <strong>3</strong>
-              <span>2n + 3 agrega una parte fija de 3.</span>
-            </article>
-          </div>
-
+      {open && (
+        <article className="mnx-simulador-byte-panel">
           <button
             type="button"
-            className="mnx-simulador-help-understood"
-            onClick={onClose}
+            className="mnx-simulador-byte-close"
+            onClick={cerrarPista}
+            aria-label="Cerrar pista de Byte"
           >
-            <FiCheckCircle />
-            Entendido, continuar
+            <FiX />
           </button>
-        </div>
-      </section>
+
+          <div className="mnx-simulador-byte-panel-media">
+            <ByteSimuladorMedia
+              active={status === "playing"}
+            />
+          </div>
+
+          <div className="mnx-simulador-byte-panel-copy">
+            <span className="mnx-simulador-byte-panel-label">
+              Pista de Byte
+            </span>
+
+            <h3>Detecta cómo crece el patrón</h3>
+            <p>{BYTE_HINT_FULL_TEXT}</p>
+
+            <div className="mnx-simulador-byte-controls">
+              <button
+                type="button"
+                onClick={reproducirPista}
+                disabled={status === "playing"}
+                aria-label="Reproducir pista de Byte"
+              >
+                <FiPlay />
+              </button>
+
+              <button
+                type="button"
+                onClick={pausarPista}
+                disabled={status !== "playing"}
+                aria-label="Pausar pista de Byte"
+              >
+                <FiPause />
+              </button>
+
+              <button
+                type="button"
+                onClick={repetirPista}
+                aria-label="Repetir pista de Byte"
+              >
+                <FiRotateCcw />
+              </button>
+
+              <span
+                className={`mnx-simulador-byte-status ${
+                  status === "playing"
+                    ? "is-playing"
+                    : ""
+                }`}
+              >
+                <FiVolume2 />
+                {statusText}
+              </span>
+            </div>
+          </div>
+        </article>
+      )}
+
+      <button
+        type="button"
+        className="mnx-simulador-byte-launcher"
+        onClick={abrirPista}
+        aria-label="Abrir pista de Byte"
+        aria-expanded={open}
+      >
+        <span>PISTA</span>
+
+        <img
+          src={bytePista}
+          alt="Byte"
+          draggable={false}
+        />
+
+        <i aria-hidden="true">?</i>
+      </button>
     </div>
   );
 }
@@ -1762,13 +1946,11 @@ export function SimuladorCodigos() {
         <FiLogOut />
       </button>
 
-      {helpOpen && (
-        <HelpModal
-          onClose={() =>
-            setHelpOpen(false)
-          }
-        />
-      )}
+      <FloatingByteHint
+        open={helpOpen}
+        onOpen={() => setHelpOpen(true)}
+        onClose={() => setHelpOpen(false)}
+      />
 
       {resultModalOpen && (
         <ResultModal
