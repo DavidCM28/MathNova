@@ -37,7 +37,7 @@ class ProporcionalidadController {
 
   async validarPrediccion(req: Request, res: Response): Promise<void> {
     try {
-      const { id_estudiante, prediccion } = req.body;
+      const { id_estudiante, prediccion, tiempo_total } = req.body;
 
       if (!id_estudiante || prediccion === undefined) {
         res.status(400).json({
@@ -50,6 +50,7 @@ class ProporcionalidadController {
       const result = await proporcionalidadService.validarPrediccion({
         id_estudiante: Number(id_estudiante),
         prediccion: Number(prediccion),
+        tiempo_total: tiempo_total !== undefined ? Number(tiempo_total) : undefined,
       });
 
       res.status(200).json({

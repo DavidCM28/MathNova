@@ -137,7 +137,8 @@
 }
 
 .gen1-topic-progress,
-.gen1-xp-box {
+.gen1-xp-box,
+.gen1-tiempo-box {
   width: 100%;
   background: #ffffff;
   border: 1.5px solid rgba(179, 213, 240, 0.75);
@@ -2891,4 +2892,73 @@
   50% {
     opacity: 0.25;
   }
+}
+/* ========================================================= */
+/* PUNTO "RESUELTO CON APOYO" (naranja fijo, sin parpadeo)   */
+/* ========================================================= */
+
+.gen1-graph-point-asistido {
+  background: #fd7e14;
+  box-shadow: 0 0 0 4px rgba(253, 126, 20, 0.18);
+}
+
+/* ========================================================= */
+/* PANTALLA DE CARGA INICIAL (evita el "salto" a éxito/fallo) */
+/* ========================================================= */
+
+.gen1-loading-screen {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: #eef7ff;
+  font-family: "Poppins", Arial, sans-serif;
+}
+
+.gen1-loading-logo {
+  width: 140px;
+  animation: gen1LoadingPulse2 1.4s ease-in-out infinite;
+}
+
+.gen1-loading-screen p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #315170;
+}
+
+@keyframes gen1LoadingPulse2 {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.96);
+  }
+}
+
+/* ========================================================= */
+/* WIDGET DE TIEMPO TRANSCURRIDO (sidebar, en vivo)           */
+/* ========================================================= */
+
+.gen1-tiempo-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gen1-tiempo-box span {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 800;
+}
+
+.gen1-tiempo-box strong {
+  font-size: 15px;
+  color: #0b72ef;
+  font-variant-numeric: tabular-nums;
 }
