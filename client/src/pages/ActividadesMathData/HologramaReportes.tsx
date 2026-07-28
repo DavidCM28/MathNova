@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { getSessionUser } from "../../utils/authSession";
+import {
+  guardarProgresoUsuarioActual,
+} from "../../services/progresoService";
 
 import logo from "../../assets/logo_MathNova.png";
 import fondoHologramaImg from "../../assets/fondo-holograma.png";
@@ -56,13 +59,132 @@ import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
    CONFIGURACIÓN DEL BACKEND
 ========================================================= */
 
-const API_URL = "http://localhost:3001/api";
+const API_URL_BASE =
+  (
+    import.meta.env.VITE_API_URL as
+      | string
+      | undefined
+  )?.replace(/\/+$/, "") ||
+  "http://localhost:3001";
+
+const API_URL =
+  API_URL_BASE.endsWith("/api")
+    ? API_URL_BASE
+    : `${API_URL_BASE}/api`;
 
 /* =========================================================
    DATOS DE LA MISIÓN (valores de referencia para mostrar en
    pantalla; la validación real vive en el backend, que
    hereda los votos reales de la Actividad 3 si existen)
 ========================================================= */
+
+type UsuarioSesionHolograma = {
+  id_usuario?: number | string;
+  idUsuario?: number | string;
+  usuario_id?: number | string;
+  user_id?: number | string;
+  userId?: number | string;
+  id?: number | string;
+  usuario?: UsuarioSesionHolograma;
+  user?: UsuarioSesionHolograma;
+  data?: UsuarioSesionHolograma;
+  session?: UsuarioSesionHolograma;
+};
+
+const extraerIdUsuarioHolograma = (
+  valor: unknown,
+): number => {
+  if (
+    !valor ||
+    typeof valor !== "object"
+  ) {
+    return 0;
+  }
+
+  const usuario =
+    valor as UsuarioSesionHolograma;
+
+  const idDirecto = Number(
+    usuario.id_usuario ??
+      usuario.idUsuario ??
+      usuario.usuario_id ??
+      usuario.user_id ??
+      usuario.userId ??
+      usuario.id ??
+      0,
+  );
+
+  if (
+    Number.isInteger(idDirecto) &&
+    idDirecto > 0
+  ) {
+    return idDirecto;
+  }
+
+  for (const anidado of [
+    usuario.usuario,
+    usuario.user,
+    usuario.data,
+    usuario.session,
+  ]) {
+    const idAnidado =
+      extraerIdUsuarioHolograma(
+        anidado,
+      );
+
+    if (idAnidado > 0) {
+      return idAnidado;
+    }
+  }
+
+  return 0;
+};
+
+const obtenerIdEstudianteActual = (): number => {
+  const candidatos: unknown[] = [
+    getSessionUser(),
+  ];
+
+  for (const clave of [
+    "auth_session",
+    "usuario",
+    "user",
+    "session_user",
+    "sessionUser",
+    "mathnova_user",
+    "authUser",
+  ]) {
+    try {
+      const valor =
+        localStorage.getItem(clave) ||
+        sessionStorage.getItem(clave);
+
+      if (valor) {
+        candidatos.push(
+          JSON.parse(valor),
+        );
+      }
+    } catch (error) {
+      console.warn(
+        `No se pudo leer la sesión "${clave}":`,
+        error,
+      );
+    }
+  }
+
+  for (const candidato of candidatos) {
+    const idUsuario =
+      extraerIdUsuarioHolograma(
+        candidato,
+      );
+
+    if (idUsuario > 0) {
+      return idUsuario;
+    }
+  }
+
+  return 0;
+};
 
 type Modulo = "bosque" | "desierto" | "cueva";
 type EstadoCelda = "correcto" | "pendiente" | "incorrecto";
@@ -245,9 +367,14 @@ function PistaBaitModal({
 export default function HologramaReportes() {
   const navigate = useNavigate();
 
-  // El ID del estudiante se obtiene de la sesión activa en cada render
-  const usuarioSesion = getSessionUser();
-  const ID_ESTUDIANTE = usuarioSesion?.id_usuario;
+  const ID_ESTUDIANTE =
+    obtenerIdEstudianteActual();
+
+  const inicioActividadRef =
+    useRef<number>(Date.now());
+
+  const guardandoProgresoRef =
+    useRef(false);
 
   const [tipoGrafica, setTipoGrafica] = useState<"barras" | "circular" | null>("barras");
 
@@ -302,6 +429,13 @@ export default function HologramaReportes() {
 
   useEffect(() => {
   const cargarProgreso = async () => {
+    if (!ID_ESTUDIANTE) {
+      console.warn(
+        "No se encontró el estudiante autenticado para cargar Holograma de Reportes.",
+      );
+      return;
+    }
+
     try {
       const response = await fetch(`${API_URL}/holograma/progreso/${ID_ESTUDIANTE}`);
       const data = await response.json();
@@ -362,14 +496,21 @@ export default function HologramaReportes() {
     }
   };
 
-  cargarProgreso();
-}, []);
+  void cargarProgreso();
+}, [ID_ESTUDIANTE]);
 
   // ==========================================
   // VERIFICAR GRÁFICA DE BARRAS (celda por celda)
   // ==========================================
 
   const verificarBarras = async () => {
+    if (!ID_ESTUDIANTE) {
+      alert(
+        "No se encontró tu sesión. Inicia sesión nuevamente.",
+      );
+      return;
+    }
+
     setCargandoBarras(true);
     try {
       for (const m of ["bosque", "desierto", "cueva"] as Modulo[]) {
@@ -412,6 +553,13 @@ export default function HologramaReportes() {
   // ==========================================
 
   const verificarCirculo = async () => {
+    if (!ID_ESTUDIANTE) {
+      alert(
+        "No se encontró tu sesión. Inicia sesión nuevamente.",
+      );
+      return;
+    }
+
     setCargandoCirculo(true);
     try {
       for (const m of ["bosque", "desierto", "cueva"] as Modulo[]) {
@@ -460,31 +608,225 @@ export default function HologramaReportes() {
   // ==========================================
 
   const activarHolograma = async () => {
-    if (!tipoGrafica || !preguntaBarraAlta || !preguntaSectorMayor) return;
+    if (
+      !tipoGrafica ||
+      !preguntaBarraAlta ||
+      !preguntaSectorMayor ||
+      cargandoActivar ||
+      guardandoProgresoRef.current
+    ) {
+      return;
+    }
+
+    if (!ID_ESTUDIANTE) {
+      alert(
+        "No se encontró tu sesión. Inicia sesión nuevamente.",
+      );
+      return;
+    }
 
     setCargandoActivar(true);
-    try {
-      const response = await fetch(`${API_URL}/holograma/activar`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id_estudiante: ID_ESTUDIANTE,
-          tipo_grafica: tipoGrafica,
-          pregunta_barra_alta: preguntaBarraAlta,
-          pregunta_sector_mayor: preguntaSectorMayor,
-        }),
-      });
+    guardandoProgresoRef.current =
+      true;
 
-      const data = await response.json();
+    try {
+      const response = await fetch(
+        `${API_URL}/holograma/activar`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            id_estudiante:
+              ID_ESTUDIANTE,
+            tipo_grafica:
+              tipoGrafica,
+            pregunta_barra_alta:
+              preguntaBarraAlta,
+            pregunta_sector_mayor:
+              preguntaSectorMayor,
+          }),
+        },
+      );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data?.mensaje ||
+            data?.message ||
+            `HTTP ${response.status}`,
+        );
+      }
 
       if (data.success && data.data) {
-        setResultado(data.data.correcto ? "exito" : "fallo");
+        const correcto =
+          Boolean(
+            data.data.correcto,
+          );
+
+        const modulos =
+          [
+            "bosque",
+            "desierto",
+            "cueva",
+          ] as Modulo[];
+
+        const barrasCorrectas =
+          modulos.every(
+            (modulo) =>
+              barraEstados[
+                modulo
+              ] === "correcto",
+          );
+
+        const porcentajesCorrectos =
+          modulos.every(
+            (modulo) =>
+              porcentajeEstados[
+                modulo
+              ] === "correcto",
+          );
+
+        const interpretacionCorrecta =
+          preguntaBarraAlta ===
+            "bosque" &&
+          preguntaSectorMayor ===
+            "bosque";
+
+        /*
+         * La actividad se resume en cuatro pasos:
+         * 1) tipo de gráfica,
+         * 2) barras,
+         * 3) porcentajes,
+         * 4) interpretación.
+         */
+        const aciertosCalculados =
+          Number(
+            tipoGrafica ===
+              "barras",
+          ) +
+          Number(
+            barrasCorrectas,
+          ) +
+          Number(
+            porcentajesCorrectos,
+          ) +
+          Number(
+            interpretacionCorrecta,
+          );
+
+        const aciertosUnificados =
+          correcto
+            ? 4
+            : aciertosCalculados;
+
+        const tiempoSegundos =
+          Math.max(
+            1,
+            Math.floor(
+              (
+                Date.now() -
+                inicioActividadRef.current
+              ) / 1000,
+            ),
+          );
+
+        try {
+          const progresoUnificado =
+            await guardarProgresoUsuarioActual({
+              mundo: "MathData",
+              tema:
+                "Representación e interpretación de datos",
+              actividad_codigo:
+                "mathdata-holograma-reportes",
+              actividad_titulo:
+                "El Holograma de Reportes",
+              respuestas: {
+                tipo_grafica:
+                  tipoGrafica,
+                alturas_barras:
+                  Object.fromEntries(
+                    modulos.map(
+                      (modulo) => [
+                        modulo,
+                        Number(
+                          alturaBarras[
+                            modulo
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                porcentajes:
+                  Object.fromEntries(
+                    modulos.map(
+                      (modulo) => [
+                        modulo,
+                        Number(
+                          porcentajes[
+                            modulo
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                pregunta_barra_alta:
+                  preguntaBarraAlta,
+                pregunta_sector_mayor:
+                  preguntaSectorMayor,
+              },
+              aciertos:
+                aciertosUnificados,
+              total_preguntas: 4,
+              tiempo_segundos:
+                tiempoSegundos,
+              xp_base: 50,
+              completada:
+                correcto,
+            });
+
+          console.log(
+            "Progreso del Holograma de Reportes guardado:",
+            progresoUnificado.progreso,
+          );
+        } catch (
+          progresoError
+        ) {
+          console.error(
+            "La actividad se validó, pero no se pudo registrar en el progreso unificado:",
+            progresoError,
+          );
+        }
+
+        inicioActividadRef.current =
+          Date.now();
+
+        setResultado(
+          correcto
+            ? "exito"
+            : "fallo",
+        );
       }
     } catch (error) {
-      console.error("Error al activar el holograma:", error);
-      alert("❌ Error al conectar con el servidor.");
+      console.error(
+        "Error al activar el holograma:",
+        error,
+      );
+
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "Error al conectar con el servidor.";
+
+      alert(`❌ ${mensaje}`);
     } finally {
       setCargandoActivar(false);
+      guardandoProgresoRef.current =
+        false;
     }
   };
 
@@ -494,6 +836,11 @@ export default function HologramaReportes() {
 
   const abrirPistaBait = () => {
     setMostrarPistaBait(true);
+
+    if (!ID_ESTUDIANTE) {
+      return;
+    }
+
     fetch(`${API_URL}/holograma/pista-consultada`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -526,6 +873,12 @@ export default function HologramaReportes() {
     setPreguntaBarraAlta(null);
     setPreguntaSectorMayor(null);
     setResultado(null);
+
+    guardandoProgresoRef.current =
+      false;
+
+    inicioActividadRef.current =
+      Date.now();
   };
 
   const graficaMaxima = 5;
@@ -634,7 +987,14 @@ export default function HologramaReportes() {
           </div>
 
           <div className="res-modal-right">
-            <button className="res-btn res-btn-azul" onClick={() => navigate("/actividades-math-data")}>
+            <button
+              className="res-btn res-btn-azul"
+              onClick={() =>
+                navigate(
+                  "/actividades-math-data/sensor-frecuencias",
+                )
+              }
+            >
               Siguiente actividad
             </button>
             <button className="res-btn res-btn-outline" onClick={handleReiniciarActividad}>
@@ -940,6 +1300,7 @@ export default function HologramaReportes() {
                 className={`hol-tipo-opcion ${tipoGrafica === "barras" ? "hol-tipo-opcion-activa" : ""}`}
                 onClick={() => setTipoGrafica("barras")}
                 aria-pressed={tipoGrafica === "barras"}
+                disabled={cargandoActivar}
               >
                 <img src={iconoGraficaBarrasImg} alt="" className="hol-tipo-icono" />
                 <div className="hol-tipo-texto">
@@ -954,6 +1315,7 @@ export default function HologramaReportes() {
                 className={`hol-tipo-opcion ${tipoGrafica === "circular" ? "hol-tipo-opcion-activa" : ""}`}
                 onClick={() => setTipoGrafica("circular")}
                 aria-pressed={tipoGrafica === "circular"}
+                disabled={cargandoActivar}
               >
                 <img src={iconoGraficaCircularImg} alt="" className="hol-tipo-icono" />
                 <div className="hol-tipo-texto">
@@ -1014,7 +1376,11 @@ export default function HologramaReportes() {
                       setAlturaBarras((prev) => ({ ...prev, [m]: e.target.value }))
                     }
                     aria-label={`Altura de la barra de ${NOMBRE_MODULO[m]}`}
-                    disabled={cargandoBarras || barraBloqueada[m]}
+                    disabled={
+                      cargandoBarras ||
+                      cargandoActivar ||
+                      barraBloqueada[m]
+                    }
                   />
                   {barraEstado(m) === "correcto" && <FiCheckCircle className="hol-check-verde" />}
                 </div>
@@ -1073,7 +1439,11 @@ export default function HologramaReportes() {
                         setPorcentajes((prev) => ({ ...prev, [m]: e.target.value }))
                       }
                       aria-label={`Porcentaje de ${NOMBRE_MODULO[m]}`}
-                      disabled={cargandoCirculo || porcentajeBloqueado[m]}
+                      disabled={
+                        cargandoCirculo ||
+                        cargandoActivar ||
+                        porcentajeBloqueado[m]
+                      }
                     />
                     <span>%</span>
                     {porcentajeEstado(m) === "correcto" && (
@@ -1116,6 +1486,7 @@ export default function HologramaReportes() {
                     }`}
                     onClick={() => setPreguntaBarraAlta(m)}
                     aria-pressed={preguntaBarraAlta === m}
+                    disabled={cargandoActivar}
                   >
                     <span className="hol-radio-circulo" />
                     {NOMBRE_MODULO[m]}
@@ -1139,6 +1510,7 @@ export default function HologramaReportes() {
                     }`}
                     onClick={() => setPreguntaSectorMayor(m)}
                     aria-pressed={preguntaSectorMayor === m}
+                    disabled={cargandoActivar}
                   >
                     <span className="hol-radio-circulo" />
                     {NOMBRE_MODULO[m]}

@@ -41,7 +41,7 @@ import comandanteSumaIdle from "../../../assets/mathnumbers/12-simulador/comanda
 import bytePista from "../../../assets/mathnumbers/byte_pista.png";
 
 import { clearAuthSession } from "../../../utils/authSession";
-import { guardarProgresoActividad } from "../../../services/progresoService";
+import { guardarProgresoUsuarioActual } from "../../../services/progresoService";
 
 import { activityListRoute } from "../constants";
 import { ResultModal } from "../components/ResultModal";
@@ -464,6 +464,11 @@ export function SimuladorCodigos() {
   ] = useState(false);
 
   const [
+    guardandoProgreso,
+    setGuardandoProgreso,
+  ] = useState(false);
+
+  const [
     resultModalOpen,
     setResultModalOpen,
   ] = useState(false);
@@ -476,6 +481,12 @@ export function SimuladorCodigos() {
 
   const guideAudioRef =
     useRef<HTMLAudioElement | null>(null);
+
+  const inicioActividadRef =
+    useRef<number>(Date.now());
+
+  const resultTimerRef =
+    useRef<number | null>(null);
 
   const shuffledBasicRules = useMemo(
     () => shuffleAnswers(basicRuleOptions, "2n"),
@@ -540,6 +551,10 @@ export function SimuladorCodigos() {
 
   useEffect(() => {
     return () => {
+      if (resultTimerRef.current !== null) {
+        window.clearTimeout(resultTimerRef.current);
+      }
+
       const introAudio =
         introAudioRef.current;
 
@@ -758,17 +773,17 @@ export function SimuladorCodigos() {
       return;
     }
 
-    localStorage.setItem(
-      "simulador_codigos_explicacion",
-      explanationText,
-    );
-
     showToast(
-      "Explicación guardada correctamente.",
+      "Explicación preparada para guardarse con el resultado.",
     );
   };
 
   const limpiarActividad = () => {
+    if (resultTimerRef.current !== null) {
+      window.clearTimeout(resultTimerRef.current);
+      resultTimerRef.current = null;
+    }
+
     setShuffleKey((current) => current + 1);
     setBasicRule(null);
     setCombinedRule(null);
@@ -776,6 +791,9 @@ export function SimuladorCodigos() {
     setPredictionTen("");
     setExplanation("");
     setActivityResolved(false);
+    setGuardandoProgreso(false);
+
+    inicioActividadRef.current = Date.now();
   };
 
   const repetirActividad = () => {
@@ -804,6 +822,10 @@ export function SimuladorCodigos() {
   };
 
   const comprobar = async () => {
+    if (guardandoProgreso) {
+      return;
+    }
+
     if (progress !== 3) {
       showToast(
         "Completa las dos reglas y las predicciones antes de probar.",
@@ -820,129 +842,86 @@ export function SimuladorCodigos() {
     const completed =
       totalCorrect === 3;
 
-    const stars = completed
-      ? 3
-      : totalCorrect === 2
-        ? 2
-        : totalCorrect === 1
-          ? 1
-          : 0;
+    const tiempoSegundos = Math.max(
+      1,
+      Math.floor(
+        (Date.now() - inicioActividadRef.current) / 1000,
+      ),
+    );
 
-    let userId = 17;
-
-    try {
-      const sessionString =
-        localStorage.getItem(
-          "auth_session",
-        );
-
-      if (sessionString) {
-        const session =
-          JSON.parse(sessionString);
-
-        if (session?.id_usuario) {
-          userId = Number(
-            session.id_usuario,
-          );
-        }
-      }
-    } catch (error) {
-      console.error(
-        "No se pudo leer la sesión:",
-        error,
-      );
-    }
-
-    const payload = {
-      id_usuario: userId,
-      mundo: "mathnumbers",
-      tema:
-        "Tema 4: Introducción al álgebra",
-      actividad_codigo:
-        "simulador-codigos",
-      actividad_titulo:
-        "El Simulador de Códigos Algebraicos",
-      respuestas: {
-        regla_basica:
-          basicRule,
-        regla_combinada:
-          combinedRule,
-        prediccion_n_5:
-          predictionFive,
-        prediccion_n_10:
-          predictionTen,
-        explicacion_texto:
-          explanation,
-      },
-      aciertos: totalCorrect,
-      total_preguntas: 3,
-      precision:
-        (totalCorrect / 3) * 100,
-      estrellas_obtenidas: stars,
-      xp_obtenido:
-        totalCorrect * 20,
-      completada: completed,
-      tiempo_segundos: 0,
-      xp_base: 60,
-    };
+    setGuardandoProgreso(true);
 
     try {
-      const progressKey =
-        `progreso_${userId}_simulador-codigos`;
+      const resultado =
+        await guardarProgresoUsuarioActual({
+          mundo: "MathNumbers",
+          tema:
+            "Tema 4: Introducción al álgebra",
+          actividad_codigo:
+            "mathnumbers-simulador-codigos",
+          actividad_titulo:
+            "El Simulador de Códigos Algebraicos",
+          respuestas: {
+            regla_basica:
+              basicRule,
+            regla_combinada:
+              combinedRule,
+            prediccion_n_5:
+              predictionFive.trim(),
+            prediccion_n_10:
+              predictionTen.trim(),
+            explicacion_texto:
+              explanation.trim(),
+          },
+          aciertos: totalCorrect,
+          total_preguntas: 3,
+          tiempo_segundos: tiempoSegundos,
+          xp_base: 60,
+          completada: completed,
+        });
 
-      const previousProgressRaw =
-        localStorage.getItem(
-          progressKey,
+      const progresoGuardado =
+        resultado.progreso;
+
+      const estrellasGuardadas = Number(
+        progresoGuardado
+          .estrellas_obtenidas ?? 0,
+      );
+
+      const intentosGuardados = Number(
+        progresoGuardado.intentos ?? 1,
+      );
+
+      console.log(
+        "Progreso del Simulador de Códigos guardado:",
+        progresoGuardado,
+      );
+
+      inicioActividadRef.current = Date.now();
+
+      if (resultTimerRef.current !== null) {
+        window.clearTimeout(
+          resultTimerRef.current,
         );
-
-      let previousStars = 0;
-
-      if (previousProgressRaw) {
-        const previousProgress =
-          JSON.parse(
-            previousProgressRaw,
-          );
-
-        previousStars =
-          Number(
-            previousProgress
-              ?.estrellas_obtenidas,
-          ) || 0;
       }
-
-      await guardarProgresoActividad(
-        payload,
-      );
-
-      localStorage.setItem(
-        progressKey,
-        JSON.stringify({
-          estrellas_obtenidas:
-            Math.max(
-              previousStars,
-              stars,
-            ),
-        }),
-      );
 
       if (completed) {
         setActivityResolved(true);
 
         showToast(
-          previousStars > 0
-            ? `¡Simulador completado otra vez! Conservas tus ${Math.max(
-                previousStars,
-                stars,
-              )} estrellas.`
-            : "¡Simulador sincronizado! Ganaste 3 estrellas.",
+          intentosGuardados > 1
+            ? `¡Simulador completado otra vez! Tu mejor resultado conserva ${estrellasGuardadas} ⭐.`
+            : `¡Simulador sincronizado! Ganaste ${estrellasGuardadas} estrellas. ⭐`,
         );
 
-        window.setTimeout(() => {
-          setResultModalKind(
-            "completed",
-          );
-          setResultModalOpen(true);
-        }, 900);
+        resultTimerRef.current =
+          window.setTimeout(() => {
+            setResultModalKind(
+              "completed",
+            );
+            setResultModalOpen(true);
+            resultTimerRef.current = null;
+          }, 900);
 
         return;
       }
@@ -951,29 +930,40 @@ export function SimuladorCodigos() {
 
       showToast(
         totalCorrect === 2
-          ? "¡Casi lo logras! Revisa una de las reglas o predicciones."
-          : "El simulador detectó códigos incorrectos. Usa la pista de Byte.",
+          ? `¡Casi lo logras! Obtuviste ${estrellasGuardadas} estrellas; revisa una regla o predicción.`
+          : totalCorrect === 1
+            ? `Obtuviste ${estrellasGuardadas} estrella. Revisa las reglas y predicciones.`
+            : "El simulador detectó códigos incorrectos. Usa la pista de Byte.",
         true,
       );
 
-      window.setTimeout(() => {
-        setResultModalKind(
-          totalCorrect === 2
-            ? "almost"
-            : "retry",
-        );
-        setResultModalOpen(true);
-      }, 900);
+      resultTimerRef.current =
+        window.setTimeout(() => {
+          setResultModalKind(
+            totalCorrect === 2
+              ? "almost"
+              : "retry",
+          );
+          setResultModalOpen(true);
+          resultTimerRef.current = null;
+        }, 900);
     } catch (error) {
       console.error(
-        "No se pudo guardar el progreso:",
+        "No se pudo guardar el progreso del Simulador de Códigos:",
         error,
       );
 
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "No se pudo guardar el progreso.";
+
       showToast(
-        "No se pudo guardar el progreso. Revisa la conexión con el servidor.",
+        `Error de conexión: ${mensaje}`,
         true,
       );
+    } finally {
+      setGuardandoProgreso(false);
     }
   };
 
@@ -1456,9 +1446,13 @@ export function SimuladorCodigos() {
                 type="button"
                 className="mnx-simulador-check-button mnx-simulador-check-button-left"
                 onClick={comprobar}
+                disabled={guardandoProgreso}
+                aria-busy={guardandoProgreso}
               >
                 <FiPlay />
-                Probar reglas
+                {guardandoProgreso
+                  ? "Guardando progreso..."
+                  : "Probar reglas"}
                 <span>
                   {progress}/3
                 </span>
@@ -1717,6 +1711,7 @@ export function SimuladorCodigos() {
                           onClick={() =>
                             setBasicRule(rule)
                           }
+                          disabled={guardandoProgreso}
                         >
                           <span>
                             {rule}
@@ -1777,6 +1772,7 @@ export function SimuladorCodigos() {
                           onClick={() =>
                             setCombinedRule(rule)
                           }
+                          disabled={guardandoProgreso}
                         >
                           <span>
                             {rule}
@@ -1835,6 +1831,7 @@ export function SimuladorCodigos() {
                           event.target.value,
                         )
                       }
+                      disabled={guardandoProgreso}
                       placeholder="?"
                     />
 
@@ -1863,6 +1860,7 @@ export function SimuladorCodigos() {
                           event.target.value,
                         )
                       }
+                      disabled={guardandoProgreso}
                       placeholder="?"
                     />
 
@@ -1910,6 +1908,7 @@ export function SimuladorCodigos() {
                           event.target.value,
                         )
                       }
+                      disabled={guardandoProgreso}
                       placeholder="Escribe tu explicación aquí..."
                     />
 
@@ -1923,6 +1922,7 @@ export function SimuladorCodigos() {
                       type="button"
                       className="mnx-simulador-save-button mnx-simulador-save-explanation"
                       onClick={guardarExplicacion}
+                      disabled={guardandoProgreso}
                     >
                       <FiSave />
                       Guardar explicación

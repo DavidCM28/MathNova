@@ -3353,3 +3353,110 @@ body,
     justify-content: center;
   }
 }
+
+/* =====================================================================
+   AJUSTE EXTRA · PISTA DE BYTE MÁS PEQUEÑA
+   Reduce únicamente la ventana flotante del Enigma de Variables.
+   No modifica el resto de la actividad.
+   ===================================================================== */
+
+@media (min-width: 721px) {
+  .mnx-enigma-byte-panel {
+    width: min(470px, calc(100vw - 36px));
+    min-height: 220px;
+    padding: 16px 18px;
+    display: grid;
+    grid-template-columns: 132px minmax(0, 1fr);
+    gap: 15px;
+    align-items: center;
+    border-radius: 22px;
+  }
+
+  .mnx-enigma-byte-panel-media {
+    width: 132px;
+    height: 76px;
+    aspect-ratio: auto;
+    border-radius: 12px;
+  }
+
+  .mnx-enigma-byte-panel-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+  }
+
+  .mnx-enigma-byte-panel-copy {
+    min-width: 0;
+    padding: 0 22px 0 0;
+  }
+
+  .mnx-enigma-byte-panel-label {
+    min-height: 25px;
+    padding-inline: 10px;
+    font-size: 9.5px;
+  }
+
+  .mnx-enigma-byte-panel h3 {
+    margin: 7px 0 5px;
+    font-size: 17px;
+    line-height: 1.12;
+  }
+
+  .mnx-enigma-byte-panel p {
+    font-size: 9.5px;
+    line-height: 1.42;
+  }
+
+  .mnx-enigma-byte-controls {
+    margin-top: 9px;
+    gap: 5px;
+  }
+
+  .mnx-enigma-byte-controls button {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    font-size: 13px;
+  }
+
+  .mnx-enigma-byte-status {
+    min-height: 29px;
+    padding-inline: 8px;
+    font-size: 8.5px;
+  }
+
+  .mnx-enigma-byte-close {
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 720px) {
+  .mnx-enigma-byte-panel {
+    width: min(390px, calc(100vw - 20px));
+    padding: 12px;
+    border-radius: 20px;
+  }
+
+  .mnx-enigma-byte-panel-media {
+    max-height: 170px;
+    border-radius: 14px;
+  }
+
+  .mnx-enigma-byte-panel-copy {
+    padding: 10px 2px 2px;
+  }
+
+  .mnx-enigma-byte-panel h3 {
+    font-size: 17px;
+  }
+
+  .mnx-enigma-byte-panel p {
+    font-size: 10px;
+  }
+}

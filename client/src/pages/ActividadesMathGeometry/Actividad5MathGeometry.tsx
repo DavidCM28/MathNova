@@ -1,3 +1,5 @@
+import { useAutoProgreso } from "../../hooks/useAutoProgreso";
+
 import {
   type CSSProperties,
   useEffect,
@@ -635,6 +637,22 @@ function Actividad5MathGeometry() {
   const reto = RETOS[retoActual];
   const pistaActiva = PISTAS_ACT5[pistaSeleccionada];
   const progreso = Math.round((completados / RETOS.length) * 100);
+
+  useAutoProgreso({
+    completada: modal === "completado",
+    codigo: "mathgeometry-actividad-5",
+    mundo: "MathGeometry",
+    tema: "Punto medio de un segmento",
+    titulo: "El Taller del Ingeniero",
+    aciertos: RETOS.length,
+    totalPreguntas: RETOS.length,
+    tiempoSegundos: segundos,
+    xpBase: 240,
+    respuestas: {
+      errores,
+      puentes_completados: RETOS.length,
+    },
+  });
 
   const tiempo = useMemo(() => {
     const minutos = Math.floor(segundos / 60)

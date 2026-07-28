@@ -11,6 +11,7 @@ import {
   hasAuthSession,
   isGuestSession,
 } from "../../utils/authSession";
+import { useAutoProgreso } from "../../hooks/useAutoProgreso";
 import "./Actividad3MathGeometry.css";
 
 import logo from "../../assets/logo_MathNova.png";
@@ -93,6 +94,9 @@ type Reto = {
 };
 
 type SessionUser = {
+  id_usuario?: number | string;
+  usuario_id?: number | string;
+  id?: number | string;
   rol?: string;
   role?: string;
   tipo_usuario?: string;
@@ -694,6 +698,22 @@ function Actividad3MathGeometry() {
   const progreso = Math.round((retosCompletados / RETOS.length) * 100);
   const xpGanado = 40 + retosCompletados * 16;
   const cristales = retosCompletados * 3;
+
+  useAutoProgreso({
+    completada: modalCompletado,
+    codigo: "mathgeometry-actividad-3",
+    mundo: "MathGeometry",
+    tema: "Ángulos: agudo, recto y obtuso",
+    titulo: "Detectores de Giro",
+    aciertos: RETOS.length,
+    totalPreguntas: RETOS.length,
+    tiempoSegundos: segundos,
+    xpBase: 120,
+    respuestas: {
+      retos_completados: RETOS.length,
+      errores_totales: erroresTotales,
+    },
+  });
 
   const textoEstado = useMemo(() => {
     if (estadoRespuesta === "correcto" || estadoRespuesta === "cambiando") {
@@ -2815,7 +2835,9 @@ function Actividad3MathGeometry() {
                     <FiCheck />
                     <div>
                       <span>Retos</span>
-                      <strong>5/5</strong>
+                      <strong>
+                        {RETOS.length}/{RETOS.length}
+                      </strong>
                     </div>
                   </article>
 

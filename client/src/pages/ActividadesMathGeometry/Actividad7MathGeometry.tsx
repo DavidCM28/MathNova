@@ -1,3 +1,5 @@
+import { useAutoProgreso } from "../../hooks/useAutoProgreso";
+
 import {
   type CSSProperties,
   useEffect,
@@ -634,6 +636,22 @@ function Actividad7MathGeometry() {
   const reto = RETOS[retoActual];
   const pistaActiva = PISTAS_ACT7[pistaSeleccionada];
   const progreso = Math.round((completados / RETOS.length) * 100);
+
+  useAutoProgreso({
+    completada: modal === "completado",
+    codigo: "mathgeometry-actividad-7",
+    mundo: "MathGeometry",
+    tema: "Rectas notables de un triángulo",
+    titulo: "La Fortaleza Triangular",
+    aciertos: RETOS.length,
+    totalPreguntas: RETOS.length,
+    tiempoSegundos: segundos,
+    xpBase: 240,
+    respuestas: {
+      errores,
+      retos_completados: RETOS.length,
+    },
+  });
 
   const tiempo = useMemo(() => {
     const minutos = Math.floor(segundos / 60)

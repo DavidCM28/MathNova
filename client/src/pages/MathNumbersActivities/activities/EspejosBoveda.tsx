@@ -37,7 +37,7 @@ import comandanteSumaHablando from "../../../assets/mathnumbers/09-espejos/coman
 import comandanteSumaIdle from "../../../assets/mathnumbers/09-espejos/comandante_suma_idle.png";
 
 import { clearAuthSession } from "../../../utils/authSession";
-import { guardarProgresoActividad } from "../../../services/progresoService";
+import { guardarProgresoUsuarioActual } from "../../../services/progresoService";
 
 import { activityListRoute } from "../constants";
 import { ResultModal } from "../components/ResultModal";
@@ -609,6 +609,11 @@ export function EspejosBoveda() {
     useState(false);
 
   const [
+    guardandoProgreso,
+    setGuardandoProgreso,
+  ] = useState(false);
+
+  const [
     resultModalOpen,
     setResultModalOpen,
   ] = useState(false);
@@ -621,6 +626,12 @@ export function EspejosBoveda() {
 
   const guideAudioRef =
     useRef<HTMLAudioElement | null>(null);
+
+  const inicioActividadRef =
+    useRef<number>(Date.now());
+
+  const resultTimerRef =
+    useRef<number | null>(null);
 
   const progress =
     Object.keys(answers).length;
@@ -648,6 +659,10 @@ export function EspejosBoveda() {
 
   useEffect(() => {
     return () => {
+      if (resultTimerRef.current !== null) {
+        window.clearTimeout(resultTimerRef.current);
+      }
+
       const introAudio =
         introAudioRef.current;
 
@@ -859,6 +874,10 @@ export function EspejosBoveda() {
     question: QuestionKey,
     value: AnswerValue,
   ) => {
+    if (guardandoProgreso) {
+      return;
+    }
+
     setAnswers((current) => ({
       ...current,
       [question]: value,
@@ -888,9 +907,17 @@ export function EspejosBoveda() {
   };
 
   const limpiarActividad = () => {
+    if (resultTimerRef.current !== null) {
+      window.clearTimeout(resultTimerRef.current);
+      resultTimerRef.current = null;
+    }
+
     setAnswers({});
     setExplanation("");
     setActivityResolved(false);
+    setGuardandoProgreso(false);
+
+    inicioActividadRef.current = Date.now();
   };
 
   const repetirActividad = () => {
@@ -919,6 +946,10 @@ export function EspejosBoveda() {
   };
 
   const comprobar = async () => {
+    if (guardandoProgreso) {
+      return;
+    }
+
     if (progress !== 2) {
       showToast(
         "Selecciona una respuesta en cada reto para abrir la bóveda.",
@@ -937,125 +968,82 @@ export function EspejosBoveda() {
         correctAnswers[question],
     ).length;
 
-    let idUsuario = 17;
-
-    try {
-      const sessionString =
-        localStorage.getItem(
-          "auth_session",
-        );
-
-      if (sessionString) {
-        const session = JSON.parse(
-          sessionString,
-        );
-
-        if (session?.id_usuario) {
-          idUsuario = Number(
-            session.id_usuario,
-          );
-        }
-      }
-    } catch (error) {
-      console.error(
-        "No se pudo leer la sesión:",
-        error,
-      );
-    }
-
-    const nuevasEstrellas =
-      total === 2
-        ? 3
-        : total === 1
-          ? 1
-          : 0;
-
     const esCorrecto = total === 2;
 
-    const payload = {
-      id_usuario: idUsuario,
-      mundo: "mathnumbers",
-      tema:
-        "Tema 3: Jerarquía y propiedades",
-      actividad_codigo:
-        "espejos-boveda",
-      actividad_titulo:
-        "Los Espejos de la Bóveda",
-      respuestas: {
-        respuestas_seleccionadas:
-          answers,
-        explicacion_texto:
-          explanation,
-      },
-      aciertos: total,
-      total_preguntas: 2,
-      precision:
-        (total / 2) * 100,
-      estrellas_obtenidas:
-        nuevasEstrellas,
-      xp_obtenido: total * 25,
-      completada: esCorrecto,
-      tiempo_segundos: 0,
-      xp_base: 50,
-    };
+    const tiempoSegundos = Math.max(
+      1,
+      Math.floor(
+        (Date.now() - inicioActividadRef.current) / 1000,
+      ),
+    );
+
+    setGuardandoProgreso(true);
 
     try {
-      const progresoKey =
-        `progreso_${idUsuario}_espejos-boveda`;
+      const resultado =
+        await guardarProgresoUsuarioActual({
+          mundo: "MathNumbers",
+          tema:
+            "Tema 3: Jerarquía y propiedades",
+          actividad_codigo:
+            "mathnumbers-espejos-boveda",
+          actividad_titulo:
+            "Los Espejos de la Bóveda",
+          respuestas: {
+            respuestas_seleccionadas:
+              answers,
+            explicacion_texto:
+              explanation.trim(),
+          },
+          aciertos: total,
+          total_preguntas: 2,
+          tiempo_segundos: tiempoSegundos,
+          xp_base: 50,
+          completada: esCorrecto,
+        });
 
-      const progresoPrevioRaw =
-        localStorage.getItem(
-          progresoKey,
+      const progresoGuardado =
+        resultado.progreso;
+
+      const estrellasGuardadas = Number(
+        progresoGuardado
+          .estrellas_obtenidas ?? 0,
+      );
+
+      const intentosGuardados = Number(
+        progresoGuardado.intentos ?? 1,
+      );
+
+      console.log(
+        "Progreso de Espejos de la Bóveda guardado:",
+        progresoGuardado,
+      );
+
+      inicioActividadRef.current = Date.now();
+
+      if (resultTimerRef.current !== null) {
+        window.clearTimeout(
+          resultTimerRef.current,
         );
-
-      let estrellasAnteriores = 0;
-
-      if (progresoPrevioRaw) {
-        const progresoPrevio =
-          JSON.parse(
-            progresoPrevioRaw,
-          );
-
-        estrellasAnteriores =
-          Number(
-            progresoPrevio
-              ?.estrellas_obtenidas,
-          ) || 0;
       }
-
-      await guardarProgresoActividad(
-        payload,
-      );
-
-      localStorage.setItem(
-        progresoKey,
-        JSON.stringify({
-          estrellas_obtenidas:
-            Math.max(
-              estrellasAnteriores,
-              nuevasEstrellas,
-            ),
-        }),
-      );
 
       if (esCorrecto) {
         setActivityResolved(true);
 
         showToast(
-          estrellasAnteriores > 0
-            ? `¡Bóveda abierta otra vez! Conservas tus ${Math.max(
-                estrellasAnteriores,
-                nuevasEstrellas,
-              )} estrellas.`
-            : "¡Bóveda abierta! Ganaste 3 estrellas.",
+          intentosGuardados > 1
+            ? `¡Bóveda abierta otra vez! Tu mejor resultado conserva ${estrellasGuardadas} ⭐.`
+            : `¡Bóveda abierta! Ganaste ${estrellasGuardadas} estrellas. ⭐`,
         );
 
-        window.setTimeout(() => {
-          setResultModalKind(
-            "completed",
-          );
-          setResultModalOpen(true);
-        }, 900);
+        resultTimerRef.current =
+          window.setTimeout(() => {
+            setResultModalKind(
+              "completed",
+            );
+            setResultModalOpen(true);
+            resultTimerRef.current = null;
+          }, 900);
 
         return;
       }
@@ -1064,29 +1052,38 @@ export function EspejosBoveda() {
 
       showToast(
         total === 1
-          ? "¡Casi lo logras! Revisa qué cambió y qué se mantuvo."
+          ? `¡Casi lo logras! Obtuviste ${estrellasGuardadas} estrella; revisa qué cambió y qué se mantuvo.`
           : "Los espejos no coinciden. Usa la pista de Byte.",
         true,
       );
 
-      window.setTimeout(() => {
-        setResultModalKind(
-          total === 1
-            ? "almost"
-            : "retry",
-        );
-        setResultModalOpen(true);
-      }, 900);
+      resultTimerRef.current =
+        window.setTimeout(() => {
+          setResultModalKind(
+            total === 1
+              ? "almost"
+              : "retry",
+          );
+          setResultModalOpen(true);
+          resultTimerRef.current = null;
+        }, 900);
     } catch (error) {
       console.error(
-        "No se pudo guardar el progreso:",
+        "No se pudo guardar el progreso de Espejos de la Bóveda:",
         error,
       );
 
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "No se pudo guardar el progreso.";
+
       showToast(
-        "No se pudo guardar el progreso. Revisa la conexión con el servidor.",
+        `Error de conexión: ${mensaje}`,
         true,
       );
+    } finally {
+      setGuardandoProgreso(false);
     }
   };
 
@@ -1626,6 +1623,7 @@ export function EspejosBoveda() {
                                       "a",
                                     )
                                   }
+                                  disabled={guardandoProgreso}
                                 >
                                   <span>A</span>
                                   <strong>7 + 4</strong>
@@ -1646,6 +1644,7 @@ export function EspejosBoveda() {
                                       "b",
                                     )
                                   }
+                                  disabled={guardandoProgreso}
                                 >
                                   <span>B</span>
                                   <strong>7 − 4</strong>
@@ -1678,6 +1677,7 @@ export function EspejosBoveda() {
                                       "a",
                                     )
                                   }
+                                  disabled={guardandoProgreso}
                                 >
                                   <span>A</span>
                                   <strong>
@@ -1700,6 +1700,7 @@ export function EspejosBoveda() {
                                       "b",
                                     )
                                   }
+                                  disabled={guardandoProgreso}
                                 >
                                   <span>B</span>
                                   <strong>
@@ -1734,6 +1735,7 @@ export function EspejosBoveda() {
                                       event.target.value,
                                     )
                                   }
+                                  disabled={guardandoProgreso}
                                   placeholder="Escribe tu explicación aquí..."
                                 />
 
@@ -1748,6 +1750,7 @@ export function EspejosBoveda() {
                                 onClick={
                                   guardarExplicacion
                                 }
+                                disabled={guardandoProgreso}
                               >
                                 <FiSave />
                                 Guardar explicación
@@ -1776,9 +1779,13 @@ export function EspejosBoveda() {
                               type="button"
                               className="mnx-espejos-check-button"
                               onClick={comprobar}
+                              disabled={guardandoProgreso}
+                              aria-busy={guardandoProgreso}
                             >
                               <FiCheckCircle />
-                              Comprobar equivalencias
+                              {guardandoProgreso
+                                ? "Guardando progreso..."
+                                : "Comprobar equivalencias"}
                               <span>
                                 {progress}/2 listas
                               </span>

@@ -65,12 +65,134 @@ import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 import { FaStar, FaShieldAlt, FaGem, FaLightbulb, FaHandPointUp, FaBroadcastTower } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
 import { getSessionUser } from "../../utils/authSession";
+import {
+  guardarProgresoUsuarioActual,
+} from "../../services/progresoService";
 
 // ============================================
 // CONFIGURACIÓN DEL BACKEND
 // ============================================
 
-const API_URL = "http://localhost:3001/api";
+const API_URL_BASE =
+  (
+    import.meta.env.VITE_API_URL as
+      | string
+      | undefined
+  )?.replace(/\/+$/, "") ||
+  "http://localhost:3001";
+
+const API_URL =
+  API_URL_BASE.endsWith("/api")
+    ? API_URL_BASE
+    : `${API_URL_BASE}/api`;
+
+type UsuarioSesionGenerador = {
+  id_usuario?: number | string;
+  idUsuario?: number | string;
+  usuario_id?: number | string;
+  user_id?: number | string;
+  userId?: number | string;
+  id?: number | string;
+  usuario?: UsuarioSesionGenerador;
+  user?: UsuarioSesionGenerador;
+  data?: UsuarioSesionGenerador;
+  session?: UsuarioSesionGenerador;
+};
+
+const extraerIdUsuarioGenerador = (
+  valor: unknown,
+): number => {
+  if (
+    !valor ||
+    typeof valor !== "object"
+  ) {
+    return 0;
+  }
+
+  const usuario =
+    valor as UsuarioSesionGenerador;
+
+  const idDirecto = Number(
+    usuario.id_usuario ??
+      usuario.idUsuario ??
+      usuario.usuario_id ??
+      usuario.user_id ??
+      usuario.userId ??
+      usuario.id ??
+      0,
+  );
+
+  if (
+    Number.isInteger(idDirecto) &&
+    idDirecto > 0
+  ) {
+    return idDirecto;
+  }
+
+  for (const anidado of [
+    usuario.usuario,
+    usuario.user,
+    usuario.data,
+    usuario.session,
+  ]) {
+    const idAnidado =
+      extraerIdUsuarioGenerador(
+        anidado,
+      );
+
+    if (idAnidado > 0) {
+      return idAnidado;
+    }
+  }
+
+  return 0;
+};
+
+const obtenerIdEstudianteActual = (): number => {
+  const candidatos: unknown[] = [
+    getSessionUser(),
+  ];
+
+  for (const clave of [
+    "auth_session",
+    "usuario",
+    "user",
+    "session_user",
+    "sessionUser",
+    "mathnova_user",
+    "authUser",
+  ]) {
+    try {
+      const valor =
+        localStorage.getItem(clave) ||
+        sessionStorage.getItem(clave);
+
+      if (valor) {
+        candidatos.push(
+          JSON.parse(valor),
+        );
+      }
+    } catch (error) {
+      console.warn(
+        `No se pudo leer la sesión "${clave}":`,
+        error,
+      );
+    }
+  }
+
+  for (const candidato of candidatos) {
+    const idUsuario =
+      extraerIdUsuarioGenerador(
+        candidato,
+      );
+
+    if (idUsuario > 0) {
+      return idUsuario;
+    }
+  }
+
+  return 0;
+};
 
 // ============================================
 // DATOS INICIALES (NO MODIFICAR)
@@ -252,9 +374,14 @@ function GeneradorEnergiaInversa() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  // El ID del estudiante se obtiene de la sesión activa en cada render
-  const usuarioSesion = getSessionUser();
-  const ID_ESTUDIANTE = usuarioSesion?.id_usuario;
+  const ID_ESTUDIANTE =
+    obtenerIdEstudianteActual();
+
+  const inicioActividadRef =
+    useRef<number>(Date.now());
+
+  const guardandoProgresoRef =
+    useRef(false);
 
   const [filas, setFilas] = useState(filasIniciales);
   const [puntos, setPuntos] = useState(puntosIniciales);
@@ -269,6 +396,7 @@ function GeneradorEnergiaInversa() {
   const [mostrarIntroVillano, setMostrarIntroVillano] = useState(false);
   const [mostrarVillanoDerrotado, setMostrarVillanoDerrotado] = useState(false);
   const [mostrarPistaModal, setMostrarPistaModal] = useState(false);
+  const [graficaCompleta, setGraficaCompleta] = useState(false);
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
@@ -281,6 +409,13 @@ function GeneradorEnergiaInversa() {
 
   useEffect(() => {
     const cargarProgreso = async () => {
+      if (!ID_ESTUDIANTE) {
+        console.warn(
+          "No se encontró el estudiante autenticado para cargar Generador de Energía Inversa.",
+        );
+        return;
+      }
+
       try {
         const response = await fetch(`${API_URL}/proporcionalidad/progreso/${ID_ESTUDIANTE}`);
         const data = await response.json();
@@ -310,14 +445,18 @@ function GeneradorEnergiaInversa() {
       }
     };
 
-    cargarProgreso();
-  }, []);
+    void cargarProgreso();
+  }, [ID_ESTUDIANTE]);
 
   // ==========================================
   // GUARDAR PROGRESO EN EL BACKEND
   // ==========================================
 
   const guardarProgreso = async (pantalla: number) => {
+    if (!ID_ESTUDIANTE) {
+      return;
+    }
+
     try {
       await fetch(`${API_URL}/proporcionalidad/guardar-progreso`, {
         method: "POST",
@@ -358,6 +497,13 @@ function GeneradorEnergiaInversa() {
     setProgresoPorcentaje(0);
     setRespuesta("");
     setXpGanado(0);
+    setGraficaCompleta(false);
+
+    guardandoProgresoRef.current =
+      false;
+
+    inicioActividadRef.current =
+      Date.now();
   };
 
   // ==========================================
@@ -365,6 +511,13 @@ function GeneradorEnergiaInversa() {
   // ==========================================
 
   const actualizarFila = async (index: number, valor: string) => {
+    if (!ID_ESTUDIANTE) {
+      setMensajeFeedback(
+        "❌ No se encontró tu sesión. Inicia sesión nuevamente.",
+      );
+      return;
+    }
+
     setFilas((prev) =>
       prev.map((fila, i) => (i === index ? { ...fila, y: valor, correcto: null } : fila))
     );
@@ -444,54 +597,229 @@ function GeneradorEnergiaInversa() {
   // ==========================================
 
   const handleEnviarPrediccion = async () => {
-    if (respuesta.trim() === "") {
-      setMensajeFeedback("⚠️ Escribe una respuesta antes de enviar.");
+    if (
+      respuesta.trim() === "" ||
+      cargando ||
+      guardandoProgresoRef.current
+    ) {
+      if (respuesta.trim() === "") {
+        setMensajeFeedback(
+          "⚠️ Escribe una respuesta antes de enviar.",
+        );
+      }
+      return;
+    }
+
+    if (!ID_ESTUDIANTE) {
+      setMensajeFeedback(
+        "❌ No se encontró tu sesión. Inicia sesión nuevamente.",
+      );
       return;
     }
 
     setCargando(true);
-    try {
-      const response = await fetch(`${API_URL}/proporcionalidad/prediccion`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id_estudiante: ID_ESTUDIANTE,
-          prediccion: Number(respuesta),
-        }),
-      });
+    guardandoProgresoRef.current =
+      true;
 
-      const data = await response.json();
-      console.log("Respuesta del backend:", data);
+    try {
+      const response = await fetch(
+        `${API_URL}/proporcionalidad/prediccion`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            id_estudiante:
+              ID_ESTUDIANTE,
+            prediccion:
+              Number(respuesta),
+          }),
+        },
+      );
+
+      const data =
+        await response.json();
+
+      console.log(
+        "Respuesta del backend:",
+        data,
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          data?.mensaje ||
+            data?.message ||
+            `HTTP ${response.status}`,
+        );
+      }
 
       if (data.success && data.data) {
-        const resultado = data.data;
-        setMensajeFeedback(resultado.mensaje);
+        const resultadoBackend =
+          data.data;
 
-        if (resultado.correcto) {
-          setActividadCompletada(true);
+        setMensajeFeedback(
+          resultadoBackend.mensaje,
+        );
+
+        const finalizada =
+          Boolean(
+            resultadoBackend.correcto ||
+              resultadoBackend.completada,
+          );
+
+        if (!finalizada) {
+          return;
+        }
+
+        const prediccionCorrecta =
+          Boolean(
+            resultadoBackend.correcto,
+          );
+
+        const filasCorrectas =
+          filas.filter(
+            (fila) =>
+              !fila.editable ||
+              fila.correcto === true ||
+              fila.bloqueada,
+          ).length;
+
+        const tablaCompleta =
+          filasCorrectas ===
+          filas.length;
+
+        /*
+         * La actividad se resume en tres evidencias:
+         * 1) tabla, 2) gráfica y 3) predicción.
+         */
+        const aciertosUnificados =
+          Number(tablaCompleta) +
+          Number(graficaCompleta) +
+          Number(prediccionCorrecta);
+
+        const tiempoSegundos =
+          Math.max(
+            1,
+            Math.floor(
+              (
+                Date.now() -
+                inicioActividadRef.current
+              ) / 1000,
+            ),
+          );
+
+        try {
+          const progresoUnificado =
+            await guardarProgresoUsuarioActual({
+              mundo: "MathData",
+              tema:
+                "Relaciones y proporciones",
+              actividad_codigo:
+                "mathdata-generador-energia",
+              actividad_titulo:
+                "Generador de Energía Inversa",
+              respuestas: {
+                valores_tabla:
+                  filas.reduce<
+                    Record<string, number>
+                  >(
+                    (
+                      acumulado,
+                      fila,
+                    ) => {
+                      if (
+                        fila.y !== ""
+                      ) {
+                        acumulado[
+                          String(fila.x)
+                        ] =
+                          Number(fila.y);
+                      }
+
+                      return acumulado;
+                    },
+                    {},
+                  ),
+                grafica_completa:
+                  graficaCompleta,
+                puntos_grafica:
+                  puntos,
+                prediccion_reactores:
+                  Number(respuesta),
+              },
+              aciertos:
+                aciertosUnificados,
+              total_preguntas: 3,
+              tiempo_segundos:
+                tiempoSegundos,
+              xp_base: 60,
+              completada:
+                prediccionCorrecta &&
+                tablaCompleta,
+            });
+
+          console.log(
+            "Progreso del Generador de Energía guardado:",
+            progresoUnificado.progreso,
+          );
+        } catch (
+          progresoError
+        ) {
+          console.error(
+            "La actividad se validó, pero no se pudo registrar en el progreso unificado:",
+            progresoError,
+          );
+        }
+
+        inicioActividadRef.current =
+          Date.now();
+
+        setActividadCompletada(true);
+        setProgresoPorcentaje(100);
+
+        if (prediccionCorrecta) {
           setXpGanado(100);
-          setProgresoPorcentaje(100);
           await guardarProgreso(8);
           setResultado("exito");
-        } else if (resultado.completada) {
-          setActividadCompletada(true);
+        } else {
           setXpGanado(50);
-          setProgresoPorcentaje(100);
           await guardarProgreso(8);
           setResultado("fallo");
-        } else {
-          // El mensaje ya se muestra con setMensajeFeedback arriba
         }
-      } else if (data.success === false) {
-        alert(`❌ ${data.mensaje || "Error al procesar la respuesta."}`);
+      } else if (
+        data.success === false
+      ) {
+        alert(
+          `❌ ${
+            data.mensaje ||
+            "Error al procesar la respuesta."
+          }`,
+        );
       } else {
-        alert("❌ Error al procesar la respuesta.");
+        alert(
+          "❌ Error al procesar la respuesta.",
+        );
       }
     } catch (error) {
-      console.error("Error al enviar predicción:", error);
-      setMensajeFeedback("❌ Error al conectar con el servidor.");
+      console.error(
+        "Error al enviar predicción:",
+        error,
+      );
+
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "Error al conectar con el servidor.";
+
+      setMensajeFeedback(
+        `❌ ${mensaje}`,
+      );
     } finally {
       setCargando(false);
+      guardandoProgresoRef.current =
+        false;
       setRespuesta("");
     }
   };
@@ -516,9 +844,11 @@ function GeneradorEnergiaInversa() {
 
     if (todosLosPuntos) {
       setMensajeFeedback("✅ ¡Todos los puntos están correctos! Has completado la gráfica.");
+      setGraficaCompleta(true);
       setProgresoPorcentaje(80);
       alert("🎉 ¡Gráfica completada correctamente!");
     } else {
+      setGraficaCompleta(false);
       setMensajeFeedback("❌ Faltan puntos o algunos están incorrectos. Revisa la tabla.");
       alert("❌ Faltan puntos o algunos están incorrectos. Revisa la tabla.");
     }
@@ -541,7 +871,11 @@ function GeneradorEnergiaInversa() {
     setPuntos((prev) => [...prev, { x, y }]);
   };
 
-  const limpiarGrafica = () => setPuntos(puntosIniciales);
+  const limpiarGrafica = () => {
+    setPuntos(puntosIniciales);
+    setPuntosIncorrectos([]);
+    setGraficaCompleta(false);
+  };
 
   // ==========================================
   // PANTALLA: ACTIVIDAD COMPLETADA
@@ -1111,7 +1445,11 @@ function GeneradorEnergiaInversa() {
               <div className="res-modal-right">
                 <button
                   className="res-btn res-btn-azul"
-                  onClick={() => navigate("/actividades-math-data")}
+                  onClick={() =>
+                    navigate(
+                      "/actividades-math-data/rampas-lanzamiento",
+                    )
+                  }
                 >
                   Siguiente actividad
                 </button>
@@ -1481,7 +1819,21 @@ function GeneradorEnergiaInversa() {
           <section className="gen1-card gen1-card-graph">
             <h3 className="gen1-graph-title">Tiempo de recarga (horas)</h3>
 
-            <div className="gen1-graph-area" onClick={manejarClickGrafica}>
+            <div
+              className="gen1-graph-area"
+              onClick={(event) => {
+                if (
+                  cargando ||
+                  actividadCompletada
+                ) {
+                  return;
+                }
+
+                manejarClickGrafica(
+                  event,
+                );
+              }}
+            >
               <div className="gen1-graph-grid">
                 {Array.from({ length: EJE_X_MAX }).map((_, i) => (
                   <i key={`v-${i}`} className="gen1-grid-line-v" />

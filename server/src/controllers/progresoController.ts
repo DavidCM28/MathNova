@@ -1,6 +1,25 @@
+import type { Request, Response } from "express";
+
 const pool = require("../db");
 
-const calcularEstrellas = (aciertos, totalPreguntas) => {
+type ProgresoActividadBody = {
+  id_usuario?: number | string;
+  mundo?: string;
+  tema?: string | null;
+  actividad_codigo?: string;
+  actividad_titulo?: string;
+  respuestas?: unknown;
+  aciertos?: number | string;
+  total_preguntas?: number | string;
+  tiempo_segundos?: number | string;
+  xp_base?: number | string;
+  completada?: boolean;
+};
+
+const calcularEstrellas = (
+  aciertos: number,
+  totalPreguntas: number
+): number => {
   if (!totalPreguntas || totalPreguntas <= 0) return 0;
 
   const precision = (aciertos / totalPreguntas) * 100;
@@ -12,7 +31,10 @@ const calcularEstrellas = (aciertos, totalPreguntas) => {
   return 0;
 };
 
-const guardarProgresoActividad = async (req, res) => {
+export const guardarProgresoActividad = async (
+  req: Request<Record<string, never>, unknown, ProgresoActividadBody>,
+  res: Response
+): Promise<Response> => {
   try {
     const {
       id_usuario,
@@ -25,7 +47,7 @@ const guardarProgresoActividad = async (req, res) => {
       total_preguntas,
       tiempo_segundos,
       xp_base,
-      completada: completadaRecibida
+      completada: completadaRecibida,
     } = req.body;
 
     const idUsuarioNum = Number(id_usuario);
@@ -37,13 +59,13 @@ const guardarProgresoActividad = async (req, res) => {
     if (
       !Number.isInteger(idUsuarioNum) ||
       idUsuarioNum <= 0 ||
-      !mundo ||
-      !actividad_codigo ||
-      !actividad_titulo
+      !mundo?.trim() ||
+      !actividad_codigo?.trim() ||
+      !actividad_titulo?.trim()
     ) {
       return res.status(400).json({
         ok: false,
-        mensaje: "Faltan datos obligatorios para guardar el progreso."
+        mensaje: "Faltan datos obligatorios para guardar el progreso.",
       });
     }
 
@@ -63,11 +85,9 @@ const guardarProgresoActividad = async (req, res) => {
     );
 
     /*
-     * El endpoint se ejecuta cuando el alumno termina la actividad.
-     * Por eso, aunque tenga respuestas incorrectas, cuenta como realizada.
-     *
-     * Si el frontend manda explícitamente completada: false,
-     * se respetará ese valor.
+     * La actividad cuenta como completada cuando el frontend lo indica.
+     * Si no manda el campo, se considera completada cuando existe al
+     * menos una pregunta registrada.
      */
     const completada =
       typeof completadaRecibida === "boolean"
@@ -159,10 +179,10 @@ const guardarProgresoActividad = async (req, res) => {
       `,
       [
         idUsuarioNum,
-        mundo,
-        tema || null,
-        actividad_codigo,
-        actividad_titulo,
+        mundo.trim(),
+        tema?.trim() || null,
+        actividad_codigo.trim(),
+        actividad_titulo.trim(),
         JSON.stringify(respuestas || {}),
         aciertosNum,
         totalPreguntasNum,
@@ -170,7 +190,7 @@ const guardarProgresoActividad = async (req, res) => {
         estrellas,
         xpObtenido,
         completada,
-        tiempoSegundosNum
+        tiempoSegundosNum,
       ]
     );
 
@@ -179,15 +199,18 @@ const guardarProgresoActividad = async (req, res) => {
       actividad_codigo,
       precision,
       estrellas,
-      completada
+      completada,
     });
 
     return res.status(200).json({
       ok: true,
       mensaje: "Progreso guardado correctamente.",
-      progreso: result.rows[0]
+      progreso: result.rows[0],
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    const detalle =
+      error instanceof Error ? error.message : String(error);
+
     console.error("Error al guardar progreso:", error);
 
     return res.status(500).json({
@@ -195,20 +218,23 @@ const guardarProgresoActividad = async (req, res) => {
       mensaje: "Error al guardar progreso de la actividad.",
       detalle:
         process.env.NODE_ENV === "development"
-          ? error.message
-          : undefined
+          ? detalle
+          : undefined,
     });
   }
 };
 
-const obtenerProgresoAlumno = async (req, res) => {
+export const obtenerProgresoAlumno = async (
+  req: Request<{ id_usuario: string }>,
+  res: Response
+): Promise<Response> => {
   try {
     const idUsuario = Number(req.params.id_usuario);
 
     if (!Number.isInteger(idUsuario) || idUsuario <= 0) {
       return res.status(400).json({
         ok: false,
-        mensaje: "El id del usuario no es válido."
+        mensaje: "El id del usuario no es válido.",
       });
     }
 
@@ -240,27 +266,30 @@ const obtenerProgresoAlumno = async (req, res) => {
 
     return res.json({
       ok: true,
-      total: result.rowCount,
-      progreso: result.rows
+      total: result.rowCount ?? result.rows.length,
+      progreso: result.rows,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error al obtener progreso:", error);
 
     return res.status(500).json({
       ok: false,
-      mensaje: "Error al obtener progreso del alumno."
+      mensaje: "Error al obtener progreso del alumno.",
     });
   }
 };
 
-const obtenerResumenAlumno = async (req, res) => {
+export const obtenerResumenAlumno = async (
+  req: Request<{ id_usuario: string }>,
+  res: Response
+): Promise<Response> => {
   try {
     const idUsuario = Number(req.params.id_usuario);
 
     if (!Number.isInteger(idUsuario) || idUsuario <= 0) {
       return res.status(400).json({
         ok: false,
-        mensaje: "El id del usuario no es válido."
+        mensaje: "El id del usuario no es válido.",
       });
     }
 
@@ -376,7 +405,11 @@ const obtenerResumenAlumno = async (req, res) => {
       [idUsuario]
     );
 
-    const resumenBase = resumenResult.rows[0];
+    const resumenBase = resumenResult.rows[0] || {};
+
+    const tiempoTotalSegundos = Number(
+      resumenBase.tiempo_total_segundos || 0
+    );
 
     const resumen = {
       estrellas_totales: Number(
@@ -415,29 +448,25 @@ const obtenerResumenAlumno = async (req, res) => {
         resumenBase.precision_promedio || 0
       ),
 
-      tiempo_total_segundos: Number(
-        resumenBase.tiempo_total_segundos || 0
-      ),
+      tiempo_total_segundos: tiempoTotalSegundos,
 
-      tiempo_estudio_segundos: Number(
-        resumenBase.tiempo_total_segundos || 0
-      ),
+      tiempo_estudio_segundos: tiempoTotalSegundos,
 
       tiempo_estudio_minutos: Math.floor(
-        Number(resumenBase.tiempo_total_segundos || 0) / 60
+        tiempoTotalSegundos / 60
       ),
 
       racha_actual: Number(
         rachaResult.rows[0]?.racha_actual || 0
-      )
+      ),
     };
 
     return res.json({
       ok: true,
       resumen,
-      mundos: mundosResult.rows
+      mundos: mundosResult.rows,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(
       "Error al obtener resumen del alumno:",
       error
@@ -445,12 +474,18 @@ const obtenerResumenAlumno = async (req, res) => {
 
     return res.status(500).json({
       ok: false,
-      mensaje: "Error al obtener resumen del alumno."
+      mensaje: "Error al obtener resumen del alumno.",
     });
   }
 };
 
-const obtenerProgresoActividad = async (req, res) => {
+export const obtenerProgresoActividad = async (
+  req: Request<{
+    id_usuario: string;
+    actividad_codigo: string;
+  }>,
+  res: Response
+): Promise<Response> => {
   try {
     const idUsuario = Number(req.params.id_usuario);
     const { actividad_codigo } = req.params;
@@ -458,11 +493,11 @@ const obtenerProgresoActividad = async (req, res) => {
     if (
       !Number.isInteger(idUsuario) ||
       idUsuario <= 0 ||
-      !actividad_codigo
+      !actividad_codigo?.trim()
     ) {
       return res.status(400).json({
         ok: false,
-        mensaje: "Los datos de la actividad no son válidos."
+        mensaje: "Los datos de la actividad no son válidos.",
       });
     }
 
@@ -474,14 +509,14 @@ const obtenerProgresoActividad = async (req, res) => {
         AND actividad_codigo = $2
       LIMIT 1;
       `,
-      [idUsuario, actividad_codigo]
+      [idUsuario, actividad_codigo.trim()]
     );
 
     return res.json({
       ok: true,
-      progreso: result.rows[0] || null
+      progreso: result.rows[0] || null,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(
       "Error al obtener progreso de actividad:",
       error
@@ -489,14 +524,7 @@ const obtenerProgresoActividad = async (req, res) => {
 
     return res.status(500).json({
       ok: false,
-      mensaje: "Error al obtener progreso de la actividad."
+      mensaje: "Error al obtener progreso de la actividad.",
     });
   }
-};
-
-module.exports = {
-  guardarProgresoActividad,
-  obtenerProgresoAlumno,
-  obtenerResumenAlumno,
-  obtenerProgresoActividad
 };

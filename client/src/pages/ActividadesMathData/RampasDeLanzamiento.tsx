@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { getSessionUser } from "../../utils/authSession";
+import {
+  guardarProgresoUsuarioActual,
+} from "../../services/progresoService";
 import logo from "../../assets/logo_MathNova.png";
 import interferenciaDivideImg from "../../assets/interferencia-divide.png";
 import baitSaludoImg from "../../assets/bait-saludo.png";
@@ -47,12 +50,159 @@ import "./RampasDeLanzamiento.css";
    CONFIGURACIÓN DEL BACKEND
 ========================================================= */
 
-const API_URL = "http://localhost:3001/api";
+const API_URL_BASE =
+  (
+    import.meta.env.VITE_API_URL as
+      | string
+      | undefined
+  )?.replace(/\/+$/, "") ||
+  "http://localhost:3001";
+
+const API_URL =
+  API_URL_BASE.endsWith("/api")
+    ? API_URL_BASE
+    : `${API_URL_BASE}/api`;
 
 /* =========================================================
    DATOS DE LA MISIÓN
    (fijos por ahora; se pueden mover a props/backend después)
 ========================================================= */
+
+type UsuarioSesionRampas = {
+  id_usuario?: number | string;
+  idUsuario?: number | string;
+  usuario_id?: number | string;
+  user_id?: number | string;
+  userId?: number | string;
+  id?: number | string;
+  usuario?: UsuarioSesionRampas;
+  user?: UsuarioSesionRampas;
+  data?: UsuarioSesionRampas;
+  session?: UsuarioSesionRampas;
+};
+
+const extraerIdUsuarioRampas = (
+  valor: unknown,
+): number => {
+  if (
+    !valor ||
+    typeof valor !== "object"
+  ) {
+    return 0;
+  }
+
+  const usuario =
+    valor as UsuarioSesionRampas;
+
+  const idDirecto = Number(
+    usuario.id_usuario ??
+      usuario.idUsuario ??
+      usuario.usuario_id ??
+      usuario.user_id ??
+      usuario.userId ??
+      usuario.id ??
+      0,
+  );
+
+  if (
+    Number.isInteger(idDirecto) &&
+    idDirecto > 0
+  ) {
+    return idDirecto;
+  }
+
+  for (const anidado of [
+    usuario.usuario,
+    usuario.user,
+    usuario.data,
+    usuario.session,
+  ]) {
+    const idAnidado =
+      extraerIdUsuarioRampas(
+        anidado,
+      );
+
+    if (idAnidado > 0) {
+      return idAnidado;
+    }
+  }
+
+  return 0;
+};
+
+const obtenerIdEstudianteActual = (): number => {
+  const candidatos: unknown[] = [
+    getSessionUser(),
+  ];
+
+  for (const clave of [
+    "auth_session",
+    "usuario",
+    "user",
+    "session_user",
+    "sessionUser",
+    "mathnova_user",
+    "authUser",
+  ]) {
+    try {
+      const valor =
+        localStorage.getItem(clave) ||
+        sessionStorage.getItem(clave);
+
+      if (valor) {
+        candidatos.push(
+          JSON.parse(valor),
+        );
+      }
+    } catch (error) {
+      console.warn(
+        `No se pudo leer la sesión "${clave}":`,
+        error,
+      );
+    }
+  }
+
+  for (const candidato of candidatos) {
+    const idUsuario =
+      extraerIdUsuarioRampas(
+        candidato,
+      );
+
+    if (idUsuario > 0) {
+      return idUsuario;
+    }
+  }
+
+  return 0;
+};
+
+const formatearTiempoRampas = (
+  segundos: number,
+): string => {
+  const minutos = Math.floor(
+    segundos / 60,
+  );
+
+  const segundosRestantes =
+    segundos % 60;
+
+  return `${String(minutos).padStart(
+    2,
+    "0",
+  )}:${String(
+    segundosRestantes,
+  ).padStart(2, "0")}`;
+};
+
+const normalizarRespuestaRampas = (
+  valor: string,
+): string =>
+  valor
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "")
+    .replace(/−/g, "-")
+    .replace(/^y=/, "");
 
 interface Punto {
   x: number;
@@ -314,9 +464,14 @@ function PistaBaitModal({
 export default function RampasDeLanzamiento() {
   const navigate = useNavigate();
 
-  // El ID del estudiante se obtiene de la sesión activa en cada render
-  const usuarioSesion = getSessionUser();
-  const ID_ESTUDIANTE = usuarioSesion?.id_usuario;
+  const ID_ESTUDIANTE =
+    obtenerIdEstudianteActual();
+
+  const inicioActividadRef =
+    useRef<number>(Date.now());
+
+  const guardandoProgresoRef =
+    useRef(false);
 
   const [pendienteAscenso, setPendienteAscenso] = useState<Pendiente>(null);
   const [pendienteDescenso, setPendienteDescenso] = useState<Pendiente>(null);
@@ -335,12 +490,34 @@ export default function RampasDeLanzamiento() {
   const [mostrarBaitFallo, setMostrarBaitFallo] = useState(false);
   const [cargando, setCargando] = useState(false);
 
+  const [
+    aciertosResultado,
+    setAciertosResultado,
+  ] = useState(0);
+
+  const [
+    tiempoResultado,
+    setTiempoResultado,
+  ] = useState(0);
+
+  const [
+    estrellasResultado,
+    setEstrellasResultado,
+  ] = useState(0);
+
   // ==========================================
   // CARGAR PROGRESO GUARDADO
   // ==========================================
 
   useEffect(() => {
     const cargarProgreso = async () => {
+      if (!ID_ESTUDIANTE) {
+        console.warn(
+          "No se encontró el estudiante autenticado para cargar Rampas de Lanzamiento.",
+        );
+        return;
+      }
+
       try {
         const response = await fetch(`${API_URL}/rampas/progreso/${ID_ESTUDIANTE}`);
         const data = await response.json();
@@ -358,7 +535,28 @@ export default function RampasDeLanzamiento() {
           if (progreso.bitacora_ecuacion_descenso) setBitEcDescenso(progreso.bitacora_ecuacion_descenso);
 
           if (progreso.completada) {
-            setResultado(progreso.resultado_correcto ? "exito" : "fallo");
+            const correcto =
+              Boolean(
+                progreso.resultado_correcto,
+              );
+
+            setAciertosResultado(
+              correcto ? 2 : 0,
+            );
+
+            setTiempoResultado(
+              Number(
+                progreso.tiempo_total ??
+                  progreso.tiempo_segundos ??
+                  0,
+              ) || 0,
+            );
+
+            setResultado(
+              correcto
+                ? "exito"
+                : "fallo",
+            );
           }
         }
       } catch (error) {
@@ -366,44 +564,283 @@ export default function RampasDeLanzamiento() {
       }
     };
 
-    cargarProgreso();
-  }, []);
+    void cargarProgreso();
+  }, [ID_ESTUDIANTE]);
 
   // ==========================================
   // VERIFICAR RESPUESTAS CON EL BACKEND
   // ==========================================
 
   const verificarRespuestas = async () => {
-    setCargando(true);
-    try {
-      const response = await fetch(`${API_URL}/rampas/verificar`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id_estudiante: ID_ESTUDIANTE,
-          pendiente_ascenso: pendienteAscenso,
-          pendiente_descenso: pendienteDescenso,
-          ecuacion_ascenso: ecAscenso,
-          ecuacion_descenso: ecDescenso,
-          bitacora_pendiente_ascenso: bitPendienteAscenso,
-          bitacora_ecuacion_ascenso: bitEcAscenso,
-          bitacora_pendiente_descenso: bitPendienteDescenso,
-          bitacora_ecuacion_descenso: bitEcDescenso,
-        }),
-      });
+    if (
+      cargando ||
+      guardandoProgresoRef.current
+    ) {
+      return;
+    }
 
-      const data = await response.json();
+    if (!ID_ESTUDIANTE) {
+      alert(
+        "No se encontró tu sesión. Inicia sesión nuevamente.",
+      );
+      return;
+    }
+
+    setCargando(true);
+    guardandoProgresoRef.current =
+      true;
+
+    const tiempoSegundos = Math.max(
+      1,
+      Math.floor(
+        (
+          Date.now() -
+          inicioActividadRef.current
+        ) / 1000,
+      ),
+    );
+
+    try {
+      const response = await fetch(
+        `${API_URL}/rampas/verificar`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            id_estudiante:
+              ID_ESTUDIANTE,
+            pendiente_ascenso:
+              pendienteAscenso,
+            pendiente_descenso:
+              pendienteDescenso,
+            ecuacion_ascenso:
+              ecAscenso,
+            ecuacion_descenso:
+              ecDescenso,
+            bitacora_pendiente_ascenso:
+              bitPendienteAscenso,
+            bitacora_ecuacion_ascenso:
+              bitEcAscenso,
+            bitacora_pendiente_descenso:
+              bitPendienteDescenso,
+            bitacora_ecuacion_descenso:
+              bitEcDescenso,
+          }),
+        },
+      );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data?.mensaje ||
+            data?.message ||
+            `HTTP ${response.status}`,
+        );
+      }
 
       if (data.success && data.data) {
-        setResultado(data.data.correcto ? "exito" : "fallo");
+        const correcto =
+          Boolean(
+            data.data.correcto,
+          );
+
+        const pendienteAscensoFinal =
+          normalizarRespuestaRampas(
+            bitPendienteAscenso,
+          );
+
+        const pendienteDescensoFinal =
+          normalizarRespuestaRampas(
+            bitPendienteDescenso,
+          );
+
+        const ecuacionAscensoFinal =
+          normalizarRespuestaRampas(
+            bitEcAscenso,
+          );
+
+        const ecuacionDescensoFinal =
+          normalizarRespuestaRampas(
+            bitEcDescenso,
+          );
+
+        const ascensoCorrectoLocal =
+          pendienteAscenso ===
+            "positiva" &&
+          Number(ecAscenso) === 3 &&
+          [
+            "positiva",
+            "positivo",
+            "+",
+          ].includes(
+            pendienteAscensoFinal,
+          ) &&
+          [
+            "3",
+            "3x",
+          ].includes(
+            ecuacionAscensoFinal,
+          );
+
+        const descensoCorrectoLocal =
+          pendienteDescenso ===
+            "negativa" &&
+          Number(ecDescenso) === 2 &&
+          [
+            "negativa",
+            "negativo",
+            "-",
+          ].includes(
+            pendienteDescensoFinal,
+          ) &&
+          [
+            "-2",
+            "-2x",
+            "2",
+            "2x",
+          ].includes(
+            ecuacionDescensoFinal,
+          );
+
+        const aciertosBackend =
+          Number(
+            data.data.aciertos ??
+              data.data.rampas_correctas,
+          );
+
+        const aciertosLocales =
+          Number(
+            ascensoCorrectoLocal,
+          ) +
+          Number(
+            descensoCorrectoLocal,
+          );
+
+        const aciertosCalculados =
+          correcto
+            ? 2
+            : Number.isFinite(
+                  aciertosBackend,
+                )
+              ? Math.max(
+                  0,
+                  Math.min(
+                    1,
+                    aciertosBackend,
+                  ),
+                )
+              : Math.min(
+                  1,
+                  aciertosLocales,
+                );
+
+        let estrellasGuardadas = 0;
+
+        try {
+          const progresoUnificado =
+            await guardarProgresoUsuarioActual({
+              mundo: "MathData",
+              tema:
+                "Pendientes y ecuaciones lineales",
+              actividad_codigo:
+                "mathdata-rampas-lanzamiento",
+              actividad_titulo:
+                "Rampas de Lanzamiento",
+              respuestas: {
+                pendiente_ascenso:
+                  pendienteAscenso,
+                pendiente_descenso:
+                  pendienteDescenso,
+                ecuacion_ascenso:
+                  ecAscenso.trim(),
+                ecuacion_descenso:
+                  ecDescenso.trim(),
+                bitacora_pendiente_ascenso:
+                  bitPendienteAscenso.trim(),
+                bitacora_ecuacion_ascenso:
+                  bitEcAscenso.trim(),
+                bitacora_pendiente_descenso:
+                  bitPendienteDescenso.trim(),
+                bitacora_ecuacion_descenso:
+                  bitEcDescenso.trim(),
+              },
+              aciertos:
+                aciertosCalculados,
+              total_preguntas: 2,
+              tiempo_segundos:
+                tiempoSegundos,
+              xp_base: 50,
+              completada:
+                correcto,
+            });
+
+          estrellasGuardadas =
+            Number(
+              progresoUnificado
+                .progreso
+                ?.estrellas_obtenidas ??
+                0,
+            );
+
+          console.log(
+            "Progreso de Rampas de Lanzamiento guardado:",
+            progresoUnificado.progreso,
+          );
+        } catch (
+          progresoError
+        ) {
+          console.error(
+            "La actividad se validó, pero no se pudo registrar en el progreso unificado:",
+            progresoError,
+          );
+        }
+
+        setAciertosResultado(
+          aciertosCalculados,
+        );
+
+        setTiempoResultado(
+          tiempoSegundos,
+        );
+
+        setEstrellasResultado(
+          estrellasGuardadas,
+        );
+
+        inicioActividadRef.current =
+          Date.now();
+
+        setResultado(
+          correcto
+            ? "exito"
+            : "fallo",
+        );
       } else {
-        alert("❌ Error al procesar la respuesta.");
+        alert(
+          "❌ Error al procesar la respuesta.",
+        );
       }
     } catch (error) {
-      console.error("Error al verificar respuestas:", error);
-      alert("❌ Error al conectar con el servidor.");
+      console.error(
+        "Error al verificar respuestas:",
+        error,
+      );
+
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "Error al conectar con el servidor.";
+
+      alert(`❌ ${mensaje}`);
     } finally {
       setCargando(false);
+      guardandoProgresoRef.current =
+        false;
     }
   };
 
@@ -412,14 +849,16 @@ export default function RampasDeLanzamiento() {
   // ==========================================
 
   const handleReiniciarActividad = async () => {
-    try {
-      await fetch(`${API_URL}/rampas/reiniciar`, {
+    if (ID_ESTUDIANTE) {
+      try {
+        await fetch(`${API_URL}/rampas/reiniciar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE }),
-      });
-    } catch (error) {
-      console.error("Error al reiniciar actividad:", error);
+          body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE }),
+        });
+      } catch (error) {
+        console.error("Error al reiniciar actividad:", error);
+      }
     }
 
     setPendienteAscenso(null);
@@ -431,7 +870,23 @@ export default function RampasDeLanzamiento() {
     setBitPendienteDescenso("");
     setBitEcDescenso("");
     setResultado(null);
+    setAciertosResultado(0);
+    setTiempoResultado(0);
+    setEstrellasResultado(0);
+
+    guardandoProgresoRef.current =
+      false;
+
+    inicioActividadRef.current =
+      Date.now();
   };
+
+  const precisionResultado =
+    Math.round(
+      (
+        aciertosResultado / 2
+      ) * 100,
+    );
 
   // ==========================================
   // PANTALLA: ACTIVIDAD COMPLETADA
@@ -643,6 +1098,7 @@ export default function RampasDeLanzamiento() {
                   }`}
                   onClick={() => setPendienteAscenso("positiva")}
                   aria-pressed={pendienteAscenso === "positiva"}
+                  disabled={cargando}
                 >
                   Positiva
                 </button>
@@ -653,6 +1109,7 @@ export default function RampasDeLanzamiento() {
                   }`}
                   onClick={() => setPendienteAscenso("negativa")}
                   aria-pressed={pendienteAscenso === "negativa"}
+                  disabled={cargando}
                 >
                   Negativa
                 </button>
@@ -669,6 +1126,7 @@ export default function RampasDeLanzamiento() {
                 value={ecAscenso}
                 onChange={(e) => setEcAscenso(e.target.value)}
                 aria-label="Pendiente de la rampa de ascenso"
+                disabled={cargando}
               />
               <span className="rmp-ecuacion-x">x</span>
             </div>
@@ -712,6 +1170,7 @@ export default function RampasDeLanzamiento() {
                   }`}
                   onClick={() => setPendienteDescenso("positiva")}
                   aria-pressed={pendienteDescenso === "positiva"}
+                  disabled={cargando}
                 >
                   Positiva
                 </button>
@@ -722,6 +1181,7 @@ export default function RampasDeLanzamiento() {
                   }`}
                   onClick={() => setPendienteDescenso("negativa")}
                   aria-pressed={pendienteDescenso === "negativa"}
+                  disabled={cargando}
                 >
                   Negativa
                 </button>
@@ -739,6 +1199,7 @@ export default function RampasDeLanzamiento() {
                 value={ecDescenso}
                 onChange={(e) => setEcDescenso(e.target.value)}
                 aria-label="Pendiente de la rampa de descenso"
+                disabled={cargando}
               />
               <span className="rmp-ecuacion-x">x</span>
             </div>
@@ -764,6 +1225,7 @@ export default function RampasDeLanzamiento() {
                 value={bitPendienteAscenso}
                 onChange={(e) => setBitPendienteAscenso(e.target.value)}
                 aria-label="Pendiente final de ascenso"
+                disabled={cargando}
               />
               <span>ecuación</span>
               <span>y =</span>
@@ -773,6 +1235,7 @@ export default function RampasDeLanzamiento() {
                 value={bitEcAscenso}
                 onChange={(e) => setBitEcAscenso(e.target.value)}
                 aria-label="Ecuación final de ascenso"
+                disabled={cargando}
               />
             </div>
 
@@ -787,6 +1250,7 @@ export default function RampasDeLanzamiento() {
                 value={bitPendienteDescenso}
                 onChange={(e) => setBitPendienteDescenso(e.target.value)}
                 aria-label="Pendiente final de descenso"
+                disabled={cargando}
               />
               <span>ecuación</span>
               <span>y =</span>
@@ -796,6 +1260,7 @@ export default function RampasDeLanzamiento() {
                 value={bitEcDescenso}
                 onChange={(e) => setBitEcDescenso(e.target.value)}
                 aria-label="Ecuación final de descenso"
+                disabled={cargando}
               />
             </div>
 
@@ -830,8 +1295,9 @@ export default function RampasDeLanzamiento() {
               type="button"
               onClick={verificarRespuestas}
               disabled={cargando}
+              aria-busy={cargando}
             >
-              <FiSend /> {cargando ? "Verificando..." : "Verificar respuestas"}
+              <FiSend /> {cargando ? "Guardando progreso..." : "Verificar respuestas"}
             </button>
           </div>
         </div>
@@ -943,21 +1409,29 @@ export default function RampasDeLanzamiento() {
                   <div className="res-resumen-stats">
                     <div className="res-stat">
                       <img src={iconoAciertos} alt="" className="res-stat-img" />
-                      <strong className="res-stat-num-verde">2/2</strong>
+                      <strong className="res-stat-num-verde">
+                        {aciertosResultado}/2
+                      </strong>
                       <small>Rampas correctas</small>
                       <em>¡Perfecto!</em>
                     </div>
                     <div className="res-stat-sep" />
                     <div className="res-stat">
                       <img src={iconoTiempo} alt="" className="res-stat-img" />
-                      <strong>—</strong>
+                      <strong>
+                        {formatearTiempoRampas(
+                          tiempoResultado,
+                        )}
+                      </strong>
                       <small>Tiempo</small>
                       <em>min</em>
                     </div>
                     <div className="res-stat-sep" />
                     <div className="res-stat">
                       <img src={iconoPrecision} alt="" className="res-stat-img" />
-                      <strong className="res-stat-num-verde">100%</strong>
+                      <strong className="res-stat-num-verde">
+                        {precisionResultado}%
+                      </strong>
                       <small>Precisión</small>
                       <em>¡Impecable!</em>
                     </div>
@@ -982,7 +1456,11 @@ export default function RampasDeLanzamiento() {
               <div className="res-modal-right">
                 <button
                   className="res-btn res-btn-azul"
-                  onClick={() => navigate("/actividades-math-data")}
+                  onClick={() =>
+                    navigate(
+                      "/actividades-math-data/encuesta-tripulacion",
+                    )
+                  }
                 >
                   Siguiente actividad
                 </button>
@@ -1053,21 +1531,29 @@ export default function RampasDeLanzamiento() {
                   <div className="res-resumen-stats">
                     <div className="res-stat">
                       <img src={iconoAciertos} alt="" className="res-stat-img" />
-                      <strong>0/2</strong>
+                      <strong>
+                        {aciertosResultado}/2
+                      </strong>
                       <small>Rampas correctas</small>
                       <em>¡Sigue así!</em>
                     </div>
                     <div className="res-stat-sep" />
                     <div className="res-stat">
                       <img src={iconoTiempo} alt="" className="res-stat-img" />
-                      <strong>—</strong>
+                      <strong>
+                        {formatearTiempoRampas(
+                          tiempoResultado,
+                        )}
+                      </strong>
                       <small>Tiempo</small>
                       <em>min</em>
                     </div>
                     <div className="res-stat-sep" />
                     <div className="res-stat">
                       <img src={iconoPrecision} alt="" className="res-stat-img" />
-                      <strong>0%</strong>
+                      <strong>
+                        {precisionResultado}%
+                      </strong>
                       <small>Precisión</small>
                       <em>Puedes mejorar</em>
                     </div>

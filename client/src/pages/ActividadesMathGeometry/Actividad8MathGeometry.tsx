@@ -1,3 +1,5 @@
+import { useAutoProgreso } from "../../hooks/useAutoProgreso";
+
 import {
   type CSSProperties,
   useEffect,
@@ -637,6 +639,22 @@ function Actividad8MathGeometry() {
   const reto = RETOS[retoActual];
   const pistaActiva = PISTAS_ACT8[pistaSeleccionada];
   const progreso = Math.round((completados / RETOS.length) * 100);
+
+  useAutoProgreso({
+    completada: modal === "completado",
+    codigo: "mathgeometry-actividad-8",
+    mundo: "MathGeometry",
+    tema: "Diagonales de cuadriláteros",
+    titulo: "El Centro de Control",
+    aciertos: RETOS.length,
+    totalPreguntas: RETOS.length,
+    tiempoSegundos: segundos,
+    xpBase: 240,
+    respuestas: {
+      errores,
+      retos_completados: RETOS.length,
+    },
+  });
 
   const tiempo = useMemo(() => {
     const minutos = Math.floor(segundos / 60)

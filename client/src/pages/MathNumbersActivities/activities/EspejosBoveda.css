@@ -3124,3 +3124,197 @@ body,
     justify-content: center;
   }
 }
+
+/* =====================================================================
+   AJUSTE FINAL · PISTA DE BYTE COMPACTA
+   Mantiene el contenido y los controles, pero organiza el video y el
+   texto en dos columnas para que el panel no ocupe casi toda la pantalla.
+   ===================================================================== */
+
+@media (min-width: 721px) {
+  .mnx-espejos-byte-panel {
+    width: min(560px, calc(100vw - 40px));
+    min-height: 290px;
+    padding: 22px 24px;
+    display: grid;
+    grid-template-columns: 172px minmax(0, 1fr);
+    gap: 20px;
+    align-items: center;
+    overflow: hidden;
+    border-radius: 26px;
+  }
+
+  .mnx-espejos-byte-panel-media {
+    width: 172px;
+    height: 98px;
+    aspect-ratio: auto;
+    align-self: center;
+    border-radius: 15px;
+  }
+
+  .mnx-espejos-byte-panel-character {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .mnx-espejos-byte-panel-copy {
+    min-width: 0;
+    padding: 0 28px 0 0;
+  }
+
+  .mnx-espejos-byte-panel-label {
+    min-height: 30px;
+    padding-inline: 13px;
+    font-size: 11px;
+  }
+
+  .mnx-espejos-byte-panel h3 {
+    margin: 10px 0 8px;
+    font-size: 21px;
+    line-height: 1.12;
+  }
+
+  .mnx-espejos-byte-panel p {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .mnx-espejos-byte-controls {
+    margin-top: 14px;
+    gap: 7px;
+  }
+
+  .mnx-espejos-byte-controls button {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+  }
+
+  .mnx-espejos-byte-status {
+    min-height: 34px;
+    padding-inline: 10px;
+    font-size: 9.5px;
+  }
+
+  .mnx-espejos-byte-close {
+    top: 14px;
+    right: 14px;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 720px) {
+  .mnx-espejos-byte-panel {
+    width: min(450px, calc(100vw - 24px));
+    max-height: calc(100vh - 150px);
+    padding: 14px;
+    overflow-y: auto;
+  }
+
+  .mnx-espejos-byte-panel-media {
+    max-height: 210px;
+  }
+
+  .mnx-espejos-byte-panel-copy {
+    padding: 12px 2px 2px;
+  }
+}
+
+
+/* =====================================================================
+   AJUSTE EXTRA · PISTA DE BYTE MÁS PEQUEÑA
+   Reduce únicamente la ventana flotante de la pista.
+   ===================================================================== */
+
+@media (min-width: 721px) {
+  .mnx-espejos-byte-panel {
+    width: min(470px, calc(100vw - 36px));
+    min-height: 220px;
+    padding: 16px 18px;
+    grid-template-columns: 132px minmax(0, 1fr);
+    gap: 15px;
+    border-radius: 22px;
+  }
+
+  .mnx-espejos-byte-panel-media {
+    width: 132px;
+    height: 76px;
+    border-radius: 12px;
+  }
+
+  .mnx-espejos-byte-panel-copy {
+    padding: 0 22px 0 0;
+  }
+
+  .mnx-espejos-byte-panel-label {
+    min-height: 25px;
+    padding-inline: 10px;
+    font-size: 9.5px;
+  }
+
+  .mnx-espejos-byte-panel h3 {
+    margin: 7px 0 5px;
+    font-size: 17px;
+    line-height: 1.12;
+  }
+
+  .mnx-espejos-byte-panel p {
+    font-size: 9.5px;
+    line-height: 1.42;
+  }
+
+  .mnx-espejos-byte-controls {
+    margin-top: 9px;
+    gap: 5px;
+  }
+
+  .mnx-espejos-byte-controls button {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    font-size: 13px;
+  }
+
+  .mnx-espejos-byte-status {
+    min-height: 29px;
+    padding-inline: 8px;
+    font-size: 8.5px;
+  }
+
+  .mnx-espejos-byte-close {
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 720px) {
+  .mnx-espejos-byte-panel {
+    width: min(390px, calc(100vw - 20px));
+    padding: 12px;
+    border-radius: 20px;
+  }
+
+  .mnx-espejos-byte-panel-media {
+    max-height: 170px;
+    border-radius: 14px;
+  }
+
+  .mnx-espejos-byte-panel-copy {
+    padding: 10px 2px 2px;
+  }
+
+  .mnx-espejos-byte-panel h3 {
+    font-size: 17px;
+  }
+
+  .mnx-espejos-byte-panel p {
+    font-size: 10px;
+  }
+}

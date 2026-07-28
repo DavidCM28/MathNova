@@ -1,3 +1,5 @@
+import { useAutoProgreso } from "../../hooks/useAutoProgreso";
+
 import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -414,6 +416,18 @@ function dibujarVideoNovaAct2SinEstirar(
   ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight);
 }
 
+function formatearTiempoAct2(segundos: number) {
+  const minutos = Math.floor(segundos / 60)
+    .toString()
+    .padStart(2, "0");
+
+  const segundosRestantes = (segundos % 60)
+    .toString()
+    .padStart(2, "0");
+
+  return `${minutos}:${segundosRestantes}`;
+}
+
 function Actividad2MathGeometry() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [actividadPausadaAct2, setActividadPausadaAct2] = useState(false);
@@ -424,6 +438,7 @@ function Actividad2MathGeometry() {
   );
   const [revisado, setRevisado] = useState(false);
   const [erroresAct2, setErroresAct2] = useState(0);
+  const [segundosAct2, setSegundosAct2] = useState(0);
   const [estadoPuenteAct2, setEstadoPuenteAct2] =
     useState<EstadoPuenteAct2>("reposo");
   const [piezaRotaVisibleAct2, setPiezaRotaVisibleAct2] = useState(false);
@@ -497,6 +512,49 @@ function Actividad2MathGeometry() {
 
   const navigate = useNavigate();
   const pistaActiva = pistasAct2[pistaSeleccionada];
+
+  useEffect(() => {
+    const hayModalAbierto =
+      modalPistasOpen ||
+      modalProfesorOpen ||
+      modalSombraOpen ||
+      modalCompletadoOpen;
+
+    if (actividadPausadaAct2 || hayModalAbierto) {
+      return;
+    }
+
+    const temporizador = window.setInterval(() => {
+      setSegundosAct2((valorActual) => valorActual + 1);
+    }, 1000);
+
+    return () => {
+      window.clearInterval(temporizador);
+    };
+  }, [
+    actividadPausadaAct2,
+    modalPistasOpen,
+    modalProfesorOpen,
+    modalSombraOpen,
+    modalCompletadoOpen,
+  ]);
+
+  useAutoProgreso({
+    completada: modalCompletadoOpen,
+    codigo: "mathgeometry-actividad-2",
+    mundo: "MathGeometry",
+    tema: "Segmentos de recta",
+    titulo: "La Ruta Perdida",
+    aciertos: modalCompletadoOpen ? 1 : 0,
+    totalPreguntas: 1,
+    tiempoSegundos: segundosAct2,
+    xpBase: 50,
+    respuestas: {
+      segmento_seleccionado: segmentoSeleccionado,
+      segmento_colocado: segmentoColocado,
+      errores: erroresAct2,
+    },
+  });
 
   const obtenerDashboardPrincipal = () => {
     if (isGuestSession() && !hasAuthSession()) {
@@ -1786,6 +1844,7 @@ function Actividad2MathGeometry() {
 
     if (reiniciarErrores) {
       setErroresAct2(0);
+      setSegundosAct2(0);
     }
 
     setEstadoPuenteAct2("reposo");
@@ -2673,7 +2732,7 @@ function Actividad2MathGeometry() {
               <FiClock />
               <div>
                 <span>Tiempo</span>
-                <strong>02:33</strong>
+                <strong>{formatearTiempoAct2(segundosAct2)}</strong>
               </div>
             </article>
 

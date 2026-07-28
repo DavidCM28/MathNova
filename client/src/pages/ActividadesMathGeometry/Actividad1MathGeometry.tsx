@@ -1,3 +1,5 @@
+import { useAutoProgreso } from "../../hooks/useAutoProgreso";
+
 import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -516,6 +518,18 @@ function obtenerEstadoGuionSombra(tiempo: number, duracionAudio: number) {
     progresoLinea: 100,
   };
 }
+function formatearTiempo(segundos: number) {
+  const minutos = Math.floor(segundos / 60)
+    .toString()
+    .padStart(2, "0");
+
+  const segundosRestantes = (segundos % 60)
+    .toString()
+    .padStart(2, "0");
+
+  return `${minutos}:${segundosRestantes}`;
+}
+
 function Actividad1MathGeometry() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [actividadPausada, setActividadPausada] = useState(false);
@@ -579,6 +593,7 @@ function Actividad1MathGeometry() {
   >("pendiente");
 
   const [errores, setErrores] = useState(0);
+  const [segundos, setSegundos] = useState(0);
 
   const reinicioByteTimeoutRef = useRef<number | null>(null);
   const ultimoTextoByteRef = useRef("");
@@ -594,6 +609,31 @@ function Actividad1MathGeometry() {
   });
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const hayModalAbierto =
+      modalProfeOpen ||
+      modalByteOpen ||
+      modalCompletadoOpen ||
+      modalSombraOpen;
+
+    if (actividadPausada || hayModalAbierto) return;
+
+    const temporizador = window.setInterval(() => {
+      setSegundos((valorActual) => valorActual + 1);
+    }, 1000);
+
+    return () => {
+      window.clearInterval(temporizador);
+    };
+  }, [
+    actividadPausada,
+    modalProfeOpen,
+    modalByteOpen,
+    modalCompletadoOpen,
+    modalSombraOpen,
+  ]);
+
 
   const obtenerDashboardPrincipal = () => {
     if (isGuestSession() && !hasAuthSession()) {
@@ -1921,6 +1961,7 @@ function Actividad1MathGeometry() {
     });
     setEstadoRevision("pendiente");
     setErrores(0);
+    setSegundos(0);
   };
 
   const irASiguienteActividad = () => {
@@ -2005,6 +2046,22 @@ function Actividad1MathGeometry() {
   ).length;
 
   const todoCorrecto = figurasCompletadas === figuras.length;
+
+  useAutoProgreso({
+    completada: modalCompletadoOpen,
+    codigo: "mathgeometry-actividad-1",
+    mundo: "MathGeometry",
+    tema: "Figuras geométricas",
+    titulo: "El Constructor de Caminos",
+    aciertos: figurasCompletadas,
+    totalPreguntas: figuras.length,
+    tiempoSegundos: segundos,
+    xpBase: 50,
+    respuestas: {
+      selecciones,
+      errores,
+    },
+  });
 
   const obtenerClaseLineaProfe = (indice: number) => {
     if (estadoProfe === "terminado") return "act1geo-transcript-line-done";
@@ -2547,7 +2604,7 @@ function Actividad1MathGeometry() {
 
               <div>
                 <span>Tiempo</span>
-                <strong>02:33</strong>
+                <strong>{formatearTiempo(segundos)}</strong>
               </div>
             </article>
 

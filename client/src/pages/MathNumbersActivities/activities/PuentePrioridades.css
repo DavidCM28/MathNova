@@ -3363,3 +3363,110 @@ body,
     justify-content: center;
   }
 }
+
+/* =====================================================================
+   AJUSTE EXTRA · PISTA DE BYTE MÁS PEQUEÑA
+   Reduce únicamente la ventana flotante de la pista del Puente.
+   No modifica el resto de la actividad.
+   ===================================================================== */
+
+@media (min-width: 721px) {
+  .mnx-puente-byte-panel {
+    width: min(470px, calc(100vw - 36px));
+    min-height: 220px;
+    padding: 16px 18px;
+    display: grid;
+    grid-template-columns: 132px minmax(0, 1fr);
+    gap: 15px;
+    align-items: center;
+    border-radius: 22px;
+  }
+
+  .mnx-puente-byte-panel-media {
+    width: 132px;
+    height: 76px;
+    aspect-ratio: auto;
+    border-radius: 12px;
+  }
+
+  .mnx-puente-byte-panel-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+  }
+
+  .mnx-puente-byte-panel-copy {
+    min-width: 0;
+    padding: 0 22px 0 0;
+  }
+
+  .mnx-puente-byte-panel-label {
+    min-height: 25px;
+    padding-inline: 10px;
+    font-size: 9.5px;
+  }
+
+  .mnx-puente-byte-panel h3 {
+    margin: 7px 0 5px;
+    font-size: 17px;
+    line-height: 1.12;
+  }
+
+  .mnx-puente-byte-panel p {
+    font-size: 9.5px;
+    line-height: 1.42;
+  }
+
+  .mnx-puente-byte-controls {
+    margin-top: 9px;
+    gap: 5px;
+  }
+
+  .mnx-puente-byte-controls button {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    font-size: 13px;
+  }
+
+  .mnx-puente-byte-status {
+    min-height: 29px;
+    padding-inline: 8px;
+    font-size: 8.5px;
+  }
+
+  .mnx-puente-byte-close {
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 720px) {
+  .mnx-puente-byte-panel {
+    width: min(390px, calc(100vw - 20px));
+    padding: 12px;
+    border-radius: 20px;
+  }
+
+  .mnx-puente-byte-panel-media {
+    max-height: 170px;
+    border-radius: 14px;
+  }
+
+  .mnx-puente-byte-panel-copy {
+    padding: 10px 2px 2px;
+  }
+
+  .mnx-puente-byte-panel h3 {
+    font-size: 17px;
+  }
+
+  .mnx-puente-byte-panel p {
+    font-size: 10px;
+  }
+}

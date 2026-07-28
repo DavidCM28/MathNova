@@ -1,3 +1,5 @@
+import { useAutoProgreso } from "../../hooks/useAutoProgreso";
+
 import {
   type CSSProperties,
   useEffect,
@@ -639,6 +641,22 @@ function Actividad4MathGeometry() {
   const reto = RETOS[retoActual];
   const pistaActiva = PISTAS_ACT4[pistaSeleccionada];
   const progreso = Math.round((completados / RETOS.length) * 100);
+
+  useAutoProgreso({
+    completada: modal === "completado",
+    codigo: "mathgeometry-actividad-4",
+    mundo: "MathGeometry",
+    tema: "Ángulos opuestos por el vértice",
+    titulo: "Cruce de Láseres",
+    aciertos: RETOS.length,
+    totalPreguntas: RETOS.length,
+    tiempoSegundos: segundos,
+    xpBase: 240,
+    respuestas: {
+      errores,
+      retos_completados: RETOS.length,
+    },
+  });
 
   const tiempo = useMemo(() => {
     const minutos = Math.floor(segundos / 60)

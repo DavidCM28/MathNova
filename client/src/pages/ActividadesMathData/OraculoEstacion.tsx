@@ -2,6 +2,10 @@ import { useState, useRef } from "react";
 import type { DragEvent } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
+import { getSessionUser } from "../../utils/authSession";
+import {
+  guardarProgresoUsuarioActual,
+} from "../../services/progresoService";
 
 import logo from "../../assets/logo_MathNova.png";
 import "./OraculoEstacion.css";
@@ -51,6 +55,136 @@ import {
   FiMove,
 } from "react-icons/fi";
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
+
+/* =========================================================
+   SESIÓN DEL ALUMNO
+========================================================= */
+
+type UsuarioSesionOraculo = {
+  id_usuario?: number | string;
+  idUsuario?: number | string;
+  usuario_id?: number | string;
+  user_id?: number | string;
+  userId?: number | string;
+  id?: number | string;
+  usuario?: UsuarioSesionOraculo;
+  user?: UsuarioSesionOraculo;
+  data?: UsuarioSesionOraculo;
+  session?: UsuarioSesionOraculo;
+};
+
+const extraerIdUsuarioOraculo = (
+  valor: unknown,
+): number => {
+  if (
+    !valor ||
+    typeof valor !== "object"
+  ) {
+    return 0;
+  }
+
+  const usuario =
+    valor as UsuarioSesionOraculo;
+
+  const idDirecto = Number(
+    usuario.id_usuario ??
+      usuario.idUsuario ??
+      usuario.usuario_id ??
+      usuario.user_id ??
+      usuario.userId ??
+      usuario.id ??
+      0,
+  );
+
+  if (
+    Number.isInteger(idDirecto) &&
+    idDirecto > 0
+  ) {
+    return idDirecto;
+  }
+
+  for (const anidado of [
+    usuario.usuario,
+    usuario.user,
+    usuario.data,
+    usuario.session,
+  ]) {
+    const idAnidado =
+      extraerIdUsuarioOraculo(
+        anidado,
+      );
+
+    if (idAnidado > 0) {
+      return idAnidado;
+    }
+  }
+
+  return 0;
+};
+
+const obtenerIdEstudianteActual = (): number => {
+  const candidatos: unknown[] = [
+    getSessionUser(),
+  ];
+
+  for (const clave of [
+    "auth_session",
+    "usuario",
+    "user",
+    "session_user",
+    "sessionUser",
+    "mathnova_user",
+    "authUser",
+  ]) {
+    try {
+      const valor =
+        localStorage.getItem(clave) ||
+        sessionStorage.getItem(clave);
+
+      if (valor) {
+        candidatos.push(
+          JSON.parse(valor),
+        );
+      }
+    } catch (error) {
+      console.warn(
+        `No se pudo leer la sesión "${clave}":`,
+        error,
+      );
+    }
+  }
+
+  for (const candidato of candidatos) {
+    const idUsuario =
+      extraerIdUsuarioOraculo(
+        candidato,
+      );
+
+    if (idUsuario > 0) {
+      return idUsuario;
+    }
+  }
+
+  return 0;
+};
+
+const formatearTiempoOraculo = (
+  segundos: number,
+): string => {
+  const minutos = Math.floor(
+    segundos / 60,
+  );
+
+  const segundosRestantes =
+    segundos % 60;
+
+  return `${String(minutos).padStart(
+    2,
+    "0",
+  )}:${String(
+    segundosRestantes,
+  ).padStart(2, "0")}`;
+};
 
 /* =========================================================
    DATOS DE LA MISIÓN
@@ -247,6 +381,18 @@ function PistaBaitModal({
 export default function OraculoEstacion() {
   const navigate = useNavigate();
 
+  const ID_ESTUDIANTE =
+    obtenerIdEstudianteActual();
+
+  const inicioActividadRef =
+    useRef<number>(Date.now());
+
+  const [guardandoProgreso, setGuardandoProgreso] =
+    useState(false);
+
+  const [tiempoResultado, setTiempoResultado] =
+    useState(0);
+
   /* ---- Paso 1: espacio muestral ---- */
   const [espacioSeleccionado, setEspacioSeleccionado] = useState<Set<string>>(new Set());
   const [espacioVerificado, setEspacioVerificado] = useState(false);
@@ -300,6 +446,10 @@ export default function OraculoEstacion() {
   const prediccionCorrecta = prediccion === "azul";
 
   const toggleColorEspacio = (color: string) => {
+    if (guardandoProgreso) {
+      return;
+    }
+
     setEspacioSeleccionado((prev) => {
       const copia = new Set(prev);
       if (copia.has(color)) copia.delete(color);
@@ -309,24 +459,58 @@ export default function OraculoEstacion() {
     setEspacioVerificado(false);
   };
 
-  const verificarEspacio = () => setEspacioVerificado(true);
-  const verificarPaso2 = () => setPaso2Verificado(true);
-  const verificarComparacion = () => setComparacionVerificada(true);
-  const verificarPrediccion = () => setPrediccionVerificada(true);
+  const verificarEspacio = () => {
+    if (!guardandoProgreso) {
+      setEspacioVerificado(true);
+    }
+  };
+
+  const verificarPaso2 = () => {
+    if (!guardandoProgreso) {
+      setPaso2Verificado(true);
+    }
+  };
+
+  const verificarComparacion = () => {
+    if (!guardandoProgreso) {
+      setComparacionVerificada(true);
+    }
+  };
+
+  const verificarPrediccion = () => {
+    if (!guardandoProgreso) {
+      setPrediccionVerificada(true);
+    }
+  };
 
   /* ---- Drag & drop del paso 3 ---- */
   const manejarDragStart = (index: number) => (e: DragEvent<HTMLDivElement>) => {
+    if (guardandoProgreso) {
+      e.preventDefault();
+      return;
+    }
+
     dragIndexRef.current = index;
     e.dataTransfer.effectAllowed = "move";
   };
 
   const manejarDragOver = (index: number) => (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+
+    if (guardandoProgreso) {
+      return;
+    }
+
     setDragOverIndex(index);
   };
 
   const manejarDrop = (index: number) => (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+
+    if (guardandoProgreso) {
+      return;
+    }
+
     const origen = dragIndexRef.current;
     setDragOverIndex(null);
     if (origen === null || origen === index) return;
@@ -340,7 +524,11 @@ export default function OraculoEstacion() {
     setOrdenVerificado(false);
   };
 
-  const verificarOrden = () => setOrdenVerificado(true);
+  const verificarOrden = () => {
+    if (!guardandoProgreso) {
+      setOrdenVerificado(true);
+    }
+  };
 
   const justificacionPrediccion = (color: Color | null) => {
     if (!color) return "";
@@ -353,15 +541,26 @@ export default function OraculoEstacion() {
   };
 
   /* ---- Envío final: activar el Oráculo ---- */
-  const handleActivarOraculo = () => {
-    if (monedaEstelar <= 0) return;
+  const handleActivarOraculo = async () => {
+    if (
+      monedaEstelar <= 0 ||
+      guardandoProgreso
+    ) {
+      return;
+    }
+
+    if (!ID_ESTUDIANTE) {
+      alert(
+        "No se encontró tu sesión. Inicia sesión nuevamente.",
+      );
+      return;
+    }
 
     setEspacioVerificado(true);
     setPaso2Verificado(true);
     setOrdenVerificado(true);
     setComparacionVerificada(true);
     setPrediccionVerificada(true);
-    setMonedaEstelar((m) => Math.max(0, m - 1));
 
     const todoCorrecto =
       espacioCorrecto &&
@@ -370,7 +569,105 @@ export default function OraculoEstacion() {
       comparacionCorrecta &&
       prediccionCorrecta;
 
-    setResultado(todoCorrecto ? "exito" : "fallo");
+    const aciertosActuales = [
+      espacioCorrecto,
+      paso2Correcto,
+      ordenEsCorrecto,
+      comparacionCorrecta,
+      prediccionCorrecta,
+    ].filter(Boolean).length;
+
+    const tiempoSegundos = Math.max(
+      1,
+      Math.floor(
+        (
+          Date.now() -
+          inicioActividadRef.current
+        ) / 1000,
+      ),
+    );
+
+    setGuardandoProgreso(true);
+
+    try {
+      const resultadoProgreso =
+        await guardarProgresoUsuarioActual({
+          mundo: "MathData",
+          tema:
+            "Probabilidad y espacio muestral",
+          actividad_codigo:
+            "mathdata-oraculo-estacion",
+          actividad_titulo:
+            "El Oráculo de la Estación",
+          respuestas: {
+            espacio_muestral:
+              Array.from(
+                espacioSeleccionado,
+              ),
+            posible_cristal_morado:
+              posibleMorado,
+            numero_resultados:
+              Number(
+                numResultados,
+              ),
+            orden_probabilidad:
+              orden,
+            comparacion_1:
+              comp1,
+            comparacion_2:
+              comp2,
+            prediccion:
+              prediccion,
+            moneda_estelar_usada:
+              1,
+          },
+          aciertos:
+            aciertosActuales,
+          total_preguntas: 5,
+          tiempo_segundos:
+            tiempoSegundos,
+          xp_base: 50,
+          completada:
+            todoCorrecto,
+        });
+
+      console.log(
+        "Progreso del Oráculo de la Estación guardado:",
+        resultadoProgreso.progreso,
+      );
+
+      setTiempoResultado(
+        tiempoSegundos,
+      );
+
+      setMonedaEstelar(
+        (monedas) =>
+          Math.max(
+            0,
+            monedas - 1,
+          ),
+      );
+
+      setResultado(
+        todoCorrecto
+          ? "exito"
+          : "fallo",
+      );
+    } catch (error) {
+      console.error(
+        "No se pudo guardar el progreso del Oráculo de la Estación:",
+        error,
+      );
+
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "No se pudo guardar el progreso.";
+
+      alert(`❌ ${mensaje}`);
+    } finally {
+      setGuardandoProgreso(false);
+    }
   };
 
   const handleReiniciarActividad = () => {
@@ -388,6 +685,11 @@ export default function OraculoEstacion() {
     setPrediccionVerificada(false);
     setMonedaEstelar(1);
     setResultado(null);
+    setTiempoResultado(0);
+    setGuardandoProgreso(false);
+
+    inicioActividadRef.current =
+      Date.now();
   };
 
   /* ---- Resumen para las pantallas de resultado ---- */
@@ -476,7 +778,11 @@ export default function OraculoEstacion() {
                 <div className="res-stat-sep" />
                 <div className="res-stat">
                   <img src={iconoTiempo} alt="" className="res-stat-img" />
-                  <strong>—</strong>
+                  <strong>
+                    {formatearTiempoOraculo(
+                      tiempoResultado,
+                    )}
+                  </strong>
                   <small>Tiempo</small>
                   <em>min</em>
                 </div>
@@ -598,7 +904,11 @@ export default function OraculoEstacion() {
                 <div className="res-stat-sep" />
                 <div className="res-stat">
                   <img src={iconoTiempo} alt="" className="res-stat-img" />
-                  <strong>—</strong>
+                  <strong>
+                    {formatearTiempoOraculo(
+                      tiempoResultado,
+                    )}
+                  </strong>
                   <small>Tiempo</small>
                   <em>min</em>
                 </div>
@@ -835,6 +1145,7 @@ export default function OraculoEstacion() {
                     style={activo ? { background: HEX_COLOR[c], borderColor: HEX_COLOR[c] } : undefined}
                     onClick={() => toggleColorEspacio(c)}
                     aria-pressed={activo}
+                    disabled={guardandoProgreso}
                   >
                     {NOMBRE_COLOR[c]}
                   </button>
@@ -848,7 +1159,12 @@ export default function OraculoEstacion() {
               {"}"}
             </div>
 
-            <button type="button" className="orc-verificar-btn" onClick={verificarEspacio}>
+            <button
+              type="button"
+              className="orc-verificar-btn"
+              onClick={verificarEspacio}
+              disabled={guardandoProgreso}
+            >
               <FiCheck /> Verificar
             </button>
           </div>
@@ -872,8 +1188,13 @@ export default function OraculoEstacion() {
                   key={op}
                   type="button"
                   className={`orc-opcion-radio ${posibleMorado === op ? "orc-opcion-radio-activa" : ""}`}
-                  onClick={() => { setPosibleMorado(op); setPaso2Verificado(false); }}
+                  onClick={() => {
+                    if (guardandoProgreso) return;
+                    setPosibleMorado(op);
+                    setPaso2Verificado(false);
+                  }}
                   aria-pressed={posibleMorado === op}
+                  disabled={guardandoProgreso}
                 >
                   <span className="orc-radio-circulo" />
                   {op === "posible" ? "Posible" : "Imposible"}
@@ -897,12 +1218,22 @@ export default function OraculoEstacion() {
                     : ""
                 }`}
                 value={numResultados}
-                onChange={(e) => { setNumResultados(e.target.value); setPaso2Verificado(false); }}
+                onChange={(e) => {
+                  if (guardandoProgreso) return;
+                  setNumResultados(e.target.value);
+                  setPaso2Verificado(false);
+                }}
                 aria-label="Cantidad de resultados diferentes"
+                disabled={guardandoProgreso}
               />
             </div>
 
-            <button type="button" className="orc-verificar-btn" onClick={verificarPaso2}>
+            <button
+              type="button"
+              className="orc-verificar-btn"
+              onClick={verificarPaso2}
+              disabled={guardandoProgreso}
+            >
               <FiCheck /> Verificar
             </button>
           </div>
@@ -931,7 +1262,7 @@ export default function OraculoEstacion() {
                           : "orc-orden-chip-incorrecto"
                         : ""
                     }`}
-                    draggable
+                    draggable={!guardandoProgreso}
                     onDragStart={manejarDragStart(index)}
                     onDragOver={manejarDragOver(index)}
                     onDrop={manejarDrop(index)}
@@ -948,7 +1279,12 @@ export default function OraculoEstacion() {
               ))}
             </div>
 
-            <button type="button" className="orc-verificar-btn" onClick={verificarOrden}>
+            <button
+              type="button"
+              className="orc-verificar-btn"
+              onClick={verificarOrden}
+              disabled={guardandoProgreso}
+            >
               <FiCheck /> Verificar orden
             </button>
           </div>
@@ -973,8 +1309,13 @@ export default function OraculoEstacion() {
                     key={op}
                     type="button"
                     className={`orc-opcion-radio ${comp1 === op ? "orc-opcion-radio-activa" : ""}`}
-                    onClick={() => { setComp1(op); setComparacionVerificada(false); }}
+                    onClick={() => {
+                      if (guardandoProgreso) return;
+                      setComp1(op);
+                      setComparacionVerificada(false);
+                    }}
                     aria-pressed={comp1 === op}
+                    disabled={guardandoProgreso}
                   >
                     <span className="orc-radio-circulo" />
                     {op === "verdadero" ? "Verdadero" : "Falso"}
@@ -994,8 +1335,13 @@ export default function OraculoEstacion() {
                     key={op}
                     type="button"
                     className={`orc-opcion-radio ${comp2 === op ? "orc-opcion-radio-activa" : ""}`}
-                    onClick={() => { setComp2(op); setComparacionVerificada(false); }}
+                    onClick={() => {
+                      if (guardandoProgreso) return;
+                      setComp2(op);
+                      setComparacionVerificada(false);
+                    }}
                     aria-pressed={comp2 === op}
+                    disabled={guardandoProgreso}
                   >
                     <span className="orc-radio-circulo" />
                     {op === "verdadero" ? "Verdadero" : "Falso"}
@@ -1007,7 +1353,12 @@ export default function OraculoEstacion() {
               </div>
             </div>
 
-            <button type="button" className="orc-verificar-btn" onClick={verificarComparacion}>
+            <button
+              type="button"
+              className="orc-verificar-btn"
+              onClick={verificarComparacion}
+              disabled={guardandoProgreso}
+            >
               <FiCheck /> Verificar
             </button>
           </div>
@@ -1031,8 +1382,13 @@ export default function OraculoEstacion() {
                   key={c}
                   type="button"
                   className={`orc-opcion-radio ${prediccion === c ? "orc-opcion-radio-activa" : ""}`}
-                  onClick={() => { setPrediccion(c); setPrediccionVerificada(false); }}
+                  onClick={() => {
+                    if (guardandoProgreso) return;
+                    setPrediccion(c);
+                    setPrediccionVerificada(false);
+                  }}
                   aria-pressed={prediccion === c}
+                  disabled={guardandoProgreso}
                 >
                   <span className="orc-radio-circulo" />
                   {NOMBRE_COLOR[c]}
@@ -1051,7 +1407,12 @@ export default function OraculoEstacion() {
               )}
             </div>
 
-            <button type="button" className="orc-verificar-btn" onClick={verificarPrediccion}>
+            <button
+              type="button"
+              className="orc-verificar-btn"
+              onClick={verificarPrediccion}
+              disabled={guardandoProgreso}
+            >
               <FiCheck /> Verificar
             </button>
           </div>
@@ -1075,12 +1436,20 @@ export default function OraculoEstacion() {
             type="button"
             className="orc-activar-btn"
             onClick={handleActivarOraculo}
-            disabled={monedaEstelar <= 0}
+            disabled={
+              monedaEstelar <= 0 ||
+              guardandoProgreso
+            }
+            aria-busy={guardandoProgreso}
           >
             <FiZap />
             <span>
-              Activar Oráculo
-              <small>Usar 1 moneda estelar</small>
+              {guardandoProgreso
+                ? "Guardando progreso..."
+                : "Activar Oráculo"}
+              <small>
+                Usar 1 moneda estelar
+              </small>
             </span>
           </button>
         </div>

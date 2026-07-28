@@ -6,8 +6,10 @@ export interface ProporcionalidadInversaAttributes {
   id_estudiante: number;
   valores_tabla: object;
   intentos_tabla: object;
+  celdas_asistidas: object;
   prediccion: number | null;
   prediccion_correcta: boolean | null;
+  prediccion_asistida: boolean;
   pantalla_actual: number;
   completada: boolean;
   tiempo_total: number;
@@ -27,8 +29,10 @@ export class ProporcionalidadInversa
   declare id_estudiante: number;
   declare valores_tabla: object;
   declare intentos_tabla: object;
+  declare celdas_asistidas: object;
   declare prediccion: number | null;
   declare prediccion_correcta: boolean | null;
+  declare prediccion_asistida: boolean;
   declare pantalla_actual: number;
   declare completada: boolean;
   declare tiempo_total: number;
@@ -65,6 +69,11 @@ ProporcionalidadInversa.init(
       allowNull: false,
       defaultValue: {},
     },
+    celdas_asistidas: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      defaultValue: {},
+    },
     prediccion: {
       type: DataTypes.INTEGER,
       allowNull: true,
@@ -72,6 +81,11 @@ ProporcionalidadInversa.init(
     prediccion_correcta: {
       type: DataTypes.BOOLEAN,
       allowNull: true,
+    },
+    prediccion_asistida: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
     pantalla_actual: {
       type: DataTypes.INTEGER,
