@@ -1389,3 +1389,138 @@
     transform: translateY(0);
   }
 }
+
+/* =========================================================
+   AJUSTE FINAL: LISTA PAGINADA Y PIE DE TARJETA
+   - Solo se muestran 7 alumnos por página.
+   - La tarjeta izquierda queda al ras de la columna derecha.
+   - La paginación permanece dentro de la tarjeta.
+   - El footer general aparece después del bloque completo.
+   ========================================================= */
+
+@media (min-width: 1200px) {
+  .stats-main-grid {
+    align-items: stretch;
+  }
+
+  .students-table-card {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .students-table-wrap {
+    flex: 1 1 auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .students-table {
+    min-height: 100%;
+  }
+
+  .stats-side-column {
+    height: 100%;
+  }
+}
+
+.students-pagination {
+  min-height: 64px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #edf1f8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-shrink: 0;
+  background: #ffffff;
+}
+
+.students-pagination p {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.students-pagination > div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.students-pagination button {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid #d7e3f3;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #0058ff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 900;
+  transition:
+    transform 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.students-pagination button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: #86afff;
+  background: #eef5ff;
+  box-shadow: 0 8px 16px rgba(0, 88, 255, 0.12);
+}
+
+.students-pagination button.active {
+  border-color: #0058ff;
+  background: #0058ff;
+  color: #ffffff;
+  box-shadow: 0 8px 16px rgba(0, 88, 255, 0.2);
+}
+
+.students-pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Evita que la lista completa empuje el footer hasta el final */
+.students-row {
+  min-height: 58px;
+}
+
+/* El pie general inicia inmediatamente después del bloque de tarjetas */
+.stats-content .docente-footer {
+  margin-top: 22px;
+}
+
+@media (max-width: 1199px) {
+  .students-table-card {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .students-pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .students-pagination > div {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 575px) {
+  .students-pagination button {
+    width: 33px;
+    height: 33px;
+  }
+}

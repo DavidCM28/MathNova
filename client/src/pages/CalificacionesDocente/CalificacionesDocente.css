@@ -1450,3 +1450,544 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================
+   AJUSTES FINALES DE DISTRIBUCIÓN
+   - La tabla conserva su desplazamiento interno.
+   - La gráfica NO tiene scroll horizontal.
+   - Todas las barras se reparten dentro de la tarjeta.
+   - Los promedios y nombres permanecen visibles.
+   ========================================================= */
+
+/* Evita que los elementos internos obliguen al grid a crecer */
+.calif-main-grid,
+.calif-table-card,
+.calif-side-panel,
+.calif-chart-card,
+.calif-top-card {
+  min-width: 0;
+}
+
+/* ========================= */
+/* TABLA: SCROLL SOLO ADENTRO */
+/* ========================= */
+
+.calif-table-card {
+  overflow: hidden;
+}
+
+.calif-table {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+}
+
+.calif-table::-webkit-scrollbar {
+  height: 9px;
+}
+
+.calif-table::-webkit-scrollbar-track {
+  background: #eef3fb;
+  border-radius: 999px;
+}
+
+.calif-table::-webkit-scrollbar-thumb {
+  background: #b8c7dc;
+  border: 2px solid #eef3fb;
+  border-radius: 999px;
+}
+
+.calif-table::-webkit-scrollbar-thumb:hover {
+  background: #8ea1bd;
+}
+
+.calif-table-row {
+  width: 100%;
+  min-width: 940px;
+}
+
+.calif-table-footer {
+  width: 100%;
+  min-width: 0;
+  min-height: 64px;
+  padding: 10px 20px;
+  border-top: 1px solid #eef2f7;
+  background: #ffffff;
+  position: relative;
+  z-index: 3;
+}
+
+.calif-table-footer p {
+  min-width: 0;
+}
+
+/* ========================= */
+/* GRÁFICA SIN SCROLL */
+/* ========================= */
+
+.calif-chart-card {
+  overflow: visible;
+  padding: 22px 20px 20px;
+}
+
+.calif-chart-card h2 {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 10px;
+}
+
+.calif-bar-chart {
+  width: 100%;
+  max-width: 100%;
+  height: 245px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  align-items: end;
+  column-gap: clamp(8px, 2vw, 18px);
+  padding: 18px 8px 0;
+  overflow: visible;
+  border-left: 1px solid #e5edf7;
+  border-bottom: 1px solid #e5edf7;
+  background: linear-gradient(
+    to bottom,
+    transparent 32%,
+    #edf2f8 32.5%,
+    transparent 33%,
+    transparent 65%,
+    #edf2f8 65.5%,
+    transparent 66%
+  );
+}
+
+.calif-bar-item {
+  width: 100%;
+  min-width: 0;
+  height: 220px;
+  display: grid;
+  grid-template-rows: 24px 130px minmax(52px, auto);
+  align-items: end;
+  justify-items: center;
+  cursor: pointer;
+  transition: transform 0.28s ease;
+}
+
+.calif-bar-item:hover {
+  transform: translateY(-4px);
+}
+
+.calif-bar-item strong {
+  align-self: end;
+  margin: 0 0 6px;
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 900;
+  color: #111827;
+  white-space: nowrap;
+  position: relative;
+  z-index: 2;
+}
+
+.calif-bar {
+  align-self: end;
+  width: clamp(28px, 42%, 44px);
+  max-width: 44px;
+  min-width: 24px;
+  max-height: 120px;
+  border-radius: 10px 10px 0 0;
+  transform-origin: bottom center;
+  flex-shrink: 0;
+}
+
+.calif-bar-item small {
+  align-self: start;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  margin-top: 10px;
+  padding: 0 2px;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.22;
+  font-weight: 900;
+  color: #111827;
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: auto;
+}
+
+/* Firefox: solamente la tabla mantiene barra de desplazamiento */
+.calif-table {
+  scrollbar-width: thin;
+  scrollbar-color: #b8c7dc #eef3fb;
+}
+
+/* ========================= */
+/* AJUSTES RESPONSIVOS */
+/* ========================= */
+
+@media (max-width: 1399px) {
+  .calif-chart-card {
+    min-height: 330px;
+  }
+
+  .calif-bar-chart {
+    height: 255px;
+    column-gap: 14px;
+  }
+
+  .calif-bar-item {
+    height: 228px;
+    grid-template-rows: 24px 132px minmax(58px, auto);
+  }
+}
+
+@media (max-width: 991px) {
+  .calif-chart-card {
+    min-height: 340px;
+  }
+
+  .calif-bar-chart {
+    height: 265px;
+    padding-left: 10px;
+    padding-right: 10px;
+    column-gap: 16px;
+  }
+
+  .calif-bar {
+    width: clamp(30px, 36%, 46px);
+  }
+
+  .calif-bar-item small {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 767px) {
+  .calif-table-footer {
+    min-width: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+  }
+
+  .calif-table-footer p {
+    font-size: 12px;
+  }
+
+  .calif-chart-card {
+    padding: 18px 14px 16px;
+    min-height: 325px;
+  }
+
+  .calif-bar-chart {
+    height: 250px;
+    column-gap: 8px;
+    padding: 16px 4px 0;
+  }
+
+  .calif-bar-item {
+    height: 224px;
+    grid-template-rows: 23px 125px minmax(62px, auto);
+  }
+
+  .calif-bar-item strong {
+    font-size: 13px;
+  }
+
+  .calif-bar {
+    width: clamp(24px, 45%, 38px);
+    min-width: 20px;
+  }
+
+  .calif-bar-item small {
+    margin-top: 8px;
+    font-size: 9.5px;
+    line-height: 1.18;
+  }
+}
+
+@media (max-width: 575px) {
+  .calif-table {
+    min-width: 0;
+  }
+
+  .calif-table-row {
+    min-width: 880px;
+  }
+
+  .calif-table-footer {
+    min-width: 0;
+    gap: 10px;
+  }
+
+  .calif-pagination {
+    flex-shrink: 0;
+  }
+
+  .calif-chart-card {
+    min-height: 310px;
+  }
+
+  .calif-bar-chart {
+    height: 238px;
+    column-gap: 5px;
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+
+  .calif-bar-item {
+    height: 214px;
+    grid-template-rows: 22px 118px minmax(64px, auto);
+  }
+
+  .calif-bar {
+    width: clamp(20px, 50%, 32px);
+    min-width: 18px;
+  }
+
+  .calif-bar-item small {
+    font-size: 8.8px;
+    line-height: 1.15;
+    padding: 0 1px;
+  }
+}
+
+@media (max-width: 430px) {
+  .calif-table-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .calif-pagination {
+    justify-content: flex-end;
+  }
+
+  .calif-chart-card {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .calif-bar-chart {
+    column-gap: 3px;
+  }
+
+  .calif-bar-item small {
+    font-size: 8px;
+  }
+}
+
+/* =========================================================
+   CORRECCIÓN DEFINITIVA DE LOS TEXTOS DE LA GRÁFICA
+   - Evita cortar palabras letra por letra.
+   - Acomoda los nombres debajo de cada barra.
+   - Mantiene la gráfica sin scroll horizontal.
+   - Conserva visibles los promedios sobre las barras.
+   ========================================================= */
+
+@media (min-width: 1400px) {
+  .calif-main-grid {
+    grid-template-columns: minmax(0, 1fr) 420px;
+  }
+}
+
+.calif-chart-card {
+  min-width: 0;
+  overflow: hidden;
+  padding: 22px 18px 20px;
+}
+
+.calif-bar-chart {
+  width: 100%;
+  max-width: 100%;
+  height: 276px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  align-items: end;
+  column-gap: 8px;
+  padding: 16px 4px 0;
+  overflow: hidden;
+}
+
+.calif-bar-item {
+  width: 100%;
+  min-width: 0;
+  height: 250px;
+  display: grid;
+  grid-template-rows: 24px 130px 86px;
+  align-items: end;
+  justify-items: center;
+}
+
+.calif-bar-item strong {
+  width: 100%;
+  margin: 0 0 7px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.calif-bar {
+  width: clamp(28px, 48%, 44px);
+  min-width: 24px;
+  max-width: 44px;
+  max-height: 120px;
+}
+
+.calif-bar-item small {
+  align-self: start;
+  display: -webkit-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 68px;
+  margin: 10px 0 0;
+  padding: 0 3px;
+  overflow: hidden;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.22;
+  font-weight: 900;
+  color: #111827;
+
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: normal;
+  hyphens: none;
+
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+}
+
+/* Cuando la gráfica queda en una columna amplia */
+@media (max-width: 1399px) and (min-width: 992px) {
+  .calif-chart-card {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+
+  .calif-bar-chart {
+    height: 268px;
+    column-gap: 14px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .calif-bar-item {
+    height: 242px;
+    grid-template-rows: 24px 130px 78px;
+  }
+
+  .calif-bar-item small {
+    font-size: 10.5px;
+    line-height: 1.24;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+  }
+}
+
+@media (max-width: 991px) {
+  .calif-bar-chart {
+    height: 270px;
+    column-gap: 10px;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .calif-bar-item {
+    height: 244px;
+    grid-template-rows: 24px 128px 82px;
+  }
+
+  .calif-bar-item small {
+    font-size: 10px;
+    line-height: 1.22;
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
+  }
+}
+
+@media (max-width: 767px) {
+  .calif-chart-card {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .calif-bar-chart {
+    height: 264px;
+    column-gap: 6px;
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+
+  .calif-bar-item {
+    height: 238px;
+    grid-template-rows: 23px 124px 81px;
+  }
+
+  .calif-bar-item strong {
+    font-size: 12px;
+  }
+
+  .calif-bar {
+    width: clamp(22px, 46%, 36px);
+    min-width: 20px;
+  }
+
+  .calif-bar-item small {
+    padding: 0 2px;
+    font-size: 8.8px;
+    line-height: 1.18;
+    -webkit-line-clamp: 6;
+    line-clamp: 6;
+  }
+}
+
+@media (max-width: 575px) {
+  .calif-chart-card {
+    min-height: 340px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .calif-bar-chart {
+    height: 270px;
+    column-gap: 4px;
+  }
+
+  .calif-bar-item {
+    height: 244px;
+    grid-template-rows: 22px 118px 94px;
+  }
+
+  .calif-bar {
+    width: clamp(18px, 48%, 30px);
+    min-width: 17px;
+  }
+
+  .calif-bar-item small {
+    font-size: 7.8px;
+    line-height: 1.16;
+    -webkit-line-clamp: 7;
+    line-clamp: 7;
+  }
+}
+
+@media (max-width: 430px) {
+  .calif-bar-chart {
+    column-gap: 2px;
+  }
+
+  .calif-bar-item small {
+    font-size: 7.3px;
+    padding: 0 1px;
+  }
+}

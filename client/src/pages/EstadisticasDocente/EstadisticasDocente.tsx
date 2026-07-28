@@ -147,7 +147,9 @@ function obtenerEstadoVisual(alumno: AlumnoEstadistica): {
 }
 
 function obtenerPromedioTexto(promedio: number | null) {
-  return promedio === null || promedio === undefined ? "—" : promedio.toFixed(1);
+  return promedio === null || promedio === undefined
+    ? "—"
+    : promedio.toFixed(1);
 }
 
 function escaparCsv(valor: unknown) {
@@ -168,11 +170,12 @@ function EstadisticasDocente() {
   const [selectedMenu, setSelectedMenu] = useState<MenuKey>("estadisticas");
   const [grupoFiltro, setGrupoFiltro] = useState("todos");
   const [busqueda, setBusqueda] = useState("");
-  const [datos, setDatos] =
-    useState<RespuestaEstadisticas>(datosIniciales);
+  const [datos, setDatos] = useState<RespuestaEstadisticas>(datosIniciales);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const [paginaActual, setPaginaActual] = useState(1);
+  const alumnosPorPagina = 9;
 
   const navigate = useNavigate();
 
@@ -288,6 +291,23 @@ function EstadisticasDocente() {
     });
   }, [alumnosConEstado, busqueda]);
 
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [grupoFiltro, busqueda]);
+
+  const totalPaginas = Math.max(
+    1,
+    Math.ceil(alumnosFiltrados.length / alumnosPorPagina),
+  );
+
+  const paginaSegura = Math.min(paginaActual, totalPaginas);
+  const indiceInicial = (paginaSegura - 1) * alumnosPorPagina;
+  const indiceFinal = indiceInicial + alumnosPorPagina;
+  const alumnosPagina = alumnosFiltrados.slice(indiceInicial, indiceFinal);
+
+  const rangoInicial = alumnosFiltrados.length === 0 ? 0 : indiceInicial + 1;
+  const rangoFinal = Math.min(indiceFinal, alumnosFiltrados.length);
+
   const resumenVisual = useMemo(() => {
     const sobresalientes = alumnosConEstado.filter(
       (alumno) => alumno.estadoClaseVisual === "sobresaliente",
@@ -331,7 +351,11 @@ function EstadisticasDocente() {
     }
 
     return "El grupo va estable. Puedes identificar las actividades con menor promedio para preparar refuerzos.";
-  }, [datos.resumen.total_alumnos, resumenVisual.rezago, resumenVisual.sinProgreso]);
+  }, [
+    datos.resumen.total_alumnos,
+    resumenVisual.rezago,
+    resumenVisual.sinProgreso,
+  ]);
 
   const mostrarMensaje = (texto: string) => {
     setMensaje(texto);
@@ -681,7 +705,9 @@ function EstadisticasDocente() {
                 Necesitan apoyo <FiInfo />
               </h3>
 
-              <strong>{resumenVisual.rezago + resumenVisual.sinProgreso}</strong>
+              <strong>
+                {resumenVisual.rezago + resumenVisual.sinProgreso}
+              </strong>
               <p>Rezago o sin progreso registrado</p>
             </div>
 
@@ -733,9 +759,11 @@ function EstadisticasDocente() {
                     <span>No se encontraron estudiantes.</span>
                   </div>
                 ) : (
-                  alumnosFiltrados.map((alumno, index) => (
+                  alumnosPagina.map((alumno, index) => (
                     <div className="students-row" key={alumno.id}>
-                      <span className="student-number">{index + 1}</span>
+                      <span className="student-number">
+                        {indiceInicial + index + 1}
+                      </span>
 
                       <span className="student-name-cell">
                         <b className={`student-avatar ${alumno.colorVisual}`}>
@@ -785,6 +813,63 @@ function EstadisticasDocente() {
                 )}
               </div>
             </div>
+
+            {!cargando && alumnosFiltrados.length > 0 && (
+              <div className="students-pagination">
+                <p>
+                  Mostrando {rangoInicial} a {rangoFinal} de{" "}
+                  {alumnosFiltrados.length} alumnos
+                </p>
+
+                <div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPaginaActual((pagina) => Math.max(1, pagina - 1))
+                    }
+                    disabled={paginaSegura === 1}
+                    aria-label="Página anterior"
+                  >
+                    ‹
+                  </button>
+
+                  {Array.from({ length: totalPaginas }, (_, index) => index + 1)
+                    .filter((numero) => {
+                      if (totalPaginas <= 5) return true;
+                      if (paginaSegura <= 3) return numero <= 5;
+                      if (paginaSegura >= totalPaginas - 2) {
+                        return numero >= totalPaginas - 4;
+                      }
+                      return (
+                        numero >= paginaSegura - 2 && numero <= paginaSegura + 2
+                      );
+                    })
+                    .map((numero) => (
+                      <button
+                        key={numero}
+                        type="button"
+                        className={paginaSegura === numero ? "active" : ""}
+                        onClick={() => setPaginaActual(numero)}
+                      >
+                        {numero}
+                      </button>
+                    ))}
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPaginaActual((pagina) =>
+                        Math.min(totalPaginas, pagina + 1),
+                      )
+                    }
+                    disabled={paginaSegura === totalPaginas}
+                    aria-label="Página siguiente"
+                  >
+                    ›
+                  </button>
+                </div>
+              </div>
+            )}
           </article>
 
           <aside className="stats-side-column">

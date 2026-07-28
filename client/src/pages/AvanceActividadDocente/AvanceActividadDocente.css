@@ -1187,3 +1187,95 @@
     min-width: 0;
   }
 }
+
+/* =========================================================
+   AJUSTE FINAL: TABLA Y PANEL DERECHO AL MISMO NIVEL
+   - La tarjeta de alumnos se alarga hasta quedar al ras
+     del panel "Alumnos que necesitan atención".
+   - El espacio sobrante permanece blanco dentro de la tarjeta.
+   - La paginación queda fija en la parte inferior.
+   - No modifica lógica, TSX ni backend.
+   ========================================================= */
+
+@media (min-width: 1200px) {
+  .avance-dashboard-grid {
+    align-items: stretch;
+  }
+
+  .avance-main-column,
+  .avance-side-column {
+    align-self: stretch;
+    height: 100%;
+  }
+
+  .avance-main-column {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* La tarjeta de la tabla ocupa todo el alto disponible */
+  .avance-table-card {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* La zona de filas crece y conserva el espacio blanco */
+  .avance-table-scroll {
+    flex: 1 1 auto;
+    min-height: 360px;
+    display: block;
+  }
+
+  /* La paginación permanece pegada al fondo de la tarjeta */
+  .avance-table-card > .avance-pagination {
+    margin-top: auto;
+    flex-shrink: 0;
+  }
+
+  /* El último panel derecho también aprovecha el alto de su columna */
+  .avance-attention-card {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+}
+
+/* Pantallas grandes: un poco más de espacio para emparejar
+   correctamente ambos extremos inferiores. */
+@media (min-width: 1400px) {
+  .avance-table-scroll {
+    min-height: 420px;
+  }
+}
+
+/* Laptop: conserva la alineación sin hacer la tarjeta exageradamente alta. */
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .avance-table-scroll {
+    min-height: 380px;
+  }
+}
+
+/* En tablet y celular las columnas se apilan y recuperan altura natural. */
+@media (max-width: 1199px) {
+  .avance-main-column,
+  .avance-side-column {
+    height: auto;
+  }
+
+  .avance-table-card,
+  .avance-attention-card {
+    flex: initial;
+    height: auto;
+  }
+
+  .avance-table-scroll {
+    min-height: 0;
+    flex: 0 0 auto;
+  }
+
+  .avance-table-card > .avance-pagination {
+    margin-top: 8px;
+  }
+}

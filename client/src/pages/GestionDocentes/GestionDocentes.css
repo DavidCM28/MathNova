@@ -1518,3 +1518,608 @@
     height: 32px;
   }
 }
+
+/* =========================================================
+   AJUSTE VISUAL DEFINITIVO - GESTIÓN DE DOCENTES
+   Solo modifica presentación. No cambia lógica ni backend.
+   ========================================================= */
+
+/* ---------- CONTENEDOR GENERAL ---------- */
+
+.gestion-docentes-content {
+  height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 24px 24px;
+}
+
+/* ---------- HERO MÁS EQUILIBRADO ---------- */
+
+.gestion-docentes-hero-card {
+  min-height: 220px;
+  padding: 30px 38px;
+  margin-bottom: 18px;
+  align-items: center;
+}
+
+.gestion-docentes-hero-text {
+  flex: 1 1 58%;
+  max-width: 780px;
+}
+
+.gestion-docentes-hero-text h1 {
+  margin: 0;
+  white-space: nowrap;
+  font-size: clamp(48px, 4.25vw, 70px);
+  line-height: 1;
+}
+
+.gestion-docentes-hero-text p {
+  max-width: 720px;
+  margin-top: 16px;
+  font-size: clamp(15px, 1.12vw, 18px);
+  line-height: 1.45;
+}
+
+.gestion-docentes-hero-img {
+  flex: 0 1 500px;
+  width: min(500px, 36vw);
+  max-height: 190px;
+  object-position: right center;
+}
+
+/* ---------- LAS 4 ESTADÍSTICAS EN UNA SOLA FILA ---------- */
+
+.gestion-stats-row {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 0;
+}
+
+.gestion-stat-card {
+  min-height: 126px;
+  padding: 20px 22px;
+}
+
+.gestion-stat-card h3 {
+  font-size: 14px;
+}
+
+.gestion-stat-card strong {
+  margin-top: 8px;
+  font-size: 40px;
+}
+
+.gestion-stat-card p {
+  margin-top: 8px;
+  font-size: 10.5px;
+}
+
+.gestion-stat-card > span {
+  width: 56px;
+  height: 56px;
+}
+
+/* ---------- DISTRIBUCIÓN PRINCIPAL ---------- */
+
+.gestion-main-layout {
+  grid-template-columns: minmax(0, 1fr) minmax(350px, 390px);
+  gap: 20px;
+  align-items: start;
+  margin-top: 20px;
+}
+
+.gestion-list-column {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.gestion-list-card {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ---------- ENCABEZADOS DE LISTA Y FORMULARIO ---------- */
+
+.gestion-list-card > .gestion-form-title,
+.gestion-form-card > .gestion-form-title {
+  min-height: 72px;
+  margin: 0;
+  padding: 18px 20px 12px;
+  align-items: center;
+}
+
+.gestion-list-card > .gestion-form-title h2,
+.gestion-form-card > .gestion-form-title h2 {
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.gestion-list-card > .gestion-form-title p,
+.gestion-form-card > .gestion-form-title p {
+  margin-top: 5px;
+  font-size: 10.5px;
+}
+
+/* ---------- BUSCADOR, FILTROS Y BOTÓN ---------- */
+
+.gestion-list-tools {
+  grid-template-columns: minmax(260px, 1fr) auto auto;
+  gap: 12px;
+  align-items: end;
+  padding: 8px 20px 16px;
+}
+
+.gestion-search-box,
+.gestion-status-filter > div,
+.gestion-scroll-form-btn {
+  height: 46px;
+}
+
+.gestion-search-box {
+  padding: 0 14px;
+}
+
+.gestion-search-box input {
+  font-size: 11.5px;
+}
+
+.gestion-status-filter > span {
+  margin-bottom: 7px;
+}
+
+.gestion-status-filter button {
+  height: 38px;
+  padding: 0 14px;
+}
+
+.gestion-scroll-form-btn {
+  min-width: 142px;
+  padding: 0 17px;
+  font-size: 11px;
+}
+
+/* ---------- TABLA LIMPIA Y BIEN DISTRIBUIDA ---------- */
+
+.gestion-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border-top: 1px solid #edf1f7;
+}
+
+.gestion-table {
+  width: 100%;
+  min-width: 810px;
+  grid-template-columns:
+    44px
+    minmax(150px, 1.35fr)
+    minmax(170px, 1.45fr)
+    minmax(100px, 0.9fr)
+    60px
+    82px
+    86px
+    72px;
+  gap: 8px;
+  padding: 0 16px;
+}
+
+.gestion-table-head {
+  min-height: 42px;
+  border-top: 0;
+  font-size: 9.5px;
+}
+
+.gestion-table-row {
+  min-height: 64px;
+  font-size: 9.5px;
+}
+
+.gestion-teacher-name {
+  gap: 10px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.gestion-teacher-name b {
+  width: 34px;
+  height: 34px;
+  font-size: 9.5px;
+}
+
+.gestion-status-pill {
+  min-width: 72px;
+  min-height: 29px;
+}
+
+.gestion-actions {
+  justify-content: flex-end;
+}
+
+.gestion-actions button {
+  width: 31px;
+  height: 31px;
+}
+
+.gestion-table-footer {
+  min-height: 58px;
+  padding: 10px 18px;
+  border-top: 1px solid #edf1f7;
+}
+
+.gestion-table-footer p {
+  font-size: 10.5px;
+}
+
+/* Quita el espacio vacío exagerado cuando hay pocos docentes */
+.gestion-empty-table {
+  min-height: 130px;
+}
+
+/* ---------- TARJETA "CÓMO FUNCIONA" CORREGIDA ---------- */
+
+.gestion-important-card {
+  min-height: 86px;
+  margin-top: 0;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+}
+
+.gestion-important-card > span {
+  width: 42px;
+  height: 42px;
+}
+
+.gestion-important-card > div {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+}
+
+.gestion-important-card > div + div {
+  border-left: 0;
+  padding-left: 0;
+}
+
+.gestion-important-card h2 {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.gestion-important-card p {
+  margin: 0;
+  font-size: 9.5px;
+  line-height: 1.5;
+}
+
+/* ---------- FORMULARIO MÁS ORDENADO ---------- */
+
+.gestion-form-card {
+  position: sticky;
+  top: 18px;
+  padding: 0 20px 18px;
+}
+
+.gestion-form-card form {
+  display: flex;
+  flex-direction: column;
+}
+
+.gestion-form-field {
+  margin-top: 11px;
+}
+
+.gestion-form-field > span {
+  margin-bottom: 7px;
+  font-size: 11px;
+}
+
+.gestion-form-field input,
+.gestion-locked-field,
+.gestion-password-input {
+  height: 44px;
+}
+
+.gestion-password-row {
+  grid-template-columns: minmax(0, 1fr) 112px;
+  gap: 9px;
+}
+
+.gestion-generate-btn {
+  height: 44px;
+}
+
+.gestion-form-status button {
+  height: 40px;
+}
+
+.gestion-register-btn {
+  height: 46px;
+  margin-top: 16px;
+}
+
+.gestion-cancel-btn {
+  height: 42px;
+  margin-top: 9px;
+}
+
+.gestion-form-note {
+  margin-top: 12px;
+  padding: 11px 12px;
+}
+
+.gestion-form-note p {
+  font-size: 9.2px;
+  line-height: 1.45;
+}
+
+/* ---------- FOOTER SIN ESPACIO GIGANTE ---------- */
+
+.gestion-docentes-content .docente-footer {
+  min-height: 66px;
+  margin-top: 20px;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 1399px) {
+  .gestion-docentes-content {
+    padding: 22px 24px 24px;
+  }
+
+  .gestion-docentes-hero-card {
+    min-height: 205px;
+  }
+
+  .gestion-docentes-hero-text h1 {
+    font-size: clamp(43px, 3.8vw, 59px);
+  }
+
+  .gestion-docentes-hero-img {
+    width: min(450px, 35vw);
+  }
+
+  .gestion-stats-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gestion-main-layout {
+    grid-template-columns: minmax(0, 1fr) 360px;
+  }
+}
+
+@media (max-width: 1199px) {
+  .gestion-main-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .gestion-form-card {
+    position: static;
+  }
+
+  .gestion-list-card > .gestion-form-title,
+  .gestion-form-card > .gestion-form-title {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 991px) {
+  .gestion-docentes-content {
+    height: auto;
+    padding: 118px 18px 24px;
+  }
+
+  .gestion-docentes-hero-card {
+    min-height: auto;
+    padding: 24px;
+  }
+
+  .gestion-docentes-hero-text h1 {
+    white-space: normal;
+    font-size: 42px;
+  }
+
+  .gestion-docentes-hero-img {
+    width: min(360px, 39vw);
+  }
+
+  .gestion-list-tools {
+    grid-template-columns: 1fr;
+  }
+
+  .gestion-scroll-form-btn {
+    width: 100%;
+  }
+
+  .gestion-important-card > div {
+    grid-template-columns: 110px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .gestion-docentes-content {
+    padding: 112px 16px 24px;
+  }
+
+  .gestion-docentes-hero-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .gestion-docentes-hero-img {
+    width: 100%;
+    max-height: 220px;
+    align-self: center;
+  }
+
+  .gestion-stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .gestion-important-card {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .gestion-important-card > div {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+}
+
+@media (max-width: 575px) {
+  .gestion-docentes-content {
+    padding: 104px 12px 22px;
+  }
+
+  .gestion-docentes-hero-card {
+    padding: 18px 16px;
+  }
+
+  .gestion-docentes-hero-text h1 {
+    font-size: 31px;
+  }
+
+  .gestion-stat-card {
+    min-height: 112px;
+  }
+
+  .gestion-list-card > .gestion-form-title,
+  .gestion-form-card > .gestion-form-title {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .gestion-list-tools {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .gestion-form-card {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .gestion-password-row {
+    grid-template-columns: 1fr;
+  }
+
+  .gestion-table-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .gestion-table-footer > div {
+    justify-content: flex-end;
+  }
+}
+
+/* =========================================================
+   AJUSTE FINAL: LISTA ALARGADA HASTA EL FORMULARIO
+   - La columna izquierda toma la misma altura que el formulario.
+   - La tarjeta de la lista crece aunque todavía falten docentes.
+   - Los docentes nuevos seguirán ocupando las filas disponibles.
+   - No modifica backend, lógica ni TSX.
+   ========================================================= */
+
+@media (min-width: 1200px) {
+  .gestion-main-layout {
+    align-items: stretch;
+  }
+
+  .gestion-list-column {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    min-height: 100%;
+    height: 100%;
+  }
+
+  .gestion-list-card {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .gestion-list-card > .gestion-form-title,
+  .gestion-list-tools,
+  .gestion-table-footer {
+    flex-shrink: 0;
+  }
+
+  .gestion-table-wrap {
+    flex: 1 1 auto;
+    min-height: 360px;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+  }
+
+  .gestion-table-wrap > .gestion-table-head,
+  .gestion-table-wrap > .gestion-table-row {
+    flex-shrink: 0;
+  }
+
+  .gestion-empty-table {
+    flex: 1 1 auto;
+  }
+
+  .gestion-important-card {
+    flex-shrink: 0;
+    margin-top: 16px;
+  }
+
+  .gestion-form-card {
+    position: static;
+    align-self: stretch;
+    height: 100%;
+    min-height: 100%;
+  }
+}
+
+/* En pantallas grandes damos más espacio blanco a la lista
+   para que termine exactamente a la altura del formulario. */
+@media (min-width: 1400px) {
+  .gestion-table-wrap {
+    min-height: 430px;
+  }
+}
+
+/* En laptops medianas conserva el mismo efecto sin exagerar el alto. */
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .gestion-table-wrap {
+    min-height: 390px;
+  }
+}
+
+/* Tablet y celular vuelven a altura natural porque las columnas
+   se colocan una debajo de la otra. */
+@media (max-width: 1199px) {
+  .gestion-list-column {
+    height: auto;
+  }
+
+  .gestion-list-card {
+    display: block;
+    min-height: 0;
+  }
+
+  .gestion-table-wrap {
+    display: block;
+    min-height: 0;
+  }
+
+  .gestion-form-card {
+    height: auto;
+    min-height: 0;
+  }
+}
