@@ -382,6 +382,8 @@ function ActividadesMathData() {
                             navigate("/actividades-math-data/nucleo-decisiones");
                           } else if (index === 6) {
                             navigate("/actividades-math-data/oraculo-estacion");
+                          } else if (index === 7) {
+                            navigate("/actividades-math-data/sala-tres-caminos");
                           }
                         }}
                       >

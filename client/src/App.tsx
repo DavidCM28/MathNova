@@ -34,6 +34,7 @@ import HologramaReportes from "./pages/ActividadesMathData/HologramaReportes";
 import SensorFrecuencias from "./pages/ActividadesMathData/SensorFrecuencias";
 import NucleoDecisiones from "./pages/ActividadesMathData/NucleoDecisiones";
 import OraculoEstacion from "./pages/ActividadesMathData/OraculoEstacion";
+import SalaTresCaminos from "./pages/ActividadesMathData/SalaTresCaminos";
 
 import ActividadesMathNumbers from "./pages/ActividadesMathNumbers/ActividadesMathNumbers";
 import MathNumbersActivityRouter from "./pages/MathNumbersActivities/MathNumbersActivityRouter";
@@ -237,6 +238,15 @@ function App() {
   element={
     <RequireAuth>
       <OraculoEstacion />
+    </RequireAuth>
+  }
+/>
+
+<Route
+  path="/actividades-math-data/sala-tres-caminos"
+  element={
+    <RequireAuth>
+      <SalaTresCaminos />
     </RequireAuth>
   }
 />
