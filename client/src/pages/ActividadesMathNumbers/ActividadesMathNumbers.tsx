@@ -41,9 +41,138 @@ import {
 
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
+import { obtenerProgresoAlumno } from "../../services/progresoService";
+import {
+  getSessionUser,
+  isGuestSession,
+} from "../../utils/authSession";
+
+type EstadoActividadNumbers =
+  | "Pendiente"
+  | "En curso"
+  | "Completada";
+
+type FiltroEstadoNumbers =
+  | "Todas"
+  | EstadoActividadNumbers;
+
+type RegistroProgresoNumbers = {
+  actividad_codigo?: string;
+  completada?: boolean;
+  estrellas_obtenidas?: number | string;
+  precision?: number | string;
+  intentos?: number | string;
+};
+
+type RespuestaProgresoNumbers = {
+  progreso?: RegistroProgresoNumbers[];
+};
+
+type UsuarioSesionNumbers = {
+  id_usuario?: number | string;
+  usuario_id?: number | string;
+  user_id?: number | string;
+  userId?: number | string;
+  id?: number | string;
+  usuario?: UsuarioSesionNumbers;
+  user?: UsuarioSesionNumbers;
+  data?: UsuarioSesionNumbers;
+};
+
+const numeroSeguroNumbers = (
+  valor: number | string | null | undefined,
+): number => {
+  const numero = Number(valor ?? 0);
+  return Number.isFinite(numero) ? numero : 0;
+};
+
+const extraerIdUsuarioNumbers = (
+  valor: unknown,
+): number => {
+  if (!valor || typeof valor !== "object") {
+    return 0;
+  }
+
+  const usuario = valor as UsuarioSesionNumbers;
+
+  const idDirecto = Number(
+    usuario.id_usuario ??
+      usuario.usuario_id ??
+      usuario.user_id ??
+      usuario.userId ??
+      usuario.id ??
+      0,
+  );
+
+  if (Number.isInteger(idDirecto) && idDirecto > 0) {
+    return idDirecto;
+  }
+
+  for (const anidado of [
+    usuario.usuario,
+    usuario.user,
+    usuario.data,
+  ]) {
+    const idAnidado = extraerIdUsuarioNumbers(anidado);
+
+    if (idAnidado > 0) {
+      return idAnidado;
+    }
+  }
+
+  return 0;
+};
+
+const obtenerIdUsuarioNumbers = (): number => {
+  const candidatos: unknown[] = [getSessionUser()];
+
+  for (const clave of [
+    "auth_session",
+    "usuario",
+    "user",
+    "session_user",
+    "sessionUser",
+    "mathnova_user",
+    "authUser",
+  ]) {
+    try {
+      const valorLocal = localStorage.getItem(clave);
+      const valorSesion = sessionStorage.getItem(clave);
+      const valor = valorLocal || valorSesion;
+
+      if (valor) {
+        candidatos.push(JSON.parse(valor));
+      }
+    } catch (error) {
+      console.warn(
+        `No se pudo leer la sesión "${clave}":`,
+        error,
+      );
+    }
+  }
+
+  for (const candidato of candidatos) {
+    const idUsuario = extraerIdUsuarioNumbers(candidato);
+
+    if (idUsuario > 0) {
+      return idUsuario;
+    }
+  }
+
+  return 0;
+};
+
 function ActividadesMathNumbers() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [busqueda, setBusqueda] = useState("");
+  const [filtroEstado, setFiltroEstado] =
+    useState<FiltroEstadoNumbers>("Todas");
+  const [progresos, setProgresos] =
+    useState<RegistroProgresoNumbers[]>([]);
+  const [cargandoProgreso, setCargandoProgreso] =
+    useState(true);
+  const [errorProgreso, setErrorProgreso] =
+    useState("");
 
   const navigate = useNavigate();
 
@@ -54,6 +183,86 @@ function ActividadesMathNumbers() {
       document.body.style.overflow = "auto";
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+    let componenteActivo = true;
+
+    const cargarProgresoNumbers = async () => {
+      if (isGuestSession()) {
+        if (componenteActivo) {
+          setProgresos([]);
+          setErrorProgreso("");
+          setCargandoProgreso(false);
+        }
+
+        return;
+      }
+
+      const idUsuario = obtenerIdUsuarioNumbers();
+
+      if (!idUsuario) {
+        if (componenteActivo) {
+          setProgresos([]);
+          setErrorProgreso(
+            "No se encontró el usuario autenticado.",
+          );
+          setCargandoProgreso(false);
+        }
+
+        return;
+      }
+
+      try {
+        setCargandoProgreso(true);
+        setErrorProgreso("");
+
+        const respuesta =
+          await obtenerProgresoAlumno(idUsuario);
+
+        if (!componenteActivo) {
+          return;
+        }
+
+        const registros = Array.isArray(respuesta)
+          ? (respuesta as RegistroProgresoNumbers[])
+          : Array.isArray(
+                (respuesta as RespuestaProgresoNumbers)
+                  ?.progreso,
+              )
+            ? (respuesta as RespuestaProgresoNumbers)
+                .progreso ?? []
+            : [];
+
+        setProgresos(registros);
+      } catch (error) {
+        if (!componenteActivo) {
+          return;
+        }
+
+        console.error(
+          "No se pudo cargar el progreso de MathNumbers:",
+          error,
+        );
+
+        setProgresos([]);
+        setErrorProgreso(
+          error instanceof Error
+            ? error.message
+            : "No se pudo cargar el progreso.",
+        );
+      } finally {
+        if (componenteActivo) {
+          setCargandoProgreso(false);
+        }
+      }
+    };
+
+    void cargarProgresoNumbers();
+
+    return () => {
+      componenteActivo = false;
+    };
+  }, []);
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
@@ -86,6 +295,7 @@ function ActividadesMathNumbers() {
         nivel: "Fácil",
         tiempo: "5 min",
         slug: "cofre-bienvenida",
+        codigosProgreso: ["mathnumbers-cofre-bienvenida", "cofre-bienvenida"],
       },
       {
         img: actividad2,
@@ -95,6 +305,7 @@ function ActividadesMathNumbers() {
         nivel: "Fácil",
         tiempo: "10 min",
         slug: "radar-supervivencia",
+        codigosProgreso: ["radar-supervivencia", "mathnumbers-radar-supervivencia"],
       },
       {
         img: actividad3,
@@ -104,6 +315,7 @@ function ActividadesMathNumbers() {
         nivel: "Fácil",
         tiempo: "12 min",
         slug: "ascensor-bunker",
+        codigosProgreso: ["ascensor-bunker", "mathnumbers-ascensor-bunker"],
       },
       {
         img: escuadronTactico,
@@ -113,6 +325,7 @@ function ActividadesMathNumbers() {
         nivel: "Medio",
         tiempo: "15 min",
         slug: "escuadron-tactico",
+        codigosProgreso: ["mathnumbers-escuadron-tactico", "escuadron-tactico"],
       },
       {
         img: espejosBoveda,
@@ -122,6 +335,7 @@ function ActividadesMathNumbers() {
         nivel: "Fácil",
         tiempo: "8 min",
         slug: "espejos-boveda",
+        codigosProgreso: ["espejos-boveda", "mathnumbers-espejos-boveda"],
       },
       {
         img: puentePrioridades,
@@ -131,6 +345,7 @@ function ActividadesMathNumbers() {
         nivel: "Medio",
         tiempo: "12 min",
         slug: "puente-prioridades",
+        codigosProgreso: ["puente-prioridades", "mathnumbers-puente-prioridades"],
       },
       {
         img: enigmaVariables,
@@ -140,6 +355,7 @@ function ActividadesMathNumbers() {
         nivel: "Medio",
         tiempo: "12 min",
         slug: "enigma-variables",
+        codigosProgreso: ["enigma-variables", "mathnumbers-enigma-variables"],
       },
       {
         img: simuladorCodigos,
@@ -149,6 +365,7 @@ function ActividadesMathNumbers() {
         nivel: "Medio",
         tiempo: "12 min",
         slug: "simulador-codigos",
+        codigosProgreso: ["simulador-codigos", "mathnumbers-simulador-codigos"],
       },
       {
         img: actividad9,
@@ -172,30 +389,119 @@ function ActividadesMathNumbers() {
     []
   );
 
+  const progresoPorCodigo = useMemo(() => {
+    const mapa = new Map<
+      string,
+      RegistroProgresoNumbers
+    >();
+
+    progresos.forEach((registro) => {
+      const codigo = String(
+        registro.actividad_codigo ?? "",
+      ).trim();
+
+      if (codigo) {
+        mapa.set(codigo, registro);
+      }
+    });
+
+    return mapa;
+  }, [progresos]);
+
+  const actividadesConEstado = useMemo(
+    () =>
+      actividades.map((item) => {
+        const registro = item.codigosProgreso
+          ?.map((codigo) =>
+            progresoPorCodigo.get(codigo),
+          )
+          .find(Boolean);
+
+        const estado: EstadoActividadNumbers =
+          registro?.completada === true
+            ? "Completada"
+            : registro
+              ? "En curso"
+              : "Pendiente";
+
+        return {
+          ...item,
+          estado,
+          estrellas: numeroSeguroNumbers(
+            registro?.estrellas_obtenidas,
+          ),
+          precision: numeroSeguroNumbers(
+            registro?.precision,
+          ),
+        };
+      }),
+    [actividades, progresoPorCodigo],
+  );
+
   /*
    * Solo se muestran las actividades que ya tienen una ruta.
-   * Escuadrón Táctico aparecerá porque ya tiene su slug.
    */
   const actividadesVisibles = useMemo(
-    () => actividades.filter((item) => item.slug),
-    [actividades]
+    () =>
+      actividadesConEstado.filter(
+        (item) => item.slug,
+      ),
+    [actividadesConEstado],
   );
+
+  const totalPendientes = actividadesVisibles.filter(
+    (item) => item.estado === "Pendiente",
+  ).length;
+
+  const totalEnCurso = actividadesVisibles.filter(
+    (item) => item.estado === "En curso",
+  ).length;
+
+  const totalCompletadas = actividadesVisibles.filter(
+    (item) => item.estado === "Completada",
+  ).length;
+
+  const totalEstrellasNumbers =
+    actividadesVisibles.reduce(
+      (total, item) => total + item.estrellas,
+      0,
+    );
+
+  const cambiarFiltroEstado = (
+    estado: EstadoActividadNumbers,
+  ) => {
+    setFiltroEstado((actual) =>
+      actual === estado ? "Todas" : estado,
+    );
+  };
 
   const actividadesFiltradas = useMemo(() => {
     const textoBuscado = normalizarTexto(busqueda);
 
-    if (!textoBuscado) {
-      return actividadesVisibles;
-    }
-
     return actividadesVisibles.filter((item) => {
+      const coincideEstado =
+        filtroEstado === "Todas" ||
+        item.estado === filtroEstado;
+
+      if (!coincideEstado) {
+        return false;
+      }
+
+      if (!textoBuscado) {
+        return true;
+      }
+
       const contenido = normalizarTexto(
-        `${item.titulo} ${item.texto} ${item.nivel} ${item.tiempo} ${item.slug}`
+        `${item.titulo} ${item.texto} ${item.nivel} ${item.tiempo} ${item.slug} ${item.estado}`,
       );
 
       return contenido.includes(textoBuscado);
     });
-  }, [busqueda, actividadesVisibles]);
+  }, [
+    busqueda,
+    filtroEstado,
+    actividadesVisibles,
+  ]);
 
   const gridClassName = `numbersx-activities-grid ${
     actividadesFiltradas.length <= 3
@@ -341,19 +647,55 @@ function ActividadesMathNumbers() {
               </p>
 
               <div className="numbersx-status-tabs">
-                <button type="button">
+                <button
+                  type="button"
+                  aria-pressed={
+                    filtroEstado === "Pendiente"
+                  }
+                  onClick={() =>
+                    cambiarFiltroEstado("Pendiente")
+                  }
+                >
                   <FiCircle />
-                  Pendientes
+                  Pendientes (
+                  {cargandoProgreso
+                    ? "…"
+                    : totalPendientes}
+                  )
                 </button>
 
-                <button type="button">
+                <button
+                  type="button"
+                  aria-pressed={
+                    filtroEstado === "En curso"
+                  }
+                  onClick={() =>
+                    cambiarFiltroEstado("En curso")
+                  }
+                >
                   <FiCircle />
-                  En curso
+                  En curso (
+                  {cargandoProgreso
+                    ? "…"
+                    : totalEnCurso}
+                  )
                 </button>
 
-                <button type="button">
+                <button
+                  type="button"
+                  aria-pressed={
+                    filtroEstado === "Completada"
+                  }
+                  onClick={() =>
+                    cambiarFiltroEstado("Completada")
+                  }
+                >
                   <FiCheckCircle />
-                  Completadas
+                  Completadas (
+                  {cargandoProgreso
+                    ? "…"
+                    : totalCompletadas}
+                  )
                 </button>
               </div>
             </div>
@@ -375,13 +717,34 @@ function ActividadesMathNumbers() {
               <button
                 type="button"
                 className="numbersx-filter-btn"
-                onClick={() => setBusqueda("")}
+                onClick={() => {
+                  setBusqueda("");
+                  setFiltroEstado("Todas");
+                }}
               >
                 <FiFilter />
                 Limpiar
               </button>
             </div>
           </div>
+
+          {errorProgreso && (
+            <div className="numbersx-empty-search">
+              <FiHelpCircle />
+              <p>
+                No se pudo actualizar el estado de las
+                actividades. Puedes seguir entrando a ellas.
+              </p>
+            </div>
+          )}
+
+          {!errorProgreso && !cargandoProgreso && (
+            <p>
+              Progreso MathNumbers: {totalCompletadas}/
+              {actividadesVisibles.length} completadas ·{" "}
+              {totalEstrellasNumbers} estrellas
+            </p>
+          )}
 
           {actividadesFiltradas.length > 0 ? (
             <div className={gridClassName}>
@@ -407,7 +770,10 @@ function ActividadesMathNumbers() {
                           : "numbersx-medium"
                       }
                     >
-                      {item.nivel}
+                      {item.nivel} · {item.estado}
+                      {item.estrellas > 0
+                        ? ` · ${item.estrellas} ★`
+                        : ""}
                     </span>
 
                     <div className="numbersx-activity-bottom">
@@ -422,7 +788,11 @@ function ActividadesMathNumbers() {
                           iniciarActividad(item.slug)
                         }
                       >
-                        Iniciar
+                        {item.estado === "Completada"
+                          ? "Repetir"
+                          : item.estado === "En curso"
+                            ? "Continuar"
+                            : "Iniciar"}
                       </button>
                     </div>
                   </div>
@@ -441,7 +811,10 @@ function ActividadesMathNumbers() {
 
               <button
                 type="button"
-                onClick={() => setBusqueda("")}
+                onClick={() => {
+                  setBusqueda("");
+                  setFiltroEstado("Todas");
+                }}
               >
                 Ver actividades disponibles
               </button>

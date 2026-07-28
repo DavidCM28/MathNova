@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { getSessionUser } from "../../utils/authSession";
+import {
+  guardarProgresoUsuarioActual,
+} from "../../services/progresoService";
 
 import logo from "../../assets/logo_MathNova.png";
 import "./EncuestaTripulacion.css";
@@ -57,11 +60,130 @@ import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
    CONFIGURACIÓN DEL BACKEND
 ========================================================= */
 
-const API_URL = "http://localhost:3001/api";
+const API_URL_BASE =
+  (
+    import.meta.env.VITE_API_URL as
+      | string
+      | undefined
+  )?.replace(/\/+$/, "") ||
+  "http://localhost:3001";
+
+const API_URL =
+  API_URL_BASE.endsWith("/api")
+    ? API_URL_BASE
+    : `${API_URL_BASE}/api`;
 
 /* =========================================================
    DATOS DE LA MISIÓN
 ========================================================= */
+
+type UsuarioSesionEncuesta = {
+  id_usuario?: number | string;
+  idUsuario?: number | string;
+  usuario_id?: number | string;
+  user_id?: number | string;
+  userId?: number | string;
+  id?: number | string;
+  usuario?: UsuarioSesionEncuesta;
+  user?: UsuarioSesionEncuesta;
+  data?: UsuarioSesionEncuesta;
+  session?: UsuarioSesionEncuesta;
+};
+
+const extraerIdUsuarioEncuesta = (
+  valor: unknown,
+): number => {
+  if (
+    !valor ||
+    typeof valor !== "object"
+  ) {
+    return 0;
+  }
+
+  const usuario =
+    valor as UsuarioSesionEncuesta;
+
+  const idDirecto = Number(
+    usuario.id_usuario ??
+      usuario.idUsuario ??
+      usuario.usuario_id ??
+      usuario.user_id ??
+      usuario.userId ??
+      usuario.id ??
+      0,
+  );
+
+  if (
+    Number.isInteger(idDirecto) &&
+    idDirecto > 0
+  ) {
+    return idDirecto;
+  }
+
+  for (const anidado of [
+    usuario.usuario,
+    usuario.user,
+    usuario.data,
+    usuario.session,
+  ]) {
+    const idAnidado =
+      extraerIdUsuarioEncuesta(
+        anidado,
+      );
+
+    if (idAnidado > 0) {
+      return idAnidado;
+    }
+  }
+
+  return 0;
+};
+
+const obtenerIdEstudianteActual = (): number => {
+  const candidatos: unknown[] = [
+    getSessionUser(),
+  ];
+
+  for (const clave of [
+    "auth_session",
+    "usuario",
+    "user",
+    "session_user",
+    "sessionUser",
+    "mathnova_user",
+    "authUser",
+  ]) {
+    try {
+      const valor =
+        localStorage.getItem(clave) ||
+        sessionStorage.getItem(clave);
+
+      if (valor) {
+        candidatos.push(
+          JSON.parse(valor),
+        );
+      }
+    } catch (error) {
+      console.warn(
+        `No se pudo leer la sesión "${clave}":`,
+        error,
+      );
+    }
+  }
+
+  for (const candidato of candidatos) {
+    const idUsuario =
+      extraerIdUsuarioEncuesta(
+        candidato,
+      );
+
+    if (idUsuario > 0) {
+      return idUsuario;
+    }
+  }
+
+  return 0;
+};
 
 type Modulo = "bosque" | "desierto" | "cueva";
 
@@ -243,9 +365,11 @@ function PistaBaitModal({
 export default function EncuestaTripulacion() {
   const navigate = useNavigate();
 
-  // El ID del estudiante se obtiene de la sesión activa en cada render
-  const usuarioSesion = getSessionUser();
-  const ID_ESTUDIANTE = usuarioSesion?.id_usuario;
+  const ID_ESTUDIANTE =
+    obtenerIdEstudianteActual();
+
+  const inicioActividadRef =
+    useRef<number>(Date.now());
 
   const [frecDesierto, setFrecDesierto] = useState("");
   const [frecCueva, setFrecCueva] = useState("");
@@ -271,6 +395,13 @@ export default function EncuestaTripulacion() {
 
   useEffect(() => {
     const cargarProgreso = async () => {
+      if (!ID_ESTUDIANTE) {
+        console.warn(
+          "No se encontró el estudiante autenticado para cargar Encuesta de Tripulación.",
+        );
+        return;
+      }
+
       try {
         const response = await fetch(`${API_URL}/tripulacion/progreso/${ID_ESTUDIANTE}`);
         const data = await response.json();
@@ -320,14 +451,21 @@ export default function EncuestaTripulacion() {
       }
     };
 
-    cargarProgreso();
-  }, []);
+    void cargarProgreso();
+  }, [ID_ESTUDIANTE]);
 
   // ==========================================
   // VALIDAR TABLA CON EL BACKEND (celda por celda)
   // ==========================================
 
   const verificarTabla = async () => {
+    if (!ID_ESTUDIANTE) {
+      alert(
+        "No se encontró tu sesión. Inicia sesión nuevamente.",
+      );
+      return;
+    }
+
     setCargandoTabla(true);
     try {
       if (estadoDesierto !== "correcto" && frecDesierto.trim() !== "") {
@@ -381,27 +519,140 @@ export default function EncuestaTripulacion() {
   // ==========================================
 
   const enviarCentroDeMando = async () => {
-    if (!moduloSeleccionado) return;
+    if (
+      !moduloSeleccionado ||
+      cargandoEnvio
+    ) {
+      return;
+    }
+
+    if (!ID_ESTUDIANTE) {
+      alert(
+        "No se encontró tu sesión. Inicia sesión nuevamente.",
+      );
+      return;
+    }
 
     setCargandoEnvio(true);
-    try {
-      const response = await fetch(`${API_URL}/tripulacion/validar-modulo`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id_estudiante: ID_ESTUDIANTE,
-          modulo: moduloSeleccionado,
-        }),
-      });
 
-      const data = await response.json();
+    try {
+      const response = await fetch(
+        `${API_URL}/tripulacion/validar-modulo`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            id_estudiante:
+              ID_ESTUDIANTE,
+            modulo:
+              moduloSeleccionado,
+          }),
+        },
+      );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data?.message ||
+            `HTTP ${response.status}`,
+        );
+      }
 
       if (data.success && data.data) {
-        setResultado(data.data.correcto ? "exito" : "fallo");
+        const correcto =
+          Boolean(
+            data.data.correcto,
+          );
+
+        const tiempoSegundos =
+          Math.max(
+            1,
+            Math.floor(
+              (
+                Date.now() -
+                inicioActividadRef.current
+              ) / 1000,
+            ),
+          );
+
+        /*
+         * Se conserva el backend original de Tripulación
+         * y además se registra la actividad en el sistema
+         * unificado de progreso, estrellas y estadísticas.
+         */
+        try {
+          const resultadoProgreso =
+            await guardarProgresoUsuarioActual({
+              mundo: "MathData",
+              tema:
+                "Tablas de frecuencias",
+              actividad_codigo:
+                "mathdata-encuesta-tripulacion",
+              actividad_titulo:
+                "La Encuesta de la Tripulación",
+              respuestas: {
+                frecuencia_bosque:
+                  VOTOS.bosque,
+                frecuencia_desierto:
+                  Number(
+                    frecDesierto,
+                  ),
+                frecuencia_cueva:
+                  Number(
+                    frecCueva,
+                  ),
+                modulo_seleccionado:
+                  moduloSeleccionado,
+              },
+              aciertos:
+                correcto ? 3 : 2,
+              total_preguntas: 3,
+              tiempo_segundos:
+                tiempoSegundos,
+              xp_base: 50,
+              completada:
+                correcto,
+            });
+
+          console.log(
+            "Progreso de Encuesta de Tripulación guardado:",
+            resultadoProgreso.progreso,
+          );
+        } catch (
+          progresoError
+        ) {
+          console.error(
+            "La actividad se validó, pero no se pudo registrar en el progreso unificado:",
+            progresoError,
+          );
+        }
+
+        inicioActividadRef.current =
+          Date.now();
+
+        setResultado(
+          correcto
+            ? "exito"
+            : "fallo",
+        );
       }
     } catch (error) {
-      console.error("Error al enviar al Centro de Mando:", error);
-      alert("❌ Error al conectar con el servidor.");
+      console.error(
+        "Error al enviar al Centro de Mando:",
+        error,
+      );
+
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "Error al conectar con el servidor.";
+
+      alert(`❌ ${mensaje}`);
     } finally {
       setCargandoEnvio(false);
     }
@@ -430,6 +681,9 @@ export default function EncuestaTripulacion() {
     setMensajeCeldaCueva("");
     setModuloSeleccionado(null);
     setResultado(null);
+
+    inicioActividadRef.current =
+      Date.now();
   };
 
   // ==========================================
@@ -537,7 +791,11 @@ export default function EncuestaTripulacion() {
           <div className="res-modal-right">
             <button
               className="res-btn res-btn-azul"
-              onClick={() => navigate("/actividades-math-data")}
+              onClick={() =>
+                navigate(
+                  "/actividades-math-data/holograma-reportes",
+                )
+              }
             >
               Siguiente actividad
             </button>

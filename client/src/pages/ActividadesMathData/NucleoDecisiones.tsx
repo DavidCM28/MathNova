@@ -3,6 +3,9 @@ import type { DragEvent } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { getSessionUser } from "../../utils/authSession";
+import {
+  guardarProgresoUsuarioActual,
+} from "../../services/progresoService";
 
 import logo from "../../assets/logo_MathNova.png";
 import "./NucleoDecisiones.css";
@@ -59,11 +62,130 @@ import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
    CONFIGURACIÓN DEL BACKEND
 ========================================================= */
 
-const API_URL = "http://localhost:3001/api";
+const API_URL_BASE =
+  (
+    import.meta.env.VITE_API_URL as
+      | string
+      | undefined
+  )?.replace(/\/+$/, "") ||
+  "http://localhost:3001";
+
+const API_URL =
+  API_URL_BASE.endsWith("/api")
+    ? API_URL_BASE
+    : `${API_URL_BASE}/api`;
 
 /* =========================================================
    DATOS DE LA MISIÓN
 ========================================================= */
+
+type UsuarioSesionNucleo = {
+  id_usuario?: number | string;
+  idUsuario?: number | string;
+  usuario_id?: number | string;
+  user_id?: number | string;
+  userId?: number | string;
+  id?: number | string;
+  usuario?: UsuarioSesionNucleo;
+  user?: UsuarioSesionNucleo;
+  data?: UsuarioSesionNucleo;
+  session?: UsuarioSesionNucleo;
+};
+
+const extraerIdUsuarioNucleo = (
+  valor: unknown,
+): number => {
+  if (
+    !valor ||
+    typeof valor !== "object"
+  ) {
+    return 0;
+  }
+
+  const usuario =
+    valor as UsuarioSesionNucleo;
+
+  const idDirecto = Number(
+    usuario.id_usuario ??
+      usuario.idUsuario ??
+      usuario.usuario_id ??
+      usuario.user_id ??
+      usuario.userId ??
+      usuario.id ??
+      0,
+  );
+
+  if (
+    Number.isInteger(idDirecto) &&
+    idDirecto > 0
+  ) {
+    return idDirecto;
+  }
+
+  for (const anidado of [
+    usuario.usuario,
+    usuario.user,
+    usuario.data,
+    usuario.session,
+  ]) {
+    const idAnidado =
+      extraerIdUsuarioNucleo(
+        anidado,
+      );
+
+    if (idAnidado > 0) {
+      return idAnidado;
+    }
+  }
+
+  return 0;
+};
+
+const obtenerIdEstudianteActual = (): number => {
+  const candidatos: unknown[] = [
+    getSessionUser(),
+  ];
+
+  for (const clave of [
+    "auth_session",
+    "usuario",
+    "user",
+    "session_user",
+    "sessionUser",
+    "mathnova_user",
+    "authUser",
+  ]) {
+    try {
+      const valor =
+        localStorage.getItem(clave) ||
+        sessionStorage.getItem(clave);
+
+      if (valor) {
+        candidatos.push(
+          JSON.parse(valor),
+        );
+      }
+    } catch (error) {
+      console.warn(
+        `No se pudo leer la sesión "${clave}":`,
+        error,
+      );
+    }
+  }
+
+  for (const candidato of candidatos) {
+    const idUsuario =
+      extraerIdUsuarioNucleo(
+        candidato,
+      );
+
+    if (idUsuario > 0) {
+      return idUsuario;
+    }
+  }
+
+  return 0;
+};
 
 interface Expedicion {
   id: number;
@@ -266,9 +388,11 @@ function PistaBaitModal({
 export default function NucleoDecisiones() {
   const navigate = useNavigate();
 
-  // El ID del estudiante se obtiene de la sesión activa en cada render
-  const usuarioSesion = getSessionUser();
-  const ID_ESTUDIANTE = usuarioSesion?.id_usuario;
+  const ID_ESTUDIANTE =
+    obtenerIdEstudianteActual();
+
+  const guardandoProgresoRef =
+    useRef(false);
 
   /* ---- Paso 2: ordenamiento (drag & drop) ---- */
   const [orden, setOrden] = useState<number[]>(ORDEN_INICIAL);
@@ -348,6 +472,11 @@ export default function NucleoDecisiones() {
   const abrirPistaManual = () => {
     setMensajePistaBait("");
     setMostrarPistaBait(true);
+
+    if (!ID_ESTUDIANTE) {
+      return;
+    }
+
     fetch(`${API_URL}/nucleo/pista-consultada`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -361,6 +490,14 @@ export default function NucleoDecisiones() {
 
   useEffect(() => {
     const cargarProgreso = async () => {
+      if (!ID_ESTUDIANTE) {
+        console.warn(
+          "No se encontró el estudiante autenticado para cargar Núcleo de Decisiones.",
+        );
+        setCargandoInicial(false);
+        return;
+      }
+
       try {
         const response = await fetch(`${API_URL}/nucleo/progreso/${ID_ESTUDIANTE}`);
         const data = await response.json();
@@ -411,8 +548,8 @@ export default function NucleoDecisiones() {
       }
     };
 
-    cargarProgreso();
-  }, []);
+    void cargarProgreso();
+  }, [ID_ESTUDIANTE]);
 
   /* ---- Drag & drop del paso 2 ---- */
   const manejarDragStart = (index: number) => (e: DragEvent<HTMLDivElement>) => {
@@ -451,7 +588,19 @@ export default function NucleoDecisiones() {
   // ==========================================
 
   const verificarOrden = async () => {
-    if (ordenResuelto) return;
+    if (
+      ordenResuelto ||
+      cargandoOrden
+    ) {
+      return;
+    }
+
+    if (!ID_ESTUDIANTE) {
+      alert(
+        "No se encontró tu sesión. Inicia sesión nuevamente.",
+      );
+      return;
+    }
 
     setCargandoOrden(true);
     try {
@@ -474,11 +623,19 @@ export default function NucleoDecisiones() {
         if (r.mostrar_pista_bait) {
           setMensajePistaBait(r.mensaje);
           setMostrarPistaBait(true);
-          fetch(`${API_URL}/nucleo/pista-consultada`, {
+
+          if (ID_ESTUDIANTE) {
+            fetch(`${API_URL}/nucleo/pista-consultada`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, pantalla: "orden" }),
-          }).catch((error) => console.error("Error al registrar consulta de pista:", error));
+            }).catch((error) =>
+              console.error(
+                "Error al registrar consulta de pista:",
+                error,
+              ),
+            );
+          }
         }
 
         if (r.correcto) {
@@ -505,6 +662,17 @@ export default function NucleoDecisiones() {
     setValor: (v: string) => void,
     setCargando: (v: boolean) => void
   ) => {
+    if (!ID_ESTUDIANTE) {
+      alert(
+        "No se encontró tu sesión. Inicia sesión nuevamente.",
+      );
+      return;
+    }
+
+    if (!valorActual.trim()) {
+      return;
+    }
+
     setCargando(true);
     try {
       const response = await fetch(`${API_URL}/nucleo/${endpoint}`, {
@@ -520,11 +688,19 @@ export default function NucleoDecisiones() {
         if (r.mostrar_pista_bait) {
           setMensajePistaBait(r.mensaje);
           setMostrarPistaBait(true);
-          fetch(`${API_URL}/nucleo/pista-consultada`, {
+
+          if (ID_ESTUDIANTE) {
+            fetch(`${API_URL}/nucleo/pista-consultada`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, pantalla }),
-          }).catch((error) => console.error("Error al registrar consulta de pista:", error));
+            }).catch((error) =>
+              console.error(
+                "Error al registrar consulta de pista:",
+                error,
+              ),
+            );
+          }
         }
 
         if (r.celda_completada && !r.correcto) {
@@ -555,38 +731,185 @@ export default function NucleoDecisiones() {
 
   /* ---- Envío final de la decisión ---- */
   const handleEnviarDecision = async () => {
+    if (
+      cargandoEnvio ||
+      guardandoProgresoRef.current
+    ) {
+      return;
+    }
+
+    if (!ID_ESTUDIANTE) {
+      alert(
+        "No se encontró tu sesión. Inicia sesión nuevamente.",
+      );
+      return;
+    }
+
     setCargandoEnvio(true);
+    guardandoProgresoRef.current =
+      true;
+
+    const tiempoFinal =
+      Math.max(
+        segundosTranscurridos,
+        Math.floor(
+          (
+            Date.now() -
+            tiempoInicioRef.current
+          ) / 1000,
+        ),
+        1,
+      );
+
     try {
-      const response = await fetch(`${API_URL}/nucleo/enviar-decision`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id_estudiante: ID_ESTUDIANTE,
-          tiempo_total: segundosTranscurridos,
-        }),
-      });
-      const data = await response.json();
+      const response = await fetch(
+        `${API_URL}/nucleo/enviar-decision`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            id_estudiante:
+              ID_ESTUDIANTE,
+            tiempo_total:
+              tiempoFinal,
+          }),
+        },
+      );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data?.mensaje ||
+            data?.message ||
+            `HTTP ${response.status}`,
+        );
+      }
 
       if (data.success && data.data) {
-        setResultado(data.data.correcto ? "exito" : "fallo");
+        const correcto =
+          Boolean(
+            data.data.correcto,
+          );
+
+        const aciertosCalculados =
+          [
+            ordenResuelto,
+            mediaValida,
+            medianaValida,
+            modaValida,
+            rangoValido,
+          ].filter(Boolean).length;
+
+        const aciertosUnificados =
+          correcto
+            ? 5
+            : aciertosCalculados;
+
+        try {
+          const progresoUnificado =
+            await guardarProgresoUsuarioActual({
+              mundo: "MathData",
+              tema:
+                "Medidas de tendencia central y dispersión",
+              actividad_codigo:
+                "mathdata-nucleo-decisiones",
+              actividad_titulo:
+                "El Núcleo de Decisiones",
+              respuestas: {
+                orden_tiempos:
+                  orden.map(
+                    (id) =>
+                      VALOR_POR_ID[id],
+                  ),
+                media:
+                  Number(media),
+                mediana:
+                  Number(mediana),
+                moda:
+                  Number(moda),
+                rango:
+                  Number(rango),
+                capacidad_total:
+                  capacidadTotal,
+                respuestas_asistidas: {
+                  media:
+                    mediaAsistida,
+                  mediana:
+                    medianaAsistida,
+                  moda:
+                    modaAsistida,
+                  rango:
+                    rangoAsistida,
+                },
+              },
+              aciertos:
+                aciertosUnificados,
+              total_preguntas: 5,
+              tiempo_segundos:
+                tiempoFinal,
+              xp_base: 60,
+              completada:
+                correcto,
+            });
+
+          console.log(
+            "Progreso del Núcleo de Decisiones guardado:",
+            progresoUnificado.progreso,
+          );
+        } catch (
+          progresoError
+        ) {
+          console.error(
+            "La actividad se validó, pero no se pudo registrar en el progreso unificado:",
+            progresoError,
+          );
+        }
+
+        setSegundosTranscurridos(
+          tiempoFinal,
+        );
+
+        setResultado(
+          correcto
+            ? "exito"
+            : "fallo",
+        );
       }
     } catch (error) {
-      console.error("Error al enviar la decisión:", error);
-      alert("❌ Error al conectar con el servidor.");
+      console.error(
+        "Error al enviar la decisión:",
+        error,
+      );
+
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "Error al conectar con el servidor.";
+
+      alert(`❌ ${mensaje}`);
     } finally {
       setCargandoEnvio(false);
+      guardandoProgresoRef.current =
+        false;
     }
   };
 
   const handleReiniciarActividad = async () => {
-    try {
-      await fetch(`${API_URL}/nucleo/reiniciar`, {
+    if (ID_ESTUDIANTE) {
+      try {
+        await fetch(`${API_URL}/nucleo/reiniciar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE }),
-      });
-    } catch (error) {
-      console.error("Error al reiniciar actividad:", error);
+          body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE }),
+        });
+      } catch (error) {
+        console.error("Error al reiniciar actividad:", error);
+      }
     }
 
     setOrden(ORDEN_INICIAL);
@@ -609,6 +932,8 @@ export default function NucleoDecisiones() {
     setResultado(null);
     tiempoInicioRef.current = Date.now();
     setSegundosTranscurridos(0);
+    guardandoProgresoRef.current =
+      false;
   };
 
   /* ---- Resumen para las pantallas de resultado ---- */
@@ -735,7 +1060,14 @@ export default function NucleoDecisiones() {
           </div>
 
           <div className="res-modal-right">
-            <button className="res-btn res-btn-azul" onClick={() => navigate("/actividades-math-data")}>
+            <button
+              className="res-btn res-btn-azul"
+              onClick={() =>
+                navigate(
+                  "/actividades-math-data/oraculo-estacion",
+                )
+              }
+            >
               Siguiente actividad
             </button>
             <button className="res-btn res-btn-outline" onClick={handleReiniciarActividad}>
@@ -1034,7 +1366,10 @@ export default function NucleoDecisiones() {
                               ? "nuc-orden-chip-incorrecto"
                               : ""
                       }`}
-                      draggable={!posicionesCorrectas[index]}
+                      draggable={
+                        !posicionesCorrectas[index] &&
+                        !cargandoEnvio
+                      }
                       onDragStart={manejarDragStart(index)}
                       onDragOver={manejarDragOver(index)}
                       onDrop={manejarDrop(index)}
@@ -1055,7 +1390,11 @@ export default function NucleoDecisiones() {
                 type="button"
                 className="nuc-verificar-btn"
                 onClick={verificarOrden}
-                disabled={cargandoOrden || ordenResuelto}
+                disabled={
+                  cargandoOrden ||
+                  cargandoEnvio ||
+                  ordenResuelto
+                }
               >
                 <FiCheck /> {cargandoOrden ? "Verificando..." : "Verificar orden"}
               </button>
@@ -1081,7 +1420,12 @@ export default function NucleoDecisiones() {
                     inputMode="numeric"
                     className={`nuc-input nuc-input-${mediaAsistida ? "asistido" : mediaEstado}`}
                     value={media}
-                    disabled={!pasosDesbloqueados || cargandoMedia || mediaValida}
+                    disabled={
+                      !pasosDesbloqueados ||
+                      cargandoMedia ||
+                      cargandoEnvio ||
+                      mediaValida
+                    }
                     onChange={(e) => setMedia(e.target.value)}
                     aria-label="Resultado de la media"
                   />
@@ -1115,7 +1459,12 @@ export default function NucleoDecisiones() {
                     inputMode="numeric"
                     className={`nuc-input nuc-input-${medianaAsistida ? "asistido" : medianaEstado}`}
                     value={mediana}
-                    disabled={!pasosDesbloqueados || cargandoMediana || medianaValida}
+                    disabled={
+                      !pasosDesbloqueados ||
+                      cargandoMediana ||
+                      cargandoEnvio ||
+                      medianaValida
+                    }
                     onChange={(e) => setMediana(e.target.value)}
                     aria-label="Resultado de la mediana"
                   />
@@ -1149,7 +1498,12 @@ export default function NucleoDecisiones() {
                     inputMode="numeric"
                     className={`nuc-input nuc-input-${modaAsistida ? "asistido" : modaEstado}`}
                     value={moda}
-                    disabled={!pasosDesbloqueados || cargandoModa || modaValida}
+                    disabled={
+                      !pasosDesbloqueados ||
+                      cargandoModa ||
+                      cargandoEnvio ||
+                      modaValida
+                    }
                     onChange={(e) => setModa(e.target.value)}
                     aria-label="Resultado de la moda"
                   />
@@ -1181,7 +1535,12 @@ export default function NucleoDecisiones() {
                     inputMode="numeric"
                     className={`nuc-input nuc-input-${rangoAsistida ? "asistido" : rangoEstado}`}
                     value={rango}
-                    disabled={!pasosDesbloqueados || cargandoRango || rangoValido}
+                    disabled={
+                      !pasosDesbloqueados ||
+                      cargandoRango ||
+                      cargandoEnvio ||
+                      rangoValido
+                    }
                     onChange={(e) => setRango(e.target.value)}
                     aria-label="Resultado del rango"
                   />
@@ -1300,7 +1659,15 @@ export default function NucleoDecisiones() {
                 type="button"
                 className="nuc-enviar-btn"
                 onClick={handleEnviarDecision}
-                disabled={!ordenResuelto || !mediaValida || !medianaValida || !modaValida || !rangoValido || cargandoEnvio}
+                disabled={
+                  !ordenResuelto ||
+                  !mediaValida ||
+                  !medianaValida ||
+                  !modaValida ||
+                  !rangoValido ||
+                  cargandoEnvio
+                }
+                aria-busy={cargandoEnvio}
               >
                 <FiSend /> {cargandoEnvio ? "Enviando..." : "Enviar decisión"}
               </button>

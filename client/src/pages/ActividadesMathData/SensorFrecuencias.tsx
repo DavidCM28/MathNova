@@ -2,6 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { getSessionUser } from "../../utils/authSession";
+import {
+  guardarProgresoUsuarioActual,
+} from "../../services/progresoService";
 
 import logo from "../../assets/logo_MathNova.png";
 import "./SensorFrecuencias.css";
@@ -55,11 +58,148 @@ import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
    CONFIGURACIÓN DEL BACKEND
 ========================================================= */
 
-const API_URL = "http://localhost:3001/api";
+const API_URL_BASE =
+  (
+    import.meta.env.VITE_API_URL as
+      | string
+      | undefined
+  )?.replace(/\/+$/, "") ||
+  "http://localhost:3001";
+
+const API_URL =
+  API_URL_BASE.endsWith("/api")
+    ? API_URL_BASE
+    : `${API_URL_BASE}/api`;
 
 /* =========================================================
    DATOS DE LA MISIÓN
 ========================================================= */
+
+type UsuarioSesionSensor = {
+  id_usuario?: number | string;
+  idUsuario?: number | string;
+  usuario_id?: number | string;
+  user_id?: number | string;
+  userId?: number | string;
+  id?: number | string;
+  usuario?: UsuarioSesionSensor;
+  user?: UsuarioSesionSensor;
+  data?: UsuarioSesionSensor;
+  session?: UsuarioSesionSensor;
+};
+
+const extraerIdUsuarioSensor = (
+  valor: unknown,
+): number => {
+  if (
+    !valor ||
+    typeof valor !== "object"
+  ) {
+    return 0;
+  }
+
+  const usuario =
+    valor as UsuarioSesionSensor;
+
+  const idDirecto = Number(
+    usuario.id_usuario ??
+      usuario.idUsuario ??
+      usuario.usuario_id ??
+      usuario.user_id ??
+      usuario.userId ??
+      usuario.id ??
+      0,
+  );
+
+  if (
+    Number.isInteger(idDirecto) &&
+    idDirecto > 0
+  ) {
+    return idDirecto;
+  }
+
+  for (const anidado of [
+    usuario.usuario,
+    usuario.user,
+    usuario.data,
+    usuario.session,
+  ]) {
+    const idAnidado =
+      extraerIdUsuarioSensor(
+        anidado,
+      );
+
+    if (idAnidado > 0) {
+      return idAnidado;
+    }
+  }
+
+  return 0;
+};
+
+const obtenerIdEstudianteActual = (): number => {
+  const candidatos: unknown[] = [
+    getSessionUser(),
+  ];
+
+  for (const clave of [
+    "auth_session",
+    "usuario",
+    "user",
+    "session_user",
+    "sessionUser",
+    "mathnova_user",
+    "authUser",
+  ]) {
+    try {
+      const valor =
+        localStorage.getItem(clave) ||
+        sessionStorage.getItem(clave);
+
+      if (valor) {
+        candidatos.push(
+          JSON.parse(valor),
+        );
+      }
+    } catch (error) {
+      console.warn(
+        `No se pudo leer la sesión "${clave}":`,
+        error,
+      );
+    }
+  }
+
+  for (const candidato of candidatos) {
+    const idUsuario =
+      extraerIdUsuarioSensor(
+        candidato,
+      );
+
+    if (idUsuario > 0) {
+      return idUsuario;
+    }
+  }
+
+  return 0;
+};
+
+const formatearTiempoSensor = (
+  segundos: number,
+): string => {
+  const minutos = Math.floor(
+    segundos / 60,
+  );
+
+  const segundosRestantes =
+    segundos % 60;
+
+  return `${String(minutos).padStart(
+    2,
+    "0",
+  )}:${String(
+    segundosRestantes,
+  ).padStart(2, "0")}`;
+};
 
 type Senal = "alfa" | "beta" | "gamma" | "delta";
 
@@ -287,9 +427,14 @@ function PistaBaitModal({
 export default function SensorFrecuencias() {
   const navigate = useNavigate();
 
-  // El ID del estudiante se obtiene de la sesión activa en cada render
-  const usuarioSesion = getSessionUser();
-  const ID_ESTUDIANTE = usuarioSesion?.id_usuario;
+  const ID_ESTUDIANTE =
+    obtenerIdEstudianteActual();
+
+  const inicioActividadRef =
+    useRef<number>(Date.now());
+
+  const guardandoProgresoRef =
+    useRef(false);
 
   const [frecAbsoluta, setFrecAbsoluta] = useState<Record<Senal, string>>({
     alfa: "",
@@ -338,12 +483,31 @@ export default function SensorFrecuencias() {
   const [cargandoRelativa, setCargandoRelativa] = useState(false);
   const [cargandoZona, setCargandoZona] = useState(false);
 
+  const [
+    aciertosResultado,
+    setAciertosResultado,
+  ] = useState(0);
+
+  const [
+    tiempoResultado,
+    setTiempoResultado,
+  ] = useState(0);
+
+
   // ==========================================
   // CARGAR PROGRESO GUARDADO
   // ==========================================
 
   useEffect(() => {
     const cargarProgreso = async () => {
+      if (!ID_ESTUDIANTE) {
+        console.warn(
+          "No se encontró el estudiante autenticado para cargar Sensor de Frecuencias.",
+        );
+        setCargandoInicial(false);
+        return;
+      }
+
       try {
         const response = await fetch(`${API_URL}/sensor/progreso/${ID_ESTUDIANTE}`);
         const data = await response.json();
@@ -389,7 +553,75 @@ export default function SensorFrecuencias() {
           }
 
           if (progreso.completada) {
-            setResultado(progreso.resultado_correcto ? "exito" : "fallo");
+            const correcto =
+              Boolean(
+                progreso.resultado_correcto,
+              );
+
+            const senales =
+              [
+                "alfa",
+                "beta",
+                "gamma",
+                "delta",
+              ] as Senal[];
+
+            const absolutasCorrectas =
+              senales.every(
+                (senal) =>
+                  Number(
+                    valoresAbs[senal],
+                  ) ===
+                  FRECUENCIAS[senal],
+              );
+
+            const relativasCorrectas =
+              senales.every(
+                (senal) =>
+                  String(
+                    valoresRel[senal] ??
+                      "",
+                  ).trim() ===
+                  PORCENTAJES_CORRECTOS[
+                    senal
+                  ],
+              );
+
+            const aciertosGuardados =
+              correcto
+                ? 4
+                : Number(
+                    absolutasCorrectas,
+                  ) +
+                  Number(
+                    relativasCorrectas,
+                  ) +
+                  Number(
+                    progreso.pregunta_senal_frecuente ===
+                      "beta",
+                  ) +
+                  Number(
+                    progreso.pregunta_zona_origen ===
+                      "sur",
+                  );
+
+            setAciertosResultado(
+              aciertosGuardados,
+            );
+
+            setTiempoResultado(
+              Number(
+                progreso.tiempo_total ??
+                  progreso.tiempo_segundos ??
+                  0,
+              ) || 0,
+            );
+
+            setResultado(
+              correcto
+                ? "exito"
+                : "fallo",
+            );
           }
         }
       } catch (error) {
@@ -399,8 +631,8 @@ export default function SensorFrecuencias() {
       }
     };
 
-    cargarProgreso();
-  }, []);
+    void cargarProgreso();
+  }, [ID_ESTUDIANTE]);
 
   const absolutaEstado = (s: Senal) => absolutaEstados[s];
   const relativaEstado = (s: Senal) => relativaEstados[s];
@@ -410,6 +642,20 @@ export default function SensorFrecuencias() {
   // ==========================================
 
   const verificarAbsoluta = async () => {
+    if (
+      cargandoAbsoluta ||
+      cargandoZona
+    ) {
+      return;
+    }
+
+    if (!ID_ESTUDIANTE) {
+      alert(
+        "No se encontró tu sesión. Inicia sesión nuevamente.",
+      );
+      return;
+    }
+
     setCargandoAbsoluta(true);
     try {
       for (const s of Object.keys(FRECUENCIAS) as Senal[]) {
@@ -464,6 +710,20 @@ export default function SensorFrecuencias() {
   // ==========================================
 
   const verificarRelativa = async () => {
+    if (
+      cargandoRelativa ||
+      cargandoZona
+    ) {
+      return;
+    }
+
+    if (!ID_ESTUDIANTE) {
+      alert(
+        "No se encontró tu sesión. Inicia sesión nuevamente.",
+      );
+      return;
+    }
+
     setCargandoRelativa(true);
     try {
       for (const s of Object.keys(PORCENTAJES_CORRECTOS) as Senal[]) {
@@ -518,30 +778,232 @@ export default function SensorFrecuencias() {
   // ==========================================
 
   const calcularZonaOrigen = async () => {
-    if (!preguntaMayorFrecuencia || !preguntaZona) return;
+    if (
+      !preguntaMayorFrecuencia ||
+      !preguntaZona ||
+      cargandoZona ||
+      guardandoProgresoRef.current
+    ) {
+      return;
+    }
+
+    if (!ID_ESTUDIANTE) {
+      alert(
+        "No se encontró tu sesión. Inicia sesión nuevamente.",
+      );
+      return;
+    }
 
     setCargandoZona(true);
-    try {
-      const response = await fetch(`${API_URL}/sensor/calcular-zona`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id_estudiante: ID_ESTUDIANTE,
-          pregunta_senal_frecuente: preguntaMayorFrecuencia,
-          pregunta_zona_origen: preguntaZona,
-        }),
-      });
+    guardandoProgresoRef.current =
+      true;
 
-      const data = await response.json();
+    const tiempoSegundos = Math.max(
+      1,
+      Math.floor(
+        (
+          Date.now() -
+          inicioActividadRef.current
+        ) / 1000,
+      ),
+    );
+
+    try {
+      const response = await fetch(
+        `${API_URL}/sensor/calcular-zona`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            id_estudiante:
+              ID_ESTUDIANTE,
+            pregunta_senal_frecuente:
+              preguntaMayorFrecuencia,
+            pregunta_zona_origen:
+              preguntaZona,
+          }),
+        },
+      );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data?.mensaje ||
+            data?.message ||
+            `HTTP ${response.status}`,
+        );
+      }
 
       if (data.success && data.data) {
-        setResultado(data.data.correcto ? "exito" : "fallo");
+        const correcto =
+          Boolean(
+            data.data.correcto,
+          );
+
+        const senales =
+          [
+            "alfa",
+            "beta",
+            "gamma",
+            "delta",
+          ] as Senal[];
+
+        const absolutasCorrectas =
+          senales.every(
+            (senal) =>
+              absolutaEstados[
+                senal
+              ] === "correcto" ||
+              Number(
+                frecAbsoluta[
+                  senal
+                ],
+              ) ===
+                FRECUENCIAS[
+                  senal
+                ],
+          );
+
+        const relativasCorrectas =
+          senales.every(
+            (senal) =>
+              relativaEstados[
+                senal
+              ] === "correcto" ||
+              frecRelativa[
+                senal
+              ].trim() ===
+                PORCENTAJES_CORRECTOS[
+                  senal
+                ],
+          );
+
+        const senalCorrecta =
+          preguntaMayorFrecuencia ===
+          "beta";
+
+        const zonaCorrecta =
+          preguntaZona === "sur";
+
+        const aciertosCalculados =
+          correcto
+            ? 4
+            : Number(
+                absolutasCorrectas,
+              ) +
+              Number(
+                relativasCorrectas,
+              ) +
+              Number(
+                senalCorrecta,
+              ) +
+              Number(
+                zonaCorrecta,
+              );
+
+        try {
+          const progresoUnificado =
+            await guardarProgresoUsuarioActual({
+              mundo: "MathData",
+              tema:
+                "Frecuencia absoluta y relativa",
+              actividad_codigo:
+                "mathdata-sensor-frecuencias",
+              actividad_titulo:
+                "Sensor de Frecuencias",
+              respuestas: {
+                frecuencias_absolutas:
+                  Object.fromEntries(
+                    senales.map(
+                      (senal) => [
+                        senal,
+                        Number(
+                          frecAbsoluta[
+                            senal
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                frecuencias_relativas:
+                  Object.fromEntries(
+                    senales.map(
+                      (senal) => [
+                        senal,
+                        Number(
+                          frecRelativa[
+                            senal
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                senal_mayor_frecuencia:
+                  preguntaMayorFrecuencia,
+                zona_origen:
+                  preguntaZona,
+              },
+              aciertos:
+                aciertosCalculados,
+              total_preguntas: 4,
+              tiempo_segundos:
+                tiempoSegundos,
+              xp_base: 50,
+              completada:
+                correcto,
+            });
+
+          console.log(
+            "Progreso del Sensor de Frecuencias guardado:",
+            progresoUnificado.progreso,
+          );
+        } catch (
+          progresoError
+        ) {
+          console.error(
+            "La actividad se validó, pero no se pudo registrar en el progreso unificado:",
+            progresoError,
+          );
+        }
+
+        setAciertosResultado(
+          aciertosCalculados,
+        );
+
+        setTiempoResultado(
+          tiempoSegundos,
+        );
+
+        inicioActividadRef.current =
+          Date.now();
+
+        setResultado(
+          correcto
+            ? "exito"
+            : "fallo",
+        );
       }
     } catch (error) {
-      console.error("Error al calcular la zona de origen:", error);
-      alert("❌ Error al conectar con el servidor.");
+      console.error(
+        "Error al calcular la zona de origen:",
+        error,
+      );
+
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "Error al conectar con el servidor.";
+
+      alert(`❌ ${mensaje}`);
     } finally {
       setCargandoZona(false);
+      guardandoProgresoRef.current =
+        false;
     }
   };
 
@@ -550,14 +1012,16 @@ export default function SensorFrecuencias() {
   // ==========================================
 
   const handleReiniciarActividad = async () => {
-    try {
-      await fetch(`${API_URL}/sensor/reiniciar`, {
+    if (ID_ESTUDIANTE) {
+      try {
+        await fetch(`${API_URL}/sensor/reiniciar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE }),
-      });
-    } catch (error) {
-      console.error("Error al reiniciar actividad:", error);
+          body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE }),
+        });
+      } catch (error) {
+        console.error("Error al reiniciar actividad:", error);
+      }
     }
 
     setFrecAbsoluta({ alfa: "", beta: "", gamma: "", delta: "" });
@@ -569,7 +1033,22 @@ export default function SensorFrecuencias() {
     setPreguntaMayorFrecuencia(null);
     setPreguntaZona(null);
     setResultado(null);
+    setAciertosResultado(0);
+    setTiempoResultado(0);
+
+    guardandoProgresoRef.current =
+      false;
+
+    inicioActividadRef.current =
+      Date.now();
   };
+
+  const precisionResultado =
+    Math.round(
+      (
+        aciertosResultado / 4
+      ) * 100,
+    );
 
   // ==========================================
   // PANTALLA DE CARGA INICIAL (evita mostrar el
@@ -652,21 +1131,29 @@ export default function SensorFrecuencias() {
               <div className="res-resumen-stats">
                 <div className="res-stat">
                   <img src={iconoAciertos} alt="" className="res-stat-img" />
-                  <strong className="res-stat-num-verde">4/4</strong>
+                  <strong className="res-stat-num-verde">
+                    {aciertosResultado}/4
+                  </strong>
                   <small>Pasos correctos</small>
                   <em>¡Perfecto!</em>
                 </div>
                 <div className="res-stat-sep" />
                 <div className="res-stat">
                   <img src={iconoTiempo} alt="" className="res-stat-img" />
-                  <strong>—</strong>
+                  <strong>
+                    {formatearTiempoSensor(
+                      tiempoResultado,
+                    )}
+                  </strong>
                   <small>Tiempo</small>
                   <em>min</em>
                 </div>
                 <div className="res-stat-sep" />
                 <div className="res-stat">
                   <img src={iconoPrecision} alt="" className="res-stat-img" />
-                  <strong className="res-stat-num-verde">100%</strong>
+                  <strong className="res-stat-num-verde">
+                    {precisionResultado}%
+                  </strong>
                   <small>Precisión</small>
                   <em>¡Impecable!</em>
                 </div>
@@ -689,7 +1176,14 @@ export default function SensorFrecuencias() {
           </div>
 
           <div className="res-modal-right">
-            <button className="res-btn res-btn-azul" onClick={() => navigate("/actividades-math-data")}>
+            <button
+              className="res-btn res-btn-azul"
+              onClick={() =>
+                navigate(
+                  "/actividades-math-data/nucleo-decisiones",
+                )
+              }
+            >
               Siguiente actividad
             </button>
             <button className="res-btn res-btn-outline" onClick={handleReiniciarActividad}>
@@ -773,21 +1267,29 @@ export default function SensorFrecuencias() {
               <div className="res-resumen-stats">
                 <div className="res-stat">
                   <img src={iconoAciertos} alt="" className="res-stat-img" />
-                  <strong>1/4</strong>
+                  <strong>
+                    {aciertosResultado}/4
+                  </strong>
                   <small>Pasos correctos</small>
                   <em>¡Sigue así!</em>
                 </div>
                 <div className="res-stat-sep" />
                 <div className="res-stat">
                   <img src={iconoTiempo} alt="" className="res-stat-img" />
-                  <strong>—</strong>
+                  <strong>
+                    {formatearTiempoSensor(
+                      tiempoResultado,
+                    )}
+                  </strong>
                   <small>Tiempo</small>
                   <em>min</em>
                 </div>
                 <div className="res-stat-sep" />
                 <div className="res-stat">
                   <img src={iconoPrecision} alt="" className="res-stat-img" />
-                  <strong>25%</strong>
+                  <strong>
+                    {precisionResultado}%
+                  </strong>
                   <small>Precisión</small>
                   <em>Puedes mejorar</em>
                 </div>
@@ -1031,7 +1533,12 @@ export default function SensorFrecuencias() {
                             setFrecAbsoluta((prev) => ({ ...prev, [s]: e.target.value }))
                           }
                           aria-label={`Frecuencia absoluta de ${NOMBRE_SENAL[s]}`}
-                          disabled={cargandoAbsoluta || absolutaBloqueada[s] || absolutaEstados[s] === "correcto"}
+                          disabled={
+                            cargandoAbsoluta ||
+                            cargandoZona ||
+                            absolutaBloqueada[s] ||
+                            absolutaEstados[s] === "correcto"
+                          }
                         />
                         {absolutaEstado(s) === "correcto" && <FiCheckCircle className="sen-check-verde" />}
                       </div>
@@ -1054,7 +1561,10 @@ export default function SensorFrecuencias() {
               type="button"
               className="sen-verificar-btn"
               onClick={verificarAbsoluta}
-              disabled={cargandoAbsoluta}
+              disabled={
+                cargandoAbsoluta ||
+                cargandoZona
+              }
             >
               <FiCheck /> {cargandoAbsoluta ? "Verificando..." : "Verificar frecuencias"}
             </button>
@@ -1095,7 +1605,12 @@ export default function SensorFrecuencias() {
                             setFrecRelativa((prev) => ({ ...prev, [s]: e.target.value }))
                           }
                           aria-label={`Frecuencia relativa de ${NOMBRE_SENAL[s]}`}
-                          disabled={cargandoRelativa || relativaBloqueada[s] || relativaEstados[s] === "correcto"}
+                          disabled={
+                            cargandoRelativa ||
+                            cargandoZona ||
+                            relativaBloqueada[s] ||
+                            relativaEstados[s] === "correcto"
+                          }
                         />
                         <span>%</span>
                         {relativaEstado(s) === "correcto" && <FiCheckCircle className="sen-check-verde" />}
@@ -1118,7 +1633,10 @@ export default function SensorFrecuencias() {
               type="button"
               className="sen-verificar-btn"
               onClick={verificarRelativa}
-              disabled={cargandoRelativa}
+              disabled={
+                cargandoRelativa ||
+                cargandoZona
+              }
             >
               <FiPercent /> {cargandoRelativa ? "Verificando..." : "Verificar porcentajes"}
             </button>
@@ -1143,6 +1661,7 @@ export default function SensorFrecuencias() {
                     }`}
                     onClick={() => setPreguntaMayorFrecuencia(s)}
                     aria-pressed={preguntaMayorFrecuencia === s}
+                    disabled={cargandoZona}
                   >
                     <span className="sen-radio-circulo" />
                     {NOMBRE_SENAL[s]}
@@ -1166,6 +1685,7 @@ export default function SensorFrecuencias() {
                     }`}
                     onClick={() => setPreguntaZona(z)}
                     aria-pressed={preguntaZona === z}
+                    disabled={cargandoZona}
                   >
                     <span className="sen-radio-circulo" />
                     {NOMBRE_ZONA[z]}
@@ -1185,6 +1705,11 @@ export default function SensorFrecuencias() {
               onClick={() => {
                 setMensajePistaBait("");
                 setMostrarPistaBait(true);
+
+                if (!ID_ESTUDIANTE) {
+                  return;
+                }
+
                 fetch(`${API_URL}/sensor/pista-consultada`, {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
@@ -1212,9 +1737,17 @@ export default function SensorFrecuencias() {
             type="button"
             className="sen-calcular-btn"
             onClick={calcularZonaOrigen}
-            disabled={!preguntaMayorFrecuencia || !preguntaZona || cargandoZona}
+            disabled={
+              !preguntaMayorFrecuencia ||
+              !preguntaZona ||
+              cargandoZona
+            }
+            aria-busy={cargandoZona}
           >
-            <FiTarget /> {cargandoZona ? "Calculando..." : "Calcular Zona de Origen"}
+            <FiTarget />
+            {cargandoZona
+              ? "Guardando progreso..."
+              : "Calcular Zona de Origen"}
           </button>
         </div>
       </main>

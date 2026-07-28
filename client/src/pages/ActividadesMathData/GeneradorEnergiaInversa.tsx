@@ -65,24 +65,146 @@ import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 import { FaStar, FaShieldAlt, FaGem, FaLightbulb, FaHandPointUp, FaBroadcastTower } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
 import { getSessionUser } from "../../utils/authSession";
+import {
+  guardarProgresoUsuarioActual,
+} from "../../services/progresoService";
 
 // ============================================
 // CONFIGURACIÓN DEL BACKEND
 // ============================================
 
-const API_URL = "http://localhost:3001/api";
+const API_URL_BASE =
+  (
+    import.meta.env.VITE_API_URL as
+      | string
+      | undefined
+  )?.replace(/\/+$/, "") ||
+  "http://localhost:3001";
+
+const API_URL =
+  API_URL_BASE.endsWith("/api")
+    ? API_URL_BASE
+    : `${API_URL_BASE}/api`;
+
+type UsuarioSesionGenerador = {
+  id_usuario?: number | string;
+  idUsuario?: number | string;
+  usuario_id?: number | string;
+  user_id?: number | string;
+  userId?: number | string;
+  id?: number | string;
+  usuario?: UsuarioSesionGenerador;
+  user?: UsuarioSesionGenerador;
+  data?: UsuarioSesionGenerador;
+  session?: UsuarioSesionGenerador;
+};
+
+const extraerIdUsuarioGenerador = (
+  valor: unknown,
+): number => {
+  if (
+    !valor ||
+    typeof valor !== "object"
+  ) {
+    return 0;
+  }
+
+  const usuario =
+    valor as UsuarioSesionGenerador;
+
+  const idDirecto = Number(
+    usuario.id_usuario ??
+      usuario.idUsuario ??
+      usuario.usuario_id ??
+      usuario.user_id ??
+      usuario.userId ??
+      usuario.id ??
+      0,
+  );
+
+  if (
+    Number.isInteger(idDirecto) &&
+    idDirecto > 0
+  ) {
+    return idDirecto;
+  }
+
+  for (const anidado of [
+    usuario.usuario,
+    usuario.user,
+    usuario.data,
+    usuario.session,
+  ]) {
+    const idAnidado =
+      extraerIdUsuarioGenerador(
+        anidado,
+      );
+
+    if (idAnidado > 0) {
+      return idAnidado;
+    }
+  }
+
+  return 0;
+};
+
+const obtenerIdEstudianteActual = (): number => {
+  const candidatos: unknown[] = [
+    getSessionUser(),
+  ];
+
+  for (const clave of [
+    "auth_session",
+    "usuario",
+    "user",
+    "session_user",
+    "sessionUser",
+    "mathnova_user",
+    "authUser",
+  ]) {
+    try {
+      const valor =
+        localStorage.getItem(clave) ||
+        sessionStorage.getItem(clave);
+
+      if (valor) {
+        candidatos.push(
+          JSON.parse(valor),
+        );
+      }
+    } catch (error) {
+      console.warn(
+        `No se pudo leer la sesión "${clave}":`,
+        error,
+      );
+    }
+  }
+
+  for (const candidato of candidatos) {
+    const idUsuario =
+      extraerIdUsuarioGenerador(
+        candidato,
+      );
+
+    if (idUsuario > 0) {
+      return idUsuario;
+    }
+  }
+
+  return 0;
+};
 
 // ============================================
 // DATOS INICIALES (NO MODIFICAR)
 // ============================================
 
 const filasIniciales = [
-  { x: 1, y: "12", editable: false, correcto: true, bloqueada: false, asistida: false },
-  { x: 2, y: "6", editable: false, correcto: true, bloqueada: false, asistida: false },
-  { x: 3, y: "4", editable: false, correcto: true, bloqueada: false, asistida: false },
-  { x: 4, y: "", editable: true, correcto: null, bloqueada: false, asistida: false },
-  { x: 6, y: "", editable: true, correcto: null, bloqueada: false, asistida: false },
-  { x: 12, y: "", editable: true, correcto: null, bloqueada: false, asistida: false },
+  { x: 1, y: "12", editable: false, correcto: true, bloqueada: false },
+  { x: 2, y: "6", editable: false, correcto: true, bloqueada: false },
+  { x: 3, y: "4", editable: false, correcto: true, bloqueada: false },
+  { x: 4, y: "", editable: true, correcto: null, bloqueada: false },
+  { x: 6, y: "", editable: true, correcto: null, bloqueada: false },
+  { x: 12, y: "", editable: true, correcto: null, bloqueada: false },
 ];
 
 const puntosIniciales = [
@@ -252,14 +374,18 @@ function GeneradorEnergiaInversa() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  // El ID del estudiante se obtiene de la sesión activa en cada render
-  const usuarioSesion = getSessionUser();
-  const ID_ESTUDIANTE = usuarioSesion?.id_usuario;
+  const ID_ESTUDIANTE =
+    obtenerIdEstudianteActual();
+
+  const inicioActividadRef =
+    useRef<number>(Date.now());
+
+  const guardandoProgresoRef =
+    useRef(false);
 
   const [filas, setFilas] = useState(filasIniciales);
   const [puntos, setPuntos] = useState(puntosIniciales);
   const [puntosIncorrectos, setPuntosIncorrectos] = useState<{ x: number; y: number }[]>([]);
-  const [puntosAsistidos, setPuntosAsistidos] = useState<{ x: number; y: number }[]>([]);
   const [respuesta, setRespuesta] = useState("");
   const [mensajeFeedback, setMensajeFeedback] = useState("");
   const [actividadCompletada, setActividadCompletada] = useState(false);
@@ -270,27 +396,7 @@ function GeneradorEnergiaInversa() {
   const [mostrarIntroVillano, setMostrarIntroVillano] = useState(false);
   const [mostrarVillanoDerrotado, setMostrarVillanoDerrotado] = useState(false);
   const [mostrarPistaModal, setMostrarPistaModal] = useState(false);
-  const [cargandoInicial, setCargandoInicial] = useState(true);
-
-  // ---- Temporizador ----
-  const tiempoInicioRef = useRef<number>(Date.now());
-  const [segundosTranscurridos, setSegundosTranscurridos] = useState(0);
-
-  useEffect(() => {
-    if (cargandoInicial || resultado !== null) return;
-
-    const intervalo = setInterval(() => {
-      setSegundosTranscurridos(Math.floor((Date.now() - tiempoInicioRef.current) / 1000));
-    }, 1000);
-
-    return () => clearInterval(intervalo);
-  }, [cargandoInicial, resultado]);
-
-  const formatearTiempo = (segundos: number) => {
-    const m = Math.floor(segundos / 60);
-    const s = segundos % 60;
-    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-  };
+  const [graficaCompleta, setGraficaCompleta] = useState(false);
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
@@ -303,63 +409,54 @@ function GeneradorEnergiaInversa() {
 
   useEffect(() => {
     const cargarProgreso = async () => {
+      if (!ID_ESTUDIANTE) {
+        console.warn(
+          "No se encontró el estudiante autenticado para cargar Generador de Energía Inversa.",
+        );
+        return;
+      }
+
       try {
         const response = await fetch(`${API_URL}/proporcionalidad/progreso/${ID_ESTUDIANTE}`);
         const data = await response.json();
 
         if (data.success && data.data) {
           const progreso = data.data;
-          const celdasAsistidas = (progreso.celdas_asistidas || {}) as Record<string, boolean>;
 
           if (progreso.valores_tabla) {
             const nuevosValores = filasIniciales.map((fila) => {
               const valorGuardado = (progreso.valores_tabla as Record<string, number>)[String(fila.x)];
               if (valorGuardado !== undefined) {
-                const esAsistida = !!celdasAsistidas[String(fila.x)];
-                return {
-                  ...fila,
-                  y: String(valorGuardado),
-                  correcto: esAsistida ? null : true,
-                  bloqueada: true,
-                  asistida: esAsistida,
-                };
+                return { ...fila, y: String(valorGuardado), correcto: true, bloqueada: true };
               }
               return fila;
             });
             setFilas(nuevosValores);
-
-            const puntosAsistidosRestaurados = nuevosValores
-              .filter((f) => f.asistida)
-              .map((f) => ({ x: f.x, y: Number(f.y) }));
-            if (puntosAsistidosRestaurados.length > 0) {
-              setPuntosAsistidos(puntosAsistidosRestaurados);
-            }
           }
 
-          // ✅ CORREGIDO: "completada" ahora manda a éxito siempre (con o
-          // sin ayuda); el color naranja ya indica que hubo asistencia,
-          // no hace falta mandar a la pantalla de fallo por eso.
           if (progreso.completada) {
             setActividadCompletada(true);
             setXpGanado(progreso.xp_obtenido || 0);
-            setResultado("exito");
+            setResultado(progreso.prediccion_correcta ? "exito" : "fallo");
           }
         }
       } catch (error) {
         console.error("Error al cargar progreso:", error);
-      } finally {
-        setCargandoInicial(false);
       }
     };
 
-    cargarProgreso();
-  }, []);
+    void cargarProgreso();
+  }, [ID_ESTUDIANTE]);
 
   // ==========================================
   // GUARDAR PROGRESO EN EL BACKEND
   // ==========================================
 
   const guardarProgreso = async (pantalla: number) => {
+    if (!ID_ESTUDIANTE) {
+      return;
+    }
+
     try {
       await fetch(`${API_URL}/proporcionalidad/guardar-progreso`, {
         method: "POST",
@@ -396,13 +493,17 @@ function GeneradorEnergiaInversa() {
     setFilas(filasIniciales);
     setPuntos(puntosIniciales);
     setPuntosIncorrectos([]);
-    setPuntosAsistidos([]);
     setMensajeFeedback("");
     setProgresoPorcentaje(0);
     setRespuesta("");
     setXpGanado(0);
-    tiempoInicioRef.current = Date.now();
-    setSegundosTranscurridos(0);
+    setGraficaCompleta(false);
+
+    guardandoProgresoRef.current =
+      false;
+
+    inicioActividadRef.current =
+      Date.now();
   };
 
   // ==========================================
@@ -410,6 +511,13 @@ function GeneradorEnergiaInversa() {
   // ==========================================
 
   const actualizarFila = async (index: number, valor: string) => {
+    if (!ID_ESTUDIANTE) {
+      setMensajeFeedback(
+        "❌ No se encontró tu sesión. Inicia sesión nuevamente.",
+      );
+      return;
+    }
+
     setFilas((prev) =>
       prev.map((fila, i) => (i === index ? { ...fila, y: valor, correcto: null } : fila))
     );
@@ -441,19 +549,16 @@ function GeneradorEnergiaInversa() {
             if (i !== index) return f;
 
             if (resultado.celda_completada && !resultado.correcto) {
-              // Se agotaron los intentos: se revela la respuesta. Ya NO se
-              // marca como "incorrecta" (rojo) — se marca "asistida"
-              // (naranja fijo), porque quedó resuelta con ayuda.
+              // Se agotaron los intentos: se revela la respuesta y se bloquea
               return {
                 ...f,
                 y: String(resultado.respuesta_correcta),
-                correcto: null,
+                correcto: false,
                 bloqueada: true,
-                asistida: true,
               };
             }
 
-            return { ...f, correcto: resultado.correcto, asistida: false };
+            return { ...f, correcto: resultado.correcto };
           })
         );
 
@@ -465,18 +570,9 @@ function GeneradorEnergiaInversa() {
           }
           // Ya no está mal: si tenía un punto rojo marcado, se quita
           setPuntosIncorrectos((prev) => prev.filter((p) => p.x !== fila.x));
-        } else if (resultado.celda_completada && resultado.asistido) {
-          // Revelada: punto naranja fijo (sin parpadeo), se quita el rojo
-          setMensajeFeedback("");
-          setPuntosIncorrectos((prev) => prev.filter((p) => p.x !== fila.x));
-          setPuntosAsistidos((prev) => [
-            ...prev.filter((p) => p.x !== fila.x),
-            { x: fila.x, y: Number(resultado.respuesta_correcta) },
-          ]);
-          await guardarProgreso(4);
         } else {
-          // Incorrecto (aún con intentos disponibles): sin mensaje de
-          // texto, solo el punto rojo parpadeante en la gráfica
+          // Incorrecto: sin mensaje de texto, solo el punto rojo parpadeante
+          // en la gráfica (la pista del asistente ya está disponible aparte)
           setMensajeFeedback("");
           setPuntosIncorrectos((prev) => [
             ...prev.filter((p) => p.x !== fila.x),
@@ -500,60 +596,230 @@ function GeneradorEnergiaInversa() {
   // VALIDAR PREDICCIÓN CON BACKEND
   // ==========================================
 
-  const tablaCompleta = filas.every((f) => !f.editable || f.correcto === true || f.bloqueada);
-
   const handleEnviarPrediccion = async () => {
-    if (!tablaCompleta) {
-      setMensajeFeedback("⚠️ Completa primero todas las casillas de la tabla antes de enviar tu predicción.");
+    if (
+      respuesta.trim() === "" ||
+      cargando ||
+      guardandoProgresoRef.current
+    ) {
+      if (respuesta.trim() === "") {
+        setMensajeFeedback(
+          "⚠️ Escribe una respuesta antes de enviar.",
+        );
+      }
       return;
     }
 
-    if (respuesta.trim() === "") {
-      setMensajeFeedback("⚠️ Escribe una respuesta antes de enviar.");
+    if (!ID_ESTUDIANTE) {
+      setMensajeFeedback(
+        "❌ No se encontró tu sesión. Inicia sesión nuevamente.",
+      );
       return;
     }
 
     setCargando(true);
-    try {
-      const response = await fetch(`${API_URL}/proporcionalidad/prediccion`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id_estudiante: ID_ESTUDIANTE,
-          prediccion: Number(respuesta),
-          tiempo_total: segundosTranscurridos,
-        }),
-      });
+    guardandoProgresoRef.current =
+      true;
 
-      const data = await response.json();
-      console.log("Respuesta del backend:", data);
+    try {
+      const response = await fetch(
+        `${API_URL}/proporcionalidad/prediccion`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            id_estudiante:
+              ID_ESTUDIANTE,
+            prediccion:
+              Number(respuesta),
+          }),
+        },
+      );
+
+      const data =
+        await response.json();
+
+      console.log(
+        "Respuesta del backend:",
+        data,
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          data?.mensaje ||
+            data?.message ||
+            `HTTP ${response.status}`,
+        );
+      }
 
       if (data.success && data.data) {
-        const resultado = data.data;
-        setMensajeFeedback(resultado.mensaje);
+        const resultadoBackend =
+          data.data;
 
-        // ✅ CORREGIDO: "completada" (con o sin ayuda) siempre manda a
-        // éxito. El color naranja en la tabla/gráfica ya deja claro que
-        // hubo asistencia — no hace falta una pantalla de "fallo" para eso.
-        if (resultado.correcto || resultado.completada) {
-          setActividadCompletada(true);
-          setXpGanado(resultado.correcto ? 100 : 100);
-          setProgresoPorcentaje(100);
+        setMensajeFeedback(
+          resultadoBackend.mensaje,
+        );
+
+        const finalizada =
+          Boolean(
+            resultadoBackend.correcto ||
+              resultadoBackend.completada,
+          );
+
+        if (!finalizada) {
+          return;
+        }
+
+        const prediccionCorrecta =
+          Boolean(
+            resultadoBackend.correcto,
+          );
+
+        const filasCorrectas =
+          filas.filter(
+            (fila) =>
+              !fila.editable ||
+              fila.correcto === true ||
+              fila.bloqueada,
+          ).length;
+
+        const tablaCompleta =
+          filasCorrectas ===
+          filas.length;
+
+        /*
+         * La actividad se resume en tres evidencias:
+         * 1) tabla, 2) gráfica y 3) predicción.
+         */
+        const aciertosUnificados =
+          Number(tablaCompleta) +
+          Number(graficaCompleta) +
+          Number(prediccionCorrecta);
+
+        const tiempoSegundos =
+          Math.max(
+            1,
+            Math.floor(
+              (
+                Date.now() -
+                inicioActividadRef.current
+              ) / 1000,
+            ),
+          );
+
+        try {
+          const progresoUnificado =
+            await guardarProgresoUsuarioActual({
+              mundo: "MathData",
+              tema:
+                "Relaciones y proporciones",
+              actividad_codigo:
+                "mathdata-generador-energia",
+              actividad_titulo:
+                "Generador de Energía Inversa",
+              respuestas: {
+                valores_tabla:
+                  filas.reduce<
+                    Record<string, number>
+                  >(
+                    (
+                      acumulado,
+                      fila,
+                    ) => {
+                      if (
+                        fila.y !== ""
+                      ) {
+                        acumulado[
+                          String(fila.x)
+                        ] =
+                          Number(fila.y);
+                      }
+
+                      return acumulado;
+                    },
+                    {},
+                  ),
+                grafica_completa:
+                  graficaCompleta,
+                puntos_grafica:
+                  puntos,
+                prediccion_reactores:
+                  Number(respuesta),
+              },
+              aciertos:
+                aciertosUnificados,
+              total_preguntas: 3,
+              tiempo_segundos:
+                tiempoSegundos,
+              xp_base: 60,
+              completada:
+                prediccionCorrecta &&
+                tablaCompleta,
+            });
+
+          console.log(
+            "Progreso del Generador de Energía guardado:",
+            progresoUnificado.progreso,
+          );
+        } catch (
+          progresoError
+        ) {
+          console.error(
+            "La actividad se validó, pero no se pudo registrar en el progreso unificado:",
+            progresoError,
+          );
+        }
+
+        inicioActividadRef.current =
+          Date.now();
+
+        setActividadCompletada(true);
+        setProgresoPorcentaje(100);
+
+        if (prediccionCorrecta) {
+          setXpGanado(100);
           await guardarProgreso(8);
           setResultado("exito");
         } else {
-          // El mensaje ya se muestra con setMensajeFeedback arriba
+          setXpGanado(50);
+          await guardarProgreso(8);
+          setResultado("fallo");
         }
-      } else if (data.success === false) {
-        alert(`❌ ${data.mensaje || "Error al procesar la respuesta."}`);
+      } else if (
+        data.success === false
+      ) {
+        alert(
+          `❌ ${
+            data.mensaje ||
+            "Error al procesar la respuesta."
+          }`,
+        );
       } else {
-        alert("❌ Error al procesar la respuesta.");
+        alert(
+          "❌ Error al procesar la respuesta.",
+        );
       }
     } catch (error) {
-      console.error("Error al enviar predicción:", error);
-      setMensajeFeedback("❌ Error al conectar con el servidor.");
+      console.error(
+        "Error al enviar predicción:",
+        error,
+      );
+
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "Error al conectar con el servidor.";
+
+      setMensajeFeedback(
+        `❌ ${mensaje}`,
+      );
     } finally {
       setCargando(false);
+      guardandoProgresoRef.current =
+        false;
       setRespuesta("");
     }
   };
@@ -573,15 +839,16 @@ function GeneradorEnergiaInversa() {
     ];
 
     const todosLosPuntos = puntosEsperados.every(pEsperado =>
-      puntos.some(p => p.x === pEsperado.x && p.y === pEsperado.y) ||
-      puntosAsistidos.some(p => p.x === pEsperado.x && p.y === pEsperado.y)
+      puntos.some(p => p.x === pEsperado.x && p.y === pEsperado.y)
     );
 
     if (todosLosPuntos) {
       setMensajeFeedback("✅ ¡Todos los puntos están correctos! Has completado la gráfica.");
+      setGraficaCompleta(true);
       setProgresoPorcentaje(80);
       alert("🎉 ¡Gráfica completada correctamente!");
     } else {
+      setGraficaCompleta(false);
       setMensajeFeedback("❌ Faltan puntos o algunos están incorrectos. Revisa la tabla.");
       alert("❌ Faltan puntos o algunos están incorrectos. Revisa la tabla.");
     }
@@ -604,7 +871,11 @@ function GeneradorEnergiaInversa() {
     setPuntos((prev) => [...prev, { x, y }]);
   };
 
-  const limpiarGrafica = () => setPuntos(puntosIniciales);
+  const limpiarGrafica = () => {
+    setPuntos(puntosIniciales);
+    setPuntosIncorrectos([]);
+    setGraficaCompleta(false);
+  };
 
   // ==========================================
   // PANTALLA: ACTIVIDAD COMPLETADA
@@ -734,7 +1005,7 @@ function GeneradorEnergiaInversa() {
 
               <div className="pista-stat">
                 <img src={iconoTiempo} alt="" className="pista-stat-img" />
-                <strong>{formatearTiempo(segundosTranscurridos)}</strong>
+                <strong>04:28</strong>
                 <small>Tiempo</small>
                 <em>Sigue practicando</em>
               </div>
@@ -1032,20 +1303,6 @@ function GeneradorEnergiaInversa() {
   );
 
   // ==========================================
-  // PANTALLA DE CARGA INICIAL (evita mostrar el
-  // tablero antes de saber si ya estaba completada)
-  // ==========================================
-
-  if (cargandoInicial) {
-    return (
-      <div className="gen1-loading-screen">
-        <img src={logo} alt="MathNova" className="gen1-loading-logo" />
-        <p>Cargando actividad...</p>
-      </div>
-    );
-  }
-
-  // ==========================================
   // RENDER (NO MODIFICAR ESTRUCTURA)
   // ==========================================
 
@@ -1156,7 +1413,7 @@ function GeneradorEnergiaInversa() {
                     <div className="res-stat-sep" />
                     <div className="res-stat">
                       <img src={iconoTiempo} alt="" className="res-stat-img" />
-                      <strong>{formatearTiempo(segundosTranscurridos)}</strong>
+                      <strong>04:28</strong>
                       <small>Tiempo</small>
                       <em>min</em>
                     </div>
@@ -1188,7 +1445,11 @@ function GeneradorEnergiaInversa() {
               <div className="res-modal-right">
                 <button
                   className="res-btn res-btn-azul"
-                  onClick={() => navigate("/actividades-math-data")}
+                  onClick={() =>
+                    navigate(
+                      "/actividades-math-data/rampas-lanzamiento",
+                    )
+                  }
                 >
                   Siguiente actividad
                 </button>
@@ -1255,7 +1516,7 @@ function GeneradorEnergiaInversa() {
                     <div className="res-stat-sep" />
                     <div className="res-stat">
                       <img src={iconoTiempo} alt="" className="res-stat-img" />
-                      <strong>{formatearTiempo(segundosTranscurridos)}</strong>
+                      <strong>04:28</strong>
                       <small>Tiempo</small>
                       <em>min</em>
                     </div>
@@ -1392,11 +1653,6 @@ function GeneradorEnergiaInversa() {
             </div>
           </div>
 
-          <div className="gen1-tiempo-box">
-            <span>Tiempo transcurrido</span>
-            <strong>{formatearTiempo(segundosTranscurridos)}</strong>
-          </div>
-
           <div className="gen1-xp-box">
             <span>XP acumulados</span>
             <strong>
@@ -1517,8 +1773,8 @@ function GeneradorEnergiaInversa() {
                           aria-label={`Tiempo para ${fila.x} reactores`}
                           onChange={(e) => actualizarFila(index, e.target.value)}
                           style={{
-                            borderColor: fila.asistida ? "#fd7e14" : fila.correcto === true ? "#28a745" : fila.correcto === false ? "#dc3545" : undefined,
-                            backgroundColor: fila.asistida ? "#fff3e0" : fila.correcto === true ? "#d4edda" : fila.correcto === false ? "#f8d7da" : undefined
+                            borderColor: fila.correcto === true ? "#28a745" : fila.correcto === false ? "#dc3545" : undefined,
+                            backgroundColor: fila.correcto === true ? "#d4edda" : fila.correcto === false ? "#f8d7da" : undefined
                           }}
                           disabled={cargando || fila.correcto === true || fila.bloqueada || actividadCompletada}
                         />
@@ -1563,7 +1819,21 @@ function GeneradorEnergiaInversa() {
           <section className="gen1-card gen1-card-graph">
             <h3 className="gen1-graph-title">Tiempo de recarga (horas)</h3>
 
-            <div className="gen1-graph-area" onClick={manejarClickGrafica}>
+            <div
+              className="gen1-graph-area"
+              onClick={(event) => {
+                if (
+                  cargando ||
+                  actividadCompletada
+                ) {
+                  return;
+                }
+
+                manejarClickGrafica(
+                  event,
+                );
+              }}
+            >
               <div className="gen1-graph-grid">
                 {Array.from({ length: EJE_X_MAX }).map((_, i) => (
                   <i key={`v-${i}`} className="gen1-grid-line-v" />
@@ -1588,17 +1858,6 @@ function GeneradorEnergiaInversa() {
                 <span
                   key={`err-${i}`}
                   className="gen1-graph-point gen1-graph-point-error"
-                  style={{
-                    left: `${(p.x / EJE_X_MAX) * 100}%`,
-                    bottom: `${(p.y / EJE_Y_MAX) * 100}%`,
-                  }}
-                />
-              ))}
-
-              {puntosAsistidos.map((p, i) => (
-                <span
-                  key={`asist-${i}`}
-                  className="gen1-graph-point gen1-graph-point-asistido"
                   style={{
                     left: `${(p.x / EJE_X_MAX) * 100}%`,
                     bottom: `${(p.y / EJE_Y_MAX) * 100}%`,

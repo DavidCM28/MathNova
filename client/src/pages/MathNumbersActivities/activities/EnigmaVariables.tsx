@@ -39,7 +39,7 @@ import comandanteSumaIdle from "../../../assets/mathnumbers/11-enigma/comandante
 import bytePista from "../../../assets/mathnumbers/byte_pista.png";
 
 import { clearAuthSession } from "../../../utils/authSession";
-import { guardarProgresoActividad } from "../../../services/progresoService";
+import { guardarProgresoUsuarioActual } from "../../../services/progresoService";
 
 import { activityListRoute } from "../constants";
 import { ResultModal } from "../components/ResultModal";
@@ -484,6 +484,11 @@ export function EnigmaVariables() {
   ] = useState(false);
 
   const [
+    guardandoProgreso,
+    setGuardandoProgreso,
+  ] = useState(false);
+
+  const [
     resultModalOpen,
     setResultModalOpen,
   ] = useState(false);
@@ -496,6 +501,12 @@ export function EnigmaVariables() {
 
   const guideAudioRef =
     useRef<HTMLAudioElement | null>(null);
+
+  const inicioActividadRef =
+    useRef<number>(Date.now());
+
+  const resultTimerRef =
+    useRef<number | null>(null);
 
   const shuffledMeaningOptions = useMemo(
     () => shuffleArray(meaningOptions),
@@ -550,6 +561,10 @@ export function EnigmaVariables() {
 
   useEffect(() => {
     return () => {
+      if (resultTimerRef.current !== null) {
+        window.clearTimeout(resultTimerRef.current);
+      }
+
       const introAudio =
         introAudioRef.current;
 
@@ -847,6 +862,11 @@ export function EnigmaVariables() {
   };
 
   const limpiarActividad = () => {
+    if (resultTimerRef.current !== null) {
+      window.clearTimeout(resultTimerRef.current);
+      resultTimerRef.current = null;
+    }
+
     setShuffleKey((current) => current + 1);
     setMeaningAnswer(null);
     setExpressionSlots([
@@ -857,6 +877,9 @@ export function EnigmaVariables() {
     setSubstitutionResult("");
     setExplanation("");
     setActivityResolved(false);
+    setGuardandoProgreso(false);
+
+    inicioActividadRef.current = Date.now();
   };
 
   const repetirActividad = () => {
@@ -885,6 +908,10 @@ export function EnigmaVariables() {
   };
 
   const comprobar = async () => {
+    if (guardandoProgreso) {
+      return;
+    }
+
     if (progress !== 3) {
       showToast(
         "Completa los tres retos antes de comprobar.",
@@ -915,127 +942,84 @@ export function EnigmaVariables() {
     const completed =
       totalCorrect === 3;
 
-    const stars = completed
-      ? 3
-      : totalCorrect === 2
-        ? 2
-        : totalCorrect === 1
-          ? 1
-          : 0;
+    const tiempoSegundos = Math.max(
+      1,
+      Math.floor(
+        (Date.now() - inicioActividadRef.current) / 1000,
+      ),
+    );
 
-    let userId = 17;
-
-    try {
-      const sessionString =
-        localStorage.getItem(
-          "auth_session",
-        );
-
-      if (sessionString) {
-        const session =
-          JSON.parse(sessionString);
-
-        if (session?.id_usuario) {
-          userId = Number(
-            session.id_usuario,
-          );
-        }
-      }
-    } catch (error) {
-      console.error(
-        "No se pudo leer la sesión:",
-        error,
-      );
-    }
-
-    const payload = {
-      id_usuario: userId,
-      mundo: "mathnumbers",
-      tema:
-        "Tema 4: Introducción al álgebra",
-      actividad_codigo:
-        "enigma-variables",
-      actividad_titulo:
-        "El Enigma de Variables",
-      respuestas: {
-        significado_variable:
-          meaningAnswer,
-        expresion_construida:
-          expressionSlots,
-        resultado_sustitucion:
-          substitutionResult,
-        explicacion_texto:
-          explanation,
-      },
-      aciertos: totalCorrect,
-      total_preguntas: 3,
-      precision:
-        (totalCorrect / 3) * 100,
-      estrellas_obtenidas: stars,
-      xp_obtenido:
-        totalCorrect * 20,
-      completada: completed,
-      tiempo_segundos: 0,
-      xp_base: 60,
-    };
+    setGuardandoProgreso(true);
 
     try {
-      const progressKey =
-        `progreso_${userId}_enigma-variables`;
+      const resultado =
+        await guardarProgresoUsuarioActual({
+          mundo: "MathNumbers",
+          tema:
+            "Tema 4: Introducción al álgebra",
+          actividad_codigo:
+            "mathnumbers-enigma-variables",
+          actividad_titulo:
+            "El Enigma de Variables",
+          respuestas: {
+            significado_variable:
+              meaningAnswer,
+            expresion_construida:
+              expressionSlots,
+            resultado_sustitucion:
+              substitutionResult,
+            explicacion_texto:
+              explanation.trim(),
+          },
+          aciertos: totalCorrect,
+          total_preguntas: 3,
+          tiempo_segundos: tiempoSegundos,
+          xp_base: 60,
+          completada: completed,
+        });
 
-      const previousProgressRaw =
-        localStorage.getItem(
-          progressKey,
+      const progresoGuardado =
+        resultado.progreso;
+
+      const estrellasGuardadas = Number(
+        progresoGuardado
+          .estrellas_obtenidas ?? 0,
+      );
+
+      const numeroIntentos = Number(
+        progresoGuardado.intentos ?? 1,
+      );
+
+      console.log(
+        "Progreso del Enigma guardado:",
+        progresoGuardado,
+      );
+
+      inicioActividadRef.current = Date.now();
+
+      if (resultTimerRef.current !== null) {
+        window.clearTimeout(
+          resultTimerRef.current,
         );
-
-      let previousStars = 0;
-
-      if (previousProgressRaw) {
-        const previousProgress =
-          JSON.parse(
-            previousProgressRaw,
-          );
-
-        previousStars =
-          Number(
-            previousProgress
-              ?.estrellas_obtenidas,
-          ) || 0;
       }
-
-      await guardarProgresoActividad(
-        payload,
-      );
-
-      localStorage.setItem(
-        progressKey,
-        JSON.stringify({
-          estrellas_obtenidas:
-            Math.max(
-              previousStars,
-              stars,
-            ),
-        }),
-      );
 
       if (completed) {
         setActivityResolved(true);
 
         showToast(
-          previousStars > 0
-            ? `¡Enigma resuelto otra vez! Conservas tus ${Math.max(
-                previousStars,
-                stars,
-              )} estrellas.`
-            : "¡Enigma resuelto! Ganaste 3 estrellas.",
+          numeroIntentos > 1
+            ? `¡Enigma resuelto otra vez! Tu mejor resultado conserva ${estrellasGuardadas} ⭐.`
+            : `¡Enigma resuelto! Ganaste ${estrellasGuardadas} estrellas. ⭐`,
         );
 
-        window.setTimeout(() => {
-          setResultModalKind(
-            "completed",
-          );
-          setResultModalOpen(true);
-        }, 900);
+        resultTimerRef.current =
+          window.setTimeout(() => {
+            setResultModalKind(
+              "completed",
+            );
+            setResultModalOpen(true);
+            resultTimerRef.current = null;
+          }, 900);
 
         return;
       }
@@ -1044,29 +1028,40 @@ export function EnigmaVariables() {
 
       showToast(
         totalCorrect === 2
-          ? "¡Casi lo logras! Revisa uno de los segmentos."
-          : "El enigma todavía tiene códigos incorrectos. Usa la pista de Byte.",
+          ? `¡Casi lo logras! Obtuviste ${estrellasGuardadas} estrellas; revisa uno de los segmentos.`
+          : totalCorrect === 1
+            ? `Tienes ${estrellasGuardadas} estrella. Revisa la variable, la expresión y la sustitución.`
+            : "El enigma todavía tiene códigos incorrectos. Usa la pista de Byte.",
         true,
       );
 
-      window.setTimeout(() => {
-        setResultModalKind(
-          totalCorrect === 2
-            ? "almost"
-            : "retry",
-        );
-        setResultModalOpen(true);
-      }, 900);
+      resultTimerRef.current =
+        window.setTimeout(() => {
+          setResultModalKind(
+            totalCorrect === 2
+              ? "almost"
+              : "retry",
+          );
+          setResultModalOpen(true);
+          resultTimerRef.current = null;
+        }, 900);
     } catch (error) {
       console.error(
-        "No se pudo guardar el progreso:",
+        "No se pudo guardar el progreso del Enigma:",
         error,
       );
 
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "No se pudo guardar el progreso.";
+
       showToast(
-        "No se pudo guardar el progreso. Revisa la conexión con el servidor.",
+        `Error de conexión: ${mensaje}`,
         true,
       );
+    } finally {
+      setGuardandoProgreso(false);
     }
   };
 
@@ -1659,6 +1654,7 @@ export function EnigmaVariables() {
                                 option.id,
                               )
                             }
+                            disabled={guardandoProgreso}
                           />
                           <span>
                             {option.label}
@@ -1757,8 +1753,14 @@ export function EnigmaVariables() {
                           <button
                             key={token.id}
                             type="button"
-                            draggable={!isUsed}
-                            disabled={isUsed}
+                            draggable={
+                              !isUsed &&
+                              !guardandoProgreso
+                            }
+                            disabled={
+                              isUsed ||
+                              guardandoProgreso
+                            }
                             className={
                               isUsed
                                 ? "is-used"
@@ -1821,6 +1823,7 @@ export function EnigmaVariables() {
                           event.target.value,
                         )
                       }
+                      disabled={guardandoProgreso}
                       placeholder="?"
                     />
                   </label>
@@ -1849,6 +1852,7 @@ export function EnigmaVariables() {
                           event.target.value,
                         )
                       }
+                      disabled={guardandoProgreso}
                       placeholder="Escribe tu explicación aquí..."
                     />
 
@@ -1862,6 +1866,7 @@ export function EnigmaVariables() {
                       type="button"
                       className="mnx-enigma-save-button mnx-enigma-save-button-inline"
                       onClick={guardarExplicacion}
+                      disabled={guardandoProgreso}
                     >
                       <FiSave />
                       Guardar explicación
@@ -1875,9 +1880,13 @@ export function EnigmaVariables() {
                   type="button"
                   className="mnx-enigma-check-button"
                   onClick={comprobar}
+                  disabled={guardandoProgreso}
+                  aria-busy={guardandoProgreso}
                 >
                   <FiCheckCircle />
-                  Comprobar respuestas
+                  {guardandoProgreso
+                    ? "Guardando progreso..."
+                    : "Comprobar respuestas"}
                   <span>
                     {progress}/3
                   </span>

@@ -1,3 +1,5 @@
+import { useAutoProgreso } from "../../hooks/useAutoProgreso";
+
 import {
   type CSSProperties,
   useEffect,
@@ -627,6 +629,22 @@ function Actividad6MathGeometry() {
   const reto = RETOS[retoActual];
   const pistaActiva = PISTAS_ACT6[pistaSeleccionada];
   const progreso = Math.round((completados / RETOS.length) * 100);
+
+  useAutoProgreso({
+    completada: modal === "completado",
+    codigo: "mathgeometry-actividad-6",
+    mundo: "MathGeometry",
+    tema: "Bisectriz de un ángulo",
+    titulo: "El Escudo Perfecto",
+    aciertos: RETOS.length,
+    totalPreguntas: RETOS.length,
+    tiempoSegundos: segundos,
+    xpBase: 240,
+    respuestas: {
+      errores,
+      cristales_activados: RETOS.length,
+    },
+  });
 
   const tiempo = useMemo(() => {
     const minutos = Math.floor(segundos / 60)

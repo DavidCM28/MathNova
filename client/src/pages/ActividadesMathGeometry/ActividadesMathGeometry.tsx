@@ -38,8 +38,63 @@ import {
 
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
+import {
+  obtenerIdUsuarioAutenticado,
+  obtenerProgresoAlumno,
+} from "../../services/progresoService";
+import { isGuestSession } from "../../utils/authSession";
+
+type EstadoActividadGeometry =
+  | "Pendiente"
+  | "En curso"
+  | "Completada";
+
+type ProgresoGeometry = {
+  actividad_codigo?: string;
+  completada?: boolean;
+  estrellas_obtenidas?: number | string;
+  precision?: number | string;
+  intentos?: number | string;
+};
+
+type RespuestaProgresoGeometry = {
+  progreso?: ProgresoGeometry[];
+};
+
+const numeroSeguro = (
+  valor: number | string | null | undefined,
+): number => {
+  const numero = Number(valor ?? 0);
+  return Number.isFinite(numero) ? numero : 0;
+};
+
+const extraerProgresos = (
+  respuesta: unknown,
+): ProgresoGeometry[] => {
+  if (Array.isArray(respuesta)) {
+    return respuesta as ProgresoGeometry[];
+  }
+
+  if (
+    typeof respuesta === "object" &&
+    respuesta !== null &&
+    Array.isArray(
+      (respuesta as RespuestaProgresoGeometry).progreso,
+    )
+  ) {
+    return (
+      respuesta as RespuestaProgresoGeometry
+    ).progreso!;
+  }
+
+  return [];
+};
+
 function ActividadesMathGeometry() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [progresos, setProgresos] = useState<ProgresoGeometry[]>([]);
+  const [cargandoProgreso, setCargandoProgreso] = useState(true);
+  const [errorProgreso, setErrorProgreso] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,6 +104,74 @@ function ActividadesMathGeometry() {
       document.body.style.overflow = "auto";
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+    let componenteActivo = true;
+
+    const cargarProgresoGeometry = async () => {
+      if (isGuestSession()) {
+        if (componenteActivo) {
+          setProgresos([]);
+          setErrorProgreso("");
+          setCargandoProgreso(false);
+        }
+
+        return;
+      }
+
+      const idUsuario = obtenerIdUsuarioAutenticado();
+
+      if (!idUsuario) {
+        if (componenteActivo) {
+          setProgresos([]);
+          setErrorProgreso(
+            "No se encontró el usuario autenticado.",
+          );
+          setCargandoProgreso(false);
+        }
+
+        return;
+      }
+
+      try {
+        setCargandoProgreso(true);
+        setErrorProgreso("");
+
+        const respuesta = await obtenerProgresoAlumno(
+          idUsuario,
+        );
+
+        if (!componenteActivo) return;
+
+        setProgresos(extraerProgresos(respuesta));
+      } catch (error) {
+        if (!componenteActivo) return;
+
+        const mensaje =
+          error instanceof Error
+            ? error.message
+            : "No se pudo cargar el progreso.";
+
+        console.error(
+          "Error al cargar actividades de MathGeometry:",
+          error,
+        );
+
+        setProgresos([]);
+        setErrorProgreso(mensaje);
+      } finally {
+        if (componenteActivo) {
+          setCargandoProgreso(false);
+        }
+      }
+    };
+
+    void cargarProgresoGeometry();
+
+    return () => {
+      componenteActivo = false;
+    };
+  }, []);
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
@@ -64,7 +187,7 @@ function ActividadesMathGeometry() {
         "Une puntos para formar figuras como triángulos, cuadrados y rectángulos.",
       nivel: "Fácil",
       tiempo: "10 min",
-      estado: "Pendiente",
+      codigo: "mathgeometry-actividad-1",
       ruta: "/actividades/geometria/actividad-1",
     },
     {
@@ -74,7 +197,7 @@ function ActividadesMathGeometry() {
       texto: "Completa los caminos conectando los puntos correctos.",
       nivel: "Fácil",
       tiempo: "10 min",
-      estado: "Pendiente",
+      codigo: "mathgeometry-actividad-2",
       ruta: "/actividades/geometria/actividad-2",
     },
     {
@@ -84,7 +207,7 @@ function ActividadesMathGeometry() {
       texto: "Identifica si los ángulos son agudos, rectos u obtusos.",
       nivel: "Fácil",
       tiempo: "10 min",
-      estado: "Pendiente",
+      codigo: "mathgeometry-actividad-3",
       ruta: "/actividades/geometria/actividad-3",
     },
     {
@@ -94,7 +217,7 @@ function ActividadesMathGeometry() {
       texto: "Señala los láser según las instrucciones dadas.",
       nivel: "Medio",
       tiempo: "12 min",
-      estado: "Pendiente",
+      codigo: "mathgeometry-actividad-4",
       ruta: "/actividades/geometria/actividad-4",
     },
   ];
@@ -107,7 +230,7 @@ function ActividadesMathGeometry() {
       texto: "Encuentra el punto medio en segmentos de recta.",
       nivel: "Fácil",
       tiempo: "10 min",
-      estado: "Pendiente",
+      codigo: "mathgeometry-actividad-5",
       ruta: "/actividades/geometria/actividad-5",
     },
     {
@@ -118,7 +241,7 @@ function ActividadesMathGeometry() {
         "Selecciona la línea que divide mejor el ángulo en dos partes iguales.",
       nivel: "Medio",
       tiempo: "12 min",
-      estado: "Pendiente",
+      codigo: "mathgeometry-actividad-6",
       ruta: "/actividades/geometria/actividad-6",
     },
     {
@@ -128,7 +251,7 @@ function ActividadesMathGeometry() {
       texto: "Identifica rectas importantes dentro de triángulos.",
       nivel: "Medio",
       tiempo: "12 min",
-      estado: "Pendiente",
+      codigo: "mathgeometry-actividad-7",
       ruta: "/actividades/geometria/actividad-7",
     },
     {
@@ -138,10 +261,83 @@ function ActividadesMathGeometry() {
       texto: "Reconoce las diagonales en cuadriláteros.",
       nivel: "Fácil",
       tiempo: "10 min",
-      estado: "Pendiente",
+      codigo: "mathgeometry-actividad-8",
       ruta: "/actividades/geometria/actividad-8",
     },
   ];
+
+  const progresoPorCodigo = new Map(
+    progresos
+      .filter((registro) => registro.actividad_codigo)
+      .map((registro) => [
+        String(registro.actividad_codigo),
+        registro,
+      ]),
+  );
+
+  const agregarEstado = <
+    T extends {
+      codigo: string;
+    },
+  >(
+    actividad: T,
+  ): T & {
+    estado: EstadoActividadGeometry;
+    estrellas: number;
+    precision: number;
+  } => {
+    const registro = progresoPorCodigo.get(
+      actividad.codigo,
+    );
+
+    const estado: EstadoActividadGeometry =
+      registro?.completada === true
+        ? "Completada"
+        : registro
+          ? "En curso"
+          : "Pendiente";
+
+    return {
+      ...actividad,
+      estado,
+      estrellas: numeroSeguro(
+        registro?.estrellas_obtenidas,
+      ),
+      precision: numeroSeguro(registro?.precision),
+    };
+  };
+
+  const actividadesTema1ConEstado =
+    actividadesTema1.map(agregarEstado);
+
+  const actividadesTema2ConEstado =
+    actividadesTema2.map(agregarEstado);
+
+  const todasLasActividades = [
+    ...actividadesTema1ConEstado,
+    ...actividadesTema2ConEstado,
+  ];
+
+  const totalCompletadas = todasLasActividades.filter(
+    (actividad) =>
+      actividad.estado === "Completada",
+  ).length;
+
+  const totalEnCurso = todasLasActividades.filter(
+    (actividad) => actividad.estado === "En curso",
+  ).length;
+
+  const totalPendientes =
+    todasLasActividades.length -
+    totalCompletadas -
+    totalEnCurso;
+
+  const totalEstrellasGeometry =
+    todasLasActividades.reduce(
+      (total, actividad) =>
+        total + actividad.estrellas,
+      0,
+    );
 
   return (
     <main className="geomx-page">
@@ -248,17 +444,17 @@ function ActividadesMathGeometry() {
               <div className="geomx-status-tabs">
                 <button>
                   <FiCircle />
-                  Pendientes
+                  Pendientes ({cargandoProgreso ? "…" : totalPendientes})
                 </button>
 
                 <button>
                   <FiCircle />
-                  En curso
+                  En curso ({cargandoProgreso ? "…" : totalEnCurso})
                 </button>
 
                 <button>
                   <FiCheckCircle />
-                  Completadas
+                  Completadas ({cargandoProgreso ? "…" : totalCompletadas})
                 </button>
               </div>
             </div>
@@ -280,7 +476,7 @@ function ActividadesMathGeometry() {
             <article>
               <FiBookOpen />
               <div>
-                <strong>8</strong>
+                <strong>{todasLasActividades.length}</strong>
                 <span>Actividades</span>
               </div>
             </article>
@@ -288,19 +484,29 @@ function ActividadesMathGeometry() {
             <article>
               <FiTarget />
               <div>
-                <strong>2</strong>
-                <span>Temas principales</span>
+                <strong>
+                  {cargandoProgreso ? "…" : `${totalCompletadas}/8`}
+                </strong>
+                <span>Completadas</span>
               </div>
             </article>
 
             <article>
               <FiStar />
               <div>
-                <strong>Fácil</strong>
-                <span>Nivel recomendado</span>
+                <strong>
+                  {cargandoProgreso ? "…" : totalEstrellasGeometry}
+                </strong>
+                <span>Estrellas Geometry</span>
               </div>
             </article>
           </div>
+
+          {errorProgreso && (
+            <p className="geomx-progress-error">
+              No se pudo actualizar el estado de las actividades.
+            </p>
+          )}
 
           <section className="geomx-activities-panel">
             <div className="geomx-topic-block geomx-topic-block-first">
@@ -318,7 +524,7 @@ function ActividadesMathGeometry() {
 
               <div className="geomx-activities-zone">
                 <div className="geomx-activities-grid">
-                  {actividadesTema1.map((item, index) => (
+                  {actividadesTema1ConEstado.map((item, index) => (
                     <article
                       className={`geomx-activity-card geomx-card-${index + 1}`}
                       key={item.titulo}
@@ -340,7 +546,16 @@ function ActividadesMathGeometry() {
                       <div className="geomx-activity-info">
                         <div className="geomx-card-tags">
                           <span className="geomx-easy">{item.nivel}</span>
-                          <span className="geomx-state">{item.estado}</span>
+                          <span
+                            className={`geomx-state geomx-state-${item.estado
+                              .toLowerCase()
+                              .replace(" ", "-")}`}
+                          >
+                            {item.estado}
+                            {item.estrellas > 0
+                              ? ` · ${item.estrellas} ★`
+                              : ""}
+                          </span>
                         </div>
 
                         <h3>{item.titulo}</h3>
@@ -359,8 +574,16 @@ function ActividadesMathGeometry() {
                               irARuta(item.ruta);
                             }}
                           >
-                            <FiPlayCircle />
-                            Iniciar
+                            {item.estado === "Completada" ? (
+                              <FiCheckCircle />
+                            ) : (
+                              <FiPlayCircle />
+                            )}
+                            {item.estado === "Completada"
+                              ? "Repetir"
+                              : item.estado === "En curso"
+                                ? "Continuar"
+                                : "Iniciar"}
                           </button>
                         </div>
                       </div>
@@ -389,7 +612,7 @@ function ActividadesMathGeometry() {
 
               <div className="geomx-activities-zone">
                 <div className="geomx-activities-grid geomx-topic-two-grid">
-                  {actividadesTema2.map((item, index) => (
+                  {actividadesTema2ConEstado.map((item, index) => (
                     <article
                       className={`geomx-activity-card geomx-card-${index + 5}`}
                       key={item.titulo}
@@ -411,7 +634,16 @@ function ActividadesMathGeometry() {
                       <div className="geomx-activity-info">
                         <div className="geomx-card-tags">
                           <span className="geomx-easy">{item.nivel}</span>
-                          <span className="geomx-state">{item.estado}</span>
+                          <span
+                            className={`geomx-state geomx-state-${item.estado
+                              .toLowerCase()
+                              .replace(" ", "-")}`}
+                          >
+                            {item.estado}
+                            {item.estrellas > 0
+                              ? ` · ${item.estrellas} ★`
+                              : ""}
+                          </span>
                         </div>
 
                         <h3>{item.titulo}</h3>
@@ -430,8 +662,16 @@ function ActividadesMathGeometry() {
                               irARuta(item.ruta);
                             }}
                           >
-                            <FiPlayCircle />
-                            Iniciar
+                            {item.estado === "Completada" ? (
+                              <FiCheckCircle />
+                            ) : (
+                              <FiPlayCircle />
+                            )}
+                            {item.estado === "Completada"
+                              ? "Repetir"
+                              : item.estado === "En curso"
+                                ? "Continuar"
+                                : "Iniciar"}
                           </button>
                         </div>
                       </div>

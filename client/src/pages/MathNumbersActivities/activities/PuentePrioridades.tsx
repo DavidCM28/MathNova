@@ -36,7 +36,7 @@ import comandanteSumaHablando from "../../../assets/mathnumbers/10-prioridades/c
 import comandanteSumaIdle from "../../../assets/mathnumbers/10-prioridades/comandante_suma_idle.png";
 
 import { clearAuthSession } from "../../../utils/authSession";
-import { guardarProgresoActividad } from "../../../services/progresoService";
+import { guardarProgresoUsuarioActual } from "../../../services/progresoService";
 
 import { activityListRoute } from "../constants";
 import { ResultModal } from "../components/ResultModal";
@@ -400,6 +400,11 @@ export function PuentePrioridades() {
   ] = useState(false);
 
   const [
+    guardandoProgreso,
+    setGuardandoProgreso,
+  ] = useState(false);
+
+  const [
     resultModalOpen,
     setResultModalOpen,
   ] = useState(false);
@@ -412,6 +417,12 @@ export function PuentePrioridades() {
 
   const guideAudioRef =
     useRef<HTMLAudioElement | null>(null);
+
+  const inicioActividadRef =
+    useRef<number>(Date.now());
+
+  const resultTimerRef =
+    useRef<number | null>(null);
 
   const progress =
     Number(answerOne.trim() !== "") +
@@ -439,6 +450,10 @@ export function PuentePrioridades() {
 
   useEffect(() => {
     return () => {
+      if (resultTimerRef.current !== null) {
+        window.clearTimeout(resultTimerRef.current);
+      }
+
       const introAudio =
         introAudioRef.current;
 
@@ -661,10 +676,18 @@ export function PuentePrioridades() {
   };
 
   const limpiarActividad = () => {
+    if (resultTimerRef.current !== null) {
+      window.clearTimeout(resultTimerRef.current);
+      resultTimerRef.current = null;
+    }
+
     setAnswerOne("");
     setAnswerTwo("");
     setExplanation("");
     setActivityResolved(false);
+    setGuardandoProgreso(false);
+
+    inicioActividadRef.current = Date.now();
   };
 
   const repetirActividad = () => {
@@ -693,6 +716,10 @@ export function PuentePrioridades() {
   };
 
   const comprobar = async () => {
+    if (guardandoProgreso) {
+      return;
+    }
+
     if (progress !== 2) {
       showToast(
         "Escribe el resultado de los dos retos antes de comprobar.",
@@ -713,122 +740,80 @@ export function PuentePrioridades() {
 
     const completed = total === 2;
 
-    const nuevasEstrellas =
-      completed
-        ? 3
-        : total === 1
-          ? 1
-          : 0;
+    const tiempoSegundos = Math.max(
+      1,
+      Math.floor(
+        (Date.now() - inicioActividadRef.current) / 1000,
+      ),
+    );
 
-    let idUsuario = 17;
-
-    try {
-      const sessionString =
-        localStorage.getItem(
-          "auth_session",
-        );
-
-      if (sessionString) {
-        const session =
-          JSON.parse(sessionString);
-
-        if (session?.id_usuario) {
-          idUsuario = Number(
-            session.id_usuario,
-          );
-        }
-      }
-    } catch (error) {
-      console.error(
-        "No se pudo leer la sesión:",
-        error,
-      );
-    }
-
-    const payload = {
-      id_usuario: idUsuario,
-      mundo: "mathnumbers",
-      tema:
-        "Tema 3: Jerarquía y propiedades",
-      actividad_codigo:
-        "puente-prioridades",
-      actividad_titulo:
-        "El Puente de Prioridades",
-      respuestas: {
-        reto_1: answerOne,
-        reto_2: answerTwo,
-        explicacion_texto:
-          explanation,
-      },
-      aciertos: total,
-      total_preguntas: 2,
-      precision:
-        (total / 2) * 100,
-      estrellas_obtenidas:
-        nuevasEstrellas,
-      xp_obtenido: total * 25,
-      completada: completed,
-      tiempo_segundos: 0,
-      xp_base: 50,
-    };
+    setGuardandoProgreso(true);
 
     try {
-      const progresoKey =
-        `progreso_${idUsuario}_puente-prioridades`;
+      const resultado =
+        await guardarProgresoUsuarioActual({
+          mundo: "MathNumbers",
+          tema:
+            "Tema 3: Jerarquía y propiedades",
+          actividad_codigo:
+            "mathnumbers-puente-prioridades",
+          actividad_titulo:
+            "El Puente de Prioridades",
+          respuestas: {
+            reto_1: answerOne.trim(),
+            reto_2: answerTwo.trim(),
+            explicacion_texto:
+              explanation.trim(),
+          },
+          aciertos: total,
+          total_preguntas: 2,
+          tiempo_segundos: tiempoSegundos,
+          xp_base: 50,
+          completada: completed,
+        });
 
-      const progresoPrevioRaw =
-        localStorage.getItem(
-          progresoKey,
+      const progresoGuardado =
+        resultado.progreso;
+
+      const estrellasGuardadas = Number(
+        progresoGuardado
+          .estrellas_obtenidas ?? 0,
+      );
+
+      const intentosGuardados = Number(
+        progresoGuardado.intentos ?? 1,
+      );
+
+      console.log(
+        "Progreso del Puente de Prioridades guardado:",
+        progresoGuardado,
+      );
+
+      inicioActividadRef.current = Date.now();
+
+      if (resultTimerRef.current !== null) {
+        window.clearTimeout(
+          resultTimerRef.current,
         );
-
-      let estrellasAnteriores = 0;
-
-      if (progresoPrevioRaw) {
-        const progresoPrevio =
-          JSON.parse(
-            progresoPrevioRaw,
-          );
-
-        estrellasAnteriores =
-          Number(
-            progresoPrevio
-              ?.estrellas_obtenidas,
-          ) || 0;
       }
-
-      await guardarProgresoActividad(
-        payload,
-      );
-
-      localStorage.setItem(
-        progresoKey,
-        JSON.stringify({
-          estrellas_obtenidas:
-            Math.max(
-              estrellasAnteriores,
-              nuevasEstrellas,
-            ),
-        }),
-      );
 
       if (completed) {
         setActivityResolved(true);
 
         showToast(
-          estrellasAnteriores > 0
-            ? `¡Puente activado otra vez! Conservas tus ${Math.max(
-                estrellasAnteriores,
-                nuevasEstrellas,
-              )} estrellas.`
-            : "¡Puente activado! Ganaste 3 estrellas.",
+          intentosGuardados > 1
+            ? `¡Puente activado otra vez! Tu mejor resultado conserva ${estrellasGuardadas} ⭐.`
+            : `¡Puente activado! Ganaste ${estrellasGuardadas} estrellas. ⭐`,
         );
 
-        window.setTimeout(() => {
-          setResultModalKind(
-            "completed",
-          );
-          setResultModalOpen(true);
-        }, 900);
+        resultTimerRef.current =
+          window.setTimeout(() => {
+            setResultModalKind(
+              "completed",
+            );
+            setResultModalOpen(true);
+            resultTimerRef.current = null;
+          }, 900);
 
         return;
       }
@@ -837,29 +822,38 @@ export function PuentePrioridades() {
 
       showToast(
         total === 1
-          ? "¡Casi lo logras! Revisa cuál operación debe resolverse primero."
+          ? `¡Casi lo logras! Obtuviste ${estrellasGuardadas} estrella; revisa cuál operación debe resolverse primero.`
           : "Los resultados no activaron el puente. Usa la pista de Byte.",
         true,
       );
 
-      window.setTimeout(() => {
-        setResultModalKind(
-          total === 1
-            ? "almost"
-            : "retry",
-        );
-        setResultModalOpen(true);
-      }, 900);
+      resultTimerRef.current =
+        window.setTimeout(() => {
+          setResultModalKind(
+            total === 1
+              ? "almost"
+              : "retry",
+          );
+          setResultModalOpen(true);
+          resultTimerRef.current = null;
+        }, 900);
     } catch (error) {
       console.error(
-        "No se pudo guardar el progreso:",
+        "No se pudo guardar el progreso del Puente de Prioridades:",
         error,
       );
 
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : "No se pudo guardar el progreso.";
+
       showToast(
-        "No se pudo guardar el progreso. Revisa la conexión con el servidor.",
+        `Error de conexión: ${mensaje}`,
         true,
       );
+    } finally {
+      setGuardandoProgreso(false);
     }
   };
 
@@ -1402,6 +1396,7 @@ export function PuentePrioridades() {
                           event.target.value,
                         )
                       }
+                      disabled={guardandoProgreso}
                       placeholder="Escribe el resultado"
                     />
                   </label>
@@ -1435,6 +1430,7 @@ export function PuentePrioridades() {
                           event.target.value,
                         )
                       }
+                      disabled={guardandoProgreso}
                       placeholder="Escribe el resultado"
                     />
                   </label>
@@ -1462,6 +1458,7 @@ export function PuentePrioridades() {
                           event.target.value,
                         )
                       }
+                      disabled={guardandoProgreso}
                       placeholder="Escribe tu explicación aquí..."
                     />
 
@@ -1476,6 +1473,7 @@ export function PuentePrioridades() {
                     onClick={
                       guardarExplicacion
                     }
+                    disabled={guardandoProgreso}
                   >
                     <FiSave />
                     Guardar explicación
@@ -1506,9 +1504,13 @@ export function PuentePrioridades() {
                   type="button"
                   className="mnx-puente-check-button"
                   onClick={comprobar}
+                  disabled={guardandoProgreso}
+                  aria-busy={guardandoProgreso}
                 >
                   <FiCheckCircle />
-                  Comprobar respuestas
+                  {guardandoProgreso
+                    ? "Guardando progreso..."
+                    : "Comprobar respuestas"}
                   <span>
                     {progress}/2 listas
                   </span>
