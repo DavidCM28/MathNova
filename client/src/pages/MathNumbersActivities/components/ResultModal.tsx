@@ -1,6 +1,6 @@
 import "./ResultModal.css";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiArrowRight,
@@ -15,8 +15,11 @@ import { activityListRoute } from "../constants";
 import { resultData } from "../data/resultData";
 import type { ResultKind } from "../types";
 import {
+  almostAudio,
   almostHeroAnimated,
+  completedAudio,
   completedHeroAnimated,
+  retryAudio,
   retryHeroAnimated,
 } from "../mathNumbersAssets";
 
@@ -78,6 +81,12 @@ const animatedHeroByKind: Partial<Record<ResultKind, string>> = {
   retry: retryHeroAnimated,
 };
 
+const resultAudioByKind: Partial<Record<ResultKind, string>> = {
+  completed: completedAudio,
+  almost: almostAudio,
+  retry: retryAudio,
+};
+
 export function ResultModal({
   kind,
   nextRoute,
@@ -89,8 +98,42 @@ export function ResultModal({
   const data = resultData[kind];
   const modalText = modalTextByKind[kind];
   const isCompleted = kind === "completed";
+
+  const resultAudioRef =
+    useRef<HTMLAudioElement | null>(null);
+
   const heroSource =
     animatedHeroByKind[kind] ?? data.hero;
+
+  const audioSource =
+    resultAudioByKind[kind];
+
+  useEffect(() => {
+    const audio = resultAudioRef.current;
+
+    if (!audio || !audioSource) {
+      return;
+    }
+
+    audio.currentTime = 0;
+    audio.volume = 1;
+
+    const playPromise = audio.play();
+
+    if (playPromise !== undefined) {
+      playPromise.catch((error) => {
+        console.warn(
+          "El audio del resultado no pudo iniciarse automáticamente:",
+          error,
+        );
+      });
+    }
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, [audioSource]);
 
   useEffect(() => {
     const previousOverflow =
@@ -158,6 +201,15 @@ export function ResultModal({
         aria-modal="true"
         aria-labelledby="result-modal-title"
       >
+        {audioSource && (
+          <audio
+            ref={resultAudioRef}
+            src={audioSource}
+            preload="auto"
+            autoPlay
+          />
+        )}
+
         <button
           type="button"
           className="result-modal-close"

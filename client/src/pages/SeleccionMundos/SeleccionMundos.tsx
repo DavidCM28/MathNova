@@ -442,7 +442,7 @@ function SeleccionMundos() {
             <div className="world-progress">
               <div className="level-pill green-pill">
                 <strong>{descripcionMundo(mundoNumbersResumen)}</strong>
-                <span>{cargando ? "..." : `${mundoNumbersResumen.xp} XP`}</span>
+                <span>{cargando ? "..." : `${mundoNumbersResumen.progreso}%`}</span>
               </div>
 
               <div
@@ -477,7 +477,7 @@ function SeleccionMundos() {
             <div className="world-progress">
               <div className="level-pill orange-pill">
                 <strong>{descripcionMundo(mundoGeometryResumen)}</strong>
-                <span>{cargando ? "..." : `${mundoGeometryResumen.xp} XP`}</span>
+                <span>{cargando ? "..." : `${mundoGeometryResumen.progreso}%`}</span>
               </div>
 
               <div
@@ -515,7 +515,7 @@ function SeleccionMundos() {
             <div className="world-progress">
               <div className="level-pill blue-pill">
                 <strong>{descripcionMundo(mundoDataResumen)}</strong>
-                <span>{cargando ? "..." : `${mundoDataResumen.xp} XP`}</span>
+                <span>{cargando ? "..." : `${mundoDataResumen.progreso}%`}</span>
               </div>
 
               <div
