@@ -11,6 +11,7 @@ import ActividadTripulacion from './ActividadTripulacion';
 import ActividadHolograma from './ActividadHolograma';
 import ActividadSensor from './ActividadSensor';
 import ActividadNucleo from './ActividadNucleo';
+import ActividadOraculo from './ActividadOraculo';
 
 User.hasOne(Estudiante, { foreignKey: 'id_usuario' });
 Estudiante.belongsTo(User, { foreignKey: 'id_usuario' });
@@ -38,6 +39,7 @@ export {
   ActividadHolograma,
   ActividadSensor,
   ActividadNucleo,
+  ActividadOraculo,
 };
 
 export const initDb = async (force = false) => {

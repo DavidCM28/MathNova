@@ -1,7 +1,8 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { DragEvent } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
+import { getSessionUser } from "../../utils/authSession";
 
 import logo from "../../assets/logo_MathNova.png";
 import "./OraculoEstacion.css";
@@ -53,6 +54,12 @@ import {
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
 /* =========================================================
+   CONFIGURACIÓN DEL BACKEND
+========================================================= */
+
+const API_URL = "http://localhost:3001/api";
+
+/* =========================================================
    DATOS DE LA MISIÓN
 ========================================================= */
 
@@ -94,6 +101,13 @@ const RESPUESTA_ENUNCIADO_1 = "verdadero";
 const RESPUESTA_ENUNCIADO_2 = "verdadero";
 
 type EstadoCampo = "correcto" | "pendiente" | "incorrecto";
+type Pantalla = "espacio" | "orden" | "comparacion" | "prediccion";
+
+function formatearTiempo(segundos: number): string {
+  const m = Math.floor(segundos / 60);
+  const s = segundos % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
 
 /* =========================================================
    COMPONENTE: PISTA DE BAIT (modal con video real)
@@ -247,18 +261,28 @@ function PistaBaitModal({
 export default function OraculoEstacion() {
   const navigate = useNavigate();
 
+  // El ID del estudiante se obtiene de la sesión activa en cada render
+  const usuarioSesion = getSessionUser();
+  const ID_ESTUDIANTE = usuarioSesion?.id_usuario;
+
   /* ---- Paso 1: espacio muestral ---- */
   const [espacioSeleccionado, setEspacioSeleccionado] = useState<Set<string>>(new Set());
   const [espacioVerificado, setEspacioVerificado] = useState(false);
+  const [espacioEstado, setEspacioEstado] = useState<EstadoCampo>("pendiente");
+  const [espacioAsistido, setEspacioAsistido] = useState(false);
 
   /* ---- Paso 2: posible o imposible ---- */
   const [posibleMorado, setPosibleMorado] = useState<"posible" | "imposible" | null>(null);
   const [numResultados, setNumResultados] = useState("");
   const [paso2Verificado, setPaso2Verificado] = useState(false);
+  const [paso2Estado, setPaso2Estado] = useState<EstadoCampo>("pendiente");
+  const [paso2Asistido, setPaso2Asistido] = useState(false);
 
   /* ---- Paso 3: orden de probabilidad (drag & drop) ---- */
   const [orden, setOrden] = useState<Color[]>(ORDEN_INICIAL);
   const [ordenVerificado, setOrdenVerificado] = useState(false);
+  const [ordenEstado, setOrdenEstado] = useState<EstadoCampo>("pendiente");
+  const [ordenAsistido, setOrdenAsistido] = useState(false);
   const dragIndexRef = useRef<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
@@ -266,38 +290,151 @@ export default function OraculoEstacion() {
   const [comp1, setComp1] = useState<"verdadero" | "falso" | null>(null);
   const [comp2, setComp2] = useState<"verdadero" | "falso" | null>(null);
   const [comparacionVerificada, setComparacionVerificada] = useState(false);
+  const [comparacionEstado, setComparacionEstado] = useState<EstadoCampo>("pendiente");
+  const [comparacionAsistida, setComparacionAsistida] = useState(false);
 
   /* ---- Paso 5: predicción antes del canje ---- */
   const [prediccion, setPrediccion] = useState<Color | null>(null);
   const [prediccionVerificada, setPrediccionVerificada] = useState(false);
+  const [prediccionEstado, setPrediccionEstado] = useState<EstadoCampo>("pendiente");
+  const [prediccionAsistida, setPrediccionAsistida] = useState(false);
 
   const [monedaEstelar, setMonedaEstelar] = useState(1);
   const [resultado, setResultado] = useState<"exito" | "fallo" | null>(null);
   const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
+  const [mensajePistaBait, setMensajePistaBait] = useState("");
   const [mostrarIntroBait, setMostrarIntroBait] = useState(false);
   const [mostrarBaitExito, setMostrarBaitExito] = useState(false);
   const [mostrarBaitFallo, setMostrarBaitFallo] = useState(false);
 
+  const [cargandoInicial, setCargandoInicial] = useState(true);
+  const [cargandoEspacio, setCargandoEspacio] = useState(false);
+  const [cargandoPaso2, setCargandoPaso2] = useState(false);
+  const [cargandoOrden, setCargandoOrden] = useState(false);
+  const [cargandoComparacion, setCargandoComparacion] = useState(false);
+  const [cargandoPrediccion, setCargandoPrediccion] = useState(false);
+  const [cargandoActivar, setCargandoActivar] = useState(false);
+
+  /* ---- Temporizador ---- */
+  const tiempoInicioRef = useRef<number>(Date.now());
+  const [segundosTranscurridos, setSegundosTranscurridos] = useState(0);
+
+  useEffect(() => {
+    if (cargandoInicial || resultado !== null) return;
+
+    const intervalo = setInterval(() => {
+      setSegundosTranscurridos(Math.floor((Date.now() - tiempoInicioRef.current) / 1000));
+    }, 1000);
+
+    return () => clearInterval(intervalo);
+  }, [cargandoInicial, resultado]);
+
   /* ---- Derivados ---- */
-  const espacioCorrecto =
-    espacioSeleccionado.size === COLORES_CAPSULA.length &&
-    COLORES_CAPSULA.every((c) => espacioSeleccionado.has(c)) &&
-    SENUELOS.every((c) => !espacioSeleccionado.has(c));
+  const espacioCorrecto = espacioEstado === "correcto" || espacioAsistido;
+  const paso2Correcto = paso2Estado === "correcto" || paso2Asistido;
+  const ordenEsCorrecto = ordenEstado === "correcto" || ordenAsistido;
+  const comparacionCorrecta = comparacionEstado === "correcto" || comparacionAsistida;
+  const prediccionCorrecta = prediccionEstado === "correcto" || prediccionAsistida;
+
+  const todosLosPasosVerificados =
+    espacioVerificado && paso2Verificado && ordenVerificado && comparacionVerificada && prediccionVerificada;
 
   const espacioOrdenadoTexto = COLORES_CAPSULA.filter((c) => espacioSeleccionado.has(c))
     .map((c) => NOMBRE_COLOR[c].toLowerCase())
     .join(", ");
 
-  const paso2Correcto =
-    posibleMorado === "imposible" && numResultados.trim() === String(COLORES_CAPSULA.length);
+  const pantallaActual = (): Pantalla => {
+    if (!espacioCorrecto) return "espacio";
+    if (!paso2Correcto) return "espacio";
+    if (!ordenEsCorrecto) return "orden";
+    if (!comparacionCorrecta) return "comparacion";
+    return "prediccion";
+  };
 
-  const secuenciaActual = orden;
-  const ordenEsCorrecto = secuenciaActual.every((c, i) => c === ORDEN_CORRECTO[i]);
+  const abrirPistaManual = () => {
+    setMensajePistaBait("");
+    setMostrarPistaBait(true);
+    fetch(`${API_URL}/oraculo/pista-consultada`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, pantalla: pantallaActual() }),
+    }).catch((error) => console.error("Error al registrar consulta de pista:", error));
+  };
 
-  const comparacionCorrecta =
-    comp1 === RESPUESTA_ENUNCIADO_1 && comp2 === RESPUESTA_ENUNCIADO_2;
+  // ==========================================
+  // CARGAR PROGRESO GUARDADO
+  // ==========================================
 
-  const prediccionCorrecta = prediccion === "azul";
+  useEffect(() => {
+    const cargarProgreso = async () => {
+      try {
+        const response = await fetch(`${API_URL}/oraculo/progreso/${ID_ESTUDIANTE}`);
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const progreso = data.data;
+
+          const espacioGuardado = (progreso.espacio_valores || []) as string[];
+          if (espacioGuardado.length > 0) {
+            setEspacioSeleccionado(new Set(espacioGuardado));
+            setEspacioVerificado(true);
+            const coincide =
+              espacioGuardado.length === COLORES_CAPSULA.length &&
+              COLORES_CAPSULA.every((c) => espacioGuardado.includes(c));
+            setEspacioEstado(coincide ? "correcto" : "incorrecto");
+            setEspacioAsistido(!!progreso.espacio_asistido);
+          }
+
+          if (progreso.posible_valor || progreso.num_resultados_valor) {
+            setPosibleMorado((progreso.posible_valor as "posible" | "imposible") || null);
+            setNumResultados(String(progreso.num_resultados_valor || ""));
+            setPaso2Verificado(true);
+            const coincide =
+              progreso.posible_valor === "imposible" &&
+              String(progreso.num_resultados_valor) === String(COLORES_CAPSULA.length);
+            setPaso2Estado(coincide ? "correcto" : "incorrecto");
+            setPaso2Asistido(!!progreso.paso2_asistido);
+          }
+
+          const ordenGuardado = (progreso.orden_valores || []) as Color[];
+          if (ordenGuardado.length === 4) {
+            setOrden(ordenGuardado);
+            setOrdenVerificado(true);
+            const coincide = ordenGuardado.every((c, i) => c === ORDEN_CORRECTO[i]);
+            setOrdenEstado(coincide ? "correcto" : "incorrecto");
+            setOrdenAsistido(!!progreso.orden_asistido);
+          }
+
+          if (progreso.comp1_valor || progreso.comp2_valor) {
+            setComp1((progreso.comp1_valor as "verdadero" | "falso") || null);
+            setComp2((progreso.comp2_valor as "verdadero" | "falso") || null);
+            setComparacionVerificada(true);
+            const coincide =
+              progreso.comp1_valor === RESPUESTA_ENUNCIADO_1 && progreso.comp2_valor === RESPUESTA_ENUNCIADO_2;
+            setComparacionEstado(coincide ? "correcto" : "incorrecto");
+            setComparacionAsistida(!!progreso.comparacion_asistida);
+          }
+
+          if (progreso.prediccion_valor) {
+            setPrediccion(progreso.prediccion_valor as Color);
+            setPrediccionVerificada(true);
+            setPrediccionEstado(progreso.prediccion_valor === "azul" ? "correcto" : "incorrecto");
+            setPrediccionAsistida(!!progreso.prediccion_asistida);
+          }
+
+          if (progreso.completada) {
+            setResultado(progreso.resultado_correcto ? "exito" : "fallo");
+          }
+        }
+      } catch (error) {
+        console.error("Error al cargar progreso:", error);
+      } finally {
+        setCargandoInicial(false);
+      }
+    };
+
+    cargarProgreso();
+  }, []);
 
   const toggleColorEspacio = (color: string) => {
     setEspacioSeleccionado((prev) => {
@@ -309,10 +446,96 @@ export default function OraculoEstacion() {
     setEspacioVerificado(false);
   };
 
-  const verificarEspacio = () => setEspacioVerificado(true);
-  const verificarPaso2 = () => setPaso2Verificado(true);
-  const verificarComparacion = () => setComparacionVerificada(true);
-  const verificarPrediccion = () => setPrediccionVerificada(true);
+  // ==========================================
+  // PASO 1: VERIFICAR ESPACIO MUESTRAL
+  // ==========================================
+
+  const verificarEspacio = async () => {
+    setCargandoEspacio(true);
+    try {
+      const response = await fetch(`${API_URL}/oraculo/validar-espacio`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, colores: Array.from(espacioSeleccionado) }),
+      });
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        const r = data.data;
+        setEspacioVerificado(true);
+
+        if (r.mostrar_pista_bait) {
+          setMensajePistaBait(r.mensaje);
+          setMostrarPistaBait(true);
+          fetch(`${API_URL}/oraculo/pista-consultada`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, pantalla: "espacio" }),
+          }).catch((error) => console.error("Error al registrar consulta de pista:", error));
+        }
+
+        if (r.asistido) {
+          setEspacioSeleccionado(new Set(COLORES_CAPSULA));
+          setEspacioAsistido(true);
+          setEspacioEstado("incorrecto");
+        } else {
+          setEspacioEstado(r.correcto ? "correcto" : "incorrecto");
+        }
+      }
+    } catch (error) {
+      console.error("Error al verificar el espacio muestral:", error);
+    } finally {
+      setCargandoEspacio(false);
+    }
+  };
+
+  // ==========================================
+  // PASO 2: VERIFICAR POSIBLE/IMPOSIBLE
+  // ==========================================
+
+  const verificarPaso2 = async () => {
+    setCargandoPaso2(true);
+    try {
+      const response = await fetch(`${API_URL}/oraculo/validar-paso2`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_estudiante: ID_ESTUDIANTE,
+          posible_imposible: posibleMorado,
+          num_resultados: numResultados,
+        }),
+      });
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        const r = data.data;
+        setPaso2Verificado(true);
+
+        if (r.mostrar_pista_bait) {
+          setMensajePistaBait(r.mensaje);
+          setMostrarPistaBait(true);
+          fetch(`${API_URL}/oraculo/pista-consultada`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, pantalla: "espacio" }),
+          }).catch((error) => console.error("Error al registrar consulta de pista:", error));
+        }
+
+        if (r.asistido) {
+          setPosibleMorado("imposible");
+          setNumResultados(String(COLORES_CAPSULA.length));
+          setPaso2Asistido(true);
+          setPaso2Estado("incorrecto");
+        } else {
+          setPaso2Estado(r.correcto ? "correcto" : "incorrecto");
+        }
+      }
+    } catch (error) {
+      console.error("Error al verificar el paso 2:", error);
+    } finally {
+      setCargandoPaso2(false);
+    }
+  };
 
   /* ---- Drag & drop del paso 3 ---- */
   const manejarDragStart = (index: number) => (e: DragEvent<HTMLDivElement>) => {
@@ -332,15 +555,144 @@ export default function OraculoEstacion() {
     if (origen === null || origen === index) return;
     setOrden((prev) => {
       const copia = [...prev];
-      const [movido] = copia.splice(origen, 1);
-      copia.splice(index, 0, movido);
+      const temporal = copia[origen];
+      copia[origen] = copia[index];
+      copia[index] = temporal;
       return copia;
     });
     dragIndexRef.current = null;
     setOrdenVerificado(false);
   };
 
-  const verificarOrden = () => setOrdenVerificado(true);
+  // ==========================================
+  // PASO 3: VERIFICAR ORDEN
+  // ==========================================
+
+  const verificarOrden = async () => {
+    setCargandoOrden(true);
+    try {
+      const response = await fetch(`${API_URL}/oraculo/validar-orden`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, orden }),
+      });
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        const r = data.data;
+        setOrdenVerificado(true);
+
+        if (r.mostrar_pista_bait) {
+          setMensajePistaBait(r.mensaje);
+          setMostrarPistaBait(true);
+          fetch(`${API_URL}/oraculo/pista-consultada`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, pantalla: "orden" }),
+          }).catch((error) => console.error("Error al registrar consulta de pista:", error));
+        }
+
+        if (r.asistido) {
+          setOrden(ORDEN_CORRECTO);
+          setOrdenAsistido(true);
+          setOrdenEstado("incorrecto");
+        } else {
+          setOrdenEstado(r.correcto ? "correcto" : "incorrecto");
+        }
+      }
+    } catch (error) {
+      console.error("Error al verificar el orden:", error);
+    } finally {
+      setCargandoOrden(false);
+    }
+  };
+
+  // ==========================================
+  // PASO 4: VERIFICAR COMPARACIÓN
+  // ==========================================
+
+  const verificarComparacion = async () => {
+    setCargandoComparacion(true);
+    try {
+      const response = await fetch(`${API_URL}/oraculo/validar-comparacion`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, comp1, comp2 }),
+      });
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        const r = data.data;
+        setComparacionVerificada(true);
+
+        if (r.mostrar_pista_bait) {
+          setMensajePistaBait(r.mensaje);
+          setMostrarPistaBait(true);
+          fetch(`${API_URL}/oraculo/pista-consultada`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, pantalla: "comparacion" }),
+          }).catch((error) => console.error("Error al registrar consulta de pista:", error));
+        }
+
+        if (r.asistido) {
+          setComp1("verdadero");
+          setComp2("verdadero");
+          setComparacionAsistida(true);
+          setComparacionEstado("incorrecto");
+        } else {
+          setComparacionEstado(r.correcto ? "correcto" : "incorrecto");
+        }
+      }
+    } catch (error) {
+      console.error("Error al verificar la comparación:", error);
+    } finally {
+      setCargandoComparacion(false);
+    }
+  };
+
+  // ==========================================
+  // PASO 5: VERIFICAR PREDICCIÓN
+  // ==========================================
+
+  const verificarPrediccion = async () => {
+    setCargandoPrediccion(true);
+    try {
+      const response = await fetch(`${API_URL}/oraculo/validar-prediccion`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, color: prediccion }),
+      });
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        const r = data.data;
+        setPrediccionVerificada(true);
+
+        if (r.mostrar_pista_bait) {
+          setMensajePistaBait(r.mensaje);
+          setMostrarPistaBait(true);
+          fetch(`${API_URL}/oraculo/pista-consultada`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, pantalla: "prediccion" }),
+          }).catch((error) => console.error("Error al registrar consulta de pista:", error));
+        }
+
+        if (r.asistido) {
+          setPrediccion("azul");
+          setPrediccionAsistida(true);
+          setPrediccionEstado("incorrecto");
+        } else {
+          setPrediccionEstado(r.correcto ? "correcto" : "incorrecto");
+        }
+      }
+    } catch (error) {
+      console.error("Error al verificar la predicción:", error);
+    } finally {
+      setCargandoPrediccion(false);
+    }
+  };
 
   const justificacionPrediccion = (color: Color | null) => {
     if (!color) return "";
@@ -353,41 +705,76 @@ export default function OraculoEstacion() {
   };
 
   /* ---- Envío final: activar el Oráculo ---- */
-  const handleActivarOraculo = () => {
+  const handleActivarOraculo = async () => {
     if (monedaEstelar <= 0) return;
 
-    setEspacioVerificado(true);
-    setPaso2Verificado(true);
-    setOrdenVerificado(true);
-    setComparacionVerificada(true);
-    setPrediccionVerificada(true);
-    setMonedaEstelar((m) => Math.max(0, m - 1));
+    if (!todosLosPasosVerificados) {
+      alert("⚠️ Completa y verifica los 5 pasos antes de activar el Oráculo.");
+      return;
+    }
 
-    const todoCorrecto =
-      espacioCorrecto &&
-      paso2Correcto &&
-      ordenEsCorrecto &&
-      comparacionCorrecta &&
-      prediccionCorrecta;
+    setCargandoActivar(true);
+    try {
+      const response = await fetch(`${API_URL}/oraculo/activar-final`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_estudiante: ID_ESTUDIANTE,
+          tiempo_total: segundosTranscurridos,
+        }),
+      });
+      const data = await response.json();
 
-    setResultado(todoCorrecto ? "exito" : "fallo");
+      setMonedaEstelar((m) => Math.max(0, m - 1));
+
+      if (data.success && data.data) {
+        setResultado(data.data.correcto ? "exito" : "fallo");
+      }
+    } catch (error) {
+      console.error("Error al activar el Oráculo:", error);
+      alert("❌ Error al conectar con el servidor.");
+    } finally {
+      setCargandoActivar(false);
+    }
   };
 
-  const handleReiniciarActividad = () => {
+  const handleReiniciarActividad = async () => {
+    try {
+      await fetch(`${API_URL}/oraculo/reiniciar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE }),
+      });
+    } catch (error) {
+      console.error("Error al reiniciar actividad:", error);
+    }
+
     setEspacioSeleccionado(new Set());
     setEspacioVerificado(false);
+    setEspacioEstado("pendiente");
+    setEspacioAsistido(false);
     setPosibleMorado(null);
     setNumResultados("");
     setPaso2Verificado(false);
+    setPaso2Estado("pendiente");
+    setPaso2Asistido(false);
     setOrden(ORDEN_INICIAL);
     setOrdenVerificado(false);
+    setOrdenEstado("pendiente");
+    setOrdenAsistido(false);
     setComp1(null);
     setComp2(null);
     setComparacionVerificada(false);
+    setComparacionEstado("pendiente");
+    setComparacionAsistida(false);
     setPrediccion(null);
     setPrediccionVerificada(false);
+    setPrediccionEstado("pendiente");
+    setPrediccionAsistida(false);
     setMonedaEstelar(1);
     setResultado(null);
+    tiempoInicioRef.current = Date.now();
+    setSegundosTranscurridos(0);
   };
 
   /* ---- Resumen para las pantallas de resultado ---- */
@@ -401,6 +788,20 @@ export default function OraculoEstacion() {
   const totalPasos = 5;
   const precision = Math.round((aciertos / totalPasos) * 100);
   const puntosGanados = resultado === "exito" ? 50 : 10;
+
+  // ==========================================
+  // PANTALLA DE CARGA INICIAL (evita mostrar el
+  // tablero antes de saber si ya estaba completada)
+  // ==========================================
+
+  if (cargandoInicial) {
+    return (
+      <div className="orc-loading-screen">
+        <img src={logo} alt="MathNova" className="orc-loading-logo" />
+        <p>Cargando actividad...</p>
+      </div>
+    );
+  }
 
   // ==========================================
   // VENTANA EMERGENTE: ACTIVIDAD COMPLETADA
@@ -476,7 +877,7 @@ export default function OraculoEstacion() {
                 <div className="res-stat-sep" />
                 <div className="res-stat">
                   <img src={iconoTiempo} alt="" className="res-stat-img" />
-                  <strong>—</strong>
+                  <strong>{formatearTiempo(segundosTranscurridos)}</strong>
                   <small>Tiempo</small>
                   <em>min</em>
                 </div>
@@ -525,7 +926,7 @@ export default function OraculoEstacion() {
       {mostrarBaitExito && (
         <PistaBaitModal
           titulo="Bait tiene un mensaje para ti"
-          contenido="¡Excelente análisis, agente! Identificaste todos los resultados posibles, comparaste cuáles eran más o menos probables y realizaste una predicción basada en la cápsula. El Oráculo queda restaurado."
+          contenido="¡Lo lograste, agente! El Oráculo se activó con éxito gracias a tu análisis. Identificaste el espacio muestral, comparaste las probabilidades y tu predicción estuvo bien fundamentada."
           videoSrc={baitHablandoVideo}
           audioSrc={baitAudioActividadCompletada}
           botonTexto="Cerrar mensaje"
@@ -558,10 +959,9 @@ export default function OraculoEstacion() {
           <div>
             <strong>¡No te rindas, agente!</strong>
             <p>
-              Revisa el espacio muestral, el orden de probabilidad y las
-              comparaciones antes de volver a activar el Oráculo. Recuerda:
-              más cristales de un color significa mayor probabilidad, no
-              certeza.
+              Revisa el espacio muestral, el orden de probabilidad y tu
+              predicción. Recuerda: el color con más cristales es el más
+              probable.
             </p>
           </div>
         </div>
@@ -598,7 +998,7 @@ export default function OraculoEstacion() {
                 <div className="res-stat-sep" />
                 <div className="res-stat">
                   <img src={iconoTiempo} alt="" className="res-stat-img" />
-                  <strong>—</strong>
+                  <strong>{formatearTiempo(segundosTranscurridos)}</strong>
                   <small>Tiempo</small>
                   <em>min</em>
                 </div>
@@ -631,7 +1031,7 @@ export default function OraculoEstacion() {
             <button className="res-btn res-btn-azul" onClick={handleReiniciarActividad}>
               Intentar de nuevo
             </button>
-            <button className="res-btn res-btn-outline" onClick={() => setMostrarPistaBait(true)}>
+            <button className="res-btn res-btn-outline" onClick={abrirPistaManual}>
               Ver pista
             </button>
             <button
@@ -658,7 +1058,10 @@ export default function OraculoEstacion() {
       {mostrarPistaBait && (
         <PistaBaitModal
           titulo="Pista de Bait"
-          contenido="Observa con atención la cápsula. El espacio muestral incluye todos los resultados diferentes que pueden ocurrir. El color que aparece más veces es el más probable y el que aparece menos veces es el menos probable. Recuerda que una predicción se apoya en los datos, pero nunca garantiza el resultado."
+          contenido={
+            mensajePistaBait ||
+            "Observa con atención la cápsula. El espacio muestral incluye todos los resultados diferentes que pueden ocurrir. El color que aparece más veces es el más probable y el que aparece menos veces es el menos probable. Recuerda que una predicción se apoya en los datos, pero nunca garantiza el resultado."
+          }
           videoSrc={baitHablandoVideo}
           audioSrc={pistaBaitAudioOraculo}
           onClose={() => setMostrarPistaBait(false)}
@@ -708,6 +1111,11 @@ export default function OraculoEstacion() {
             <div className="orc-progreso-fill" style={{ width: "86%" }} />
           </div>
           <small>6/7 actividad</small>
+        </div>
+
+        <div className="orc-tiempo-card">
+          <small>Tiempo transcurrido</small>
+          <strong>{formatearTiempo(segundosTranscurridos)}</strong>
         </div>
 
         <div className="orc-xp-card">
@@ -802,7 +1210,7 @@ export default function OraculoEstacion() {
               <li>Más cristales de un color no significa mayor posibilidad.</li>
               <li>Más probable no significa seguro.</li>
             </ul>
-            <button type="button" className="orc-pista-btn" onClick={() => setMostrarPistaBait(true)}>
+            <button type="button" className="orc-pista-btn" onClick={abrirPistaManual}>
               <img src={baitPistaImg} alt="" className="orc-pista-icono" />
               Ver pista
             </button>
@@ -817,9 +1225,11 @@ export default function OraculoEstacion() {
               <span className="orc-paso-num">1</span>
               <strong>Espacio muestral</strong>
               {espacioVerificado && (
-                espacioCorrecto
+                espacioEstado === "correcto"
                   ? <FiCheckCircle className="orc-check-verde" />
-                  : <FiCheckCircle className="orc-check-alerta" />
+                  : espacioAsistido
+                    ? <FiCheckCircle className="orc-check-asistido" />
+                    : <FiCheckCircle className="orc-check-alerta" />
               )}
             </div>
             <p className="orc-paso-texto">Selecciona los colores que pueden salir de la cápsula.</p>
@@ -835,6 +1245,7 @@ export default function OraculoEstacion() {
                     style={activo ? { background: HEX_COLOR[c], borderColor: HEX_COLOR[c] } : undefined}
                     onClick={() => toggleColorEspacio(c)}
                     aria-pressed={activo}
+                    disabled={cargandoEspacio || espacioCorrecto}
                   >
                     {NOMBRE_COLOR[c]}
                   </button>
@@ -842,14 +1253,19 @@ export default function OraculoEstacion() {
               })}
             </div>
 
-            <div className={`orc-omega-box ${espacioVerificado ? (espacioCorrecto ? "orc-omega-correcto" : "orc-omega-incorrecto") : ""}`}>
+            <div className={`orc-omega-box ${espacioVerificado ? (espacioEstado === "correcto" ? "orc-omega-correcto" : espacioAsistido ? "orc-omega-asistido" : "orc-omega-incorrecto") : ""}`}>
               ω = {"{"}
               {espacioOrdenadoTexto || "…"}
               {"}"}
             </div>
 
-            <button type="button" className="orc-verificar-btn" onClick={verificarEspacio}>
-              <FiCheck /> Verificar
+            <button
+              type="button"
+              className="orc-verificar-btn"
+              onClick={verificarEspacio}
+              disabled={cargandoEspacio || espacioCorrecto}
+            >
+              <FiCheck /> {cargandoEspacio ? "Verificando..." : "Verificar"}
             </button>
           </div>
 
@@ -859,9 +1275,11 @@ export default function OraculoEstacion() {
               <span className="orc-paso-num">2</span>
               <strong>Posible o imposible</strong>
               {paso2Verificado && (
-                paso2Correcto
+                paso2Estado === "correcto"
                   ? <FiCheckCircle className="orc-check-verde" />
-                  : <FiCheckCircle className="orc-check-alerta" />
+                  : paso2Asistido
+                    ? <FiCheckCircle className="orc-check-asistido" />
+                    : <FiCheckCircle className="orc-check-alerta" />
               )}
             </div>
 
@@ -874,10 +1292,11 @@ export default function OraculoEstacion() {
                   className={`orc-opcion-radio ${posibleMorado === op ? "orc-opcion-radio-activa" : ""}`}
                   onClick={() => { setPosibleMorado(op); setPaso2Verificado(false); }}
                   aria-pressed={posibleMorado === op}
+                  disabled={cargandoPaso2 || paso2Correcto}
                 >
                   <span className="orc-radio-circulo" />
                   {op === "posible" ? "Posible" : "Imposible"}
-                  {paso2Verificado && posibleMorado === op && op === "imposible" && (
+                  {paso2Verificado && posibleMorado === op && op === "imposible" && paso2Estado === "correcto" && (
                     <FiCheckCircle className="orc-check-verde orc-check-inline" />
                   )}
                 </button>
@@ -891,19 +1310,27 @@ export default function OraculoEstacion() {
                 inputMode="numeric"
                 className={`orc-input ${
                   paso2Verificado
-                    ? numResultados.trim() === String(COLORES_CAPSULA.length)
+                    ? paso2Estado === "correcto"
                       ? "orc-input-correcto"
-                      : "orc-input-incorrecto"
+                      : paso2Asistido
+                        ? "orc-input-asistido"
+                        : "orc-input-incorrecto"
                     : ""
                 }`}
                 value={numResultados}
                 onChange={(e) => { setNumResultados(e.target.value); setPaso2Verificado(false); }}
                 aria-label="Cantidad de resultados diferentes"
+                disabled={cargandoPaso2 || paso2Correcto}
               />
             </div>
 
-            <button type="button" className="orc-verificar-btn" onClick={verificarPaso2}>
-              <FiCheck /> Verificar
+            <button
+              type="button"
+              className="orc-verificar-btn"
+              onClick={verificarPaso2}
+              disabled={cargandoPaso2 || paso2Correcto}
+            >
+              <FiCheck /> {cargandoPaso2 ? "Verificando..." : "Verificar"}
             </button>
           </div>
 
@@ -913,9 +1340,11 @@ export default function OraculoEstacion() {
               <span className="orc-paso-num">3</span>
               <strong>Orden de probabilidad</strong>
               {ordenVerificado && (
-                ordenEsCorrecto
+                ordenEstado === "correcto"
                   ? <FiCheckCircle className="orc-check-verde" />
-                  : <FiCheckCircle className="orc-check-alerta" />
+                  : ordenAsistido
+                    ? <FiCheckCircle className="orc-check-asistido" />
+                    : <FiCheckCircle className="orc-check-alerta" />
               )}
             </div>
             <p className="orc-paso-texto">Ordena de mayor a menor probabilidad.</p>
@@ -926,12 +1355,14 @@ export default function OraculoEstacion() {
                   <div
                     className={`orc-orden-chip ${dragOverIndex === index ? "orc-orden-chip-sobre" : ""} ${
                       ordenVerificado
-                        ? c === ORDEN_CORRECTO[index]
+                        ? ordenEstado === "correcto"
                           ? "orc-orden-chip-correcto"
-                          : "orc-orden-chip-incorrecto"
+                          : ordenAsistido
+                            ? "orc-orden-chip-asistido"
+                            : "orc-orden-chip-incorrecto"
                         : ""
                     }`}
-                    draggable
+                    draggable={!ordenEsCorrecto}
                     onDragStart={manejarDragStart(index)}
                     onDragOver={manejarDragOver(index)}
                     onDrop={manejarDrop(index)}
@@ -948,8 +1379,13 @@ export default function OraculoEstacion() {
               ))}
             </div>
 
-            <button type="button" className="orc-verificar-btn" onClick={verificarOrden}>
-              <FiCheck /> Verificar orden
+            <button
+              type="button"
+              className="orc-verificar-btn"
+              onClick={verificarOrden}
+              disabled={cargandoOrden || ordenEsCorrecto}
+            >
+              <FiCheck /> {cargandoOrden ? "Verificando..." : "Verificar orden"}
             </button>
           </div>
 
@@ -959,9 +1395,11 @@ export default function OraculoEstacion() {
               <span className="orc-paso-num">4</span>
               <strong>Comparación de eventos</strong>
               {comparacionVerificada && (
-                comparacionCorrecta
+                comparacionEstado === "correcto"
                   ? <FiCheckCircle className="orc-check-verde" />
-                  : <FiCheckCircle className="orc-check-alerta" />
+                  : comparacionAsistida
+                    ? <FiCheckCircle className="orc-check-asistido" />
+                    : <FiCheckCircle className="orc-check-alerta" />
               )}
             </div>
 
@@ -975,12 +1413,13 @@ export default function OraculoEstacion() {
                     className={`orc-opcion-radio ${comp1 === op ? "orc-opcion-radio-activa" : ""}`}
                     onClick={() => { setComp1(op); setComparacionVerificada(false); }}
                     aria-pressed={comp1 === op}
+                    disabled={cargandoComparacion || comparacionCorrecta}
                   >
                     <span className="orc-radio-circulo" />
                     {op === "verdadero" ? "Verdadero" : "Falso"}
                   </button>
                 ))}
-                {comparacionVerificada && comp1 === RESPUESTA_ENUNCIADO_1 && (
+                {comparacionVerificada && comparacionEstado === "correcto" && comp1 === RESPUESTA_ENUNCIADO_1 && (
                   <FiCheckCircle className="orc-check-verde" />
                 )}
               </div>
@@ -996,19 +1435,25 @@ export default function OraculoEstacion() {
                     className={`orc-opcion-radio ${comp2 === op ? "orc-opcion-radio-activa" : ""}`}
                     onClick={() => { setComp2(op); setComparacionVerificada(false); }}
                     aria-pressed={comp2 === op}
+                    disabled={cargandoComparacion || comparacionCorrecta}
                   >
                     <span className="orc-radio-circulo" />
                     {op === "verdadero" ? "Verdadero" : "Falso"}
                   </button>
                 ))}
-                {comparacionVerificada && comp2 === RESPUESTA_ENUNCIADO_2 && (
+                {comparacionVerificada && comparacionEstado === "correcto" && comp2 === RESPUESTA_ENUNCIADO_2 && (
                   <FiCheckCircle className="orc-check-verde" />
                 )}
               </div>
             </div>
 
-            <button type="button" className="orc-verificar-btn" onClick={verificarComparacion}>
-              <FiCheck /> Verificar
+            <button
+              type="button"
+              className="orc-verificar-btn"
+              onClick={verificarComparacion}
+              disabled={cargandoComparacion || comparacionCorrecta}
+            >
+              <FiCheck /> {cargandoComparacion ? "Verificando..." : "Verificar"}
             </button>
           </div>
 
@@ -1018,9 +1463,11 @@ export default function OraculoEstacion() {
               <span className="orc-paso-num">5</span>
               <strong>Predicción antes del canje</strong>
               {prediccionVerificada && (
-                prediccionCorrecta
+                prediccionEstado === "correcto"
                   ? <FiCheckCircle className="orc-check-verde" />
-                  : <FiCheckCircle className="orc-check-alerta" />
+                  : prediccionAsistida
+                    ? <FiCheckCircle className="orc-check-asistido" />
+                    : <FiCheckCircle className="orc-check-alerta" />
               )}
             </div>
             <p className="orc-paso-texto">¿Qué color crees que saldrá en el Oráculo?</p>
@@ -1033,10 +1480,11 @@ export default function OraculoEstacion() {
                   className={`orc-opcion-radio ${prediccion === c ? "orc-opcion-radio-activa" : ""}`}
                   onClick={() => { setPrediccion(c); setPrediccionVerificada(false); }}
                   aria-pressed={prediccion === c}
+                  disabled={cargandoPrediccion || prediccionCorrecta}
                 >
                   <span className="orc-radio-circulo" />
                   {NOMBRE_COLOR[c]}
-                  {prediccionVerificada && c === "azul" && prediccion === c && (
+                  {prediccionVerificada && prediccionEstado === "correcto" && c === "azul" && prediccion === c && (
                     <FiCheckCircle className="orc-check-verde orc-check-inline" />
                   )}
                 </button>
@@ -1047,12 +1495,17 @@ export default function OraculoEstacion() {
               <strong>Justificación</strong>
               <p>{justificacionPrediccion(prediccion) || "Selecciona un color para ver la justificación."}</p>
               {prediccionVerificada && prediccionCorrecta && (
-                <FiCheckCircle className="orc-check-verde" />
+                <FiCheckCircle className={prediccionEstado === "correcto" ? "orc-check-verde" : "orc-check-asistido"} />
               )}
             </div>
 
-            <button type="button" className="orc-verificar-btn" onClick={verificarPrediccion}>
-              <FiCheck /> Verificar
+            <button
+              type="button"
+              className="orc-verificar-btn"
+              onClick={verificarPrediccion}
+              disabled={cargandoPrediccion || prediccionCorrecta}
+            >
+              <FiCheck /> {cargandoPrediccion ? "Verificando..." : "Verificar"}
             </button>
           </div>
         </div>
@@ -1075,11 +1528,11 @@ export default function OraculoEstacion() {
             type="button"
             className="orc-activar-btn"
             onClick={handleActivarOraculo}
-            disabled={monedaEstelar <= 0}
+            disabled={monedaEstelar <= 0 || cargandoActivar || !todosLosPasosVerificados}
           >
             <FiZap />
             <span>
-              Activar Oráculo
+              {cargandoActivar ? "Activando..." : "Activar Oráculo"}
               <small>Usar 1 moneda estelar</small>
             </span>
           </button>
@@ -1100,7 +1553,10 @@ export default function OraculoEstacion() {
       {mostrarPistaBait && (
         <PistaBaitModal
           titulo="Pista de Bait"
-          contenido="Observa con atención la cápsula. El espacio muestral incluye todos los resultados diferentes que pueden ocurrir. El color que aparece más veces es el más probable y el que aparece menos veces es el menos probable. Recuerda que una predicción se apoya en los datos, pero nunca garantiza el resultado."
+          contenido={
+            mensajePistaBait ||
+            "Observa con atención la cápsula. El espacio muestral incluye todos los resultados diferentes que pueden ocurrir. El color que aparece más veces es el más probable y el que aparece menos veces es el menos probable. Recuerda que una predicción se apoya en los datos, pero nunca garantiza el resultado."
+          }
           videoSrc={baitHablandoVideo}
           audioSrc={pistaBaitAudioOraculo}
           onClose={() => setMostrarPistaBait(false)}
