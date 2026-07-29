@@ -117,7 +117,7 @@ type RespuestaAvance = {
 };
 
 const API_URL = "http://localhost:3001/api/docente/avance-actividad";
-const ALUMNOS_POR_PAGINA = 7;
+const ALUMNOS_POR_PAGINA = 9;
 
 const datosIniciales: RespuestaAvance = {
   ok: true,
@@ -192,8 +192,7 @@ function AvanceActividadDocente() {
   const [cargando, setCargando] = useState(true);
   const [datos, setDatos] = useState<RespuestaAvance>(datosIniciales);
 
-  const [selectedMenu, setSelectedMenu] =
-    useState<MenuKey>("avance-actividad");
+  const [selectedMenu, setSelectedMenu] = useState<MenuKey>("avance-actividad");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -250,7 +249,9 @@ function AvanceActividadDocente() {
       } catch (err) {
         if (!activo) return;
         setDatos(datosIniciales);
-        setError(err instanceof Error ? err.message : "No se pudo cargar el avance.");
+        setError(
+          err instanceof Error ? err.message : "No se pudo cargar el avance.",
+        );
       } finally {
         if (activo) setCargando(false);
       }

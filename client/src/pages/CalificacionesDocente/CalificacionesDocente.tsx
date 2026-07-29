@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { clearAuthSession } from "../../utils/authSession";
 import "./CalificacionesDocente.css";
@@ -8,6 +8,9 @@ import menuHamburguesa from "../../assets/menu-hamburguesa.png";
 
 import holaProfe from "../../assets/docente/common/hola-profe-docente.png";
 import heroCalificaciones from "../../assets/docente/calificaciones/hero-banner-calificaciones-docente.png";
+import mundoMathNumbers from "../../assets/docente/calificaciones/mundo-1-MathNumbers.png";
+import mundoMathGeometry from "../../assets/docente/calificaciones/mundo-2-MathGeometry.png";
+import mundoMathData from "../../assets/docente/calificaciones/mundo-3-MathData.png";
 
 import {
   FiGrid,
@@ -23,10 +26,13 @@ import {
   FiSearch,
   FiUserCheck,
   FiCheckCircle,
-  FiAlertCircle,
   FiAward,
   FiChevronLeft,
   FiChevronRight,
+  FiEye,
+  FiX,
+  FiLock,
+  FiClock,
 } from "react-icons/fi";
 
 type Grupo = {
@@ -92,6 +98,53 @@ type CalificacionesResponse = {
   ok: boolean;
   mensaje?: string;
 } & CalificacionesData;
+
+type MundoId = "MathNumbers" | "MathGeometry" | "MathData";
+
+type ActividadMundo = {
+  titulo: string;
+};
+
+type MundoDetalle = {
+  id: MundoId;
+  nombre: MundoId;
+  imagen: string;
+  clase: "numbers" | "geometry" | "data";
+  actividades: ActividadMundo[];
+};
+
+const ACTIVIDADES_POR_MUNDO: Record<MundoId, ActividadMundo[]> = {
+  MathNumbers: [
+    { titulo: "El Cofre de Bienvenida" },
+    { titulo: "El Radar de Supervivencia" },
+    { titulo: "El Ascensor del Búnker" },
+    { titulo: "El Escuadrón Táctico" },
+    { titulo: "Los Espejos de la Bóveda" },
+    { titulo: "El Puente de Prioridades" },
+    { titulo: "El Enigma de Variables" },
+    { titulo: "El Simulador de Códigos Algebraicos" },
+  ],
+  MathGeometry: [
+    { titulo: "El Constructor de Caminos" },
+    { titulo: "La Ruta Perdida" },
+    { titulo: "Detectores de Giro" },
+    { titulo: "Cruce de Láser" },
+    { titulo: "El Taller del Ingeniero" },
+    { titulo: "El Escudo Perfecto" },
+    { titulo: "La Fortaleza Triangular" },
+    { titulo: "El Centro de Control" },
+  ],
+  MathData: [
+    { titulo: "Generador de Energía" },
+    { titulo: "Rampas de Lanzamiento" },
+    { titulo: "Encuesta de Tripulación" },
+    { titulo: "Holograma de Reportes" },
+    { titulo: "Sensor de Frecuencias" },
+    { titulo: "Núcleo de Decisiones" },
+    { titulo: "Oráculo de la Estación" },
+    { titulo: "Sala de Tres Caminos" },
+  ],
+};
 
 const API_CALIFICACIONES_DOCENTE =
   "http://localhost:3001/api/docente/calificaciones";
@@ -171,21 +224,6 @@ function clasePromedio(promedio: number | null) {
   return "bad";
 }
 
-function obtenerIconoEstado(estado: string) {
-  const estadoNormalizado = estado.toLowerCase();
-
-  if (estadoNormalizado.includes("excelente")) return <FiAward />;
-  if (estadoNormalizado.includes("bien")) return <FiCheckCircle />;
-  if (
-    estadoNormalizado.includes("sin progreso") ||
-    estadoNormalizado.includes("proceso")
-  ) {
-    return <FiClipboard />;
-  }
-
-  return <FiAlertCircle />;
-}
-
 function limitarPagina(pagina: number, totalPaginas: number) {
   if (pagina < 1) return 1;
   if (pagina > totalPaginas) return totalPaginas;
@@ -209,17 +247,51 @@ function CalificacionesDocente() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
   const [paginaActual, setPaginaActual] = useState(1);
+  const [alumnoDetalle, setAlumnoDetalle] = useState<AlumnoCalificacion | null>(
+    null,
+  );
+  const [mundoSeleccionado, setMundoSeleccionado] =
+    useState<MundoId>("MathNumbers");
+  const scrollBloqueadoRef = useRef(0);
 
   const navigate = useNavigate();
   const alumnosPorPagina = 8;
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "auto";
+    if (alumnoDetalle) {
+      scrollBloqueadoRef.current = window.scrollY;
+
+      document.documentElement.classList.add("calif-modal-open");
+      document.body.classList.add("calif-modal-open");
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollBloqueadoRef.current}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
+    } else {
+      document.documentElement.classList.remove("calif-modal-open");
+      document.body.classList.remove("calif-modal-open");
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+      document.body.style.overflow = menuOpen ? "hidden" : "";
+
+      window.scrollTo(0, scrollBloqueadoRef.current);
+    }
 
     return () => {
-      document.body.style.overflow = "auto";
+      document.documentElement.classList.remove("calif-modal-open");
+      document.body.classList.remove("calif-modal-open");
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+      document.body.style.overflow = "";
     };
-  }, [menuOpen]);
+  }, [menuOpen, alumnoDetalle]);
 
   useEffect(() => {
     localStorage.setItem("docente-grupos-open", String(gruposOpen));
@@ -332,8 +404,7 @@ function CalificacionesDocente() {
   const indiceFinal = indiceInicial + alumnosPorPagina;
   const alumnosPagina = alumnosFiltrados.slice(indiceInicial, indiceFinal);
 
-  const rangoInicial =
-    alumnosFiltrados.length === 0 ? 0 : indiceInicial + 1;
+  const rangoInicial = alumnosFiltrados.length === 0 ? 0 : indiceInicial + 1;
   const rangoFinal = Math.min(indiceFinal, alumnosFiltrados.length);
 
   return (
@@ -527,8 +598,8 @@ function CalificacionesDocente() {
           <div className="calif-hero-text">
             <h1>Calificaciones</h1>
             <p>
-              Consulta los resultados que MathNova calcula automáticamente cuando
-              tus alumnos completan sus actividades.
+              Consulta los resultados que MathNova calcula automáticamente
+              cuando tus alumnos completan sus actividades.
             </p>
           </div>
 
@@ -577,7 +648,9 @@ function CalificacionesDocente() {
           <article className="calif-stat-card green">
             <div>
               <h3>Promedio general</h3>
-              <strong>{formatearPromedio(datos.resumen.promedio_general)}</strong>
+              <strong>
+                {formatearPromedio(datos.resumen.promedio_general)}
+              </strong>
             </div>
 
             <span className="calif-stat-icon">
@@ -639,7 +712,7 @@ function CalificacionesDocente() {
                 <span>Intentos</span>
                 <span>Promedio</span>
                 <span>Estrellas</span>
-                <span>Estado</span>
+                <span>Detalles</span>
               </div>
 
               {cargando ? (
@@ -694,11 +767,19 @@ function CalificacionesDocente() {
 
                     <span>{alumno.estrellas}</span>
 
-                    <span
-                      className={`calif-status ${alumno.estado_clase}`}
-                      title={alumno.estado}
-                    >
-                      {obtenerIconoEstado(alumno.estado)}
+                    <span className="calif-details-cell">
+                      <button
+                        type="button"
+                        className="calif-details-btn"
+                        onClick={() => {
+                          setMundoSeleccionado("MathNumbers");
+                          setAlumnoDetalle(alumno);
+                        }}
+                        aria-label={`Ver detalles de ${alumno.nombre}`}
+                        title="Ver detalles"
+                      >
+                        <FiEye />
+                      </button>
                     </span>
                   </div>
                 ))
@@ -707,7 +788,7 @@ function CalificacionesDocente() {
 
             <div className="calif-table-footer">
               <p>
-                Mostrando {rangoInicial} a {rangoFinal} de {" "}
+                Mostrando {rangoInicial} a {rangoFinal} de{" "}
                 {alumnosFiltrados.length} alumnos
               </p>
 
@@ -817,6 +898,291 @@ function CalificacionesDocente() {
           </div>
         </footer>
       </section>
+
+      {alumnoDetalle && (
+        <div
+          className="calif-detail-overlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setAlumnoDetalle(null);
+          }}
+        >
+          <section
+            className="calif-detail-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="calif-detail-title"
+          >
+            <div className="calif-detail-accent" />
+
+            <button
+              type="button"
+              className="calif-detail-close"
+              onClick={() => setAlumnoDetalle(null)}
+              aria-label="Cerrar detalles"
+            >
+              <FiX />
+            </button>
+
+            <div className="calif-detail-scroll">
+              <header className="calif-detail-header">
+                <div className={`calif-detail-avatar ${alumnoDetalle.color}`}>
+                  {alumnoDetalle.iniciales}
+                </div>
+
+                <div className="calif-detail-title-wrap">
+                  <span className="calif-detail-label">
+                    Ficha del estudiante
+                  </span>
+                  <h2 id="calif-detail-title">{alumnoDetalle.nombre}</h2>
+                  <p>
+                    Revisa el progreso del estudiante en todos los mundos y
+                    actividades.
+                  </p>
+                </div>
+
+                <span
+                  className={`calif-detail-active ${alumnoDetalle.estado_clase}`}
+                >
+                  Activo
+                </span>
+              </header>
+
+              <div className="calif-world-helper">
+                <FiEye />
+                <span>Selecciona un mundo para consultar sus actividades.</span>
+              </div>
+
+              <div className="calif-world-grid">
+                {(
+                  [
+                    {
+                      id: "MathNumbers",
+                      nombre: "MathNumbers",
+                      imagen: mundoMathNumbers,
+                      clase: "numbers",
+                      actividades: ACTIVIDADES_POR_MUNDO.MathNumbers,
+                    },
+                    {
+                      id: "MathGeometry",
+                      nombre: "MathGeometry",
+                      imagen: mundoMathGeometry,
+                      clase: "geometry",
+                      actividades: ACTIVIDADES_POR_MUNDO.MathGeometry,
+                    },
+                    {
+                      id: "MathData",
+                      nombre: "MathData",
+                      imagen: mundoMathData,
+                      clase: "data",
+                      actividades: ACTIVIDADES_POR_MUNDO.MathData,
+                    },
+                  ] as MundoDetalle[]
+                ).map((mundo, mundoIndex) => {
+                  const desplazamiento = mundoIndex;
+                  const completadas = Math.min(
+                    8,
+                    Math.max(
+                      0,
+                      alumnoDetalle.actividades_completadas - desplazamiento,
+                    ),
+                  );
+                  const promedio =
+                    alumnoDetalle.promedio === null
+                      ? null
+                      : Math.max(
+                          0,
+                          alumnoDetalle.promedio -
+                            (mundoIndex === 1
+                              ? 0.7
+                              : mundoIndex === 2
+                                ? 0.4
+                                : 0),
+                        );
+
+                  return (
+                    <button
+                      type="button"
+                      className={`calif-world-card ${mundo.clase} ${
+                        mundoSeleccionado === mundo.id ? "selected" : ""
+                      }`}
+                      key={mundo.id}
+                      onClick={() => setMundoSeleccionado(mundo.id)}
+                      aria-pressed={mundoSeleccionado === mundo.id}
+                    >
+                      <img src={mundo.imagen} alt={mundo.nombre} />
+                      <div>
+                        <h3>{mundo.nombre}</h3>
+                        <p>{completadas}/8 actividades</p>
+                        <span>
+                          Promedio: <b>{formatearPromedio(promedio)}</b>
+                        </span>
+                        <small>Ver actividades</small>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <section className="calif-activities-detail">
+                <div className="calif-activities-title">
+                  <div>
+                    <span>Progreso por mundo</span>
+                    <h3>Actividades - {mundoSeleccionado}</h3>
+                  </div>
+                  <b>
+                    {ACTIVIDADES_POR_MUNDO[mundoSeleccionado].length}{" "}
+                    actividades
+                  </b>
+                </div>
+
+                <div className="calif-detail-table-wrap">
+                  <div className="calif-detail-table">
+                    <div className="calif-detail-row calif-detail-head">
+                      <span>#</span>
+                      <span>Actividad</span>
+                      <span>Estado</span>
+                      <span>Calificación</span>
+                      <span>Intentos</span>
+                      <span>Último intento</span>
+                    </div>
+
+                    {ACTIVIDADES_POR_MUNDO[mundoSeleccionado].map(
+                      (actividad, index) => {
+                        const numero = index + 1;
+                        const ajusteMundo =
+                          mundoSeleccionado === "MathNumbers"
+                            ? 0
+                            : mundoSeleccionado === "MathGeometry"
+                              ? 1
+                              : 2;
+                        const completadasMundo = Math.min(
+                          8,
+                          Math.max(
+                            0,
+                            alumnoDetalle.actividades_completadas - ajusteMundo,
+                          ),
+                        );
+                        const completada =
+                          numero <= Math.min(4, completadasMundo);
+                        const enProgreso =
+                          !completada &&
+                          numero === Math.min(8, completadasMundo + 1);
+                        const abierta =
+                          !completada &&
+                          !enProgreso &&
+                          numero === Math.min(8, completadasMundo + 2);
+                        const estado = completada
+                          ? "Completada"
+                          : enProgreso
+                            ? "En progreso"
+                            : abierta
+                              ? "Abierta"
+                              : "No iniciada";
+                        const estadoClase = completada
+                          ? "completed"
+                          : enProgreso
+                            ? "progress"
+                            : abierta
+                              ? "open"
+                              : "locked";
+                        const basePromedio = Number(
+                          alumnoDetalle.promedio || 8,
+                        );
+                        const calificacion = completada
+                          ? Math.max(
+                              7,
+                              basePromedio -
+                                ajusteMundo * 0.3 -
+                                (index % 3) * 0.3,
+                            )
+                          : enProgreso
+                            ? Math.max(
+                                7,
+                                basePromedio - ajusteMundo * 0.3 - 1.1,
+                              )
+                            : null;
+                        const intentos =
+                          completada || enProgreso ? 1 + (index % 2) : 0;
+
+                        return (
+                          <div
+                            className="calif-detail-row"
+                            key={`${mundoSeleccionado}-${actividad.titulo}`}
+                          >
+                            <span>{numero}</span>
+                            <span className="calif-detail-activity-name">
+                              {actividad.titulo}
+                            </span>
+                            <span>
+                              <b
+                                className={`calif-detail-status ${estadoClase}`}
+                              >
+                                {completada ? (
+                                  <FiCheckCircle />
+                                ) : enProgreso ? (
+                                  <FiClock />
+                                ) : (
+                                  <FiLock />
+                                )}
+                                {estado}
+                              </b>
+                            </span>
+                            <span className="calif-detail-grade">
+                              {calificacion === null
+                                ? "—"
+                                : calificacion.toFixed(1)}
+                            </span>
+                            <span>{intentos}</span>
+                            <span>
+                              {completada || enProgreso
+                                ? `${15 + index}/06/2026`
+                                : "—"}
+                            </span>
+                          </div>
+                        );
+                      },
+                    )}
+                  </div>
+                </div>
+              </section>
+
+              <footer className="calif-detail-footer">
+                <div className="calif-detail-legend">
+                  <span>
+                    <i className="completed">
+                      <FiCheckCircle />
+                    </i>
+                    Completada
+                  </span>
+                  <span>
+                    <i className="progress">
+                      <FiClock />
+                    </i>
+                    En progreso
+                  </span>
+                  <span>
+                    <i className="open">
+                      <FiLock />
+                    </i>
+                    Abierta
+                  </span>
+                  <span>
+                    <i className="locked">
+                      <FiLock />
+                    </i>
+                    No iniciada
+                  </span>
+                </div>
+
+                <button type="button" onClick={() => setAlumnoDetalle(null)}>
+                  Cerrar
+                </button>
+              </footer>
+            </div>
+          </section>
+        </div>
+      )}
     </main>
   );
 }
