@@ -161,6 +161,13 @@ function ActividadesMathData() {
     false,
   ]);
 
+  // Guarda por separado qué actividades ya llegaron a desbloquear la
+  // siguiente. Este progreso es acumulativo: si el alumno repite una actividad
+  // y el backend la cambia temporalmente a "en_curso", la siguiente no debe
+  // volver a bloquearse.
+  const [desbloqueosConservados, setDesbloqueosConservados] =
+    useState<boolean[]>(ACTIVIDADES.map(() => false));
+
   // Actividades que el alumno empezó pero no ha terminado ("en curso").
   // Se guardan en localStorage para que, si sale de la actividad, al volver
   // a este panel siga viéndose marcada como "en curso".
@@ -213,6 +220,8 @@ function ActividadesMathData() {
     if (!ID_ESTUDIANTE) return;
 
     let cancelado = false;
+    const claveDesbloqueo = (index: number) =>
+      `mathdata_desbloqueo_${ID_ESTUDIANTE}_${index}`;
 
     const cargarEstado = async () => {
       try {
@@ -225,12 +234,48 @@ function ActividadesMathData() {
         const data = await response.json();
 
         if (!cancelado && data.success && data.data) {
-          setCompletadas([
+          const reportadasPorBackend = [
             Boolean(data.data.proporcionalidad),
             Boolean(data.data.rampas),
             Boolean(data.data.tripulacion),
             Boolean(data.data.holograma),
-          ]);
+          ];
+
+          setCompletadas(reportadasPorBackend);
+
+          setDesbloqueosConservados((prev) =>
+            ACTIVIDADES.map((_, index) => {
+              let conservadaLocalmente = false;
+
+              try {
+                conservadaLocalmente =
+                  localStorage.getItem(claveDesbloqueo(index)) === "1";
+              } catch (error) {
+                console.error(
+                  "No se pudo leer el historial de desbloqueos:",
+                  error
+                );
+              }
+
+              const debeConservarse =
+                Boolean(prev[index]) ||
+                conservadaLocalmente ||
+                Boolean(reportadasPorBackend[index]);
+
+              if (debeConservarse) {
+                try {
+                  localStorage.setItem(claveDesbloqueo(index), "1");
+                } catch (error) {
+                  console.error(
+                    "No se pudo guardar el historial de desbloqueos:",
+                    error
+                  );
+                }
+              }
+
+              return debeConservarse;
+            })
+          );
         }
       } catch (error) {
         console.error("Error al cargar el estado de las actividades:", error);
@@ -250,12 +295,19 @@ function ActividadesMathData() {
   useEffect(() => {
     const claveIniciada = (index: number) =>
       `mathdata_iniciada_${ID_ESTUDIANTE ?? "invitado"}_${index}`;
+    const claveDesbloqueo = (index: number) =>
+      `mathdata_desbloqueo_${ID_ESTUDIANTE ?? "invitado"}_${index}`;
 
     try {
       const guardado = ACTIVIDADES.map(
         (_, index) => localStorage.getItem(claveIniciada(index)) === "1"
       );
+      const desbloqueosGuardados = ACTIVIDADES.map(
+        (_, index) => localStorage.getItem(claveDesbloqueo(index)) === "1"
+      );
+
       setIniciadas(guardado);
+      setDesbloqueosConservados(desbloqueosGuardados);
     } catch (error) {
       console.error("No se pudo leer el progreso local:", error);
     }
@@ -274,7 +326,11 @@ function ActividadesMathData() {
   // también reporte su avance (se resuelve solo agregando esos campos ahí).
   const estaDesbloqueada = (index: number) => {
     if (index === 0) return true;
-    return Boolean(completadas[index - 1]);
+    return Boolean(
+      completadas[index - 1] ||
+        desbloqueosConservados[index - 1] ||
+        iniciadas[index]
+    );
   };
 
   const obtenerEstado = (index: number): EstadoActividad => {
