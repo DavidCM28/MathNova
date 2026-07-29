@@ -648,6 +648,24 @@ export default function OraculoEstacion() {
           ),
       );
 
+      // Avisamos al panel (ActividadesMathData) que esta actividad (índice 6)
+      // ya se completó, para que desbloquee la 8 aunque se navegue directo
+      // con el botón "Siguiente actividad" y nunca se pase por el panel.
+      if (todoCorrecto) {
+        try {
+          const idParaDesbloqueo = ID_ESTUDIANTE || "invitado";
+          localStorage.setItem(
+            `mathdata_desbloqueo_${idParaDesbloqueo}_6`,
+            "1",
+          );
+        } catch (error) {
+          console.error(
+            "No se pudo guardar el desbloqueo de la actividad 8:",
+            error,
+          );
+        }
+      }
+
       setResultado(
         todoCorrecto
           ? "exito"
@@ -812,7 +830,12 @@ export default function OraculoEstacion() {
           </div>
 
           <div className="res-modal-right">
-            <button className="res-btn res-btn-azul" onClick={() => navigate("/actividades-math-data")}>
+            <button
+              className="res-btn res-btn-azul"
+              onClick={() =>
+                navigate("/actividades-math-data/sala-tres-caminos")
+              }
+            >
               Siguiente actividad
             </button>
             <button className="res-btn res-btn-outline" onClick={handleReiniciarActividad}>

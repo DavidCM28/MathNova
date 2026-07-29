@@ -870,6 +870,24 @@ export default function NucleoDecisiones() {
           );
         }
 
+        // Avisamos al panel (ActividadesMathData) que esta actividad (índice 5)
+        // ya se completó, para que desbloquee la 7 aunque se navegue directo
+        // con el botón "Siguiente actividad" y nunca se pase por el panel.
+        if (correcto) {
+          try {
+            const idParaDesbloqueo = ID_ESTUDIANTE || "invitado";
+            localStorage.setItem(
+              `mathdata_desbloqueo_${idParaDesbloqueo}_5`,
+              "1",
+            );
+          } catch (error) {
+            console.error(
+              "No se pudo guardar el desbloqueo de la actividad 7:",
+              error,
+            );
+          }
+        }
+
         setSegundosTranscurridos(
           tiempoFinal,
         );
