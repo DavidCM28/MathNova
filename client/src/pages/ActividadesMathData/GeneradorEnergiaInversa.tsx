@@ -200,12 +200,12 @@ const obtenerIdEstudianteActual = (): number => {
 // ============================================
 
 const filasIniciales = [
-  { x: 1, y: "12", editable: false, correcto: true, bloqueada: false },
-  { x: 2, y: "6", editable: false, correcto: true, bloqueada: false },
-  { x: 3, y: "4", editable: false, correcto: true, bloqueada: false },
-  { x: 4, y: "", editable: true, correcto: null, bloqueada: false },
-  { x: 6, y: "", editable: true, correcto: null, bloqueada: false },
-  { x: 12, y: "", editable: true, correcto: null, bloqueada: false },
+  { x: 1, y: "12", editable: false, correcto: true, bloqueada: false, asistida: false },
+  { x: 2, y: "6", editable: false, correcto: true, bloqueada: false, asistida: false },
+  { x: 3, y: "4", editable: false, correcto: true, bloqueada: false, asistida: false },
+  { x: 4, y: "", editable: true, correcto: null, bloqueada: false, asistida: false },
+  { x: 6, y: "", editable: true, correcto: null, bloqueada: false, asistida: false },
+  { x: 12, y: "", editable: true, correcto: null, bloqueada: false, asistida: false },
 ];
 
 const puntosIniciales = [
@@ -503,6 +503,7 @@ function GeneradorEnergiaInversa() {
   const [filas, setFilas] = useState(filasIniciales);
   const [puntos, setPuntos] = useState(puntosIniciales);
   const [puntosIncorrectos, setPuntosIncorrectos] = useState<{ x: number; y: number }[]>([]);
+  const [puntosAsistidos, setPuntosAsistidos] = useState<{ x: number; y: number }[]>([]);
   const [respuesta, setRespuesta] = useState("");
   const [mensajeFeedback, setMensajeFeedback] = useState("");
   const [actividadCompletada, setActividadCompletada] = useState(false);
@@ -513,6 +514,27 @@ function GeneradorEnergiaInversa() {
   const [mostrarIntroVillano, setMostrarIntroVillano] = useState(false);
   const [mostrarPistaModal, setMostrarPistaModal] = useState(false);
   const [graficaCompleta, setGraficaCompleta] = useState(false);
+  const [cargandoInicial, setCargandoInicial] = useState(true);
+
+  // ---- Temporizador ----
+  const tiempoInicioRef = useRef<number>(Date.now());
+  const [segundosTranscurridos, setSegundosTranscurridos] = useState(0);
+
+  useEffect(() => {
+    if (cargandoInicial || resultado !== null) return;
+
+    const intervalo = setInterval(() => {
+      setSegundosTranscurridos(Math.floor((Date.now() - tiempoInicioRef.current) / 1000));
+    }, 1000);
+
+    return () => clearInterval(intervalo);
+  }, [cargandoInicial, resultado]);
+
+  const formatearTiempo = (segundos: number) => {
+    const m = Math.floor(segundos / 60);
+    const s = segundos % 60;
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  };
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
@@ -529,6 +551,7 @@ function GeneradorEnergiaInversa() {
         console.warn(
           "No se encontró el estudiante autenticado para cargar Generador de Energía Inversa.",
         );
+        setCargandoInicial(false);
         return;
       }
 
@@ -538,26 +561,45 @@ function GeneradorEnergiaInversa() {
 
         if (data.success && data.data) {
           const progreso = data.data;
+          const celdasAsistidas = (progreso.celdas_asistidas || {}) as Record<string, boolean>;
 
           if (progreso.valores_tabla) {
             const nuevosValores = filasIniciales.map((fila) => {
               const valorGuardado = (progreso.valores_tabla as Record<string, number>)[String(fila.x)];
               if (valorGuardado !== undefined) {
-                return { ...fila, y: String(valorGuardado), correcto: true, bloqueada: true };
+                const esAsistida = !!celdasAsistidas[String(fila.x)];
+                return {
+                  ...fila,
+                  y: String(valorGuardado),
+                  correcto: esAsistida ? null : true,
+                  bloqueada: true,
+                  asistida: esAsistida,
+                };
               }
               return fila;
             });
             setFilas(nuevosValores);
+
+            const puntosAsistidosRestaurados = nuevosValores
+              .filter((f) => f.asistida)
+              .map((f) => ({ x: f.x, y: Number(f.y) }));
+            if (puntosAsistidosRestaurados.length > 0) {
+              setPuntosAsistidos(puntosAsistidosRestaurados);
+            }
           }
 
+          // ✅ "completada" (con o sin ayuda) siempre manda a éxito; el
+          // color naranja ya indica que hubo asistencia.
           if (progreso.completada) {
             setActividadCompletada(true);
             setXpGanado(progreso.xp_obtenido || 0);
-            setResultado(progreso.prediccion_correcta ? "exito" : "fallo");
+            setResultado("exito");
           }
         }
       } catch (error) {
         console.error("Error al cargar progreso:", error);
+      } finally {
+        setCargandoInicial(false);
       }
     };
 
@@ -609,6 +651,7 @@ function GeneradorEnergiaInversa() {
     setFilas(filasIniciales);
     setPuntos(puntosIniciales);
     setPuntosIncorrectos([]);
+    setPuntosAsistidos([]);
     setMensajeFeedback("");
     setProgresoPorcentaje(0);
     setRespuesta("");
@@ -620,6 +663,9 @@ function GeneradorEnergiaInversa() {
 
     inicioActividadRef.current =
       Date.now();
+
+    tiempoInicioRef.current = Date.now();
+    setSegundosTranscurridos(0);
   };
 
   // ==========================================
@@ -665,16 +711,19 @@ function GeneradorEnergiaInversa() {
             if (i !== index) return f;
 
             if (resultado.celda_completada && !resultado.correcto) {
-              // Se agotaron los intentos: se revela la respuesta y se bloquea
+              // Se agotaron los intentos: se revela la respuesta. Ya NO se
+              // marca como "incorrecta" (rojo) — se marca "asistida"
+              // (naranja fijo), porque quedó resuelta con ayuda.
               return {
                 ...f,
                 y: String(resultado.respuesta_correcta),
-                correcto: false,
+                correcto: null,
                 bloqueada: true,
+                asistida: true,
               };
             }
 
-            return { ...f, correcto: resultado.correcto };
+            return { ...f, correcto: resultado.correcto, asistida: false };
           })
         );
 
@@ -686,9 +735,18 @@ function GeneradorEnergiaInversa() {
           }
           // Ya no está mal: si tenía un punto rojo marcado, se quita
           setPuntosIncorrectos((prev) => prev.filter((p) => p.x !== fila.x));
+        } else if (resultado.celda_completada && resultado.asistido) {
+          // Revelada: punto naranja fijo (sin parpadeo), se quita el rojo
+          setMensajeFeedback("");
+          setPuntosIncorrectos((prev) => prev.filter((p) => p.x !== fila.x));
+          setPuntosAsistidos((prev) => [
+            ...prev.filter((p) => p.x !== fila.x),
+            { x: fila.x, y: Number(resultado.respuesta_correcta) },
+          ]);
+          await guardarProgreso(4);
         } else {
-          // Incorrecto: sin mensaje de texto, solo el punto rojo parpadeante
-          // en la gráfica (la pista del asistente ya está disponible aparte)
+          // Incorrecto (aún con intentos disponibles): sin mensaje de
+          // texto, solo el punto rojo parpadeante en la gráfica
           setMensajeFeedback("");
           setPuntosIncorrectos((prev) => [
             ...prev.filter((p) => p.x !== fila.x),
@@ -872,7 +930,7 @@ function GeneradorEnergiaInversa() {
                 tiempoSegundos,
               xp_base: 60,
               completada:
-                prediccionCorrecta &&
+                finalizada &&
                 tablaCompleta,
             });
 
@@ -895,15 +953,13 @@ function GeneradorEnergiaInversa() {
         setActividadCompletada(true);
         setProgresoPorcentaje(100);
 
-        if (prediccionCorrecta) {
-          setXpGanado(100);
-          await guardarProgreso(8);
-          setResultado("exito");
-        } else {
-          setXpGanado(50);
-          await guardarProgreso(8);
-          setResultado("fallo");
-        }
+        // ✅ CORREGIDO: "finalizada" (correcto O completada con ayuda en
+        // el 3er intento) siempre manda a éxito — el color naranja en la
+        // tabla/gráfica ya deja claro que hubo asistencia, no hace falta
+        // una pantalla de "fallo" por eso.
+        setXpGanado(100);
+        await guardarProgreso(8);
+        setResultado("exito");
       } else if (
         data.success === false
       ) {
@@ -955,7 +1011,8 @@ function GeneradorEnergiaInversa() {
     ];
 
     const todosLosPuntos = puntosEsperados.every(pEsperado =>
-      puntos.some(p => p.x === pEsperado.x && p.y === pEsperado.y)
+      puntos.some(p => p.x === pEsperado.x && p.y === pEsperado.y) ||
+      puntosAsistidos.some(p => p.x === pEsperado.x && p.y === pEsperado.y)
     );
 
     if (todosLosPuntos) {
@@ -1121,7 +1178,7 @@ function GeneradorEnergiaInversa() {
 
               <div className="pista-stat">
                 <img src={iconoTiempo} alt="" className="pista-stat-img" />
-                <strong>04:28</strong>
+                <strong>{formatearTiempo(segundosTranscurridos)}</strong>
                 <small>Tiempo</small>
                 <em>Sigue practicando</em>
               </div>
@@ -1419,6 +1476,20 @@ function GeneradorEnergiaInversa() {
   );
 
   // ==========================================
+  // PANTALLA DE CARGA INICIAL (evita mostrar el
+  // tablero antes de saber si ya estaba completada)
+  // ==========================================
+
+  if (cargandoInicial) {
+    return (
+      <div className="gen1-loading-screen">
+        <img src={logo} alt="MathNova" className="gen1-loading-logo" />
+        <p>Cargando actividad...</p>
+      </div>
+    );
+  }
+
+  // ==========================================
   // RENDER (NO MODIFICAR ESTRUCTURA)
   // ==========================================
 
@@ -1525,7 +1596,7 @@ function GeneradorEnergiaInversa() {
                     </div>
                     <div>
                       <span>Tiempo</span>
-                      <strong>04:28</strong>
+                      <strong>{formatearTiempo(segundosTranscurridos)}</strong>
                       <small>min</small>
                     </div>
                   </article>
@@ -1691,7 +1762,7 @@ function GeneradorEnergiaInversa() {
                     </div>
                     <div>
                       <span>Tiempo</span>
-                      <strong>04:28</strong>
+                      <strong>{formatearTiempo(segundosTranscurridos)}</strong>
                       <small>min</small>
                     </div>
                   </article>
@@ -1868,6 +1939,11 @@ function GeneradorEnergiaInversa() {
             </div>
           </div>
 
+          <div className="gen1-tiempo-box">
+            <span>Tiempo transcurrido</span>
+            <strong>{formatearTiempo(segundosTranscurridos)}</strong>
+          </div>
+
           <div className="gen1-xp-box">
             <span>XP acumulados</span>
             <strong>
@@ -1988,8 +2064,8 @@ function GeneradorEnergiaInversa() {
                           aria-label={`Tiempo para ${fila.x} reactores`}
                           onChange={(e) => actualizarFila(index, e.target.value)}
                           style={{
-                            borderColor: fila.correcto === true ? "#28a745" : fila.correcto === false ? "#dc3545" : undefined,
-                            backgroundColor: fila.correcto === true ? "#d4edda" : fila.correcto === false ? "#f8d7da" : undefined
+                            borderColor: fila.asistida ? "#fd7e14" : fila.correcto === true ? "#28a745" : fila.correcto === false ? "#dc3545" : undefined,
+                            backgroundColor: fila.asistida ? "#fff3e0" : fila.correcto === true ? "#d4edda" : fila.correcto === false ? "#f8d7da" : undefined
                           }}
                           disabled={cargando || fila.correcto === true || fila.bloqueada || actividadCompletada}
                         />
@@ -2073,6 +2149,17 @@ function GeneradorEnergiaInversa() {
                 <span
                   key={`err-${i}`}
                   className="gen1-graph-point gen1-graph-point-error"
+                  style={{
+                    left: `${(p.x / EJE_X_MAX) * 100}%`,
+                    bottom: `${(p.y / EJE_Y_MAX) * 100}%`,
+                  }}
+                />
+              ))}
+
+              {puntosAsistidos.map((p, i) => (
+                <span
+                  key={`asist-${i}`}
+                  className="gen1-graph-point gen1-graph-point-asistido"
                   style={{
                     left: `${(p.x / EJE_X_MAX) * 100}%`,
                     bottom: `${(p.y / EJE_Y_MAX) * 100}%`,

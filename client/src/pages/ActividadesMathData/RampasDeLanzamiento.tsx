@@ -621,6 +621,11 @@ export default function RampasDeLanzamiento() {
     setEstrellasResultado,
   ] = useState(0);
 
+  // ---- Límite de intentos (validación global de la actividad) ----
+  const [intentoActual, setIntentoActual] = useState(0);
+  const [asistido, setAsistido] = useState(false);
+  const [mensajePistaBait, setMensajePistaBait] = useState("");
+
   // ==========================================
   // CARGAR PROGRESO GUARDADO
   // ==========================================
@@ -649,6 +654,13 @@ export default function RampasDeLanzamiento() {
           if (progreso.bitacora_ecuacion_ascenso) setBitEcAscenso(progreso.bitacora_ecuacion_ascenso);
           if (progreso.bitacora_pendiente_descenso) setBitPendienteDescenso(progreso.bitacora_pendiente_descenso);
           if (progreso.bitacora_ecuacion_descenso) setBitEcDescenso(progreso.bitacora_ecuacion_descenso);
+
+          if (progreso.intentos_verificacion) {
+            setIntentoActual(Number(progreso.intentos_verificacion) || 0);
+          }
+          if (progreso.asistido) {
+            setAsistido(true);
+          }
 
           if (progreso.completada) {
             const correcto =
@@ -764,6 +776,78 @@ export default function RampasDeLanzamiento() {
           Boolean(
             data.data.correcto,
           );
+
+        // ---- Límite de intentos (validación global) ----
+        // Contrato esperado del backend (pendiente de implementar en
+        // rampasService.ts / rampasController.ts):
+        //   intento: number
+        //   mostrar_pista_bait?: boolean   (true en el intento 2)
+        //   asistido?: boolean             (true en el intento 3: revela)
+        //   respuestas_correctas?: { pendiente_ascenso, pendiente_descenso,
+        //     ecuacion_ascenso, ecuacion_descenso, bitacora_pendiente_ascenso,
+        //     bitacora_ecuacion_ascenso, bitacora_pendiente_descenso,
+        //     bitacora_ecuacion_descenso }
+        //
+        // "contratoNuevoActivo" detecta si el backend YA manda este
+        // formato. Si no lo manda todavía (backend viejo), el código de
+        // abajo se salta por completo y todo se comporta exactamente
+        // igual que antes de este cambio — nada se rompe mientras tanto.
+        const contratoNuevoActivo = "intento" in data.data;
+
+        if (contratoNuevoActivo && !correcto && typeof data.data.intento === "number") {
+          setIntentoActual(data.data.intento);
+        }
+
+        if (contratoNuevoActivo && !correcto && data.data.mostrar_pista_bait && !data.data.asistido) {
+          setMensajePistaBait(
+            data.data.mensaje ||
+              "Pista: revisa si la recta sube o baja, y recuerda que la pendiente es el número que acompaña a la x.",
+          );
+          setMostrarPistaBait(true);
+          setCargando(false);
+          guardandoProgresoRef.current = false;
+          return;
+        }
+
+        // Variable LOCAL (no el state) para usar en esta misma ejecución:
+        // setAsistido(true) no se refleja de inmediato por el asincronismo
+        // de React, así que no podemos confiar en el state "asistido"
+        // unas líneas más abajo dentro de esta misma función.
+        const seReveloEnEsteIntento =
+          contratoNuevoActivo &&
+          !correcto &&
+          Boolean(data.data.asistido) &&
+          Boolean(data.data.respuestas_correctas);
+
+        if (seReveloEnEsteIntento) {
+          const revelado = data.data.respuestas_correctas;
+          setPendienteAscenso(revelado.pendiente_ascenso ?? pendienteAscenso);
+          setPendienteDescenso(revelado.pendiente_descenso ?? pendienteDescenso);
+          setEcAscenso(String(revelado.ecuacion_ascenso ?? ecAscenso));
+          setEcDescenso(String(revelado.ecuacion_descenso ?? ecDescenso));
+          setBitPendienteAscenso(String(revelado.bitacora_pendiente_ascenso ?? bitPendienteAscenso));
+          setBitEcAscenso(String(revelado.bitacora_ecuacion_ascenso ?? bitEcAscenso));
+          setBitPendienteDescenso(String(revelado.bitacora_pendiente_descenso ?? bitPendienteDescenso));
+          setBitEcDescenso(String(revelado.bitacora_ecuacion_descenso ?? bitEcDescenso));
+          setAsistido(true);
+        }
+
+        if (contratoNuevoActivo && !correcto && !seReveloEnEsteIntento) {
+          // Backend nuevo, intento 1 (todavía no toca ni Bait ni revelar):
+          // solo avisamos y dejamos que lo vuelva a intentar.
+          setCargando(false);
+          guardandoProgresoRef.current = false;
+          alert(
+            data.data.mensaje ||
+              "❌ Revisa tus respuestas, algo no está bien todavía.",
+          );
+          return;
+        }
+
+        // Si "contratoNuevoActivo" es false (backend viejo, como está
+        // ahora mismo), el flujo sigue exactamente como siempre: llega
+        // hasta acá sin haber entrado a ninguno de los bloques nuevos, y
+        // el resto del código de abajo funciona sin cambios.
 
         const pendienteAscensoFinal =
           normalizarRespuestaRampas(
@@ -892,7 +976,7 @@ export default function RampasDeLanzamiento() {
                 tiempoSegundos,
               xp_base: 50,
               completada:
-                correcto,
+                correcto || seReveloEnEsteIntento,
             });
 
           estrellasGuardadas =
@@ -931,8 +1015,11 @@ export default function RampasDeLanzamiento() {
         inicioActividadRef.current =
           Date.now();
 
+        // ✅ "asistido" (revelado en el intento 3) también cuenta como
+        // éxito, igual que en las demás actividades — el color naranja
+        // ya deja claro que hubo ayuda del sistema.
         setResultado(
-          correcto
+          correcto || seReveloEnEsteIntento
             ? "exito"
             : "fallo",
         );
@@ -989,6 +1076,9 @@ export default function RampasDeLanzamiento() {
     setAciertosResultado(0);
     setTiempoResultado(0);
     setEstrellasResultado(0);
+    setIntentoActual(0);
+    setAsistido(false);
+    setMensajePistaBait("");
 
     guardandoProgresoRef.current =
       false;
@@ -1380,10 +1470,20 @@ export default function RampasDeLanzamiento() {
               />
             </div>
 
-            <p className="rmp-bitacora-nota">
-              <FiInfo /> Completa las respuestas arriba y luego verifica tu
-              misión.
-            </p>
+            {asistido ? (
+              <p className="rmp-bitacora-nota rmp-bitacora-nota-asistida">
+                <FiInfo /> El sistema completó estas respuestas para
+                ayudarte. Revísalas con calma antes de continuar.
+              </p>
+            ) : (
+              <p className="rmp-bitacora-nota">
+                <FiInfo /> Completa las respuestas arriba y luego verifica tu
+                misión.
+                {intentoActual > 0 && (
+                  <span className="rmp-intentos-contador"> (Intento {intentoActual}/3)</span>
+                )}
+              </p>
+            )}
           </div>
 
           <div className="rmp-pista-card">
@@ -1422,7 +1522,10 @@ export default function RampasDeLanzamiento() {
       {mostrarPistaBait && (
         <PistaBaitModal
           titulo="Pista de Bait"
-          contenido="Si la recta sube de izquierda a derecha, la pendiente es positiva. Si baja, es negativa. Recuerda: pendiente = cambio vertical ÷ cambio horizontal."
+          contenido={
+            mensajePistaBait ||
+            "Si la recta sube de izquierda a derecha, la pendiente es positiva. Si baja, es negativa. Recuerda: pendiente = cambio vertical ÷ cambio horizontal."
+          }
           videoSrc={baitHablandoVideo}
           audioSrc={pistaBaitAudio}
           onClose={() => setMostrarPistaBait(false)}
