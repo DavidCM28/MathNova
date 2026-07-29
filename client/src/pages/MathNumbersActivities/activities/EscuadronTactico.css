@@ -2376,3 +2376,122 @@
     border-radius: 15px;
   }
 }
+
+/* =========================================================
+   AJUSTE FINAL · TEXTOS GRISES MÁS GRANDES Y VISIBLES
+   Aumenta únicamente los textos secundarios de la interfaz.
+   No modifica tamaños, distribución ni funcionamiento.
+   ========================================================= */
+
+/* Migas de navegación y textos secundarios del encabezado. */
+.mnx-escuadron-crumb,
+.mnx-escuadron-header-copy > p,
+.mnx-escuadron-speech > p {
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+  color: #45566d !important;
+  font-weight: 700 !important;
+}
+
+/* Estadísticas del encabezado. */
+.mnx-escuadron-stats small {
+  font-size: 12px !important;
+  color: #56677c !important;
+}
+
+/* Textos pequeños de la guía visual. */
+.mnx-escuadron-guide-steps small {
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+  color: #55667b !important;
+  font-weight: 700 !important;
+}
+
+/* Instrucciones grises debajo de cada reto. */
+.mnx-escuadron-challenge-head p {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: #55667b !important;
+  font-weight: 700 !important;
+}
+
+/* Etiquetas pequeñas de operaciones y secuencias. */
+.mnx-escuadron-operation > small,
+.mnx-escuadron-sequence-slot small {
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+  color: #55667b !important;
+  font-weight: 800 !important;
+}
+
+/* Texto de la pista fija. */
+.mnx-escuadron-hint-card p {
+  font-size: 13px !important;
+  line-height: 1.55 !important;
+  color: #46576c !important;
+  font-weight: 700 !important;
+}
+
+/* Estado del audio de la pista. */
+.mnx-escuadron-guide-audio-status,
+.mnx-escuadron-audio-status {
+  font-size: 11px !important;
+}
+
+/* Textos de explicación y contador. */
+.mnx-escuadron-explanation > label,
+.mnx-escuadron-answer-box textarea,
+.mnx-escuadron-answer-box > span {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+
+/* Progreso, evidencia y textos informativos. */
+.mnx-escuadron-progress,
+.mnx-escuadron-evidence-card > p,
+.mnx-escuadron-info-row p {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: #55667b !important;
+  font-weight: 700 !important;
+}
+
+/* Textos grises de la pista flotante de Byte. */
+.mnx-escuadron-byte-panel p {
+  font-size: 12px !important;
+  line-height: 1.55 !important;
+  color: #34475f !important;
+  font-weight: 750 !important;
+}
+
+.mnx-escuadron-byte-status {
+  min-height: 32px !important;
+  padding-inline: 10px !important;
+  font-size: 10.5px !important;
+  color: #4f6178 !important;
+  font-weight: 900 !important;
+}
+
+/* Texto gris del modal de ayuda. */
+.mnx-escuadron-help-copy > p,
+.mnx-escuadron-help-order span {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: #4e5f73 !important;
+}
+
+/* Mantiene la lectura equilibrada en celulares. */
+@media (max-width: 720px) {
+  .mnx-escuadron-header-copy > p,
+  .mnx-escuadron-speech > p {
+    font-size: 13px !important;
+  }
+
+  .mnx-escuadron-challenge-head p,
+  .mnx-escuadron-guide-steps small,
+  .mnx-escuadron-hint-card p,
+  .mnx-escuadron-evidence-card > p,
+  .mnx-escuadron-info-row p {
+    font-size: 12.5px !important;
+  }
+}

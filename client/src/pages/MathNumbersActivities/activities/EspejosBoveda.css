@@ -3318,3 +3318,114 @@ body,
     font-size: 10px;
   }
 }
+
+/* =====================================================================
+   AJUSTE FINAL · TEXTOS GRISES MÁS GRANDES Y VISIBLES
+   Aumenta los textos secundarios de Espejos de la Bóveda.
+   No modifica la distribución, tamaños de tarjetas ni funcionamiento.
+   ===================================================================== */
+
+/* Texto secundario del encabezado e introducción. */
+.mnx-espejos-header-copy > p,
+.mnx-espejos-speech p {
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+  color: #42546b !important;
+  font-weight: 700 !important;
+}
+
+/* Subtítulo de la guía visual. */
+.mnx-espejos-section-heading p {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  color: #56677c !important;
+  font-weight: 700 !important;
+}
+
+/* Explicaciones dentro de las tarjetas de la guía. */
+.mnx-espejos-guide-grid p {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: #4e6075 !important;
+  font-weight: 700 !important;
+}
+
+/* Texto de la misión sobre la animación. */
+.mnx-espejos-mission p {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: rgba(255, 255, 255, 0.94) !important;
+}
+
+/* Texto del Consejo de Suma. */
+.mnx-espejos-reminder-card p,
+.mnx-espejos-cofre-layout .mnx-espejos-reminder-card p {
+  font-size: 13px !important;
+  line-height: 1.55 !important;
+  color: #42546b !important;
+  font-weight: 700 !important;
+}
+
+/* Estados de reproducción de audio. */
+.mnx-espejos-audio-status,
+.mnx-espejos-reminder-audio-status {
+  min-height: 32px !important;
+  font-size: 11px !important;
+  color: #526379 !important;
+  font-weight: 900 !important;
+}
+
+/* Texto de evidencia e información secundaria. */
+.mnx-espejos-evidence-card p {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: #4f6075 !important;
+  font-weight: 700 !important;
+}
+
+/* Contador de caracteres y etiquetas secundarias. */
+.mnx-espejos-answer-box > span,
+.mnx-espejos-stats span {
+  font-size: 12px !important;
+  color: #56677c !important;
+  font-weight: 800 !important;
+}
+
+/* Texto de la pista flotante de Byte. */
+.mnx-espejos-byte-panel p {
+  font-size: 12px !important;
+  line-height: 1.55 !important;
+  color: #34475f !important;
+  font-weight: 750 !important;
+}
+
+.mnx-espejos-byte-status {
+  min-height: 32px !important;
+  padding-inline: 10px !important;
+  font-size: 10.5px !important;
+  color: #4f6178 !important;
+  font-weight: 900 !important;
+}
+
+/* Texto gris del modal de ayuda. */
+.mnx-espejos-help-copy > p,
+.mnx-espejos-help-examples article {
+  font-size: 13px !important;
+  line-height: 1.55 !important;
+  color: #4b5d73 !important;
+}
+
+/* Ajuste equilibrado para celular. */
+@media (max-width: 700px) {
+  .mnx-espejos-header-copy > p,
+  .mnx-espejos-speech p {
+    font-size: 14px !important;
+  }
+
+  .mnx-espejos-section-heading p,
+  .mnx-espejos-guide-grid p,
+  .mnx-espejos-reminder-card p,
+  .mnx-espejos-evidence-card p {
+    font-size: 12.5px !important;
+  }
+}
