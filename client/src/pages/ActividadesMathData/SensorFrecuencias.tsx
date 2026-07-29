@@ -840,11 +840,6 @@ export default function SensorFrecuencias() {
       }
 
       if (data.success && data.data) {
-        const correcto =
-          Boolean(
-            data.data.correcto,
-          );
-
         const senales =
           [
             "alfa",
@@ -890,21 +885,31 @@ export default function SensorFrecuencias() {
         const zonaCorrecta =
           preguntaZona === "sur";
 
+        /*
+         * El resultado final se calcula con los valores que aparecen en
+         * pantalla. Antes se utilizaba únicamente data.data.correcto y, si
+         * el backend devolvía false aunque las respuestas fueran correctas,
+         * se mostraba erróneamente "Vuelve a intentarlo".
+         */
+        const correcto =
+          absolutasCorrectas &&
+          relativasCorrectas &&
+          senalCorrecta &&
+          zonaCorrecta;
+
         const aciertosCalculados =
-          correcto
-            ? 4
-            : Number(
-                absolutasCorrectas,
-              ) +
-              Number(
-                relativasCorrectas,
-              ) +
-              Number(
-                senalCorrecta,
-              ) +
-              Number(
-                zonaCorrecta,
-              );
+          Number(
+            absolutasCorrectas,
+          ) +
+          Number(
+            relativasCorrectas,
+          ) +
+          Number(
+            senalCorrecta,
+          ) +
+          Number(
+            zonaCorrecta,
+          );
 
         try {
           const progresoUnificado =

@@ -24,17 +24,12 @@ import fondoSalaImg from "../../assets/fondo-sala-tres-caminos.png";
 import villanoDivideSalaBannerImg from "../../assets/villano-divide-sala-banner.png";
 import villanoDivideSalaAmenazaImg from "../../assets/villano-divide-sala-amenaza.png";
 
-/* ---- Audios (pendientes de integrar) -----------------------------------
-   La estructura ya está lista para recibirlos: solo hay que descomentar
-   estos imports y las props `audioSrc` correspondientes más abajo, una
-   vez que los archivos de audio existan en /assets. No hace falta tocar
-   nada más del código.
 
 import introBaitAudioSala from "../../assets/intro_act8.mp3";
 import pistaBaitAudioSala from "../../assets/pista_act8.mp3";
 import baitAudioActividadCompletada from "../../assets/actividad_completada_act8.mp3";
 import baitAudioVuelveAIntentarlo from "../../assets/volver_intentarlo_act8.mp3";
---------------------------------------------------------------------------- */
+
 
 import {
   FiGrid,
@@ -741,6 +736,7 @@ export default function SalaTresCaminos() {
           titulo="Bait tiene un mensaje para ti"
           contenido="¡Lo lograste, agente! Distinguiste bien los eventos independientes, dependientes y mutuamente excluyentes, y elegiste la puerta segura. DIVIDE quería confundirte con los tres mecanismos, pero tu análisis fue más fuerte."
           videoSrc={baitHablandoVideo}
+          audioSrc={baitAudioActividadCompletada}
           botonTexto="Cerrar mensaje"
           onClose={() => setMostrarBaitExito(false)}
         />
@@ -861,6 +857,7 @@ export default function SalaTresCaminos() {
           titulo="Bait tiene un mensaje para ti"
           contenido="Agente, DIVIDE mezcló las reglas, pero tú puedes ordenarlas de nuevo. Revisa si el mazo recupera su composición, si cambia al no devolver la tarjeta, y si dos puertas pueden abrirse a la vez."
           videoSrc={baitHablandoVideo}
+          audioSrc={baitAudioVuelveAIntentarlo}
           botonTexto="Cerrar mensaje"
           onClose={() => setMostrarBaitFallo(false)}
         />
@@ -871,6 +868,7 @@ export default function SalaTresCaminos() {
           titulo="Pista de Bait"
           contenido="Si la tarjeta se regresa al mazo, la composición no cambia: eso es independencia. Si la tarjeta no se regresa, la composición cambia y afecta el siguiente resultado: eso es dependencia. Si abrir una puerta impide abrir otra en la misma activación, esos sucesos son mutuamente excluyentes."
           videoSrc={baitHablandoVideo}
+          audioSrc={pistaBaitAudioSala}
           onClose={() => setMostrarPistaBait(false)}
         />
       )}
@@ -1274,6 +1272,7 @@ export default function SalaTresCaminos() {
           titulo="BIT te explica"
           contenido="Analizaremos tres mecanismos paso a paso. Observa qué cambia y qué permanece igual. Clasifica cada situación y al final encontraremos la ruta segura."
           videoSrc={baitHablandoVideo}
+          audioSrc={introBaitAudioSala}
           botonTexto="¡Comenzar misión! 🚀"
           onClose={() => setMostrarIntroBait(false)}
         />
@@ -1282,6 +1281,7 @@ export default function SalaTresCaminos() {
       <PistaFlotante
         contenido="Si la tarjeta se regresa al mazo, la composición no cambia: eso es independencia. Si la tarjeta no se regresa, la composición cambia y afecta el siguiente resultado: eso es dependencia. Si abrir una puerta impide abrir otra en la misma activación, esos sucesos son mutuamente excluyentes."
         videoSrc={baitHablandoVideo}
+        audioSrc={pistaBaitAudioSala}
       />
     </div>
   );
