@@ -3460,3 +3460,146 @@ body,
     font-size: 10px;
   }
 }
+
+/* =====================================================================
+   AJUSTE FINAL · TEXTOS GRISES MÁS GRANDES Y VISIBLES
+   Aumenta los textos secundarios del Enigma de Variables.
+   No modifica la distribución, tamaños de tarjetas ni funcionamiento.
+   ===================================================================== */
+
+/* Texto secundario del encabezado e introducción. */
+.mnx-enigma-header-copy > p,
+.mnx-enigma-speech p {
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+  color: #42546b !important;
+  font-weight: 700 !important;
+}
+
+/* Subtítulo de la guía visual. */
+.mnx-enigma-section-heading p {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  color: #56677c !important;
+  font-weight: 700 !important;
+}
+
+/* Explicaciones dentro de los pasos de la guía. */
+.mnx-enigma-guide-steps article > p {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: #4e6075 !important;
+  font-weight: 700 !important;
+}
+
+/* Texto de la misión sobre la animación. */
+.mnx-enigma-mission p {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: rgba(255, 255, 255, 0.94) !important;
+  font-weight: 700 !important;
+}
+
+/* Instrucciones grises debajo de cada reto. */
+.mnx-enigma-challenge-head p {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: #56677c !important;
+  font-weight: 700 !important;
+}
+
+/* Textos explicativos dentro de los retos. */
+.mnx-enigma-context-box,
+.mnx-enigma-radio-options label,
+.mnx-enigma-substitution-expression small,
+.mnx-enigma-result-field > span {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: #4e6075 !important;
+  font-weight: 700 !important;
+}
+
+/* Contador de caracteres. */
+.mnx-enigma-answer-box > span {
+  font-size: 12px !important;
+  color: #56677c !important;
+  font-weight: 800 !important;
+}
+
+/* Texto del consejo. */
+.mnx-enigma-reminder-card p,
+.mnx-enigma-cofre-layout .mnx-enigma-reminder-card p {
+  font-size: 13px !important;
+  line-height: 1.55 !important;
+  color: #42546b !important;
+  font-weight: 700 !important;
+}
+
+/* Estados de reproducción de audio. */
+.mnx-enigma-audio-status,
+.mnx-enigma-reminder-audio-status {
+  min-height: 32px !important;
+  font-size: 11px !important;
+  color: #526379 !important;
+  font-weight: 900 !important;
+}
+
+/* Evidencia e información secundaria. */
+.mnx-enigma-evidence-card > p,
+.mnx-enigma-info-row p {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: #4f6075 !important;
+  font-weight: 700 !important;
+}
+
+/* Estadísticas. */
+.mnx-enigma-stats span,
+.mnx-enigma-stats-compact span {
+  font-size: 12px !important;
+  color: #56677c !important;
+  font-weight: 800 !important;
+}
+
+/* Texto de la pista flotante de Byte. */
+.mnx-enigma-byte-panel p {
+  font-size: 12px !important;
+  line-height: 1.55 !important;
+  color: #34475f !important;
+  font-weight: 750 !important;
+}
+
+.mnx-enigma-byte-status {
+  min-height: 32px !important;
+  padding-inline: 10px !important;
+  font-size: 10.5px !important;
+  color: #4f6178 !important;
+  font-weight: 900 !important;
+}
+
+/* Texto gris del modal de ayuda. */
+.mnx-enigma-help-copy > p,
+.mnx-enigma-help-steps article {
+  font-size: 13px !important;
+  line-height: 1.55 !important;
+  color: #4b5d73 !important;
+}
+
+/* Ajuste equilibrado para celulares. */
+@media (max-width: 700px) {
+  .mnx-enigma-header-copy > p,
+  .mnx-enigma-speech p {
+    font-size: 14px !important;
+  }
+
+  .mnx-enigma-section-heading p,
+  .mnx-enigma-guide-steps article > p,
+  .mnx-enigma-challenge-head p,
+  .mnx-enigma-context-box,
+  .mnx-enigma-radio-options label,
+  .mnx-enigma-reminder-card p,
+  .mnx-enigma-evidence-card > p,
+  .mnx-enigma-info-row p {
+    font-size: 12.5px !important;
+  }
+}

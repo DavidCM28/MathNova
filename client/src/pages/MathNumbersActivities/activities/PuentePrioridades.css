@@ -3470,3 +3470,126 @@ body,
     font-size: 10px;
   }
 }
+
+/* =====================================================================
+   AJUSTE FINAL · TEXTOS GRISES MÁS GRANDES Y VISIBLES
+   Aumenta los textos secundarios del Puente de Prioridades.
+   No modifica la distribución, tamaños de tarjetas ni funcionamiento.
+   ===================================================================== */
+
+/* Texto secundario del encabezado e introducción. */
+.mnx-puente-header-copy > p,
+.mnx-puente-speech p {
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+  color: #42546b !important;
+  font-weight: 700 !important;
+}
+
+/* Subtítulo de la guía visual. */
+.mnx-puente-section-heading p {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  color: #56677c !important;
+  font-weight: 700 !important;
+}
+
+/* Explicaciones dentro de la guía visual. */
+.mnx-puente-guide-grid p,
+.mnx-puente-priority-grid p {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: #4e6075 !important;
+  font-weight: 700 !important;
+}
+
+/* Texto de la misión sobre la animación. */
+.mnx-puente-mission p {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: rgba(255, 255, 255, 0.94) !important;
+}
+
+/* Etiquetas e instrucciones de los resultados. */
+.mnx-puente-result-field > span,
+.mnx-puente-result-field input::placeholder {
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+  color: #56677c !important;
+  font-weight: 750 !important;
+}
+
+/* Texto del Consejo de Suma. */
+.mnx-puente-reminder-card p,
+.mnx-puente-cofre-layout .mnx-puente-reminder-card p {
+  font-size: 13px !important;
+  line-height: 1.55 !important;
+  color: #42546b !important;
+  font-weight: 700 !important;
+}
+
+/* Estados de reproducción de audio. */
+.mnx-puente-audio-status,
+.mnx-puente-reminder-audio-status {
+  min-height: 32px !important;
+  font-size: 11px !important;
+  color: #526379 !important;
+  font-weight: 900 !important;
+}
+
+/* Texto de evidencia e información secundaria. */
+.mnx-puente-evidence-card p {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  color: #4f6075 !important;
+  font-weight: 700 !important;
+}
+
+/* Contador de caracteres y estadísticas. */
+.mnx-puente-answer-box > span,
+.mnx-puente-stats span {
+  font-size: 12px !important;
+  color: #56677c !important;
+  font-weight: 800 !important;
+}
+
+/* Texto de la pista flotante de Byte. */
+.mnx-puente-byte-panel p {
+  font-size: 12px !important;
+  line-height: 1.55 !important;
+  color: #34475f !important;
+  font-weight: 750 !important;
+}
+
+.mnx-puente-byte-status {
+  min-height: 32px !important;
+  padding-inline: 10px !important;
+  font-size: 10.5px !important;
+  color: #4f6178 !important;
+  font-weight: 900 !important;
+}
+
+/* Texto gris del modal de ayuda. */
+.mnx-puente-help-copy > p,
+.mnx-puente-help-examples article {
+  font-size: 13px !important;
+  line-height: 1.55 !important;
+  color: #4b5d73 !important;
+}
+
+/* Ajuste equilibrado para celulares. */
+@media (max-width: 700px) {
+  .mnx-puente-header-copy > p,
+  .mnx-puente-speech p {
+    font-size: 14px !important;
+  }
+
+  .mnx-puente-section-heading p,
+  .mnx-puente-guide-grid p,
+  .mnx-puente-priority-grid p,
+  .mnx-puente-reminder-card p,
+  .mnx-puente-evidence-card p,
+  .mnx-puente-result-field > span {
+    font-size: 12.5px !important;
+  }
+}
