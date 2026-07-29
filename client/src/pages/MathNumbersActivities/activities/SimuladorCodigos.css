@@ -3483,3 +3483,79 @@ body,
     font-size: 10px;
   }
 }
+
+/* =====================================================================
+   AJUSTE FINAL · TEXTOS GRISES DE TODA LA INTERFAZ MÁS GRANDES
+   Corrige los subtítulos de la guía visual, retos, notas y estados.
+   No modifica el tamaño de las tarjetas ni la distribución.
+   ===================================================================== */
+
+/* Subtítulo de "Guía visual rápida". */
+.mnx-simulador-section-heading p,
+.mnx-simulador-cofre-layout .mnx-simulador-section-heading p {
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+  color: #5b6b80 !important;
+  font-weight: 650 !important;
+}
+
+/* Descripciones grises debajo del título de cada reto. */
+.mnx-simulador-challenge-head p,
+.mnx-simulador-cofre-layout .mnx-simulador-challenge-head p,
+.mnx-simulador-explanation-card .mnx-simulador-challenge-head p {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  color: #5b6b80 !important;
+  font-weight: 700 !important;
+}
+
+/* Texto secundario de la introducción. */
+.mnx-simulador-header-copy > p,
+.mnx-simulador-speech p,
+.mnx-simulador-cofre-layout .mnx-simulador-header-copy > p,
+.mnx-simulador-cofre-layout .mnx-simulador-speech p {
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+}
+
+/* Notas y explicaciones pequeñas dentro de los retos. */
+.mnx-simulador-note,
+.mnx-simulador-formula-clues span,
+.mnx-simulador-prediction-rule span,
+.mnx-simulador-evidence-card > p,
+.mnx-simulador-info-row p,
+.mnx-simulador-status-card p,
+.mnx-simulador-status-card small,
+.mnx-simulador-quick-notes ul {
+  font-size: 13px !important;
+  line-height: 1.55 !important;
+  color: #526276 !important;
+}
+
+/* Texto pequeño de tablas y etiquetas informativas. */
+.mnx-simulador-mini-table,
+.mnx-simulador-code-table {
+  font-size: 12px !important;
+}
+
+/* Descripción de la tarjeta de pista fija. */
+.mnx-simulador-reminder-card p,
+.mnx-simulador-cofre-layout .mnx-simulador-reminder-card p {
+  font-size: 13px !important;
+  line-height: 1.55 !important;
+  color: #526276 !important;
+}
+
+/* Mantiene buena lectura en celulares. */
+@media (max-width: 700px) {
+  .mnx-simulador-section-heading p,
+  .mnx-simulador-cofre-layout .mnx-simulador-section-heading p {
+    font-size: 14px !important;
+  }
+
+  .mnx-simulador-challenge-head p,
+  .mnx-simulador-cofre-layout .mnx-simulador-challenge-head p,
+  .mnx-simulador-explanation-card .mnx-simulador-challenge-head p {
+    font-size: 13px !important;
+  }
+}

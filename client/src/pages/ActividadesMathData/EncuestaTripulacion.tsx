@@ -14,7 +14,6 @@ import baitSaludoImg from "../../assets/bait-saludo.png";
 import baitPistaImg from "../../assets/bait-pista.png";
 import villanoTrofeoCompleto from "../../assets/villano-trofeo-completo.png";
 import villanoIntentar from "../../assets/villano-vintentar.png";
-import estrellaMision from "../../assets/estrella-mision.png";
 import iconoAciertos from "../../assets/icono-aciertos.png";
 import iconoTiempo from "../../assets/icono-tiempo.png";
 import iconoPrecision from "../../assets/icono-precision.png";
@@ -53,6 +52,8 @@ import {
   FiPause,
   FiRotateCcw,
   FiRotateCw,
+  FiRefreshCw,
+  FiArrowRight,
 } from "react-icons/fi";
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
@@ -359,6 +360,122 @@ function PistaBaitModal({
 }
 
 /* =========================================================
+   COMPONENTE: REPRODUCTOR DE AUDIO DEL RESULTADO
+   Se reproduce solo apenas se monta, y muestra los
+   controles normales de un reproductor de audio: retroceder
+   10s, pausar/reproducir y adelantar 10s. Mismo patrón que
+   el Generador de Energía y Rampas de Lanzamiento.
+========================================================= */
+
+const RESULT_AUDIO_SALTO_SEGUNDOS = 10;
+
+function ResultAudioPlayer({ src }: { src: string }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [reproduciendo, setReproduciendo] = useState(false);
+  const [progreso, setProgreso] = useState(0);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    if (!audio || !src) {
+      return;
+    }
+
+    audio.currentTime = 0;
+    audio.volume = 1;
+
+    const playPromise = audio.play();
+
+    if (playPromise !== undefined) {
+      playPromise.catch((error) => {
+        console.warn(
+          "El audio del resultado no pudo iniciarse automáticamente:",
+          error,
+        );
+      });
+    }
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, [src]);
+
+  const alternarReproduccion = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (audio.paused || audio.ended) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  };
+
+  const saltar = (segundos: number) => {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    audio.currentTime = Math.min(
+      Math.max(audio.currentTime + segundos, 0),
+      audio.duration,
+    );
+  };
+
+  const actualizarProgreso = () => {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    setProgreso((audio.currentTime / audio.duration) * 100);
+  };
+
+  if (!src) return null;
+
+  return (
+    <div className="enc-modal-audio">
+      <audio
+        ref={audioRef}
+        src={src}
+        preload="auto"
+        autoPlay
+        onPlay={() => setReproduciendo(true)}
+        onPause={() => setReproduciendo(false)}
+        onEnded={() => setReproduciendo(false)}
+        onTimeUpdate={actualizarProgreso}
+      />
+
+      <button
+        type="button"
+        className="enc-modal-audio-btn"
+        onClick={() => saltar(-RESULT_AUDIO_SALTO_SEGUNDOS)}
+        aria-label="Retroceder 10 segundos"
+      >
+        <FiRotateCcw />
+      </button>
+
+      <button
+        type="button"
+        className="enc-modal-audio-btn enc-modal-audio-btn--play"
+        onClick={alternarReproduccion}
+        aria-label={reproduciendo ? "Pausar" : "Reproducir"}
+      >
+        {reproduciendo ? <FiPause /> : <FiPlay />}
+      </button>
+
+      <button
+        type="button"
+        className="enc-modal-audio-btn"
+        onClick={() => saltar(RESULT_AUDIO_SALTO_SEGUNDOS)}
+        aria-label="Adelantar 10 segundos"
+      >
+        <FiRotateCw />
+      </button>
+
+      <div className="enc-modal-audio-progress">
+        <div style={{ width: `${progreso}%` }} />
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
    COMPONENTE PRINCIPAL
 ========================================================= */
 
@@ -384,8 +501,6 @@ export default function EncuestaTripulacion() {
   const [resultado, setResultado] = useState<"exito" | "fallo" | null>(null);
   const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
   const [mostrarIntroBait, setMostrarIntroBait] = useState(false);
-  const [mostrarBaitExito, setMostrarBaitExito] = useState(false);
-  const [mostrarBaitFallo, setMostrarBaitFallo] = useState(false);
   const [cargandoTabla, setCargandoTabla] = useState(false);
   const [cargandoEnvio, setCargandoEnvio] = useState(false);
 
@@ -691,137 +806,170 @@ export default function EncuestaTripulacion() {
   // ==========================================
 
   if (resultado === "exito") return (
-    <div className="res-modal-overlay">
-      <div className="res-modal-card res-modal-exito res-modal-wide">
-        <div className="res-confetti" aria-hidden="true">
-          {Array.from({ length: 16 }).map((_, i) => (
-            <span key={i} className={`res-confetti-dot res-confetti-dot-${i % 6}`} />
-          ))}
-        </div>
+    <div className="enc-modal-overlay enc-modal-overlay--completed" role="presentation">
+      <section
+        className="enc-modal enc-modal--completed"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="enc-result-title"
+      >
+        <div className="enc-modal-decoration enc-modal-decoration--one" />
+        <div className="enc-modal-decoration enc-modal-decoration--two" />
 
-        <div className="res-titulo-row">
-          <div className="res-icono-check">✔</div>
-          <div>
-            <h1 className="res-titulo">¡Actividad completada!</h1>
-            <p className="res-subtitulo">
-              Has terminado con éxito la misión de{" "}
-              <span className="res-mathnova-color">MathData</span>.
-            </p>
+        <div className="enc-modal-main">
+          <header className="enc-modal-header">
+            <div className="enc-modal-status-icon">
+              <FiCheckCircle />
+            </div>
+
+            <div className="enc-modal-header-copy">
+              <span className="enc-modal-badge">
+                <FiCheckCircle />
+                Actividad completada
+              </span>
+
+              <h1 id="enc-result-title">¡Actividad completada!</h1>
+
+              <p>
+                Has terminado con éxito la misión de{" "}
+                <span className="enc-modal-mathnova-color">MathData</span>.
+              </p>
+            </div>
+          </header>
+
+          <div className="enc-modal-content">
+            <div className="enc-modal-character">
+              <img
+                src={villanoTrofeoCompleto}
+                alt="Villano celebrando con trofeo"
+                draggable={false}
+              />
+            </div>
+
+            <article className="enc-modal-message">
+              <span className="enc-modal-message-label">Resultado de la misión</span>
+              <h2>¡Excelente trabajo, piloto!</h2>
+              <p>
+                Contaste los votos correctamente y descubriste qué módulo
+                ganó la encuesta. Sigue así y conquista la siguiente misión.
+              </p>
+            </article>
           </div>
-        </div>
 
-        <div className="res-mensaje-box res-mensaje-verde">
-          <div className="res-icono-estrella-circle">
-            <img src={estrellaMision} alt="estrella" />
-          </div>
-          <div>
-            <strong>¡Excelente trabajo, piloto!</strong>
-            <p>
-              Contaste los votos correctamente y descubriste qué módulo
-              ganó la encuesta. Sigue así y conquista la siguiente misión.
-            </p>
-          </div>
-        </div>
+          <ResultAudioPlayer src={baitAudioActividadCompletada} />
 
-        <button
-          type="button"
-          className="rmp-bait-mensaje-trigger res-modal-villano-trigger"
-          onClick={() => setMostrarBaitExito(true)}
-          aria-label="Abrir mensaje de Bait"
-        >
-          <span className="rmp-bait-mensaje-dot" />
-          <FiMessageSquare />
-          Bait tiene un mensaje para ti
-        </button>
+          <article className="enc-modal-summary">
+            <header>
+              <FiBarChart2 />
+              <h2>Resumen de la actividad</h2>
+            </header>
 
-        <div className="res-villano-exito-group">
-          <img
-            src={villanoTrofeoCompleto}
-            alt="Villano celebrando con trofeo"
-            className="res-villano-trofeo-img"
-          />
-        </div>
-
-        <div className="res-modal-body">
-          <div className="res-modal-left">
-            <div className="res-resumen-card">
-              <div className="res-resumen-header">
-                <FiBarChart2 />
-                <span>Resumen de la actividad</span>
-              </div>
-              <div className="res-resumen-stats">
-                <div className="res-stat">
-                  <img src={iconoAciertos} alt="" className="res-stat-img" />
-                  <strong className="res-stat-num-verde">3/3</strong>
-                  <small>Respuestas correctas</small>
-                  <em>¡Perfecto!</em>
+            <div className="enc-modal-stats">
+              <article className="enc-modal-stat">
+                <div className="enc-modal-stat-icon">
+                  <img src={iconoAciertos} alt="" aria-hidden="true" />
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoTiempo} alt="" className="res-stat-img" />
+                <div>
+                  <span>Respuestas correctas</span>
+                  <strong>3/3</strong>
+                  <small>¡Perfecto!</small>
+                </div>
+              </article>
+
+              <article className="enc-modal-stat">
+                <div className="enc-modal-stat-icon">
+                  <img src={iconoTiempo} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Tiempo</span>
                   <strong>—</strong>
-                  <small>Tiempo</small>
-                  <em>min</em>
+                  <small>min</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoPrecision} alt="" className="res-stat-img" />
-                  <strong className="res-stat-num-verde">100%</strong>
-                  <small>Precisión</small>
-                  <em>¡Impecable!</em>
+              </article>
+
+              <article className="enc-modal-stat">
+                <div className="enc-modal-stat-icon">
+                  <img src={iconoPrecision} alt="" aria-hidden="true" />
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoRecompensa} alt="" className="res-stat-img" />
-                  <strong className="res-pts-naranja">+50 pts</strong>
-                  <small>Recompensa</small>
-                  <em>Puntos ganados</em>
+                <div>
+                  <span>Precisión</span>
+                  <strong>100%</strong>
+                  <small>¡Impecable!</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoInsignia} alt="" className="res-stat-img" />
-                  <strong>Misión<br />cumplida</strong>
-                  <small>Insignia obtenida</small>
-                  <em>¡Felicidades!</em>
+              </article>
+
+              <article className="enc-modal-stat">
+                <div className="enc-modal-stat-icon">
+                  <img src={iconoRecompensa} alt="" aria-hidden="true" />
                 </div>
-              </div>
+                <div>
+                  <span>Recompensa</span>
+                  <strong>+50 pts</strong>
+                  <small>Puntos ganados</small>
+                </div>
+              </article>
+
+              <article className="enc-modal-stat">
+                <div className="enc-modal-stat-icon">
+                  <img src={iconoInsignia} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Insignia obtenida</span>
+                  <strong>Misión cumplida</strong>
+                  <small>¡Felicidades!</small>
+                </div>
+              </article>
+            </div>
+          </article>
+        </div>
+
+        <aside className="enc-modal-side">
+          <article className="enc-modal-side-message">
+            <span>¡Misión completada!</span>
+            <strong>Sigue avanzando por MathData</strong>
+            <p>Cada actividad superada fortalece tus habilidades matemáticas.</p>
+          </article>
+
+          <div className="enc-modal-progress">
+            <div>
+              <span>Progreso del tema</span>
+              <strong>30%</strong>
+            </div>
+            <div className="enc-modal-progress-bar">
+              <span style={{ width: "30%" }} />
             </div>
           </div>
 
-          <div className="res-modal-right">
+          <div className="enc-modal-actions">
             <button
-              className="res-btn res-btn-azul"
-              onClick={() =>
-                navigate(
-                  "/actividades-math-data/holograma-reportes",
-                )
-              }
+              type="button"
+              className="enc-modal-action enc-modal-action--primary"
+              onClick={() => navigate("/actividades-math-data/holograma-reportes")}
             >
-              Siguiente actividad
+              <FiArrowRight />
+              <span>Siguiente actividad</span>
             </button>
-            <button className="res-btn res-btn-outline" onClick={handleReiniciarActividad}>
-              Repetir actividad
-            </button>
+
             <button
-              className="res-btn res-btn-outline"
+              type="button"
+              className="enc-modal-action enc-modal-action--secondary"
+              onClick={handleReiniciarActividad}
+            >
+              <FiRefreshCw />
+              <span>Repetir actividad</span>
+            </button>
+
+            <button
+              type="button"
+              className="enc-modal-action enc-modal-action--secondary"
               onClick={() => navigate("/actividades-math-data")}
             >
-              Volver a actividades
+              <FiGrid />
+              <span>Volver a actividades</span>
             </button>
           </div>
-        </div>
-      </div>
-
-      {mostrarBaitExito && (
-        <PistaBaitModal
-          titulo="Bait tiene un mensaje para ti"
-          contenido="¡Excelente trabajo, piloto! Contaste los votos correctamente y descubriste qué módulo ganó la encuesta. Sigue así y conquista la siguiente misión."
-          videoSrc={baitHablandoVideo}
-          audioSrc={baitAudioActividadCompletada}
-          botonTexto="Cerrar mensaje"
-          onClose={() => setMostrarBaitExito(false)}
-        />
-      )}
+        </aside>
+      </section>
     </div>
   );
 
@@ -830,108 +978,167 @@ export default function EncuestaTripulacion() {
   // ==========================================
 
   if (resultado === "fallo") return (
-    <div className="res-modal-overlay">
-      <div className="res-modal-card res-modal-fallo res-modal-wide">
-        <div className="res-titulo-row">
-          <div className="res-icono-retry">&#x1F504;</div>
-          <div>
-            <h1 className="res-titulo">¡Vuelve a intentarlo!</h1>
-            <p className="res-subtitulo">
-              Aún no completas con éxito la misión de{" "}
-              <span className="res-mathnova-color">MathData</span>.
-            </p>
+    <div className="enc-modal-overlay enc-modal-overlay--retry" role="presentation">
+      <section
+        className="enc-modal enc-modal--retry"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="enc-result-title-fallo"
+      >
+        <div className="enc-modal-decoration enc-modal-decoration--one" />
+        <div className="enc-modal-decoration enc-modal-decoration--two" />
+
+        <div className="enc-modal-main">
+          <header className="enc-modal-header">
+            <div className="enc-modal-status-icon">
+              <FiRefreshCw />
+            </div>
+
+            <div className="enc-modal-header-copy">
+              <span className="enc-modal-badge">
+                <FiRefreshCw />
+                Vuelve a intentarlo
+              </span>
+
+              <h1 id="enc-result-title-fallo">¡Vuelve a intentarlo!</h1>
+
+              <p>
+                Aún no completas con éxito la misión de{" "}
+                <span className="enc-modal-mathnova-color">MathData</span>.
+              </p>
+            </div>
+          </header>
+
+          <div className="enc-modal-content">
+            <div className="enc-modal-character">
+              <img src={villanoIntentar} alt="Villano retando" draggable={false} />
+            </div>
+
+            <article className="enc-modal-message">
+              <span className="enc-modal-message-label">Resultado de la misión</span>
+              <h2>¡No te rindas, piloto!</h2>
+              <p>
+                Cuenta de nuevo los palitos de cada módulo con cuidado, y
+                revisa cuál de los tres obtuvo más votos antes de enviar tu
+                reporte al Centro de Mando.
+              </p>
+            </article>
           </div>
-        </div>
 
-        <div className="res-mensaje-box res-mensaje-azul">
-          <div className="res-icono-datos">📊</div>
-          <div>
-            <strong>¡No te rindas, piloto!</strong>
-            <p>
-              Cuenta de nuevo los palitos de cada módulo con cuidado, y
-              revisa cuál de los tres obtuvo más votos antes de enviar tu
-              reporte al Centro de Mando.
-            </p>
-          </div>
-        </div>
+          <ResultAudioPlayer src={baitAudioVuelveAIntentarlo} />
 
-        <button
-          type="button"
-          className="rmp-bait-mensaje-trigger res-modal-villano-trigger"
-          onClick={() => setMostrarBaitFallo(true)}
-          aria-label="Abrir mensaje de Bait"
-        >
-          <span className="rmp-bait-mensaje-dot" />
-          <FiMessageSquare />
-          Bait tiene un mensaje para ti
-        </button>
+          <article className="enc-modal-summary">
+            <header>
+              <FiBarChart2 />
+              <h2>Resumen de la actividad</h2>
+            </header>
 
-        <div className="res-villano-fallo-group">
-          <img src={villanoIntentar} alt="Villano retando" className="res-villano-img" />
-        </div>
-
-        <div className="res-modal-body">
-          <div className="res-modal-left">
-            <div className="res-resumen-card">
-              <div className="res-resumen-header">
-                <FiBarChart2 />
-                <span>Resumen de la actividad</span>
-              </div>
-              <div className="res-resumen-stats">
-                <div className="res-stat">
-                  <img src={iconoAciertos} alt="" className="res-stat-img" />
+            <div className="enc-modal-stats">
+              <article className="enc-modal-stat">
+                <div className="enc-modal-stat-icon">
+                  <img src={iconoAciertos} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Respuestas correctas</span>
                   <strong>0/3</strong>
-                  <small>Respuestas correctas</small>
-                  <em>¡Sigue así!</em>
+                  <small>¡Sigue así!</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoTiempo} alt="" className="res-stat-img" />
+              </article>
+
+              <article className="enc-modal-stat">
+                <div className="enc-modal-stat-icon">
+                  <img src={iconoTiempo} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Tiempo</span>
                   <strong>—</strong>
-                  <small>Tiempo</small>
-                  <em>min</em>
+                  <small>min</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoPrecision} alt="" className="res-stat-img" />
+              </article>
+
+              <article className="enc-modal-stat">
+                <div className="enc-modal-stat-icon">
+                  <img src={iconoPrecision} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Precisión</span>
                   <strong>0%</strong>
-                  <small>Precisión</small>
-                  <em>Puedes mejorar</em>
+                  <small>Puedes mejorar</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoRecompensa} alt="" className="res-stat-img" />
-                  <strong className="res-pts-azul">+10 pts</strong>
-                  <small>Recompensa</small>
-                  <em>Puntos ganados</em>
+              </article>
+
+              <article className="enc-modal-stat">
+                <div className="enc-modal-stat-icon">
+                  <img src={iconoRecompensa} alt="" aria-hidden="true" />
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoInsignia} alt="" className="res-stat-img" />
+                <div>
+                  <span>Recompensa</span>
+                  <strong>+10 pts</strong>
+                  <small>Puntos ganados</small>
+                </div>
+              </article>
+
+              <article className="enc-modal-stat">
+                <div className="enc-modal-stat-icon">
+                  <img src={iconoInsignia} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Insignia obtenida</span>
                   <strong>Sigue intentando</strong>
-                  <small>Insignia obtenida</small>
-                  <em>¡No te rindas!</em>
+                  <small>¡No te rindas!</small>
                 </div>
-              </div>
+              </article>
+            </div>
+          </article>
+        </div>
+
+        <aside className="enc-modal-side">
+          <article className="enc-modal-side-message">
+            <span>¡No te rindas!</span>
+            <strong>Cada intento te ayuda a mejorar</strong>
+            <p>Usa la pista, revisa el procedimiento y vuelve a resolver la actividad.</p>
+          </article>
+
+          <div className="enc-modal-progress">
+            <div>
+              <span>Progreso del tema</span>
+              <strong>30%</strong>
+            </div>
+            <div className="enc-modal-progress-bar">
+              <span style={{ width: "30%" }} />
             </div>
           </div>
 
-          <div className="res-modal-right">
-            <button className="res-btn res-btn-azul" onClick={handleReiniciarActividad}>
-              Intentar de nuevo
-            </button>
-            <button className="res-btn res-btn-outline" onClick={() => setMostrarPistaBait(true)}>
-              Ver pista
-            </button>
+          <div className="enc-modal-actions">
             <button
-              className="res-btn res-btn-outline"
+              type="button"
+              className="enc-modal-action enc-modal-action--primary"
+              onClick={handleReiniciarActividad}
+            >
+              <FiRefreshCw />
+              <span>Intentar de nuevo</span>
+            </button>
+
+            <button
+              type="button"
+              className="enc-modal-action enc-modal-action--secondary"
+              onClick={() => setMostrarPistaBait(true)}
+            >
+              <FiTarget />
+              <span>Ver pista</span>
+            </button>
+
+            <button
+              type="button"
+              className="enc-modal-action enc-modal-action--secondary"
               onClick={() => navigate("/actividades-math-data")}
             >
-              {"<-"} Volver a actividades
+              <FiGrid />
+              <span>Volver a actividades</span>
             </button>
           </div>
-        </div>
-      </div>
+        </aside>
+      </section>
 
       {mostrarPistaBait && (
         <PistaBaitModal
@@ -940,17 +1147,6 @@ export default function EncuestaTripulacion() {
           videoSrc={baitHablandoVideo}
           audioSrc={pistaBaitAudioEncuesta}
           onClose={() => setMostrarPistaBait(false)}
-        />
-      )}
-
-      {mostrarBaitFallo && (
-        <PistaBaitModal
-          titulo="Bait tiene un mensaje para ti"
-          contenido="¡No te rindas, piloto! Cuenta de nuevo los palitos de cada módulo con cuidado, y revisa cuál de los tres obtuvo más votos antes de enviar tu reporte al Centro de Mando."
-          videoSrc={baitHablandoVideo}
-          audioSrc={baitAudioVuelveAIntentarlo}
-          botonTexto="Cerrar mensaje"
-          onClose={() => setMostrarBaitFallo(false)}
         />
       )}
     </div>
