@@ -35,7 +35,6 @@ import villanoPista from "../../assets/villano-pista.png";
 // ============================================
 import villanoHablandoVideo from "../../assets/villano-hablando.mp4";
 import audioVillanoDesafio from "../../assets/villano-audio-desafio.mp3";
-import villanoDerrotadoVideo from "../../assets/villano-derrotado.mp4";
 import audioVillanoDerrotado from "../../assets/villano-audio-derrotado.mp3";
 import baitHablandoVideo from "../../assets/bait-hablando.mp4";
 import pistaAudio from "../../assets/pista-audio.mp3";
@@ -59,6 +58,8 @@ import {
   FiPlay,
   FiPause,
   FiX,
+  FiCheckCircle,
+  FiArrowRight,
 } from "react-icons/fi";
 
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
@@ -367,6 +368,122 @@ function PistaBaitModal({
 }
 
 // ============================================
+// COMPONENTE: REPRODUCTOR DE AUDIO DEL RESULTADO
+// Se reproduce solo apenas se monta (igual que el
+// useEffect de ResultModal.tsx de MathNumbers), y además
+// muestra los controles normales de un reproductor de
+// audio: retroceder 10s, pausar/reproducir y adelantar 10s.
+// ============================================
+
+const RESULT_AUDIO_SALTO_SEGUNDOS = 10;
+
+function ResultAudioPlayer({ src }: { src: string }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [reproduciendo, setReproduciendo] = useState(false);
+  const [progreso, setProgreso] = useState(0);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    if (!audio || !src) {
+      return;
+    }
+
+    audio.currentTime = 0;
+    audio.volume = 1;
+
+    const playPromise = audio.play();
+
+    if (playPromise !== undefined) {
+      playPromise.catch((error) => {
+        console.warn(
+          "El audio del resultado no pudo iniciarse automáticamente:",
+          error,
+        );
+      });
+    }
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, [src]);
+
+  const alternarReproduccion = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (audio.paused || audio.ended) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  };
+
+  const saltar = (segundos: number) => {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    audio.currentTime = Math.min(
+      Math.max(audio.currentTime + segundos, 0),
+      audio.duration,
+    );
+  };
+
+  const actualizarProgreso = () => {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    setProgreso((audio.currentTime / audio.duration) * 100);
+  };
+
+  if (!src) return null;
+
+  return (
+    <div className="gen1r-modal-audio">
+      <audio
+        ref={audioRef}
+        src={src}
+        preload="auto"
+        autoPlay
+        onPlay={() => setReproduciendo(true)}
+        onPause={() => setReproduciendo(false)}
+        onEnded={() => setReproduciendo(false)}
+        onTimeUpdate={actualizarProgreso}
+      />
+
+      <button
+        type="button"
+        className="gen1r-modal-audio-btn"
+        onClick={() => saltar(-RESULT_AUDIO_SALTO_SEGUNDOS)}
+        aria-label="Retroceder 10 segundos"
+      >
+        <FiRotateCcw />
+      </button>
+
+      <button
+        type="button"
+        className="gen1r-modal-audio-btn gen1r-modal-audio-btn--play"
+        onClick={alternarReproduccion}
+        aria-label={reproduciendo ? "Pausar" : "Reproducir"}
+      >
+        {reproduciendo ? <FiPause /> : <FiPlay />}
+      </button>
+
+      <button
+        type="button"
+        className="gen1r-modal-audio-btn"
+        onClick={() => saltar(RESULT_AUDIO_SALTO_SEGUNDOS)}
+        aria-label="Adelantar 10 segundos"
+      >
+        <FiRotateCw />
+      </button>
+
+      <div className="gen1r-modal-audio-progress">
+        <div style={{ width: `${progreso}%` }} />
+      </div>
+    </div>
+  );
+}
+
+// ============================================
 // COMPONENTE PRINCIPAL
 // ============================================
 
@@ -394,7 +511,6 @@ function GeneradorEnergiaInversa() {
   const [cargando, setCargando] = useState(false);
   const [resultado, setResultado] = useState<"exito" | "fallo" | "incompleto" | "pista" | null>(null);
   const [mostrarIntroVillano, setMostrarIntroVillano] = useState(false);
-  const [mostrarVillanoDerrotado, setMostrarVillanoDerrotado] = useState(false);
   const [mostrarPistaModal, setMostrarPistaModal] = useState(false);
   const [graficaCompleta, setGraficaCompleta] = useState(false);
 
@@ -1321,18 +1437,6 @@ function GeneradorEnergiaInversa() {
         />
       )}
 
-      {mostrarVillanoDerrotado && (
-        <PistaBaitModal
-          tema="rojo"
-          titulo="Transmisión interceptada"
-          contenido="¡Imposible! Calculaste la constante... activaste el escudo... ¡Esto no ha terminado, agente!"
-          videoSrc={villanoDerrotadoVideo}
-          audioSrc={audioVillanoDerrotado}
-          botonTexto="Cerrar transmisión"
-          onClose={() => setMostrarVillanoDerrotado(false)}
-        />
-      )}
-
       {/* PISTA DE BAIT: aparece al presionar el botón de pista en "Predice y responde" */}
       {mostrarPistaModal && (
         <PistaBaitModal
@@ -1343,227 +1447,338 @@ function GeneradorEnergiaInversa() {
         />
       )}
 
-      {/* VENTANA EMERGENTE: ACTIVIDAD COMPLETADA */}
+      {/* VENTANA EMERGENTE: ACTIVIDAD COMPLETADA (estilo ResultModal de MathNumbers) */}
       {resultado === "exito" && (
-        <div className="res-modal-overlay">
-          <div className="res-modal-card res-modal-exito res-modal-wide">
-            <div className="res-confetti" aria-hidden="true">
-              {Array.from({ length: 16 }).map((_, i) => (
-                <span key={i} className={`res-confetti-dot res-confetti-dot-${i % 6}`} />
-              ))}
-            </div>
+        <div className="gen1r-modal-overlay gen1r-modal-overlay--completed" role="presentation">
+          <section
+            className="gen1r-modal gen1r-modal--completed"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="gen1-result-title"
+          >
+            <div className="gen1r-modal-decoration gen1r-modal-decoration--one" />
+            <div className="gen1r-modal-decoration gen1r-modal-decoration--two" />
 
-            <div className="res-titulo-row">
-              <div className="res-icono-check">✔</div>
-              <div>
-                <h1 className="res-titulo">¡Actividad completada!</h1>
-                <p className="res-subtitulo">
-                  Has terminado con éxito la misión de{" "}
-                  <span className="res-mathnova-color">MathData</span>.
-                </p>
+            <div className="gen1r-modal-main">
+              <header className="gen1r-modal-header">
+                <div className="gen1r-modal-status-icon">
+                  <FiCheckCircle />
+                </div>
+
+                <div className="gen1r-modal-header-copy">
+                  <span className="gen1r-modal-badge">
+                    <FiCheckCircle />
+                    Actividad completada
+                  </span>
+
+                  <h1 id="gen1-result-title">¡Actividad completada!</h1>
+
+                  <p>
+                    Has terminado con éxito la misión de{" "}
+                    <span className="gen1r-mathnova-color">MathData</span>.
+                  </p>
+                </div>
+              </header>
+
+              <div className="gen1r-modal-content">
+                <div className="gen1r-modal-character">
+                  <img
+                    src={villanoTrofeoCompleto}
+                    alt="Villano celebrando con trofeo"
+                    draggable={false}
+                  />
+                </div>
+
+                <article className="gen1r-modal-message">
+                  <span className="gen1r-modal-message-label">Resultado de la misión</span>
+                  <h2>¡Excelente trabajo, explorador!</h2>
+                  <p>
+                    Cada reto superado fortalece tus habilidades para analizar
+                    datos. Sigue así y conquista la siguiente misión.
+                  </p>
+                </article>
               </div>
-            </div>
 
-            <div className="res-mensaje-box res-mensaje-verde">
-              <div className="res-icono-estrella-circle">
-                <img src={estrellaMision} alt="estrella" />
-              </div>
-              <div>
-                <strong>¡Excelente trabajo, explorador!</strong>
-                <p>
-                  Cada reto superado fortalece tus habilidades para analizar
-                  datos. Sigue así y conquista la siguiente misión.
-                </p>
-              </div>
-            </div>
+              <ResultAudioPlayer src={audioVillanoDerrotado} />
 
-            <button
-              type="button"
-              className="gen1-villano-trigger res-modal-villano-trigger"
-              onClick={() => setMostrarVillanoDerrotado(true)}
-              aria-label="Abrir mensaje interceptado del villano derrotado"
-            >
-              <span className="gen1-villano-trigger-dot" />
-              <FaBroadcastTower />
-              Mensaje interceptado
-            </button>
+              <article className="gen1r-modal-summary">
+                <header>
+                  <FiBarChart2 />
+                  <h2>Resumen de la actividad</h2>
+                </header>
 
-            <div className="res-villano-exito-group">
-              <img
-                src={villanoTrofeoCompleto}
-                alt="Villano celebrando con trofeo"
-                className="res-villano-trofeo-img"
-              />
-            </div>
-
-            <div className="res-modal-body">
-              <div className="res-modal-left">
-                <div className="res-resumen-card">
-                  <div className="res-resumen-header">
-                    <FiBarChart2 />
-                    <span>Resumen de la actividad</span>
-                  </div>
-                  <div className="res-resumen-stats">
-                    <div className="res-stat">
-                      <img src={iconoAciertos} alt="" className="res-stat-img" />
-                      <strong className="res-stat-num-verde">3/3</strong>
-                      <small>Aciertos</small>
-                      <em>¡Perfecto!</em>
+                <div className="gen1r-modal-stats">
+                  <article className="gen1r-modal-stat">
+                    <div className="gen1r-modal-stat-icon">
+                      <img src={iconoAciertos} alt="" aria-hidden="true" />
                     </div>
-                    <div className="res-stat-sep" />
-                    <div className="res-stat">
-                      <img src={iconoTiempo} alt="" className="res-stat-img" />
+                    <div>
+                      <span>Aciertos</span>
+                      <strong>3/3</strong>
+                      <small>¡Perfecto!</small>
+                    </div>
+                  </article>
+
+                  <article className="gen1r-modal-stat">
+                    <div className="gen1r-modal-stat-icon">
+                      <img src={iconoTiempo} alt="" aria-hidden="true" />
+                    </div>
+                    <div>
+                      <span>Tiempo</span>
                       <strong>04:28</strong>
-                      <small>Tiempo</small>
-                      <em>min</em>
+                      <small>min</small>
                     </div>
-                    <div className="res-stat-sep" />
-                    <div className="res-stat">
-                      <img src={iconoPrecision} alt="" className="res-stat-img" />
-                      <strong className="res-stat-num-verde">100%</strong>
-                      <small>Precisión</small>
-                      <em>¡Impecable!</em>
+                  </article>
+
+                  <article className="gen1r-modal-stat">
+                    <div className="gen1r-modal-stat-icon">
+                      <img src={iconoPrecision} alt="" aria-hidden="true" />
                     </div>
-                    <div className="res-stat-sep" />
-                    <div className="res-stat">
-                      <img src={iconoRecompensa} alt="" className="res-stat-img" />
-                      <strong className="res-pts-naranja">+50 pts</strong>
-                      <small>Recompensa</small>
-                      <em>Puntos ganados</em>
+                    <div>
+                      <span>Precisión</span>
+                      <strong>100%</strong>
+                      <small>¡Impecable!</small>
                     </div>
-                    <div className="res-stat-sep" />
-                    <div className="res-stat">
-                      <img src={iconoInsignia} alt="" className="res-stat-img" />
-                      <strong>Misión<br />cumplida</strong>
-                      <small>Insignia obtenida</small>
-                      <em>¡Felicidades!</em>
+                  </article>
+
+                  <article className="gen1r-modal-stat">
+                    <div className="gen1r-modal-stat-icon">
+                      <img src={iconoRecompensa} alt="" aria-hidden="true" />
                     </div>
-                  </div>
+                    <div>
+                      <span>Recompensa</span>
+                      <strong>+50 pts</strong>
+                      <small>Puntos ganados</small>
+                    </div>
+                  </article>
+
+                  <article className="gen1r-modal-stat">
+                    <div className="gen1r-modal-stat-icon">
+                      <img src={iconoInsignia} alt="" aria-hidden="true" />
+                    </div>
+                    <div>
+                      <span>Insignia obtenida</span>
+                      <strong>Misión cumplida</strong>
+                      <small>¡Felicidades!</small>
+                    </div>
+                  </article>
+                </div>
+              </article>
+            </div>
+
+            <aside className="gen1r-modal-side">
+              <article className="gen1r-modal-side-message">
+                <span>¡Misión completada!</span>
+                <strong>Sigue avanzando por MathData</strong>
+                <p>Cada actividad superada fortalece tus habilidades matemáticas.</p>
+              </article>
+
+              <div className="gen1r-modal-progress">
+                <div>
+                  <span>Progreso del tema</span>
+                  <strong>{progresoPorcentaje}%</strong>
+                </div>
+                <div className="gen1r-modal-progress-bar">
+                  <span style={{ width: `${progresoPorcentaje}%` }} />
                 </div>
               </div>
 
-              <div className="res-modal-right">
+              <div className="gen1r-modal-actions">
                 <button
-                  className="res-btn res-btn-azul"
-                  onClick={() =>
-                    navigate(
-                      "/actividades-math-data/rampas-lanzamiento",
-                    )
-                  }
+                  type="button"
+                  className="gen1r-modal-action gen1r-modal-action--primary"
+                  onClick={() => navigate("/actividades-math-data/rampas-lanzamiento")}
                 >
-                  Siguiente actividad
+                  <FiArrowRight />
+                  <span>Siguiente actividad</span>
                 </button>
-                <button className="res-btn res-btn-outline" onClick={handleReiniciarActividad}>
-                  Repetir actividad
-                </button>
+
                 <button
-                  className="res-btn res-btn-outline"
+                  type="button"
+                  className="gen1r-modal-action gen1r-modal-action--secondary"
+                  onClick={handleReiniciarActividad}
+                >
+                  <FiRefreshCw />
+                  <span>Repetir actividad</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="gen1r-modal-action gen1r-modal-action--secondary"
                   onClick={() => navigate("/actividades-math-data")}
                 >
-                  Volver a actividades
+                  <FiGrid />
+                  <span>Volver a actividades</span>
                 </button>
               </div>
-            </div>
-          </div>
+            </aside>
+          </section>
         </div>
       )}
 
-      {/* VENTANA EMERGENTE: VUELVE A INTENTARLO */}
+      {/* VENTANA EMERGENTE: VUELVE A INTENTARLO (estilo ResultModal de MathNumbers) */}
       {resultado === "fallo" && (
-        <div className="res-modal-overlay">
-          <div className="res-modal-card res-modal-fallo res-modal-wide">
-            <div className="res-titulo-row">
-              <div className="res-icono-retry">&#x1F504;</div>
-              <div>
-                <h1 className="res-titulo">¡Vuelve a intentarlo!</h1>
-                <p className="res-subtitulo">
-                  Aún no completas con éxito la misión de{" "}
-                  <span className="res-mathnova-color">MathData</span>.
-                </p>
+        <div className="gen1r-modal-overlay gen1r-modal-overlay--retry" role="presentation">
+          <section
+            className="gen1r-modal gen1r-modal--retry"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="gen1-result-title-fallo"
+          >
+            <div className="gen1r-modal-decoration gen1r-modal-decoration--one" />
+            <div className="gen1r-modal-decoration gen1r-modal-decoration--two" />
+
+            <div className="gen1r-modal-main">
+              <header className="gen1r-modal-header">
+                <div className="gen1r-modal-status-icon">
+                  <FiRefreshCw />
+                </div>
+
+                <div className="gen1r-modal-header-copy">
+                  <span className="gen1r-modal-badge">
+                    <FiRefreshCw />
+                    Vuelve a intentarlo
+                  </span>
+
+                  <h1 id="gen1-result-title-fallo">¡Vuelve a intentarlo!</h1>
+
+                  <p>
+                    Aún no completas con éxito la misión de{" "}
+                    <span className="gen1r-mathnova-color">MathData</span>.
+                  </p>
+                </div>
+              </header>
+
+              <div className="gen1r-modal-content">
+                <div className="gen1r-modal-character">
+                  <img src={villanoIntentar} alt="Villano retando" draggable={false} />
+                </div>
+
+                <article className="gen1r-modal-message">
+                  <span className="gen1r-modal-message-label">Resultado de la misión</span>
+                  <h2>¡No te rindas, explorador!</h2>
+                  <p>
+                    Los errores también enseñan. Revisa tus respuestas,
+                    inténtalo de nuevo y sigue fortaleciendo tus habilidades
+                    para analizar datos, tablas y frecuencias.
+                  </p>
+                </article>
               </div>
-            </div>
 
-            <div className="res-mensaje-box res-mensaje-azul">
-              <div className="res-icono-datos">📊</div>
-              <div>
-                <strong>¡No te rindas, explorador!</strong>
-                <p>
-                  Los errores también enseñan. Revisa tus respuestas,
-                  inténtalo de nuevo y sigue fortaleciendo tus habilidades
-                  para analizar datos, tablas y frecuencias.
-                </p>
-              </div>
-            </div>
+              <ResultAudioPlayer src={audioVillanoDesafio} />
 
-            <div className="res-villano-fallo-group">
-              <img src={villanoIntentar} alt="Villano retando" className="res-villano-img" />
-            </div>
+              <article className="gen1r-modal-summary">
+                <header>
+                  <FiBarChart2 />
+                  <h2>Resumen de la actividad</h2>
+                </header>
 
-            <div className="res-modal-body">
-              <div className="res-modal-left">
-                <div className="res-resumen-card">
-                  <div className="res-resumen-header">
-                    <FiBarChart2 />
-                    <span>Resumen de la actividad</span>
-                  </div>
-                  <div className="res-resumen-stats">
-                    <div className="res-stat">
-                      <img src={iconoAciertos} alt="" className="res-stat-img" />
+                <div className="gen1r-modal-stats">
+                  <article className="gen1r-modal-stat">
+                    <div className="gen1r-modal-stat-icon">
+                      <img src={iconoAciertos} alt="" aria-hidden="true" />
+                    </div>
+                    <div>
+                      <span>Aciertos</span>
                       <strong>1/3</strong>
-                      <small>Aciertos</small>
-                      <em>¡Sigue así!</em>
+                      <small>¡Sigue así!</small>
                     </div>
-                    <div className="res-stat-sep" />
-                    <div className="res-stat">
-                      <img src={iconoTiempo} alt="" className="res-stat-img" />
+                  </article>
+
+                  <article className="gen1r-modal-stat">
+                    <div className="gen1r-modal-stat-icon">
+                      <img src={iconoTiempo} alt="" aria-hidden="true" />
+                    </div>
+                    <div>
+                      <span>Tiempo</span>
                       <strong>04:28</strong>
-                      <small>Tiempo</small>
-                      <em>min</em>
+                      <small>min</small>
                     </div>
-                    <div className="res-stat-sep" />
-                    <div className="res-stat">
-                      <img src={iconoPrecision} alt="" className="res-stat-img" />
+                  </article>
+
+                  <article className="gen1r-modal-stat">
+                    <div className="gen1r-modal-stat-icon">
+                      <img src={iconoPrecision} alt="" aria-hidden="true" />
+                    </div>
+                    <div>
+                      <span>Precisión</span>
                       <strong>33%</strong>
-                      <small>Precisión</small>
-                      <em>Puedes mejorar</em>
+                      <small>Puedes mejorar</small>
                     </div>
-                    <div className="res-stat-sep" />
-                    <div className="res-stat">
-                      <img src={iconoRecompensa} alt="" className="res-stat-img" />
-                      <strong className="res-pts-azul">+10 pts</strong>
-                      <small>Recompensa</small>
-                      <em>Puntos ganados</em>
+                  </article>
+
+                  <article className="gen1r-modal-stat">
+                    <div className="gen1r-modal-stat-icon">
+                      <img src={iconoRecompensa} alt="" aria-hidden="true" />
                     </div>
-                    <div className="res-stat-sep" />
-                    <div className="res-stat">
-                      <img src={iconoInsignia} alt="" className="res-stat-img" />
+                    <div>
+                      <span>Recompensa</span>
+                      <strong>+10 pts</strong>
+                      <small>Puntos ganados</small>
+                    </div>
+                  </article>
+
+                  <article className="gen1r-modal-stat">
+                    <div className="gen1r-modal-stat-icon">
+                      <img src={iconoInsignia} alt="" aria-hidden="true" />
+                    </div>
+                    <div>
+                      <span>Insignia obtenida</span>
                       <strong>Sigue intentando</strong>
-                      <small>Insignia obtenida</small>
-                      <em>¡No te rindas!</em>
+                      <small>¡No te rindas!</small>
                     </div>
-                  </div>
+                  </article>
+                </div>
+              </article>
+            </div>
+
+            <aside className="gen1r-modal-side">
+              <article className="gen1r-modal-side-message">
+                <span>¡No te rindas!</span>
+                <strong>Cada intento te ayuda a mejorar</strong>
+                <p>Usa la pista, revisa el procedimiento y vuelve a resolver la actividad.</p>
+              </article>
+
+              <div className="gen1r-modal-progress">
+                <div>
+                  <span>Progreso del tema</span>
+                  <strong>{progresoPorcentaje}%</strong>
+                </div>
+                <div className="gen1r-modal-progress-bar">
+                  <span style={{ width: `${progresoPorcentaje}%` }} />
                 </div>
               </div>
 
-              <div className="res-modal-right">
-                <button className="res-btn res-btn-azul" onClick={handleReiniciarActividad}>
-                  Intentar de nuevo
-                </button>
+              <div className="gen1r-modal-actions">
                 <button
-                  className="res-btn res-btn-outline"
+                  type="button"
+                  className="gen1r-modal-action gen1r-modal-action--primary"
+                  onClick={handleReiniciarActividad}
+                >
+                  <FiRefreshCw />
+                  <span>Intentar de nuevo</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="gen1r-modal-action gen1r-modal-action--secondary"
                   onClick={() => setMostrarPistaModal(true)}
                 >
-                  Ver pista
+                  <FaLightbulb />
+                  <span>Ver pista</span>
                 </button>
+
                 <button
-                  className="res-btn res-btn-outline"
+                  type="button"
+                  className="gen1r-modal-action gen1r-modal-action--secondary"
                   onClick={() => navigate("/actividades-math-data")}
                 >
-                  {"<-"} Volver a actividades
+                  <FiGrid />
+                  <span>Volver a actividades</span>
                 </button>
               </div>
-            </div>
-          </div>
+            </aside>
+          </section>
         </div>
       )}
 

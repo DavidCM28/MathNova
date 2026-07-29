@@ -299,6 +299,168 @@ function PistaBaitModal({
 }
 
 /* =========================================================
+   COMPONENTE: PISTA FLOTANTE
+   Widget de pista siempre visible en pantalla (position: fixed),
+   inspirado en el patrón "FloatingByteHint" de la Actividad
+   Cofre de Bienvenida. Se queda anclado en la esquina mientras
+   se hace scroll, y se abre/cierra en el mismo lugar sin tapar
+   toda la pantalla como un modal.
+========================================================= */
+
+function PistaFlotante({
+  contenido,
+  videoSrc,
+  audioSrc,
+}: {
+  contenido: string;
+  videoSrc: string;
+  audioSrc?: string;
+}) {
+  const [abierta, setAbierta] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [reproduciendo, setReproduciendo] = useState(false);
+  const [progreso, setProgreso] = useState(0);
+
+  const sincronizarVideoConAudio = () => {
+    const audio = audioRef.current;
+    const video = videoRef.current;
+    if (!audio || !video) return;
+    if (Math.abs(video.currentTime - audio.currentTime) > 0.35) {
+      video.currentTime = audio.currentTime;
+    }
+  };
+
+  const abrir = () => {
+    setAbierta(true);
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = 0;
+    audio.play();
+    videoRef.current?.play();
+  };
+
+  const cerrar = () => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+    videoRef.current?.pause();
+    setReproduciendo(false);
+    setAbierta(false);
+  };
+
+  const alternarReproduccion = () => {
+    const audio = audioRef.current;
+    const video = videoRef.current;
+    if (!audio) return;
+    if (audio.paused || audio.ended) {
+      audio.play();
+      video?.play();
+    } else {
+      audio.pause();
+      video?.pause();
+    }
+  };
+
+  const saltar = (segundos: number) => {
+    const audio = audioRef.current;
+    const video = videoRef.current;
+    if (!audio || !audio.duration) return;
+    const nuevoTiempo = Math.min(Math.max(audio.currentTime + segundos, 0), audio.duration);
+    audio.currentTime = nuevoTiempo;
+    if (video) video.currentTime = nuevoTiempo;
+  };
+
+  const actualizarProgreso = () => {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    setProgreso((audio.currentTime / audio.duration) * 100);
+  };
+
+  return (
+    <div className={`sal-pista-flotante ${abierta ? "sal-pista-flotante-abierta" : ""}`}>
+      {audioSrc && (
+        <audio
+          ref={audioRef}
+          src={audioSrc}
+          onPlay={() => setReproduciendo(true)}
+          onPause={() => setReproduciendo(false)}
+          onEnded={() => setReproduciendo(false)}
+          onTimeUpdate={actualizarProgreso}
+        />
+      )}
+
+      {abierta && (
+        <article className="sal-pista-panel">
+          <button
+            type="button"
+            className="sal-pista-panel-cerrar"
+            onClick={cerrar}
+            aria-label="Cerrar pista de BIT"
+          >
+            <FiX />
+          </button>
+
+          <div className="sal-pista-panel-media">
+            <video
+              ref={videoRef}
+              src={videoSrc}
+              muted
+              playsInline
+              preload="auto"
+              onTimeUpdate={sincronizarVideoConAudio}
+              aria-hidden="true"
+            />
+          </div>
+
+          <div className="sal-pista-panel-copy">
+            <span className="sal-pista-panel-label">Pista de BIT</span>
+            <p>{contenido}</p>
+
+            <div className="sal-pista-panel-controles">
+              <button type="button" onClick={() => saltar(-SALTO_SEGUNDOS)} aria-label="Retroceder 10 segundos">
+                <FiRotateCcw />
+              </button>
+              <button
+                type="button"
+                className="sal-pista-panel-play"
+                onClick={alternarReproduccion}
+                aria-label={reproduciendo ? "Pausar" : "Reproducir"}
+              >
+                {reproduciendo ? <FiPause /> : <FiPlay />}
+              </button>
+              <button type="button" onClick={() => saltar(SALTO_SEGUNDOS)} aria-label="Adelantar 10 segundos">
+                <FiRotateCw />
+              </button>
+            </div>
+
+            <div className="sal-pista-panel-progress">
+              <div style={{ width: `${progreso}%` }} />
+            </div>
+          </div>
+        </article>
+      )}
+
+      <button
+        type="button"
+        className="sal-pista-launcher"
+        onClick={abierta ? cerrar : abrir}
+        aria-label="Abrir pista de BIT"
+        aria-expanded={abierta}
+      >
+        <span>PISTA</span>
+        <img src={baitPistaImg} alt="" draggable={false} />
+        <i aria-hidden="true">?</i>
+      </button>
+    </div>
+  );
+}
+
+
+
+/* =========================================================
    PEQUEÑO COMPONENTE: ÍCONO DE CARTA DEL MAZO
 ========================================================= */
 
@@ -750,6 +912,14 @@ export default function SalaTresCaminos() {
           </button>
         </nav>
 
+        <div className="sal-sidebar-villano">
+          <img
+            src={villanoDivideSalaAmenazaImg}
+            alt="Interferencia: DIVIDE ha mezclado las reglas de los mecanismos. No te dejes confundir."
+            className="sal-villano-amenaza-img"
+          />
+        </div>
+
         <div className="sal-progreso-card">
           <small>Progreso de la actividad</small>
           <div className="sal-progreso-track">
@@ -786,63 +956,48 @@ export default function SalaTresCaminos() {
           <p>Eventos independientes, dependientes y mutuamente excluyentes.</p>
         </div>
 
-        {/* BANNER: BIT EXPLICA + PUERTAS + VILLANO (esquina) / AMENAZA + VER PISTA */}
-        <div className="sal-hero-row">
-          <div className="sal-banner-card">
-            <div className="sal-banner-top">
-              <div className="sal-explica-fila">
-                <img src={baitSaludoImg} alt="Bait explicando" className="sal-bait-avatar-img" />
+        {/* BANNER: BIT EXPLICA + PUERTAS + VILLANO (esquina) */}
+        <div className="sal-banner-card">
+          <div className="sal-banner-top">
+            <div className="sal-explica-fila">
+              <img src={baitSaludoImg} alt="Bait explicando" className="sal-bait-avatar-img" />
 
-                <div className="sal-hola-agente">
-                  <div>
-                    <strong>BIT te explica</strong>
-                    <p>
-                      Analizaremos tres mecanismos paso a paso. Observa qué
-                      cambia y qué permanece igual. Clasifica cada situación
-                      y al final encontraremos la ruta segura.
-                    </p>
-                  </div>
-                  <button
-                    className="sal-audio-btn"
-                    type="button"
-                    onClick={() => setMostrarIntroBait(true)}
-                    aria-label="Escuchar explicación"
-                  >
-                    <FiVolume2 />
-                  </button>
+              <div className="sal-hola-agente">
+                <div>
+                  <strong>BIT te explica</strong>
+                  <p>
+                    Analizaremos tres mecanismos paso a paso. Observa qué
+                    cambia y qué permanece igual. Clasifica cada situación
+                    y al final encontraremos la ruta segura.
+                  </p>
                 </div>
+                <button
+                  className="sal-audio-btn"
+                  type="button"
+                  onClick={() => setMostrarIntroBait(true)}
+                  aria-label="Escuchar explicación"
+                >
+                  <FiVolume2 />
+                </button>
               </div>
-
-              <img
-                src={villanoDivideSalaBannerImg}
-                alt="Interferencia: DIVIDE dice que tres puertas, tres mecanismos y todo desordenando todo. ¿Seguro que podrás elegir el camino correcto?"
-                className="sal-villano-banner-corner"
-              />
             </div>
 
-            <div className="sal-puertas-row">
-              {(["alfa", "beta", "gamma"] as Puerta[]).map((p) => (
-                <div className="sal-puerta-card" key={p} style={{ borderColor: HEX_PUERTA[p] }}>
-                  <strong style={{ color: HEX_PUERTA[p] }}>{NOMBRE_PUERTA[p].toUpperCase()}</strong>
-                  <div className="sal-puerta-icono" style={{ background: HEX_PUERTA[p] }}>
-                    <FiLock />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <img
+              src={villanoDivideSalaBannerImg}
+              alt="Interferencia: DIVIDE dice que tres puertas, tres mecanismos y todo desordenando todo. ¿Seguro que podrás elegir el camino correcto?"
+              className="sal-villano-banner-corner"
+            />
           </div>
 
-          <div className="sal-amenaza-col">
-            <img
-              src={villanoDivideSalaAmenazaImg}
-              alt="Interferencia: DIVIDE ha mezclado las reglas de los mecanismos. No te dejes confundir."
-              className="sal-villano-amenaza-img"
-            />
-
-            <button type="button" className="sal-pista-btn" onClick={() => setMostrarPistaBait(true)}>
-              <img src={baitPistaImg} alt="" className="sal-pista-icono" />
-              Ver pista
-            </button>
+          <div className="sal-puertas-row">
+            {(["alfa", "beta", "gamma"] as Puerta[]).map((p) => (
+              <div className="sal-puerta-card" key={p} style={{ borderColor: HEX_PUERTA[p] }}>
+                <strong style={{ color: HEX_PUERTA[p] }}>{NOMBRE_PUERTA[p].toUpperCase()}</strong>
+                <div className="sal-puerta-icono" style={{ background: HEX_PUERTA[p] }}>
+                  <FiLock />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -1124,14 +1279,10 @@ export default function SalaTresCaminos() {
         />
       )}
 
-      {mostrarPistaBait && (
-        <PistaBaitModal
-          titulo="Pista de Bait"
-          contenido="Si la tarjeta se regresa al mazo, la composición no cambia: eso es independencia. Si la tarjeta no se regresa, la composición cambia y afecta el siguiente resultado: eso es dependencia. Si abrir una puerta impide abrir otra en la misma activación, esos sucesos son mutuamente excluyentes."
-          videoSrc={baitHablandoVideo}
-          onClose={() => setMostrarPistaBait(false)}
-        />
-      )}
+      <PistaFlotante
+        contenido="Si la tarjeta se regresa al mazo, la composición no cambia: eso es independencia. Si la tarjeta no se regresa, la composición cambia y afecta el siguiente resultado: eso es dependencia. Si abrir una puerta impide abrir otra en la misma activación, esos sucesos son mutuamente excluyentes."
+        videoSrc={baitHablandoVideo}
+      />
     </div>
   );
 }

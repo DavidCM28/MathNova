@@ -79,6 +79,19 @@
   box-shadow: 0 8px 18px rgba(0, 88, 255, 0.28);
 }
 
+.sal-sidebar-villano {
+  margin-top: 4px;
+}
+
+.sal-sidebar-villano .sal-villano-amenaza-img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+  border-radius: 16px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+}
+
 .sal-progreso-card {
   margin-top: auto;
   background: #eff6ff;
@@ -226,19 +239,10 @@
 }
 
 /* ========================================================= */
-/* BANNER (BIT + PUERTAS + VILLANO EN LA ESQUINA) + AMENAZA   */
+/* BANNER (BIT + PUERTAS + VILLANO EN LA ESQUINA)             */
 /* ========================================================= */
 
-.sal-hero-row {
-  display: flex;
-  align-items: stretch;
-  gap: 18px;
-  flex-wrap: wrap;
-}
-
 .sal-banner-card {
-  flex: 3;
-  min-width: 420px;
   background: rgba(8, 15, 35, 0.55);
   border: 1.5px solid rgba(96, 165, 250, 0.35);
   border-radius: 22px;
@@ -368,58 +372,226 @@
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
 }
 
-/* ---- Columna de amenaza (esquina derecha, fuera del banner) ---- */
-.sal-amenaza-col {
-  flex: 1;
-  min-width: 200px;
-  max-width: 260px;
+/* ========================================================= */
+/* PISTA FLOTANTE (widget siempre visible, estilo Cofre)      */
+/* ========================================================= */
+
+.sal-pista-flotante {
+  position: fixed;
+  right: 24px;
+  bottom: 28px;
+  z-index: 160;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  align-items: flex-end;
+  gap: 12px;
+  pointer-events: none;
 }
 
-.sal-villano-amenaza-img {
+.sal-pista-launcher,
+.sal-pista-panel,
+.sal-pista-panel * {
+  pointer-events: auto;
+}
+
+.sal-pista-launcher {
+  width: 96px;
+  min-height: 118px;
+  padding: 8px 8px 4px;
+  border: 0;
+  border-radius: 26px 26px 20px 20px;
+  background: transparent;
+  position: relative;
+  cursor: pointer;
+  filter: drop-shadow(0 16px 18px rgba(0, 40, 90, 0.35));
+  transition: transform 0.18s ease;
+}
+
+.sal-pista-launcher:hover { transform: translateY(-6px) scale(1.04); }
+.sal-pista-launcher:focus-visible { outline: 2px solid #ffffff; outline-offset: 3px; }
+
+.sal-pista-launcher > span {
+  position: absolute;
+  left: 50%;
+  top: -8px;
+  transform: translateX(-50%);
+  min-width: 66px;
+  min-height: 24px;
+  padding: 0 10px;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0058ff, #1d4ed8);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 950;
+  box-shadow: 0 8px 18px rgba(0, 88, 255, 0.35);
+}
+
+.sal-pista-launcher img {
+  width: 88px;
+  height: 108px;
+  object-fit: contain;
+  animation: salPistaFloat 2.8s ease-in-out infinite;
+}
+
+.sal-pista-launcher > i {
+  position: absolute;
+  right: 2px;
+  top: 26px;
+  width: 26px;
+  height: 26px;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  background: #ffbd32;
+  color: #604100;
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.sal-pista-panel {
+  width: min(380px, calc(100vw - 32px));
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  padding: 16px;
+  position: relative;
+  border: 2px solid rgba(96, 165, 250, 0.35);
+  border-radius: 22px;
+  background: linear-gradient(145deg, #ffffff, #eef6ff);
+  box-shadow: 0 24px 56px rgba(0, 20, 60, 0.32);
+  animation: salPistaPanelIn 200ms ease;
+}
+
+.sal-pista-panel-cerrar {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 5;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: #475569;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.sal-pista-panel-cerrar:hover { background: #e2e8f0; color: #0b1b34; }
+
+.sal-pista-panel-media {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #fff;
+  border: 3px solid #eff6ff;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+}
+
+.sal-pista-panel-media video {
   width: 100%;
-  aspect-ratio: 3 / 4;
+  height: 100%;
   object-fit: cover;
-  display: block;
-  border-radius: 16px;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
 }
 
-.sal-pista-btn {
-  width: 100%;
-  height: 56px;
+.sal-pista-panel-copy { min-width: 0; padding-right: 16px; }
+
+.sal-pista-panel-label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #e5f1ff;
+  color: #1d4ed8;
+  font-size: 10px;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.sal-pista-panel-copy p {
+  margin: 0 0 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.sal-pista-panel-controles {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sal-pista-panel-controles button {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  border: none;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: #1d4ed8;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  border: none;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #0058ff, #1d4ed8);
-  color: #fff;
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 900;
+  font-size: 12px;
   cursor: pointer;
-  box-shadow: 0 12px 26px rgba(0, 88, 255, 0.32);
-  transition: all 0.2s ease;
+  transition: all 0.18s ease;
 }
 
-.sal-pista-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 32px rgba(0, 88, 255, 0.4); }
-.sal-pista-btn:focus-visible { outline: 2px solid #ffffff; outline-offset: 2px; }
+.sal-pista-panel-controles button:hover { background: #dbeafe; }
 
-.sal-pista-icono {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  object-fit: contain;
+.sal-pista-panel-play {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  background: #0058ff !important;
+  color: #fff !important;
+  font-size: 14px !important;
 }
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 20px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
+
+.sal-pista-panel-play:hover { background: #0046cc !important; }
+
+.sal-pista-panel-progress {
+  margin-top: 8px;
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.sal-pista-panel-progress > div {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  border-radius: 999px;
+  transition: width 0.15s linear;
+}
+
+@keyframes salPistaFloat {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-8px) rotate(1deg); }
+}
+
+@keyframes salPistaPanelIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 720px) {
+  .sal-pista-flotante { right: 14px; bottom: 18px; }
+  .sal-pista-panel { grid-template-columns: 1fr; }
+  .sal-pista-panel-media { margin: 0 auto; }
 }
 
 /* ========================================================= */
@@ -1067,8 +1239,7 @@
   .sal-progreso-card,
   .sal-xp-card { margin-top: 0; width: 200px; }
   .sal-page { flex-direction: column; }
-  .sal-hero-row { flex-direction: column; }
-  .sal-amenaza-col { max-width: 100%; flex-direction: row; }
+  .sal-sidebar-villano { width: 220px; }
 }
 
 @media (max-width: 720px) {
@@ -1078,7 +1249,6 @@
   .sal-registro-row { flex-direction: column; }
   .sal-banner-top { flex-direction: column; align-items: stretch; }
   .sal-villano-banner-corner { width: 100%; }
-  .sal-amenaza-col { flex-direction: column; }
 }
 
 /* ============================================================= */
