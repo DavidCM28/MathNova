@@ -235,6 +235,80 @@ const obtenerInicioSemanaActual = (): Date => {
   return fecha;
 };
 
+
+type ClaveMundo =
+  | "MathNumbers"
+  | "MathGeometry"
+  | "MathData";
+
+const MUNDOS_RENDIMIENTO: ClaveMundo[] = [
+  "MathNumbers",
+  "MathGeometry",
+  "MathData",
+];
+
+const normalizarTexto = (valor: unknown): string => {
+  return String(valor ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+};
+
+const normalizarMundo = (
+  valor: unknown,
+): ClaveMundo | null => {
+  const texto = normalizarTexto(valor);
+
+  if (
+    texto.includes("mathnumbers") ||
+    texto.includes("numbers") ||
+    texto.includes("numero") ||
+    texto.includes("planetanumeros")
+  ) {
+    return "MathNumbers";
+  }
+
+  if (
+    texto.includes("mathgeometry") ||
+    texto.includes("geometry") ||
+    texto.includes("geometria") ||
+    texto.includes("mundogeometria")
+  ) {
+    return "MathGeometry";
+  }
+
+  if (
+    texto.includes("mathdata") ||
+    texto.includes("data") ||
+    texto.includes("datos") ||
+    texto.includes("galaxiainformacion") ||
+    texto.includes("galaxiadosdatos")
+  ) {
+    return "MathData";
+  }
+
+  return null;
+};
+
+const obtenerColorRendimiento = (
+  porcentaje: number,
+): string => {
+  if (porcentaje >= 90) {
+    return "green";
+  }
+
+  if (porcentaje >= 70) {
+    return "blue";
+  }
+
+  if (porcentaje >= 50) {
+    return "yellow";
+  }
+
+  return "red";
+};
+
 function Estadisticas() {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -877,201 +951,264 @@ function Estadisticas() {
   ]);
 
   const rendimientoPorTema = useMemo(() => {
-    const datosBackend = Array.isArray(
-      estadisticas?.rendimientoPorTema,
-    )
-      ? estadisticas.rendimientoPorTema
-      : [];
-
-    const colores = [
-      "blue",
-      "green",
-      "purple",
-      "orange",
-      "cyan",
-    ];
-
-    if (datosBackend.length > 0) {
-      return datosBackend
-        .slice(0, 5)
-        .map((item, index) => ({
-          tema: item.tema,
-
-          porcentaje: limitarPorcentaje(
-            item.promedio,
-          ),
-
-          color:
-            colores[index % colores.length],
-        }));
-    }
-
-    const grupos = actividadesSeguras.reduce<
-      Record<
-        string,
-        {
-          total: number;
-          suma: number;
-        }
-      >
-    >((acumulador, actividad) => {
-      const tema =
-        actividad.tema ||
-        actividad.modulo ||
-        actividad.mundo ||
-        "General";
-
-      if (!acumulador[tema]) {
-        acumulador[tema] = {
-          total: 0,
-          suma: 0,
-        };
+    const grupos: Record<
+      ClaveMundo,
+      {
+        suma: number;
+        total: number;
       }
+    > = {
+      MathNumbers: {
+        suma: 0,
+        total: 0,
+      },
 
-      acumulador[tema].total += 1;
+      MathGeometry: {
+        suma: 0,
+        total: 0,
+      },
 
-      acumulador[tema].suma += limitarPorcentaje(
-        actividad.porcentaje ??
-          actividad.precision ??
-          actividad.puntaje,
-      );
-
-      return acumulador;
-    }, {});
-
-    const temas = Object.entries(grupos).map(
-      ([tema, datos], index) => ({
-        tema,
-
-        porcentaje:
-          datos.total > 0
-            ? Math.round(datos.suma / datos.total)
-            : 0,
-
-        color:
-          colores[index % colores.length],
-      }),
-    );
-
-    if (temas.length === 0) {
-      return [
-        {
-          tema: "MathNumbers",
-          porcentaje: 0,
-          color: "blue",
-        },
-        {
-          tema: "MathGeometry",
-          porcentaje: 0,
-          color: "green",
-        },
-        {
-          tema: "MathData",
-          porcentaje: 0,
-          color: "purple",
-        },
-      ];
-    }
-
-    return temas.slice(0, 5);
-  }, [
-    actividadesSeguras,
-    estadisticas?.rendimientoPorTema,
-  ]);
-
-  const dominioPorMundo = useMemo(() => {
-    const datosBackend = Array.isArray(
-      estadisticas?.dominioPorMundo,
-    )
-      ? estadisticas.dominioPorMundo
-      : [];
-
-    const nombres: Record<string, string> = {
-      MathNumbers: "Planeta Números",
-      MathGeometry: "Mundo Geometría",
-      MathData: "Galaxia Datos",
-
-      "Planeta Números": "Planeta Números",
-      "Mundo Geometría": "Mundo Geometría",
-      "Galaxia Datos": "Galaxia Datos",
+      MathData: {
+        suma: 0,
+        total: 0,
+      },
     };
 
-    if (datosBackend.length > 0) {
-      return datosBackend.map((item) => ({
-        nombre:
-          nombres[item.mundo] || item.mundo,
+    /*
+     * Calculamos el rendimiento usando primero
+     * las actividades reales guardadas en
+     * public.actividad_progreso.
+     *
+     * También unificamos nombres equivalentes como:
+     * mathgeometry, Mundo Geometría y MathGeometry.
+     */
+    actividadesSeguras.forEach((actividad) => {
+      const candidatosMundo = [
+        actividad.mundo,
+        actividad.modulo,
+        actividad.tema,
+      ];
 
-        porcentaje: limitarPorcentaje(
-          item.promedio,
-        ),
-      }));
-    }
+      const mundoNormalizado =
+        candidatosMundo
+          .map((valor) => normalizarMundo(valor))
+          .find(
+            (valor): valor is ClaveMundo =>
+              valor !== null,
+          ) ?? null;
 
-    const grupos = actividadesSeguras.reduce<
-      Record<
-        string,
-        {
-          total: number;
-          suma: number;
-        }
-      >
-    >((acumulador, actividad) => {
-      const modulo =
-        actividad.modulo ||
-        actividad.mundo ||
-        "General";
-
-      if (!acumulador[modulo]) {
-        acumulador[modulo] = {
-          total: 0,
-          suma: 0,
-        };
+      if (!mundoNormalizado) {
+        return;
       }
 
-      acumulador[modulo].total += 1;
-
-      acumulador[modulo].suma += limitarPorcentaje(
-        actividad.porcentaje ??
+      const precisionActividad =
+        limitarPorcentaje(
           actividad.precision ??
-          actividad.puntaje,
+            actividad.porcentaje ??
+            actividad.puntaje ??
+            0,
+        );
+
+      grupos[mundoNormalizado].suma +=
+        precisionActividad;
+
+      grupos[mundoNormalizado].total += 1;
+    });
+
+    const existenActividadesReales =
+      Object.values(grupos).some(
+        (grupo) => grupo.total > 0,
       );
 
-      return acumulador;
-    }, {});
+    /*
+     * Si todavía no llegaron las actividades,
+     * utilizamos el resumen agrupado por mundo
+     * que devuelve el backend.
+     */
+    if (!existenActividadesReales) {
+      const mundosBackend = Array.isArray(
+        estadisticas?.dominioPorMundo,
+      )
+        ? estadisticas.dominioPorMundo
+        : [];
 
-    const mundos = Object.entries(grupos).map(
-      ([modulo, datos]) => ({
-        nombre: nombres[modulo] || modulo,
+      mundosBackend.forEach((item) => {
+        const mundoNormalizado =
+          normalizarMundo(item.mundo);
 
-        porcentaje:
-          datos.total > 0
-            ? Math.round(datos.suma / datos.total)
-            : 0,
-      }),
-    );
+        if (!mundoNormalizado) {
+          return;
+        }
 
-    if (mundos.length === 0) {
-      return [
-        {
-          nombre: "Planeta Números",
-          porcentaje: 0,
-        },
-        {
-          nombre: "Mundo Geometría",
-          porcentaje: 0,
-        },
-        {
-          nombre: "Galaxia Datos",
-          porcentaje: 0,
-        },
-      ];
+        grupos[mundoNormalizado].suma +=
+          limitarPorcentaje(item.promedio);
+
+        grupos[mundoNormalizado].total += 1;
+      });
     }
 
-    return mundos;
+    return MUNDOS_RENDIMIENTO.map((mundo) => {
+      const grupo = grupos[mundo];
+
+      const porcentaje =
+        grupo.total > 0
+          ? limitarPorcentaje(
+              grupo.suma / grupo.total,
+            )
+          : 0;
+
+      return {
+        tema: mundo,
+        porcentaje,
+        color:
+          obtenerColorRendimiento(porcentaje),
+      };
+    });
   }, [
     actividadesSeguras,
     estadisticas?.dominioPorMundo,
   ]);
+
+  const dominioPorMundo = useMemo(() => {
+    const nombresMundos: Record<
+      ClaveMundo,
+      string
+    > = {
+      MathNumbers: "Planeta Números",
+      MathGeometry: "Mundo Geometría",
+      MathData: "Galaxia Datos",
+    };
+
+    const grupos: Record<
+      ClaveMundo,
+      {
+        suma: number;
+        total: number;
+      }
+    > = {
+      MathNumbers: {
+        suma: 0,
+        total: 0,
+      },
+
+      MathGeometry: {
+        suma: 0,
+        total: 0,
+      },
+
+      MathData: {
+        suma: 0,
+        total: 0,
+      },
+    };
+
+    /*
+     * Usamos primero las actividades reales para
+     * unir registros duplicados como:
+     * mathgeometry, MathGeometry y Mundo Geometría.
+     */
+    actividadesSeguras.forEach((actividad) => {
+      const candidatosMundo = [
+        actividad.mundo,
+        actividad.modulo,
+        actividad.tema,
+      ];
+
+      const mundoNormalizado =
+        candidatosMundo
+          .map((valor) => normalizarMundo(valor))
+          .find(
+            (valor): valor is ClaveMundo =>
+              valor !== null,
+          ) ?? null;
+
+      if (!mundoNormalizado) {
+        return;
+      }
+
+      const precisionActividad =
+        limitarPorcentaje(
+          actividad.precision ??
+            actividad.porcentaje ??
+            actividad.puntaje ??
+            0,
+        );
+
+      grupos[mundoNormalizado].suma +=
+        precisionActividad;
+
+      grupos[mundoNormalizado].total += 1;
+    });
+
+    const existenActividadesReales =
+      Object.values(grupos).some(
+        (grupo) => grupo.total > 0,
+      );
+
+    /*
+     * Como respaldo usamos el resumen del backend.
+     * También se normalizan los nombres para evitar
+     * que un mismo mundo aparezca dos veces.
+     */
+    if (!existenActividadesReales) {
+      const datosBackend = Array.isArray(
+        estadisticas?.dominioPorMundo,
+      )
+        ? estadisticas.dominioPorMundo
+        : [];
+
+      datosBackend.forEach((item) => {
+        const mundoNormalizado =
+          normalizarMundo(item.mundo);
+
+        if (!mundoNormalizado) {
+          return;
+        }
+
+        grupos[mundoNormalizado].suma +=
+          limitarPorcentaje(item.promedio);
+
+        grupos[mundoNormalizado].total += 1;
+      });
+    }
+
+    return MUNDOS_RENDIMIENTO.map((mundo) => {
+      const grupo = grupos[mundo];
+
+      const porcentaje =
+        grupo.total > 0
+          ? limitarPorcentaje(
+              grupo.suma / grupo.total,
+            )
+          : 0;
+
+      return {
+        clave: mundo,
+        nombre: nombresMundos[mundo],
+        porcentaje,
+      };
+    });
+  }, [
+    actividadesSeguras,
+    estadisticas?.dominioPorMundo,
+  ]);
+
+  const promedioDominioMundos = useMemo(() => {
+    if (dominioPorMundo.length === 0) {
+      return 0;
+    }
+
+    const sumaPorcentajes =
+      dominioPorMundo.reduce(
+        (total, mundo) =>
+          total + mundo.porcentaje,
+        0,
+      );
+
+    return limitarPorcentaje(
+      sumaPorcentajes / dominioPorMundo.length,
+    );
+  }, [dominioPorMundo]);
 
   /*
    * Calcula el tiempo semanal con las actividades
@@ -1544,7 +1681,7 @@ function Estadisticas() {
               <div className="donut">
                 <div className="donut-inner">
                   <strong>
-                    {progresoGeneral}%
+                    {promedioDominioMundos}%
                   </strong>
 
                   <span>Promedio</span>
@@ -1553,7 +1690,7 @@ function Estadisticas() {
 
               <div className="world-list">
                 {dominioPorMundo.map((mundo) => (
-                  <p key={mundo.nombre}>
+                  <p key={mundo.clave}>
                     <b>{mundo.nombre}</b>
 
                     <strong>
