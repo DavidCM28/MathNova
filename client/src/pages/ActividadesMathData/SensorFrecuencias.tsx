@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { getSessionUser } from "../../utils/authSession";
@@ -7,8 +7,7 @@ import {
 } from "../../services/progresoService";
 
 import logo from "../../assets/logo_MathNova.png";
-import fondoHologramaImg from "../../assets/fondo-holograma.png";
-import "./HologramaReportes.css";
+import "./SensorFrecuencias.css";
 
 /* ---- Reutilizadas de las actividades anteriores ---- */
 import baitSaludoImg from "../../assets/bait-saludo.png";
@@ -22,18 +21,14 @@ import iconoRecompensa from "../../assets/icono-recompensa.png";
 import iconoInsignia from "../../assets/icono-insignia.png";
 import baitHablandoVideo from "../../assets/bait-hablando.mp4";
 
-/* ---- Nuevas para la Actividad 4 ---- */
-import interferenciaHologramaImg from "../../assets/interferencia-holograma.png";
-import iconoGraficaBarrasImg from "../../assets/icono-grafica-barras.png";
-import iconoGraficaCircularImg from "../../assets/icono-grafica-circular.png";
+/* ---- Nueva para la Actividad 5 ---- */
+import fondoSensorImg from "../../assets/fondo-sensor-frecuencias.png";
 
 /* ---- Audios ---- */
-import introBaitAudioHolograma from "../../assets/intro_bit.mp3";
-import pistaBaitAudioHolograma from "../../assets/pista_bit.mp3";
-
-/* ---- Audios de resultado ---- */
-import audioActividadCompletadaHolograma from "../../assets/actividad_completada_bit.mp3";
-import audioVuelveAIntentarloHolograma from "../../assets/vuelve_a_intentarlo_bit.mp3";
+import introBaitAudioSensor from "../../assets/sensor-intro-audio.mp3";
+import pistaBaitAudioSensor from "../../assets/sensor-pista-audio.mp3";
+import baitAudioActividadCompletada from "../../assets/sensor-actividad-completada.mp3";
+import baitAudioVuelveAIntentarlo from "../../assets/sensor-vuelve-a-intentarlo.mp3";
 
 import {
   FiGrid,
@@ -43,20 +38,19 @@ import {
   FiArrowLeft,
   FiHelpCircle,
   FiVolume2,
-  FiSend,
   FiTarget,
   FiX,
   FiCheck,
   FiCheckCircle,
-  FiPieChart,
+  FiRefreshCw,
+  FiArrowRight,
   FiPercent,
+  FiInfo,
   FiPlay,
   FiPause,
   FiRotateCcw,
   FiRotateCw,
-  FiZap,
-  FiRefreshCw,
-  FiArrowRight,
+  FiRadio,
 } from "react-icons/fi";
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
@@ -78,25 +72,23 @@ const API_URL =
     : `${API_URL_BASE}/api`;
 
 /* =========================================================
-   DATOS DE LA MISIÓN (valores de referencia para mostrar en
-   pantalla; la validación real vive en el backend, que
-   hereda los votos reales de la Actividad 3 si existen)
+   DATOS DE LA MISIÓN
 ========================================================= */
 
-type UsuarioSesionHolograma = {
+type UsuarioSesionSensor = {
   id_usuario?: number | string;
   idUsuario?: number | string;
   usuario_id?: number | string;
   user_id?: number | string;
   userId?: number | string;
   id?: number | string;
-  usuario?: UsuarioSesionHolograma;
-  user?: UsuarioSesionHolograma;
-  data?: UsuarioSesionHolograma;
-  session?: UsuarioSesionHolograma;
+  usuario?: UsuarioSesionSensor;
+  user?: UsuarioSesionSensor;
+  data?: UsuarioSesionSensor;
+  session?: UsuarioSesionSensor;
 };
 
-const extraerIdUsuarioHolograma = (
+const extraerIdUsuarioSensor = (
   valor: unknown,
 ): number => {
   if (
@@ -107,7 +99,7 @@ const extraerIdUsuarioHolograma = (
   }
 
   const usuario =
-    valor as UsuarioSesionHolograma;
+    valor as UsuarioSesionSensor;
 
   const idDirecto = Number(
     usuario.id_usuario ??
@@ -133,7 +125,7 @@ const extraerIdUsuarioHolograma = (
     usuario.session,
   ]) {
     const idAnidado =
-      extraerIdUsuarioHolograma(
+      extraerIdUsuarioSensor(
         anidado,
       );
 
@@ -179,7 +171,7 @@ const obtenerIdEstudianteActual = (): number => {
 
   for (const candidato of candidatos) {
     const idUsuario =
-      extraerIdUsuarioHolograma(
+      extraerIdUsuarioSensor(
         candidato,
       );
 
@@ -191,37 +183,101 @@ const obtenerIdEstudianteActual = (): number => {
   return 0;
 };
 
-type Modulo = "bosque" | "desierto" | "cueva";
-type EstadoCelda = "correcto" | "pendiente" | "incorrecto";
+const formatearTiempoSensor = (
+  segundos: number,
+): string => {
+  const minutos = Math.floor(
+    segundos / 60,
+  );
 
-const FRECUENCIAS: Record<Modulo, number> = {
-  bosque: 4,
-  desierto: 3,
-  cueva: 3,
+  const segundosRestantes =
+    segundos % 60;
+
+  return `${String(minutos).padStart(
+    2,
+    "0",
+  )}:${String(
+    segundosRestantes,
+  ).padStart(2, "0")}`;
 };
 
-const PORCENTAJES_CORRECTOS: Record<Modulo, number> = {
-  bosque: 40,
-  desierto: 30,
-  cueva: 30,
+type Senal = "alfa" | "beta" | "gamma" | "delta";
+
+const FRECUENCIAS: Record<Senal, number> = {
+  alfa: 5,
+  beta: 8,
+  gamma: 4,
+  delta: 3,
 };
 
-const NOMBRE_MODULO: Record<Modulo, string> = {
-  bosque: "Bosque",
-  desierto: "Desierto",
-  cueva: "Cueva de Cristal",
+const TOTAL_SENALES = 20;
+
+const PORCENTAJES_CORRECTOS: Record<Senal, string> = {
+  alfa: "25",
+  beta: "40",
+  gamma: "20",
+  delta: "15",
 };
 
-const COLOR_MODULO: Record<Modulo, string> = {
-  bosque: "#16a34a",
-  desierto: "#d97706",
-  cueva: "#7c3aed",
+const NOMBRE_SENAL: Record<Senal, string> = {
+  alfa: "Señal Alfa",
+  beta: "Señal Beta",
+  gamma: "Señal Gamma",
+  delta: "Señal Delta",
 };
 
-const TOTAL_VOTOS = 10;
+const ZONA_SENAL: Record<Senal, string> = {
+  alfa: "Zona Norte",
+  beta: "Zona Sur",
+  gamma: "Zona Este",
+  delta: "Zona Oeste",
+};
+
+const COLOR_SENAL: Record<Senal, string> = {
+  alfa: "#16a34a",
+  beta: "#dc2626",
+  gamma: "#2563eb",
+  delta: "#f97316",
+};
+
+type Zona = "norte" | "sur" | "este" | "oeste";
+const NOMBRE_ZONA: Record<Zona, string> = {
+  norte: "Zona Norte",
+  sur: "Zona Sur",
+  este: "Zona Este",
+  oeste: "Zona Oeste",
+};
+
+function palitos(n: number) {
+  // grupos de 4 líneas + una diagonal representando 5
+  const grupos = Math.floor(n / 5);
+  const resto = n % 5;
+  return "IIII\u0338 ".repeat(grupos) + "I".repeat(resto);
+}
+
+/* Posiciones fijas (no aleatorias) de los puntos del radar,
+   repartidos por cuadrante según la señal/zona que representan. */
+const PUNTOS_RADAR: { x: number; y: number; senal: Senal }[] = [
+  // Alfa (Norte) — 5 puntos, cuadrante superior
+  { x: 46, y: 16, senal: "alfa" }, { x: 58, y: 20, senal: "alfa" },
+  { x: 40, y: 24, senal: "alfa" }, { x: 52, y: 12, senal: "alfa" },
+  { x: 62, y: 28, senal: "alfa" },
+  // Beta (Sur) — 8 puntos, cuadrante inferior (el más denso)
+  { x: 44, y: 70, senal: "beta" }, { x: 52, y: 76, senal: "beta" },
+  { x: 38, y: 66, senal: "beta" }, { x: 60, y: 72, senal: "beta" },
+  { x: 34, y: 74, senal: "beta" }, { x: 48, y: 82, senal: "beta" },
+  { x: 56, y: 66, senal: "beta" }, { x: 42, y: 78, senal: "beta" },
+  // Gamma (Este) — 4 puntos, cuadrante derecho
+  { x: 78, y: 44, senal: "gamma" }, { x: 84, y: 52, senal: "gamma" },
+  { x: 74, y: 38, senal: "gamma" }, { x: 88, y: 46, senal: "gamma" },
+  // Delta (Oeste) — 3 puntos, cuadrante izquierdo
+  { x: 20, y: 44, senal: "delta" }, { x: 14, y: 52, senal: "delta" },
+  { x: 24, y: 38, senal: "delta" },
+];
 
 /* =========================================================
    COMPONENTE: PISTA DE BAIT (modal con video real)
+   Idéntico al de las actividades anteriores.
 ========================================================= */
 
 type PistaBaitModalProps = {
@@ -263,7 +319,6 @@ function PistaBaitModal({
     const audio = audioRef.current;
     const video = videoRef.current;
     if (!audio) return;
-
     if (audio.paused || audio.ended) {
       audio.play();
       video?.play();
@@ -370,8 +425,7 @@ function PistaBaitModal({
    Se reproduce solo apenas se monta, y muestra los
    controles normales de un reproductor de audio: retroceder
    10s, pausar/reproducir y adelantar 10s. Mismo patrón que
-   las demás actividades. Si no se le pasa src (audio aún
-   pendiente), no muestra nada.
+   las demás actividades.
 ========================================================= */
 
 const RESULT_AUDIO_SALTO_SEGUNDOS = 10;
@@ -436,7 +490,7 @@ function ResultAudioPlayer({ src }: { src?: string }) {
   if (!src) return null;
 
   return (
-    <div className="hol-modal-audio">
+    <div className="sen-modal-audio">
       <audio
         ref={audioRef}
         src={src}
@@ -450,7 +504,7 @@ function ResultAudioPlayer({ src }: { src?: string }) {
 
       <button
         type="button"
-        className="hol-modal-audio-btn"
+        className="sen-modal-audio-btn"
         onClick={() => saltar(-RESULT_AUDIO_SALTO_SEGUNDOS)}
         aria-label="Retroceder 10 segundos"
       >
@@ -459,7 +513,7 @@ function ResultAudioPlayer({ src }: { src?: string }) {
 
       <button
         type="button"
-        className="hol-modal-audio-btn hol-modal-audio-btn--play"
+        className="sen-modal-audio-btn sen-modal-audio-btn--play"
         onClick={alternarReproduccion}
         aria-label={reproduciendo ? "Pausar" : "Reproducir"}
       >
@@ -468,14 +522,14 @@ function ResultAudioPlayer({ src }: { src?: string }) {
 
       <button
         type="button"
-        className="hol-modal-audio-btn"
+        className="sen-modal-audio-btn"
         onClick={() => saltar(RESULT_AUDIO_SALTO_SEGUNDOS)}
         aria-label="Adelantar 10 segundos"
       >
         <FiRotateCw />
       </button>
 
-      <div className="hol-modal-audio-progress">
+      <div className="sen-modal-audio-progress">
         <div style={{ width: `${progreso}%` }} />
       </div>
     </div>
@@ -486,7 +540,7 @@ function ResultAudioPlayer({ src }: { src?: string }) {
    COMPONENTE PRINCIPAL
 ========================================================= */
 
-export default function HologramaReportes() {
+export default function SensorFrecuencias() {
   const navigate = useNavigate();
 
   const ID_ESTUDIANTE =
@@ -498,241 +552,350 @@ export default function HologramaReportes() {
   const guardandoProgresoRef =
     useRef(false);
 
-  const [tipoGrafica, setTipoGrafica] = useState<"barras" | "circular" | null>("barras");
-
-  const [alturaBarras, setAlturaBarras] = useState<Record<Modulo, string>>({
-    bosque: "",
-    desierto: "",
-    cueva: "",
+  const [frecAbsoluta, setFrecAbsoluta] = useState<Record<Senal, string>>({
+    alfa: "",
+    beta: "",
+    gamma: "",
+    delta: "",
   });
-  const [barraEstados, setBarraEstados] = useState<Record<Modulo, EstadoCelda>>({
-    bosque: "pendiente",
-    desierto: "pendiente",
-    cueva: "pendiente",
-  });
-  const [barraBloqueada, setBarraBloqueada] = useState<Record<Modulo, boolean>>({
-    bosque: false,
-    desierto: false,
-    cueva: false,
+  const [absolutaEstados, setAbsolutaEstados] = useState<
+    Record<Senal, "correcto" | "pendiente" | "incorrecto">
+  >({ alfa: "pendiente", beta: "pendiente", gamma: "pendiente", delta: "pendiente" });
+  const [absolutaBloqueada, setAbsolutaBloqueada] = useState<Record<Senal, boolean>>({
+    alfa: false,
+    beta: false,
+    gamma: false,
+    delta: false,
   });
 
-  const [porcentajes, setPorcentajes] = useState<Record<Modulo, string>>({
-    bosque: "",
-    desierto: "",
-    cueva: "",
+  const [frecRelativa, setFrecRelativa] = useState<Record<Senal, string>>({
+    alfa: "",
+    beta: "",
+    gamma: "",
+    delta: "",
   });
-  const [porcentajeEstados, setPorcentajeEstados] = useState<Record<Modulo, EstadoCelda>>({
-    bosque: "pendiente",
-    desierto: "pendiente",
-    cueva: "pendiente",
-  });
-  const [porcentajeBloqueado, setPorcentajeBloqueado] = useState<Record<Modulo, boolean>>({
-    bosque: false,
-    desierto: false,
-    cueva: false,
+  const [relativaEstados, setRelativaEstados] = useState<
+    Record<Senal, "correcto" | "pendiente" | "incorrecto">
+  >({ alfa: "pendiente", beta: "pendiente", gamma: "pendiente", delta: "pendiente" });
+  const [relativaBloqueada, setRelativaBloqueada] = useState<Record<Senal, boolean>>({
+    alfa: false,
+    beta: false,
+    gamma: false,
+    delta: false,
   });
 
-  const [preguntaBarraAlta, setPreguntaBarraAlta] = useState<Modulo | null>(null);
-  const [preguntaSectorMayor, setPreguntaSectorMayor] = useState<Modulo | null>(null);
+  const [preguntaMayorFrecuencia, setPreguntaMayorFrecuencia] = useState<Senal | null>(null);
+  const [preguntaZona, setPreguntaZona] = useState<Zona | null>(null);
 
   const [resultado, setResultado] = useState<"exito" | "fallo" | null>(null);
   const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
+  const [mensajePistaBait, setMensajePistaBait] = useState("");
   const [mostrarIntroBait, setMostrarIntroBait] = useState(false);
 
-  const [cargandoBarras, setCargandoBarras] = useState(false);
-  const [cargandoCirculo, setCargandoCirculo] = useState(false);
-  const [cargandoActivar, setCargandoActivar] = useState(false);
+  const [cargandoInicial, setCargandoInicial] = useState(true);
+  const [cargandoAbsoluta, setCargandoAbsoluta] = useState(false);
+  const [cargandoRelativa, setCargandoRelativa] = useState(false);
+  const [cargandoZona, setCargandoZona] = useState(false);
+
+  const [
+    aciertosResultado,
+    setAciertosResultado,
+  ] = useState(0);
+
+  const [
+    tiempoResultado,
+    setTiempoResultado,
+  ] = useState(0);
+
 
   // ==========================================
   // CARGAR PROGRESO GUARDADO
   // ==========================================
 
   useEffect(() => {
-  const cargarProgreso = async () => {
-    if (!ID_ESTUDIANTE) {
-      console.warn(
-        "No se encontró el estudiante autenticado para cargar Holograma de Reportes.",
-      );
-      return;
-    }
-
-    try {
-      const response = await fetch(`${API_URL}/holograma/progreso/${ID_ESTUDIANTE}`);
-      const data = await response.json();
-
-      if (data.success && data.data) {
-        const progreso = data.data;
-        const valoresBarras = (progreso.valores_barras || {}) as Record<string, number>;
-        const intentosBarras = (progreso.intentos_barras || {}) as Record<string, number>;
-        const valoresPorcentajes = (progreso.valores_porcentajes || {}) as Record<string, number>;
-        const intentosPorcentajes = (progreso.intentos_porcentajes || {}) as Record<string, number>;
-        const historial = (progreso.historial_intentos || []) as any[];
-
-        const ultimoIntento = (tipo: "barra" | "sector", modulo: string) =>
-          [...historial].reverse().find((h) => h.tipo === tipo && h.modulo === modulo);
-
-        (["bosque", "desierto", "cueva"] as Modulo[]).forEach((m) => {
-          if (valoresBarras[m] !== undefined) {
-            setAlturaBarras((prev) => ({ ...prev, [m]: String(valoresBarras[m]) }));
-            setBarraEstados((prev) => ({ ...prev, [m]: "correcto" }));
-            setBarraBloqueada((prev) => ({ ...prev, [m]: (intentosBarras[m] || 0) >= 5 }));
-          } else {
-            const ultimo = ultimoIntento("barra", m);
-            if (ultimo) {
-              setAlturaBarras((prev) => ({ ...prev, [m]: String(ultimo.valor) }));
-              setBarraEstados((prev) => ({ ...prev, [m]: "incorrecto" }));
-            }
-          }
-
-          if (valoresPorcentajes[m] !== undefined) {
-            setPorcentajes((prev) => ({ ...prev, [m]: String(valoresPorcentajes[m]) }));
-            setPorcentajeEstados((prev) => ({ ...prev, [m]: "correcto" }));
-            setPorcentajeBloqueado((prev) => ({ ...prev, [m]: (intentosPorcentajes[m] || 0) >= 5 }));
-          } else {
-            const ultimo = ultimoIntento("sector", m);
-            if (ultimo) {
-              setPorcentajes((prev) => ({ ...prev, [m]: String(ultimo.valor) }));
-              setPorcentajeEstados((prev) => ({ ...prev, [m]: "incorrecto" }));
-            }
-          }
-        });
-
-        if (progreso.tipo_grafica_seleccionado) {
-          setTipoGrafica(progreso.tipo_grafica_seleccionado as "barras" | "circular");
-        }
-        if (progreso.pregunta_barra_alta) {
-          setPreguntaBarraAlta(progreso.pregunta_barra_alta as Modulo);
-        }
-        if (progreso.pregunta_sector_mayor) {
-          setPreguntaSectorMayor(progreso.pregunta_sector_mayor as Modulo);
-        }
-
-        if (progreso.completada) {
-          setResultado(progreso.resultado_correcto ? "exito" : "fallo");
-        }
+    const cargarProgreso = async () => {
+      if (!ID_ESTUDIANTE) {
+        console.warn(
+          "No se encontró el estudiante autenticado para cargar Sensor de Frecuencias.",
+        );
+        setCargandoInicial(false);
+        return;
       }
-    } catch (error) {
-      console.error("Error al cargar progreso:", error);
-    }
-  };
 
-  void cargarProgreso();
-}, [ID_ESTUDIANTE]);
-
-  // ==========================================
-  // VERIFICAR GRÁFICA DE BARRAS (celda por celda)
-  // ==========================================
-
-  const verificarBarras = async () => {
-    if (!ID_ESTUDIANTE) {
-      alert(
-        "No se encontró tu sesión. Inicia sesión nuevamente.",
-      );
-      return;
-    }
-
-    setCargandoBarras(true);
-    try {
-      for (const m of ["bosque", "desierto", "cueva"] as Modulo[]) {
-        if (barraBloqueada[m] || alturaBarras[m].trim() === "") continue;
-
-        const response = await fetch(`${API_URL}/holograma/validar-barra`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            id_estudiante: ID_ESTUDIANTE,
-            modulo: m,
-            valor: Number(alturaBarras[m]),
-          }),
-        });
+      try {
+        const response = await fetch(`${API_URL}/sensor/progreso/${ID_ESTUDIANTE}`);
         const data = await response.json();
 
         if (data.success && data.data) {
-          const r = data.data;
+          const progreso = data.data;
+          const valoresAbs = (progreso.valores_absoluta || {}) as Record<string, number>;
+          const intentosAbs = (progreso.intentos_absoluta || {}) as Record<string, number>;
+          const valoresRel = (progreso.valores_relativa || {}) as Record<string, string>;
+          const intentosRel = (progreso.intentos_relativa || {}) as Record<string, number>;
 
-          if (r.celda_completada && !r.correcto) {
-            setAlturaBarras((prev) => ({ ...prev, [m]: String(r.respuesta_correcta) }));
-            setBarraEstados((prev) => ({ ...prev, [m]: "incorrecto" }));
-            setBarraBloqueada((prev) => ({ ...prev, [m]: true }));
-          } else if (r.correcto) {
-            setBarraEstados((prev) => ({ ...prev, [m]: "correcto" }));
-          } else {
-            setBarraEstados((prev) => ({ ...prev, [m]: "incorrecto" }));
+          (["alfa", "beta", "gamma", "delta"] as Senal[]).forEach((s) => {
+            if (valoresAbs[s] !== undefined) {
+              setFrecAbsoluta((prev) => ({ ...prev, [s]: String(valoresAbs[s]) }));
+              setAbsolutaEstados((prev) => ({
+                ...prev,
+                [s]: valoresAbs[s] === FRECUENCIAS[s] ? "correcto" : "incorrecto",
+              }));
+              setAbsolutaBloqueada((prev) => ({
+                ...prev,
+                [s]: (intentosAbs[s] || 0) >= 3 && valoresAbs[s] !== FRECUENCIAS[s],
+              }));
+            }
+
+            if (valoresRel[s] !== undefined) {
+              setFrecRelativa((prev) => ({ ...prev, [s]: String(valoresRel[s]) }));
+              setRelativaEstados((prev) => ({
+                ...prev,
+                [s]: valoresRel[s] === PORCENTAJES_CORRECTOS[s] ? "correcto" : "incorrecto",
+              }));
+              setRelativaBloqueada((prev) => ({
+                ...prev,
+                [s]: (intentosRel[s] || 0) >= 3 && valoresRel[s] !== PORCENTAJES_CORRECTOS[s],
+              }));
+            }
+          });
+
+          if (progreso.pregunta_senal_frecuente) {
+            setPreguntaMayorFrecuencia(progreso.pregunta_senal_frecuente as Senal);
+          }
+          if (progreso.pregunta_zona_origen) {
+            setPreguntaZona(progreso.pregunta_zona_origen as Zona);
+          }
+
+          if (progreso.completada) {
+            const correcto =
+              Boolean(
+                progreso.resultado_correcto,
+              );
+
+            const senales =
+              [
+                "alfa",
+                "beta",
+                "gamma",
+                "delta",
+              ] as Senal[];
+
+            const absolutasCorrectas =
+              senales.every(
+                (senal) =>
+                  Number(
+                    valoresAbs[senal],
+                  ) ===
+                  FRECUENCIAS[senal],
+              );
+
+            const relativasCorrectas =
+              senales.every(
+                (senal) =>
+                  String(
+                    valoresRel[senal] ??
+                      "",
+                  ).trim() ===
+                  PORCENTAJES_CORRECTOS[
+                    senal
+                  ],
+              );
+
+            const aciertosGuardados =
+              correcto
+                ? 4
+                : Number(
+                    absolutasCorrectas,
+                  ) +
+                  Number(
+                    relativasCorrectas,
+                  ) +
+                  Number(
+                    progreso.pregunta_senal_frecuente ===
+                      "beta",
+                  ) +
+                  Number(
+                    progreso.pregunta_zona_origen ===
+                      "sur",
+                  );
+
+            setAciertosResultado(
+              aciertosGuardados,
+            );
+
+            setTiempoResultado(
+              Number(
+                progreso.tiempo_total ??
+                  progreso.tiempo_segundos ??
+                  0,
+              ) || 0,
+            );
+
+            setResultado(
+              correcto
+                ? "exito"
+                : "fallo",
+            );
           }
         }
+      } catch (error) {
+        console.error("Error al cargar progreso:", error);
+      } finally {
+        setCargandoInicial(false);
       }
-    } catch (error) {
-      console.error("Error al verificar barras:", error);
-    } finally {
-      setCargandoBarras(false);
-    }
-  };
+    };
+
+    void cargarProgreso();
+  }, [ID_ESTUDIANTE]);
+
+  const absolutaEstado = (s: Senal) => absolutaEstados[s];
+  const relativaEstado = (s: Senal) => relativaEstados[s];
 
   // ==========================================
-  // VERIFICAR GRÁFICA CIRCULAR (sector por sector)
+  // VERIFICAR FRECUENCIA ABSOLUTA (celda por celda)
   // ==========================================
 
-  const verificarCirculo = async () => {
-    if (!ID_ESTUDIANTE) {
-      alert(
-        "No se encontró tu sesión. Inicia sesión nuevamente.",
-      );
-      return;
-    }
-
-    setCargandoCirculo(true);
-    try {
-      for (const m of ["bosque", "desierto", "cueva"] as Modulo[]) {
-        if (porcentajeBloqueado[m] || porcentajes[m].trim() === "") continue;
-
-        const response = await fetch(`${API_URL}/holograma/validar-sector`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            id_estudiante: ID_ESTUDIANTE,
-            modulo: m,
-            valor: Number(porcentajes[m]),
-          }),
-        });
-        const data = await response.json();
-
-        if (data.success && data.data) {
-          const r = data.data;
-
-          if (r.celda_completada && !r.correcto) {
-            setPorcentajes((prev) => ({ ...prev, [m]: String(r.respuesta_correcta) }));
-            setPorcentajeEstados((prev) => ({ ...prev, [m]: "incorrecto" }));
-            setPorcentajeBloqueado((prev) => ({ ...prev, [m]: true }));
-          } else if (r.correcto) {
-            setPorcentajeEstados((prev) => ({ ...prev, [m]: "correcto" }));
-          } else {
-            setPorcentajeEstados((prev) => ({ ...prev, [m]: "incorrecto" }));
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Error al verificar porcentajes:", error);
-    } finally {
-      setCargandoCirculo(false);
-    }
-  };
-
-  const barraEstado = (modulo: Modulo): EstadoCelda => barraEstados[modulo];
-  const porcentajeEstado = (modulo: Modulo): EstadoCelda => porcentajeEstados[modulo];
-  const porcentajesVerificados = (["bosque", "desierto", "cueva"] as Modulo[]).some(
-    (m) => porcentajeEstados[m] !== "pendiente"
-  );
-
-  // ==========================================
-  // ACTIVAR HOLOGRAMA
-  // ==========================================
-
-  const activarHolograma = async () => {
+  const verificarAbsoluta = async () => {
     if (
-      !tipoGrafica ||
-      !preguntaBarraAlta ||
-      !preguntaSectorMayor ||
-      cargandoActivar ||
+      cargandoAbsoluta ||
+      cargandoZona
+    ) {
+      return;
+    }
+
+    if (!ID_ESTUDIANTE) {
+      alert(
+        "No se encontró tu sesión. Inicia sesión nuevamente.",
+      );
+      return;
+    }
+
+    setCargandoAbsoluta(true);
+    try {
+      for (const s of Object.keys(FRECUENCIAS) as Senal[]) {
+        if (absolutaBloqueada[s] || absolutaEstados[s] === "correcto" || frecAbsoluta[s].trim() === "") {
+          continue;
+        }
+
+        const response = await fetch(`${API_URL}/sensor/validar-absoluta`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id_estudiante: ID_ESTUDIANTE,
+            senal: s,
+            valor: Number(frecAbsoluta[s]),
+          }),
+        });
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const r = data.data;
+
+          if (r.mostrar_pista_bait) {
+            setMensajePistaBait(r.mensaje);
+            setMostrarPistaBait(true);
+            fetch(`${API_URL}/sensor/pista-consultada`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, pantalla: 4 }),
+            }).catch((error) => console.error("Error al registrar consulta de pista:", error));
+          }
+
+          if (r.celda_completada && !r.correcto) {
+            setFrecAbsoluta((prev) => ({ ...prev, [s]: String(r.respuesta_correcta) }));
+            setAbsolutaEstados((prev) => ({ ...prev, [s]: "incorrecto" }));
+            setAbsolutaBloqueada((prev) => ({ ...prev, [s]: true }));
+          } else if (r.correcto) {
+            setAbsolutaEstados((prev) => ({ ...prev, [s]: "correcto" }));
+          } else {
+            setAbsolutaEstados((prev) => ({ ...prev, [s]: "incorrecto" }));
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error al verificar frecuencias absolutas:", error);
+    } finally {
+      setCargandoAbsoluta(false);
+    }
+  };
+
+  // ==========================================
+  // VERIFICAR FRECUENCIA RELATIVA (celda por celda)
+  // ==========================================
+
+  const verificarRelativa = async () => {
+    if (
+      cargandoRelativa ||
+      cargandoZona
+    ) {
+      return;
+    }
+
+    if (!ID_ESTUDIANTE) {
+      alert(
+        "No se encontró tu sesión. Inicia sesión nuevamente.",
+      );
+      return;
+    }
+
+    setCargandoRelativa(true);
+    try {
+      for (const s of Object.keys(PORCENTAJES_CORRECTOS) as Senal[]) {
+        if (relativaBloqueada[s] || relativaEstados[s] === "correcto" || frecRelativa[s].trim() === "") {
+          continue;
+        }
+
+        const response = await fetch(`${API_URL}/sensor/validar-relativa`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id_estudiante: ID_ESTUDIANTE,
+            senal: s,
+            valorTexto: frecRelativa[s],
+          }),
+        });
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const r = data.data;
+
+          if (r.mostrar_pista_bait) {
+            setMensajePistaBait(r.mensaje);
+            setMostrarPistaBait(true);
+            fetch(`${API_URL}/sensor/pista-consultada`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, pantalla: 6 }),
+            }).catch((error) => console.error("Error al registrar consulta de pista:", error));
+          }
+
+          if (r.celda_completada && !r.correcto) {
+            setFrecRelativa((prev) => ({ ...prev, [s]: String(r.respuesta_correcta) }));
+            setRelativaEstados((prev) => ({ ...prev, [s]: "incorrecto" }));
+            setRelativaBloqueada((prev) => ({ ...prev, [s]: true }));
+          } else if (r.correcto) {
+            setRelativaEstados((prev) => ({ ...prev, [s]: "correcto" }));
+          } else {
+            setRelativaEstados((prev) => ({ ...prev, [s]: "incorrecto" }));
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error al verificar frecuencias relativas:", error);
+    } finally {
+      setCargandoRelativa(false);
+    }
+  };
+
+  // ==========================================
+  // CALCULAR ZONA DE ORIGEN (paso final)
+  // ==========================================
+
+  const calcularZonaOrigen = async () => {
+    if (
+      !preguntaMayorFrecuencia ||
+      !preguntaZona ||
+      cargandoZona ||
       guardandoProgresoRef.current
     ) {
       return;
@@ -745,13 +908,23 @@ export default function HologramaReportes() {
       return;
     }
 
-    setCargandoActivar(true);
+    setCargandoZona(true);
     guardandoProgresoRef.current =
       true;
 
+    const tiempoSegundos = Math.max(
+      1,
+      Math.floor(
+        (
+          Date.now() -
+          inicioActividadRef.current
+        ) / 1000,
+      ),
+    );
+
     try {
       const response = await fetch(
-        `${API_URL}/holograma/activar`,
+        `${API_URL}/sensor/calcular-zona`,
         {
           method: "POST",
           headers: {
@@ -761,12 +934,10 @@ export default function HologramaReportes() {
           body: JSON.stringify({
             id_estudiante:
               ID_ESTUDIANTE,
-            tipo_grafica:
-              tipoGrafica,
-            pregunta_barra_alta:
-              preguntaBarraAlta,
-            pregunta_sector_mayor:
-              preguntaSectorMayor,
+            pregunta_senal_frecuente:
+              preguntaMayorFrecuencia,
+            pregunta_zona_origen:
+              preguntaZona,
           }),
         },
       );
@@ -783,76 +954,75 @@ export default function HologramaReportes() {
       }
 
       if (data.success && data.data) {
-        const correcto =
-          Boolean(
-            data.data.correcto,
-          );
-
-        const modulos =
+        const senales =
           [
-            "bosque",
-            "desierto",
-            "cueva",
-          ] as Modulo[];
+            "alfa",
+            "beta",
+            "gamma",
+            "delta",
+          ] as Senal[];
 
-        const barrasCorrectas =
-          modulos.every(
-            (modulo) =>
-              barraEstados[
-                modulo
-              ] === "correcto",
+        const absolutasCorrectas =
+          senales.every(
+            (senal) =>
+              absolutaEstados[
+                senal
+              ] === "correcto" ||
+              Number(
+                frecAbsoluta[
+                  senal
+                ],
+              ) ===
+                FRECUENCIAS[
+                  senal
+                ],
           );
 
-        const porcentajesCorrectos =
-          modulos.every(
-            (modulo) =>
-              porcentajeEstados[
-                modulo
-              ] === "correcto",
+        const relativasCorrectas =
+          senales.every(
+            (senal) =>
+              relativaEstados[
+                senal
+              ] === "correcto" ||
+              frecRelativa[
+                senal
+              ].trim() ===
+                PORCENTAJES_CORRECTOS[
+                  senal
+                ],
           );
 
-        const interpretacionCorrecta =
-          preguntaBarraAlta ===
-            "bosque" &&
-          preguntaSectorMayor ===
-            "bosque";
+        const senalCorrecta =
+          preguntaMayorFrecuencia ===
+          "beta";
+
+        const zonaCorrecta =
+          preguntaZona === "sur";
 
         /*
-         * La actividad se resume en cuatro pasos:
-         * 1) tipo de gráfica,
-         * 2) barras,
-         * 3) porcentajes,
-         * 4) interpretación.
+         * El resultado final se calcula con los valores que aparecen en
+         * pantalla. Antes se utilizaba únicamente data.data.correcto y, si
+         * el backend devolvía false aunque las respuestas fueran correctas,
+         * se mostraba erróneamente "Vuelve a intentarlo".
          */
+        const correcto =
+          absolutasCorrectas &&
+          relativasCorrectas &&
+          senalCorrecta &&
+          zonaCorrecta;
+
         const aciertosCalculados =
           Number(
-            tipoGrafica ===
-              "barras",
+            absolutasCorrectas,
           ) +
           Number(
-            barrasCorrectas,
+            relativasCorrectas,
           ) +
           Number(
-            porcentajesCorrectos,
+            senalCorrecta,
           ) +
           Number(
-            interpretacionCorrecta,
-          );
-
-        const aciertosUnificados =
-          correcto
-            ? 4
-            : aciertosCalculados;
-
-        const tiempoSegundos =
-          Math.max(
-            1,
-            Math.floor(
-              (
-                Date.now() -
-                inicioActividadRef.current
-              ) / 1000,
-            ),
+            zonaCorrecta,
           );
 
         try {
@@ -860,47 +1030,45 @@ export default function HologramaReportes() {
             await guardarProgresoUsuarioActual({
               mundo: "MathData",
               tema:
-                "Representación e interpretación de datos",
+                "Frecuencia absoluta y relativa",
               actividad_codigo:
-                "mathdata-holograma-reportes",
+                "mathdata-sensor-frecuencias",
               actividad_titulo:
-                "El Holograma de Reportes",
+                "Sensor de Frecuencias",
               respuestas: {
-                tipo_grafica:
-                  tipoGrafica,
-                alturas_barras:
+                frecuencias_absolutas:
                   Object.fromEntries(
-                    modulos.map(
-                      (modulo) => [
-                        modulo,
+                    senales.map(
+                      (senal) => [
+                        senal,
                         Number(
-                          alturaBarras[
-                            modulo
+                          frecAbsoluta[
+                            senal
                           ],
                         ),
                       ],
                     ),
                   ),
-                porcentajes:
+                frecuencias_relativas:
                   Object.fromEntries(
-                    modulos.map(
-                      (modulo) => [
-                        modulo,
+                    senales.map(
+                      (senal) => [
+                        senal,
                         Number(
-                          porcentajes[
-                            modulo
+                          frecRelativa[
+                            senal
                           ],
                         ),
                       ],
                     ),
                   ),
-                pregunta_barra_alta:
-                  preguntaBarraAlta,
-                pregunta_sector_mayor:
-                  preguntaSectorMayor,
+                senal_mayor_frecuencia:
+                  preguntaMayorFrecuencia,
+                zona_origen:
+                  preguntaZona,
               },
               aciertos:
-                aciertosUnificados,
+                aciertosCalculados,
               total_preguntas: 4,
               tiempo_segundos:
                 tiempoSegundos,
@@ -910,7 +1078,7 @@ export default function HologramaReportes() {
             });
 
           console.log(
-            "Progreso del Holograma de Reportes guardado:",
+            "Progreso del Sensor de Frecuencias guardado:",
             progresoUnificado.progreso,
           );
         } catch (
@@ -921,6 +1089,32 @@ export default function HologramaReportes() {
             progresoError,
           );
         }
+
+        // Avisamos al panel (ActividadesMathData) que esta actividad (índice 4)
+        // ya se completó, para que desbloquee la 6 aunque se navegue directo
+        // con el botón "Siguiente actividad" y nunca se pase por el panel.
+        if (correcto) {
+          try {
+            const idParaDesbloqueo = ID_ESTUDIANTE || "invitado";
+            localStorage.setItem(
+              `mathdata_desbloqueo_${idParaDesbloqueo}_4`,
+              "1",
+            );
+          } catch (error) {
+            console.error(
+              "No se pudo guardar el desbloqueo de la actividad 6:",
+              error,
+            );
+          }
+        }
+
+        setAciertosResultado(
+          aciertosCalculados,
+        );
+
+        setTiempoResultado(
+          tiempoSegundos,
+        );
 
         inicioActividadRef.current =
           Date.now();
@@ -933,7 +1127,7 @@ export default function HologramaReportes() {
       }
     } catch (error) {
       console.error(
-        "Error al activar el holograma:",
+        "Error al calcular la zona de origen:",
         error,
       );
 
@@ -944,28 +1138,10 @@ export default function HologramaReportes() {
 
       alert(`❌ ${mensaje}`);
     } finally {
-      setCargandoActivar(false);
+      setCargandoZona(false);
       guardandoProgresoRef.current =
         false;
     }
-  };
-
-  // ==========================================
-  // ABRIR PISTA (registra la consulta en el backend)
-  // ==========================================
-
-  const abrirPistaBait = () => {
-    setMostrarPistaBait(true);
-
-    if (!ID_ESTUDIANTE) {
-      return;
-    }
-
-    fetch(`${API_URL}/holograma/pista-consultada`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE }),
-    }).catch((error) => console.error("Error al registrar consulta de pista:", error));
   };
 
   // ==========================================
@@ -973,26 +1149,29 @@ export default function HologramaReportes() {
   // ==========================================
 
   const handleReiniciarActividad = async () => {
-    try {
-      await fetch(`${API_URL}/holograma/reiniciar`, {
+    if (ID_ESTUDIANTE) {
+      try {
+        await fetch(`${API_URL}/sensor/reiniciar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE }),
-      });
-    } catch (error) {
-      console.error("Error al reiniciar actividad:", error);
+          body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE }),
+        });
+      } catch (error) {
+        console.error("Error al reiniciar actividad:", error);
+      }
     }
 
-    setTipoGrafica("barras");
-    setAlturaBarras({ bosque: "", desierto: "", cueva: "" });
-    setBarraEstados({ bosque: "pendiente", desierto: "pendiente", cueva: "pendiente" });
-    setBarraBloqueada({ bosque: false, desierto: false, cueva: false });
-    setPorcentajes({ bosque: "", desierto: "", cueva: "" });
-    setPorcentajeEstados({ bosque: "pendiente", desierto: "pendiente", cueva: "pendiente" });
-    setPorcentajeBloqueado({ bosque: false, desierto: false, cueva: false });
-    setPreguntaBarraAlta(null);
-    setPreguntaSectorMayor(null);
+    setFrecAbsoluta({ alfa: "", beta: "", gamma: "", delta: "" });
+    setAbsolutaEstados({ alfa: "pendiente", beta: "pendiente", gamma: "pendiente", delta: "pendiente" });
+    setAbsolutaBloqueada({ alfa: false, beta: false, gamma: false, delta: false });
+    setFrecRelativa({ alfa: "", beta: "", gamma: "", delta: "" });
+    setRelativaEstados({ alfa: "pendiente", beta: "pendiente", gamma: "pendiente", delta: "pendiente" });
+    setRelativaBloqueada({ alfa: false, beta: false, gamma: false, delta: false });
+    setPreguntaMayorFrecuencia(null);
+    setPreguntaZona(null);
     setResultado(null);
+    setAciertosResultado(0);
+    setTiempoResultado(0);
 
     guardandoProgresoRef.current =
       false;
@@ -1001,7 +1180,26 @@ export default function HologramaReportes() {
       Date.now();
   };
 
-  const graficaMaxima = 5;
+  const precisionResultado =
+    Math.round(
+      (
+        aciertosResultado / 4
+      ) * 100,
+    );
+
+  // ==========================================
+  // PANTALLA DE CARGA INICIAL (evita mostrar el
+  // tablero antes de saber si ya estaba completada)
+  // ==========================================
+
+  if (cargandoInicial) {
+    return (
+      <div className="sen-loading-screen">
+        <img src={logo} alt="MathNova" className="sen-loading-logo" />
+        <p>Cargando actividad...</p>
+      </div>
+    );
+  }
 
   // ==========================================
   // VENTANA EMERGENTE: ACTIVIDAD COMPLETADA
@@ -1009,7 +1207,7 @@ export default function HologramaReportes() {
 
   if (resultado === "exito") return (
     <div
-      className="hol-modal-overlay hol-modal-overlay--completed"
+      className="sen-modal-overlay sen-modal-overlay--completed"
       role="presentation"
       style={{
         position: "fixed",
@@ -1024,14 +1222,14 @@ export default function HologramaReportes() {
       }}
     >
       <section
-        className="hol-modal hol-modal--completed"
+        className="sen-modal sen-modal--completed"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="hol-result-title"
+        aria-labelledby="sen-result-title"
         style={{
           position: "relative",
           width: "100%",
-          maxWidth: 960,
+          maxWidth: 1120,
           maxHeight: "calc(100vh - 48px)",
           overflowY: "auto",
           background: "#ffffff",
@@ -1041,32 +1239,32 @@ export default function HologramaReportes() {
           gridTemplateColumns: "minmax(0, 1fr) 310px",
         }}
       >
-        <div className="hol-modal-decoration hol-modal-decoration--one" />
-        <div className="hol-modal-decoration hol-modal-decoration--two" />
+        <div className="sen-modal-decoration sen-modal-decoration--one" />
+        <div className="sen-modal-decoration sen-modal-decoration--two" />
 
-        <div className="hol-modal-main">
-          <header className="hol-modal-header">
-            <div className="hol-modal-status-icon">
+        <div className="sen-modal-main">
+          <header className="sen-modal-header">
+            <div className="sen-modal-status-icon">
               <FiCheckCircle />
             </div>
 
-            <div className="hol-modal-header-copy">
-              <span className="hol-modal-badge">
+            <div className="sen-modal-header-copy">
+              <span className="sen-modal-badge">
                 <FiCheckCircle />
                 Actividad completada
               </span>
 
-              <h1 id="hol-result-title">¡Actividad completada!</h1>
+              <h1 id="sen-result-title">¡Actividad completada!</h1>
 
               <p>
                 Has terminado con éxito la misión de{" "}
-                <span className="hol-modal-mathnova-color">MathData</span>.
+                <span className="sen-modal-mathnova-color">MathData</span>.
               </p>
             </div>
           </header>
 
-          <div className="hol-modal-content">
-            <div className="hol-modal-character">
+          <div className="sen-modal-content">
+            <div className="sen-modal-character">
               <img
                 src={villanoTrofeoCompleto}
                 alt="Villano celebrando con trofeo"
@@ -1075,68 +1273,66 @@ export default function HologramaReportes() {
               />
             </div>
 
-            <article className="hol-modal-message">
-              <span className="hol-modal-message-label">Resultado de la misión</span>
-              <h2>¡Lo lograste, agente!</h2>
+            <article className="sen-modal-message">
+              <span className="sen-modal-message-label">Resultado de la misión</span>
+              <h2>¡Excelente trabajo, agente!</h2>
               <p>
-                El holograma está proyectado sobre la mesa de mando. El
-                centro tiene su reporte visual completo. El mago no pudo
-                detenernos.
+Lo lograste a gente con la frecuencia absoluta y relativa pudimos calcular dónde es más probable encontrar el origen de las señales el reporte del sensor está listo para el centro de mando.
               </p>
             </article>
           </div>
 
-          <ResultAudioPlayer src={audioActividadCompletadaHolograma} />
+          <ResultAudioPlayer src={baitAudioActividadCompletada} />
 
-          <article className="hol-modal-summary">
+          <article className="sen-modal-summary">
             <header>
               <FiBarChart2 />
               <h2>Resumen de la actividad</h2>
             </header>
 
             <div
-              className="hol-modal-stats"
+              className="sen-modal-stats"
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+                gridTemplateColumns: "repeat(5, 1fr)",
                 gap: 12,
               }}
             >
-              <article className="hol-modal-stat">
-                <div className="hol-modal-stat-icon">
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
                   <img src={iconoAciertos} alt="" aria-hidden="true" />
                 </div>
                 <div>
                   <span>Pasos correctos</span>
-                  <strong>4/4</strong>
+                  <strong>{aciertosResultado}/4</strong>
                   <small>¡Perfecto!</small>
                 </div>
               </article>
 
-              <article className="hol-modal-stat">
-                <div className="hol-modal-stat-icon">
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
                   <img src={iconoTiempo} alt="" aria-hidden="true" />
                 </div>
                 <div>
                   <span>Tiempo</span>
-                  <strong>—</strong>
+                  <strong>{formatearTiempoSensor(tiempoResultado)}</strong>
                   <small>min</small>
                 </div>
               </article>
 
-              <article className="hol-modal-stat">
-                <div className="hol-modal-stat-icon">
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
                   <img src={iconoPrecision} alt="" aria-hidden="true" />
                 </div>
                 <div>
                   <span>Precisión</span>
-                  <strong>100%</strong>
+                  <strong>{precisionResultado}%</strong>
                   <small>¡Impecable!</small>
                 </div>
               </article>
 
-              <article className="hol-modal-stat">
-                <div className="hol-modal-stat-icon">
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
                   <img src={iconoRecompensa} alt="" aria-hidden="true" />
                 </div>
                 <div>
@@ -1146,8 +1342,8 @@ export default function HologramaReportes() {
                 </div>
               </article>
 
-              <article className="hol-modal-stat">
-                <div className="hol-modal-stat-icon">
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
                   <img src={iconoInsignia} alt="" aria-hidden="true" />
                 </div>
                 <div>
@@ -1161,30 +1357,34 @@ export default function HologramaReportes() {
         </div>
 
         <aside
-          className="hol-modal-side"
-          style={{ display: "flex", flexDirection: "column", gap: 20 }}
+          className="sen-modal-side"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 20,
+          }}
         >
-          <article className="hol-modal-side-message">
+          <article className="sen-modal-side-message">
             <span>¡Misión completada!</span>
             <strong>Sigue avanzando por MathData</strong>
             <p>Cada actividad superada fortalece tus habilidades matemáticas.</p>
           </article>
 
-          <div className="hol-modal-progress">
+          <div className="sen-modal-progress">
             <div>
               <span>Progreso del tema</span>
-              <strong>40%</strong>
+              <strong>50%</strong>
             </div>
-            <div className="hol-modal-progress-bar">
-              <span style={{ width: "40%" }} />
+            <div className="sen-modal-progress-bar">
+              <span style={{ width: "50%" }} />
             </div>
           </div>
 
-          <div className="hol-modal-actions" style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 12 }}>
+          <div className="sen-modal-actions" style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 12 }}>
             <button
               type="button"
-              className="hol-modal-action hol-modal-action--primary"
-              onClick={() => navigate("/actividades-math-data/sensor-frecuencias")}
+              className="sen-modal-action sen-modal-action--primary"
+              onClick={() => navigate("/actividades-math-data/nucleo-decisiones")}
             >
               <FiArrowRight />
               <span>Siguiente actividad</span>
@@ -1192,7 +1392,7 @@ export default function HologramaReportes() {
 
             <button
               type="button"
-              className="hol-modal-action hol-modal-action--secondary"
+              className="sen-modal-action sen-modal-action--secondary"
               onClick={handleReiniciarActividad}
             >
               <FiRefreshCw />
@@ -1201,7 +1401,7 @@ export default function HologramaReportes() {
 
             <button
               type="button"
-              className="hol-modal-action hol-modal-action--secondary"
+              className="sen-modal-action sen-modal-action--secondary"
               onClick={() => navigate("/actividades-math-data")}
             >
               <FiGrid />
@@ -1219,7 +1419,7 @@ export default function HologramaReportes() {
 
   if (resultado === "fallo") return (
     <div
-      className="hol-modal-overlay hol-modal-overlay--retry"
+      className="sen-modal-overlay sen-modal-overlay--retry"
       role="presentation"
       style={{
         position: "fixed",
@@ -1234,14 +1434,14 @@ export default function HologramaReportes() {
       }}
     >
       <section
-        className="hol-modal hol-modal--retry"
+        className="sen-modal sen-modal--retry"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="hol-result-title-fallo"
+        aria-labelledby="sen-result-title-fallo"
         style={{
           position: "relative",
           width: "100%",
-          maxWidth: 960,
+          maxWidth: 1120,
           maxHeight: "calc(100vh - 48px)",
           overflowY: "auto",
           background: "#ffffff",
@@ -1251,32 +1451,32 @@ export default function HologramaReportes() {
           gridTemplateColumns: "minmax(0, 1fr) 310px",
         }}
       >
-        <div className="hol-modal-decoration hol-modal-decoration--one" />
-        <div className="hol-modal-decoration hol-modal-decoration--two" />
+        <div className="sen-modal-decoration sen-modal-decoration--one" />
+        <div className="sen-modal-decoration sen-modal-decoration--two" />
 
-        <div className="hol-modal-main">
-          <header className="hol-modal-header">
-            <div className="hol-modal-status-icon">
+        <div className="sen-modal-main">
+          <header className="sen-modal-header">
+            <div className="sen-modal-status-icon">
               <FiRefreshCw />
             </div>
 
-            <div className="hol-modal-header-copy">
-              <span className="hol-modal-badge">
+            <div className="sen-modal-header-copy">
+              <span className="sen-modal-badge">
                 <FiRefreshCw />
                 Vuelve a intentarlo
               </span>
 
-              <h1 id="hol-result-title-fallo">¡Vuelve a intentarlo!</h1>
+              <h1 id="sen-result-title-fallo">¡Vuelve a intentarlo!</h1>
 
               <p>
                 Aún no completas con éxito la misión de{" "}
-                <span className="hol-modal-mathnova-color">MathData</span>.
+                <span className="sen-modal-mathnova-color">MathData</span>.
               </p>
             </div>
           </header>
 
-          <div className="hol-modal-content">
-            <div className="hol-modal-character">
+          <div className="sen-modal-content">
+            <div className="sen-modal-character">
               <img
                 src={villanoIntentar}
                 alt="Villano retando"
@@ -1285,67 +1485,68 @@ export default function HologramaReportes() {
               />
             </div>
 
-            <article className="hol-modal-message">
-              <span className="hol-modal-message-label">Resultado de la misión</span>
-              <h2>¡No te rindas, piloto!</h2>
+            <article className="sen-modal-message">
+              <span className="sen-modal-message-label">Resultado de la misión</span>
+              <h2>¡No te rindas, agente!</h2>
               <p>
-                Revisa la altura de cada barra y el porcentaje de cada
-                sector. Recuerda: porcentaje = votos ÷ total × 100.
+                Revisa el conteo de cada señal en el radar y recalcula sus
+                porcentajes. Recuerda: frecuencia relativa = frecuencia
+                absoluta ÷ total × 100.
               </p>
             </article>
           </div>
 
-          <ResultAudioPlayer src={audioVuelveAIntentarloHolograma} />
+          <ResultAudioPlayer src={baitAudioVuelveAIntentarlo} />
 
-          <article className="hol-modal-summary">
+          <article className="sen-modal-summary">
             <header>
               <FiBarChart2 />
               <h2>Resumen de la actividad</h2>
             </header>
 
             <div
-              className="hol-modal-stats"
+              className="sen-modal-stats"
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+                gridTemplateColumns: "repeat(5, 1fr)",
                 gap: 12,
               }}
             >
-              <article className="hol-modal-stat">
-                <div className="hol-modal-stat-icon">
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
                   <img src={iconoAciertos} alt="" aria-hidden="true" />
                 </div>
                 <div>
                   <span>Pasos correctos</span>
-                  <strong>1/4</strong>
+                  <strong>{aciertosResultado}/4</strong>
                   <small>¡Sigue así!</small>
                 </div>
               </article>
 
-              <article className="hol-modal-stat">
-                <div className="hol-modal-stat-icon">
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
                   <img src={iconoTiempo} alt="" aria-hidden="true" />
                 </div>
                 <div>
                   <span>Tiempo</span>
-                  <strong>—</strong>
+                  <strong>{formatearTiempoSensor(tiempoResultado)}</strong>
                   <small>min</small>
                 </div>
               </article>
 
-              <article className="hol-modal-stat">
-                <div className="hol-modal-stat-icon">
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
                   <img src={iconoPrecision} alt="" aria-hidden="true" />
                 </div>
                 <div>
                   <span>Precisión</span>
-                  <strong>25%</strong>
+                  <strong>{precisionResultado}%</strong>
                   <small>Puedes mejorar</small>
                 </div>
               </article>
 
-              <article className="hol-modal-stat">
-                <div className="hol-modal-stat-icon">
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
                   <img src={iconoRecompensa} alt="" aria-hidden="true" />
                 </div>
                 <div>
@@ -1355,8 +1556,8 @@ export default function HologramaReportes() {
                 </div>
               </article>
 
-              <article className="hol-modal-stat">
-                <div className="hol-modal-stat-icon">
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
                   <img src={iconoInsignia} alt="" aria-hidden="true" />
                 </div>
                 <div>
@@ -1370,29 +1571,33 @@ export default function HologramaReportes() {
         </div>
 
         <aside
-          className="hol-modal-side"
-          style={{ display: "flex", flexDirection: "column", gap: 20 }}
+          className="sen-modal-side"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 20,
+          }}
         >
-          <article className="hol-modal-side-message">
+          <article className="sen-modal-side-message">
             <span>¡No te rindas!</span>
             <strong>Cada intento te ayuda a mejorar</strong>
             <p>Usa la pista, revisa el procedimiento y vuelve a resolver la actividad.</p>
           </article>
 
-          <div className="hol-modal-progress">
+          <div className="sen-modal-progress">
             <div>
               <span>Progreso del tema</span>
-              <strong>40%</strong>
+              <strong>50%</strong>
             </div>
-            <div className="hol-modal-progress-bar">
-              <span style={{ width: "40%" }} />
+            <div className="sen-modal-progress-bar">
+              <span style={{ width: "50%" }} />
             </div>
           </div>
 
-          <div className="hol-modal-actions" style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 12 }}>
+          <div className="sen-modal-actions" style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 12 }}>
             <button
               type="button"
-              className="hol-modal-action hol-modal-action--primary"
+              className="sen-modal-action sen-modal-action--primary"
               onClick={handleReiniciarActividad}
             >
               <FiRefreshCw />
@@ -1401,8 +1606,8 @@ export default function HologramaReportes() {
 
             <button
               type="button"
-              className="hol-modal-action hol-modal-action--secondary"
-              onClick={abrirPistaBait}
+              className="sen-modal-action sen-modal-action--secondary"
+              onClick={() => setMostrarPistaBait(true)}
             >
               <FiTarget />
               <span>Ver pista</span>
@@ -1410,7 +1615,7 @@ export default function HologramaReportes() {
 
             <button
               type="button"
-              className="hol-modal-action hol-modal-action--secondary"
+              className="sen-modal-action sen-modal-action--secondary"
               onClick={() => navigate("/actividades-math-data")}
             >
               <FiGrid />
@@ -1423,9 +1628,12 @@ export default function HologramaReportes() {
       {mostrarPistaBait && (
         <PistaBaitModal
           titulo="Pista de Bait"
-          contenido="¡No te rindas! Mira la tabla: Bosque 4, Desierto 3, Cueva de Cristal 3. Para la gráfica de barras, esas son las alturas exactas. Para la gráfica circular, divide cada número entre 10 y multiplica por 100. ¡Tú puedes!"
+          contenido={
+            mensajePistaBait ||
+            "¡No te rindas! Cuenta con calma las marcas de conteo: Alfa 5, Beta 8, Gamma 4 y Delta 3. Cada grupo de 4 líneas con una diagonal es un grupo de 5 señales."
+          }
           videoSrc={baitHablandoVideo}
-          audioSrc={pistaBaitAudioHolograma}
+          audioSrc={pistaBaitAudioSensor}
           onClose={() => setMostrarPistaBait(false)}
         />
       )}
@@ -1437,79 +1645,78 @@ export default function HologramaReportes() {
   // ==========================================
 
   return (
-    <div className="hol-page">
+    <div className="sen-page">
       {/* ================= SIDEBAR ================= */}
-      <aside className="hol-sidebar">
-        <img src={logo} alt="MathNova" className="hol-logo-img" />
+      <aside className="sen-sidebar">
+        <img src={logo} alt="MathNova" className="sen-logo-img" />
 
-        <nav className="hol-nav">
-          <button className="hol-nav-item" type="button" onClick={() => navigate("/")}>
+        <nav className="sen-nav">
+          <button className="sen-nav-item" type="button" onClick={() => navigate("/")}>
             <FiGrid /> <span>Dashboard principal</span>
           </button>
           <button
-            className="hol-nav-item hol-nav-item-activo"
+            className="sen-nav-item sen-nav-item-activo"
             type="button"
             onClick={() => navigate("/seleccion-mundos")}
           >
             <GiRingedPlanet /> <span>Selección de mundos</span>
           </button>
-          <button className="hol-nav-item" type="button" onClick={() => navigate("/retroalimentacion")}>
+          <button className="sen-nav-item" type="button" onClick={() => navigate("/retroalimentacion")}>
             <FiMessageSquare /> <span>Retroalimentación</span>
           </button>
-          <button className="hol-nav-item" type="button" onClick={() => navigate("/recompensas")}>
+          <button className="sen-nav-item" type="button" onClick={() => navigate("/recompensas")}>
             <GiTrophyCup /> <span>Recompensas</span>
           </button>
-          <button className="hol-nav-item" type="button" onClick={() => navigate("/perfil-alumno")}>
+          <button className="sen-nav-item" type="button" onClick={() => navigate("/perfil-alumno")}>
             <FiUser /> <span>Perfil del alumno</span>
           </button>
-          <button className="hol-nav-item" type="button" onClick={() => navigate("/estadisticas")}>
+          <button className="sen-nav-item" type="button" onClick={() => navigate("/estadisticas")}>
             <FiBarChart2 /> <span>Estadísticas</span>
           </button>
         </nav>
 
-        <div className="hol-progreso-card">
+        <div className="sen-progreso-card">
           <small>Progreso de la actividad</small>
-          <div className="hol-progreso-track">
-            <div className="hol-progreso-fill" style={{ width: "75%" }} />
+          <div className="sen-progreso-track">
+            <div className="sen-progreso-fill" style={{ width: "80%" }} />
           </div>
-          <small>3/4 actividad</small>
+          <small>4/5 actividad</small>
         </div>
 
-        <div className="hol-xp-card">
+        <div className="sen-xp-card">
           <small>XP acumulados</small>
           <strong>180 XP ⭐</strong>
         </div>
       </aside>
 
       {/* ================= CONTENIDO ================= */}
-      <main className="hol-main" style={{ backgroundImage: `url(${fondoHologramaImg})` }}>
-        <header className="hol-header">
-          <button className="hol-volver" type="button" onClick={() => navigate("/actividades-math-data")}>
+      <main className="sen-main" style={{ backgroundImage: `url(${fondoSensorImg})` }}>
+        <header className="sen-header">
+          <button className="sen-volver" type="button" onClick={() => navigate("/actividades-math-data")}>
             <FiArrowLeft /> Volver al tema
           </button>
-          <button type="button" className="hol-ayuda-btn" aria-label="Ayuda">
+          <button type="button" className="sen-ayuda-btn" aria-label="Ayuda">
             <FiHelpCircle />
           </button>
         </header>
 
         {/* FILA SUPERIOR */}
-        <div className="hol-top-row">
-          <div className="hol-titulo-bloque">
-            <h1>El Holograma de Reportes</h1>
+        <div className="sen-top-row">
+          <div className="sen-titulo-bloque">
+            <h1>Sensor de Frecuencias</h1>
             <p>
-              Transforma los datos de la encuesta en una gráfica de barras y
-              una gráfica circular, y luego interprétalas para activar el
-              holograma.
+              Cuenta señales, calcula frecuencias y localiza la zona de
+              origen más probable.
             </p>
 
-            <div className="hol-explica-fila">
-              <img src={baitSaludoImg} alt="Bait explicando" className="hol-bait-avatar-img" />
+            <div className="sen-explica-fila">
+              <img src={baitSaludoImg} alt="Bait explicando" className="sen-bait-avatar-img" />
 
-              <div className="hol-explica-burbuja">
-                <div className="hol-explica-titulo-row">
+              <div className="sen-explica-burbuja">
+                <div className="sen-explica-titulo-row">
                   <strong>BIT te explica</strong>
                   <button
-                    className="hol-audio-btn"
+                    className="sen-audio-btn"
                     type="button"
                     onClick={() => setMostrarIntroBait(true)}
                     aria-label="Escuchar explicación"
@@ -1518,283 +1725,256 @@ export default function HologramaReportes() {
                   </button>
                 </div>
                 <p>
-                  ¡Agente! El Centro de Mando recibió los datos de la
-                  encuesta. Ahora necesitan un reporte visual: una gráfica
-                  de barras y una gráfica circular. Constrúyelas
-                  correctamente y el holograma se proyectará sobre la mesa
-                  de mando. ¡El mago no va a ganar esta vez!
+                  Agente, despierta. El sensor nocturno registró actividad
+                  extraña: veinte señales aparecieron en distintas zonas del
+                  mapa mientras dormías. Necesito que cuentes cuántas veces
+                  apareció cada tipo de señal y calcules qué porcentaje del
+                  total representa cada una. Con esos datos, el sistema
+                  podrá calcular la zona donde es más probable encontrar su
+                  origen. ¡Vamos a revisar el radar!
                 </p>
               </div>
             </div>
           </div>
-
-          <img
-            src={interferenciaHologramaImg}
-            alt="Interferencia de Divide: Ja, ja. El Centro de Mando quiere un reporte visual, pero los datos crudos no significan nada sin una gráfica bien construida. A ver si eres capaz de transformarlos... o el holograma nunca se activará."
-            className="hol-villano-box"
-          />
-
-          <div className="hol-datos-card">
-            <div className="hol-datos-titulo">Datos de la encuesta</div>
-            <table className="hol-datos-tabla">
-              <thead>
-                <tr>
-                  <th>Módulo</th>
-                  <th>Frecuencia</th>
-                  <th>Porcentaje</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(Object.keys(FRECUENCIAS) as Modulo[]).map((m) => (
-                  <tr key={m}>
-                    <td>{NOMBRE_MODULO[m]}</td>
-                    <td>{FRECUENCIAS[m]}</td>
-                    <td>{PORCENTAJES_CORRECTOS[m]} %</td>
-                  </tr>
-                ))}
-                <tr className="hol-fila-total">
-                  <td>TOTAL</td>
-                  <td>{TOTAL_VOTOS}</td>
-                  <td>100 %</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
         </div>
 
         {/* FILA DE 4 PASOS */}
-        <div className="hol-pasos-row">
-          {/* PASO 1: ELIGE EL TIPO DE GRÁFICA */}
-          <div className="hol-paso-card">
-            <div className="hol-paso-header">
-              <span className="hol-paso-num">1</span>
-              <strong>Elige el tipo de gráfica</strong>
-            </div>
-            <p className="hol-paso-pregunta">
-              ¿Cuál usarías para ver cuántos votos tuvo cada módulo
-              exactamente?
-            </p>
-
-            <div className="hol-tipo-opciones">
-              <button
-                type="button"
-                className={`hol-tipo-opcion ${tipoGrafica === "barras" ? "hol-tipo-opcion-activa" : ""}`}
-                onClick={() => setTipoGrafica("barras")}
-                aria-pressed={tipoGrafica === "barras"}
-                disabled={cargandoActivar}
-              >
-                <img src={iconoGraficaBarrasImg} alt="" className="hol-tipo-icono" />
-                <div className="hol-tipo-texto">
-                  <strong>Gráfica de Barras</strong>
-                  <small>Comparar cantidades exactas</small>
-                </div>
-                {tipoGrafica === "barras" && <FiCheckCircle className="hol-tipo-check" />}
-              </button>
-
-              <button
-                type="button"
-                className={`hol-tipo-opcion ${tipoGrafica === "circular" ? "hol-tipo-opcion-activa" : ""}`}
-                onClick={() => setTipoGrafica("circular")}
-                aria-pressed={tipoGrafica === "circular"}
-                disabled={cargandoActivar}
-              >
-                <img src={iconoGraficaCircularImg} alt="" className="hol-tipo-icono" />
-                <div className="hol-tipo-texto">
-                  <strong>Gráfica Circular</strong>
-                  <small>Ver proporciones del total</small>
-                </div>
-                {tipoGrafica === "circular" && <FiCheckCircle className="hol-tipo-check" />}
-              </button>
-            </div>
-          </div>
-
-          {/* PASO 2: CONSTRUYE LA GRÁFICA DE BARRAS */}
-          <div className="hol-paso-card">
-            <div className="hol-paso-header">
-              <span className="hol-paso-num">2</span>
-              <strong>Construye la gráfica de barras</strong>
-            </div>
-            <p className="hol-paso-pregunta">
-              Escribe la altura correcta de cada barra. La altura debe ser
-              igual al número de votos.
-            </p>
-
-            <div className="hol-grafica-barras">
-              <div className="hol-barras-eje-y">
-                {Array.from({ length: graficaMaxima + 1 }, (_, i) => graficaMaxima - i).map((n) => (
-                  <span key={n}>{n}</span>
-                ))}
-              </div>
-              <div className="hol-barras-area">
-                {(Object.keys(FRECUENCIAS) as Modulo[]).map((m) => {
-                  const valorMostrado = Number(alturaBarras[m]) || 0;
-                  const alturaPct = Math.min(valorMostrado, graficaMaxima) / graficaMaxima * 100;
-                  return (
-                    <div className="hol-barra-col" key={m}>
-                      {valorMostrado > 0 && <span className="hol-barra-valor">{valorMostrado}</span>}
-                      <div className="hol-barra-track">
-                        <div
-                          className="hol-barra-fill"
-                          style={{ height: `${alturaPct}%`, background: COLOR_MODULO[m] }}
-                        />
-                      </div>
-                      <small>{NOMBRE_MODULO[m]}</small>
-                    </div>
-                  );
-                })}
-              </div>
+        <div className="sen-pasos-row">
+          {/* PASO 1: RADAR */}
+          <div className="sen-paso-card">
+            <div className="sen-paso-header">
+              <span className="sen-paso-num">1</span>
+              <strong>Registro nocturno del radar</strong>
             </div>
 
-            <div className="hol-barras-inputs">
-              {(Object.keys(FRECUENCIAS) as Modulo[]).map((m) => (
-                <div className="hol-barra-input-grupo" key={m}>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    className={`hol-barra-input hol-barra-input-${barraEstado(m)}`}
-                    value={alturaBarras[m]}
-                    onChange={(e) =>
-                      setAlturaBarras((prev) => ({ ...prev, [m]: e.target.value }))
-                    }
-                    aria-label={`Altura de la barra de ${NOMBRE_MODULO[m]}`}
-                    disabled={
-                      cargandoBarras ||
-                      cargandoActivar ||
-                      barraBloqueada[m]
-                    }
+            <div className="sen-radar-wrap">
+              <svg viewBox="0 0 100 100" className="sen-radar-svg">
+                <circle cx="50" cy="50" r="48" className="sen-radar-anillo" />
+                <circle cx="50" cy="50" r="32" className="sen-radar-anillo" />
+                <circle cx="50" cy="50" r="16" className="sen-radar-anillo" />
+                <line x1="50" y1="2" x2="50" y2="98" className="sen-radar-eje" />
+                <line x1="2" y1="50" x2="98" y2="50" className="sen-radar-eje" />
+                {PUNTOS_RADAR.map((p, i) => (
+                  <circle
+                    key={i}
+                    cx={p.x}
+                    cy={p.y}
+                    r="2.1"
+                    fill={COLOR_SENAL[p.senal]}
                   />
-                  {barraEstado(m) === "correcto" && <FiCheckCircle className="hol-check-verde" />}
+                ))}
+                <text x="50" y="9" className="sen-radar-etiqueta">Norte</text>
+                <text x="50" y="96" className="sen-radar-etiqueta">Sur</text>
+                <text x="6" y="53" className="sen-radar-etiqueta">Oeste</text>
+                <text x="86" y="53" className="sen-radar-etiqueta">Este</text>
+              </svg>
+            </div>
+
+            <div className="sen-radar-leyenda">
+              {(Object.keys(FRECUENCIAS) as Senal[]).map((s) => (
+                <div className="sen-leyenda-fila" key={s}>
+                  <span className="sen-leyenda-punto" style={{ background: COLOR_SENAL[s] }} />
+                  <span className="sen-leyenda-nombre">{NOMBRE_SENAL[s]}</span>
+                  <small>{ZONA_SENAL[s]}</small>
                 </div>
               ))}
             </div>
 
+            <div className="sen-info-box">
+              <FiInfo /> Cada punto representa una señal detectada.
+            </div>
+          </div>
+
+          {/* PASO 2: FRECUENCIA ABSOLUTA */}
+          <div className="sen-paso-card">
+            <div className="sen-paso-header">
+              <span className="sen-paso-num">2</span>
+              <strong>Frecuencia absoluta</strong>
+            </div>
+
+            <table className="sen-tabla">
+              <thead>
+                <tr>
+                  <th>Tipo de señal</th>
+                  <th>Conteo (marcas)</th>
+                  <th>Frec. absoluta</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(Object.keys(FRECUENCIAS) as Senal[]).map((s) => (
+                  <tr key={s}>
+                    <td className="sen-td-nombre">
+                      <span className="sen-td-punto" style={{ background: COLOR_SENAL[s] }} />
+                      {NOMBRE_SENAL[s]}
+                    </td>
+                    <td className="sen-td-marcas">{palitos(FRECUENCIAS[s])}</td>
+                    <td>
+                      <div className="sen-input-grupo">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          className={`sen-input sen-input-${absolutaEstado(s)}`}
+                          value={frecAbsoluta[s]}
+                          onChange={(e) =>
+                            setFrecAbsoluta((prev) => ({ ...prev, [s]: e.target.value }))
+                          }
+                          aria-label={`Frecuencia absoluta de ${NOMBRE_SENAL[s]}`}
+                          disabled={
+                            cargandoAbsoluta ||
+                            cargandoZona ||
+                            absolutaBloqueada[s] ||
+                            absolutaEstados[s] === "correcto"
+                          }
+                        />
+                        {absolutaEstado(s) === "correcto" && <FiCheckCircle className="sen-check-verde" />}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                <tr className="sen-fila-total">
+                  <td>TOTAL</td>
+                  <td>—</td>
+                  <td>{TOTAL_SENALES}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div className="sen-info-box">
+              <FiInfo /> Cada grupo de 4 líneas con una diagonal representa 5 señales.
+            </div>
+
             <button
               type="button"
-              className="hol-verificar-btn"
-              onClick={verificarBarras}
-              disabled={cargandoBarras}
+              className="sen-verificar-btn"
+              onClick={verificarAbsoluta}
+              disabled={
+                cargandoAbsoluta ||
+                cargandoZona
+              }
             >
-              <FiBarChart2 /> {cargandoBarras ? "Verificando..." : "Verificar gráfica"}
+              <FiCheck /> {cargandoAbsoluta ? "Verificando..." : "Verificar frecuencias"}
             </button>
           </div>
 
-          {/* PASO 3: CONSTRUYE LA GRÁFICA CIRCULAR */}
-          <div className="hol-paso-card">
-            <div className="hol-paso-header">
-              <span className="hol-paso-num">3</span>
-              <strong>Construye la gráfica circular</strong>
+          {/* PASO 3: FRECUENCIA RELATIVA */}
+          <div className="sen-paso-card">
+            <div className="sen-paso-header">
+              <span className="sen-paso-num">3</span>
+              <strong>Frecuencia relativa (%)</strong>
             </div>
-            <p className="hol-paso-pregunta">
-              Calcula el porcentaje: votos ÷ total × 100. El total es{" "}
-              {TOTAL_VOTOS}.
+            <p className="sen-paso-pregunta">
+              (Frecuencia absoluta ÷ total) × 100
             </p>
 
-            <div className="hol-circulo-wrap">
-              <div
-                className="hol-circulo-svg"
-                style={{
-                  background: `conic-gradient(${COLOR_MODULO.bosque} 0% 40%, ${COLOR_MODULO.desierto} 40% 70%, ${COLOR_MODULO.cueva} 70% 100%)`,
-                }}
-              >
-                <div className="hol-circulo-centro">
-                  {porcentajesVerificados
-                    ? `${PORCENTAJES_CORRECTOS.bosque}%`
-                    : <FiPieChart />}
-                </div>
-              </div>
-
-              <div className="hol-circulo-leyenda">
-                {(Object.keys(PORCENTAJES_CORRECTOS) as Modulo[]).map((m) => (
-                  <div className="hol-leyenda-fila" key={m}>
-                    <span
-                      className="hol-leyenda-punto"
-                      style={{ background: COLOR_MODULO[m] }}
-                    />
-                    <span className="hol-leyenda-nombre">{NOMBRE_MODULO[m]}</span>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      className={`hol-porcentaje-input hol-porcentaje-input-${porcentajeEstado(m)}`}
-                      value={porcentajes[m]}
-                      onChange={(e) =>
-                        setPorcentajes((prev) => ({ ...prev, [m]: e.target.value }))
-                      }
-                      aria-label={`Porcentaje de ${NOMBRE_MODULO[m]}`}
-                      disabled={
-                        cargandoCirculo ||
-                        cargandoActivar ||
-                        porcentajeBloqueado[m]
-                      }
-                    />
-                    <span>%</span>
-                    {porcentajeEstado(m) === "correcto" && (
-                      <FiCheckCircle className="hol-check-verde" />
-                    )}
-                  </div>
+            <table className="sen-tabla">
+              <thead>
+                <tr>
+                  <th>Tipo de señal</th>
+                  <th>Frec. relativa (%)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(Object.keys(PORCENTAJES_CORRECTOS) as Senal[]).map((s) => (
+                  <tr key={s}>
+                    <td className="sen-td-nombre">
+                      <span className="sen-td-punto" style={{ background: COLOR_SENAL[s] }} />
+                      {NOMBRE_SENAL[s]}
+                    </td>
+                    <td>
+                      <div className="sen-input-grupo">
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          className={`sen-input sen-input-${relativaEstado(s)}`}
+                          value={frecRelativa[s]}
+                          onChange={(e) =>
+                            setFrecRelativa((prev) => ({ ...prev, [s]: e.target.value }))
+                          }
+                          aria-label={`Frecuencia relativa de ${NOMBRE_SENAL[s]}`}
+                          disabled={
+                            cargandoRelativa ||
+                            cargandoZona ||
+                            relativaBloqueada[s] ||
+                            relativaEstados[s] === "correcto"
+                          }
+                        />
+                        <span>%</span>
+                        {relativaEstado(s) === "correcto" && <FiCheckCircle className="sen-check-verde" />}
+                      </div>
+                    </td>
+                  </tr>
                 ))}
-              </div>
+                <tr className="sen-fila-total">
+                  <td>TOTAL</td>
+                  <td>100 %</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div className="sen-info-box">
+              <FiInfo /> Escribe solo el número del porcentaje, sin el símbolo %.
             </div>
 
             <button
               type="button"
-              className="hol-verificar-btn"
-              onClick={verificarCirculo}
-              disabled={cargandoCirculo}
+              className="sen-verificar-btn"
+              onClick={verificarRelativa}
+              disabled={
+                cargandoRelativa ||
+                cargandoZona
+              }
             >
-              <FiPercent /> {cargandoCirculo ? "Verificando..." : "Verificar porcentajes"}
+              <FiPercent /> {cargandoRelativa ? "Verificando..." : "Verificar porcentajes"}
             </button>
           </div>
 
           {/* PASO 4: PREGUNTAS DE INTERPRETACIÓN */}
-          <div className="hol-paso-card">
-            <div className="hol-paso-header">
-              <span className="hol-paso-num">4</span>
+          <div className="sen-paso-card">
+            <div className="sen-paso-header">
+              <span className="sen-paso-num">4</span>
               <strong>Preguntas de interpretación</strong>
             </div>
 
-            <div className="hol-pregunta-bloque">
-              <p className="hol-paso-pregunta">
-                Mirando la gráfica de barras, ¿qué módulo tiene la barra más
-                alta?
-              </p>
-              <div className="hol-opciones-radio">
-                {(Object.keys(FRECUENCIAS) as Modulo[]).map((m) => (
+            <div className="sen-pregunta-bloque">
+              <p className="sen-paso-pregunta">¿Qué tipo de señal tuvo la mayor frecuencia?</p>
+              <div className="sen-opciones-radio">
+                {(Object.keys(FRECUENCIAS) as Senal[]).map((s) => (
                   <button
-                    key={m}
+                    key={s}
                     type="button"
-                    className={`hol-opcion-radio ${
-                      preguntaBarraAlta === m ? "hol-opcion-radio-activa" : ""
+                    className={`sen-opcion-radio ${
+                      preguntaMayorFrecuencia === s ? "sen-opcion-radio-activa" : ""
                     }`}
-                    onClick={() => setPreguntaBarraAlta(m)}
-                    aria-pressed={preguntaBarraAlta === m}
-                    disabled={cargandoActivar}
+                    onClick={() => setPreguntaMayorFrecuencia(s)}
+                    aria-pressed={preguntaMayorFrecuencia === s}
+                    disabled={cargandoZona}
                   >
-                    <span className="hol-radio-circulo" />
-                    {NOMBRE_MODULO[m]}
+                    <span className="sen-radio-circulo" />
+                    {NOMBRE_SENAL[s]}
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="hol-pregunta-bloque">
-              <p className="hol-paso-pregunta">
-                Mirando la gráfica circular, ¿qué sector ocupa la mayor
-                porción del círculo?
+            <div className="sen-pregunta-bloque">
+              <p className="sen-paso-pregunta">
+                Según tus datos, ¿en qué zona del mapa es más probable
+                encontrar el origen de las señales?
               </p>
-              <div className="hol-opciones-radio">
-                {(Object.keys(FRECUENCIAS) as Modulo[]).map((m) => (
+              <div className="sen-opciones-radio">
+                {(Object.keys(NOMBRE_ZONA) as Zona[]).map((z) => (
                   <button
-                    key={m}
+                    key={z}
                     type="button"
-                    className={`hol-opcion-radio ${
-                      preguntaSectorMayor === m ? "hol-opcion-radio-activa" : ""
+                    className={`sen-opcion-radio ${
+                      preguntaZona === z ? "sen-opcion-radio-activa" : ""
                     }`}
-                    onClick={() => setPreguntaSectorMayor(m)}
-                    aria-pressed={preguntaSectorMayor === m}
-                    disabled={cargandoActivar}
+                    onClick={() => setPreguntaZona(z)}
+                    aria-pressed={preguntaZona === z}
+                    disabled={cargandoZona}
                   >
-                    <span className="hol-radio-circulo" />
-                    {NOMBRE_MODULO[m]}
+                    <span className="sen-radio-circulo" />
+                    {NOMBRE_ZONA[z]}
                   </button>
                 ))}
               </div>
@@ -1802,41 +1982,58 @@ export default function HologramaReportes() {
           </div>
         </div>
 
-        {/* FILA INFERIOR: PISTA + ACTIVAR HOLOGRAMA */}
-        <div className="hol-bottom-row">
-          <div className="hol-pista-card">
+        {/* FILA INFERIOR: PISTA + CALCULAR ZONA DE ORIGEN */}
+        <div className="sen-bottom-row">
+          <div className="sen-pista-card">
             <button
               type="button"
-              className="hol-pista-trigger"
-              onClick={abrirPistaBait}
+              className="sen-pista-trigger"
+              onClick={() => {
+                setMensajePistaBait("");
+                setMostrarPistaBait(true);
+
+                if (!ID_ESTUDIANTE) {
+                  return;
+                }
+
+                fetch(`${API_URL}/sensor/pista-consultada`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, pantalla: 4 }),
+                }).catch((error) => console.error("Error al registrar consulta de pista:", error));
+              }}
             >
-              <img src={baitPistaImg} alt="" className="hol-pista-icono" />
+              <img src={baitPistaImg} alt="" className="sen-pista-icono" />
               <strong>Pista de BIT</strong>
             </button>
 
-            <div className="hol-pista-items">
-              <div className="hol-pista-item">
-                <FiBarChart2 />
-                <span>La altura de cada barra es igual al número de votos.</span>
+            <div className="sen-pista-items">
+              <div className="sen-pista-item">
+                <FiRadio />
+                <span>Frecuencia absoluta: cuenta cuántas veces aparece cada señal.</span>
               </div>
-              <div className="hol-pista-item">
+              <div className="sen-pista-item">
                 <FiPercent />
-                <span>porcentaje = votos ÷ total × 100</span>
-              </div>
-              <div className="hol-pista-item">
-                <FiPieChart />
-                <span>Bosque: 4/10=40% · Desierto: 3/10=30% · Cueva: 3/10=30%</span>
+                <span>Frecuencia relativa: frecuencia absoluta ÷ 20 × 100.</span>
               </div>
             </div>
           </div>
 
           <button
             type="button"
-            className="hol-activar-btn"
-            onClick={activarHolograma}
-            disabled={!tipoGrafica || !preguntaBarraAlta || !preguntaSectorMayor || cargandoActivar}
+            className="sen-calcular-btn"
+            onClick={calcularZonaOrigen}
+            disabled={
+              !preguntaMayorFrecuencia ||
+              !preguntaZona ||
+              cargandoZona
+            }
+            aria-busy={cargandoZona}
           >
-            <FiZap /> {cargandoActivar ? "Activando..." : "Activar Holograma"}
+            <FiTarget />
+            {cargandoZona
+              ? "Guardando progreso..."
+              : "Calcular Zona de Origen"}
           </button>
         </div>
       </main>
@@ -1844,9 +2041,9 @@ export default function HologramaReportes() {
       {mostrarIntroBait && (
         <PistaBaitModal
           titulo="BIT te explica"
-          contenido="¡Agente! El Centro de Mando recibió los datos de la encuesta. Ahora necesitan un reporte visual: una gráfica de barras y una gráfica circular. Constrúyelas correctamente y el holograma se proyectará sobre la mesa de mando. ¡El mago no va a ganar esta vez!"
+          contenido="Agente, despierta. El sensor nocturno registró actividad extraña: veinte señales aparecieron en distintas zonas del mapa mientras dormías. Necesito que cuentes cuántas veces apareció cada tipo de señal y calcules qué porcentaje del total representa cada una. Con esos datos, el sistema podrá calcular la zona donde es más probable encontrar su origen. ¡Vamos a revisar el radar!"
           videoSrc={baitHablandoVideo}
-          audioSrc={introBaitAudioHolograma}
+          audioSrc={introBaitAudioSensor}
           botonTexto="¡Comenzar misión! 🚀"
           onClose={() => setMostrarIntroBait(false)}
         />
@@ -1855,9 +2052,12 @@ export default function HologramaReportes() {
       {mostrarPistaBait && (
         <PistaBaitModal
           titulo="Pista de Bait"
-          contenido="¡No te rindas! Mira la tabla: Bosque 4, Desierto 3, Cueva de Cristal 3. Para la gráfica de barras, esas son las alturas exactas. Para la gráfica circular, divide cada número entre 10 y multiplica por 100. ¡Tú puedes!"
+          contenido={
+            mensajePistaBait ||
+            "¡No te rindas! Cuenta con calma las marcas de conteo: Alfa 5, Beta 8, Gamma 4 y Delta 3. Cada grupo de 4 líneas con una diagonal es un grupo de 5 señales."
+          }
           videoSrc={baitHablandoVideo}
-          audioSrc={pistaBaitAudioHolograma}
+          audioSrc={pistaBaitAudioSensor}
           onClose={() => setMostrarPistaBait(false)}
         />
       )}

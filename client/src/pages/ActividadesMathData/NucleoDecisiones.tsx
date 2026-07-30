@@ -1119,7 +1119,7 @@ export default function NucleoDecisiones() {
           position: "relative",
           width: "100%",
           minWidth: 0,
-          maxWidth: 960,
+          maxWidth: 1120,
           maxHeight: "calc(100vh - 48px)",
           overflowY: "auto",
           background: "#ffffff",
@@ -1168,9 +1168,7 @@ export default function NucleoDecisiones() {
               <span className="nuc-modal-message-label">Resultado de la misión</span>
               <h2>¡Excelente trabajo, agente!</h2>
               <p>
-                Ordenaste los tiempos y calculaste correctamente la media, la
-                mediana, la moda y el rango. El Núcleo de Decisiones aprobó
-                tu análisis y liberó la energía segura para la nave.
+Decisión autorizada agente estimamos una misión de 51 minutos y cargamos 16 minutos adicionales de Reserva la nave está preparada para operar durante 67 minutos el núcleo de decisiones queda restaurado
               </p>
             </article>
           </div>
@@ -1337,7 +1335,7 @@ export default function NucleoDecisiones() {
           position: "relative",
           width: "100%",
           minWidth: 0,
-          maxWidth: 960,
+          maxWidth: 1120,
           maxHeight: "calc(100vh - 48px)",
           overflowY: "auto",
           background: "#ffffff",
