@@ -388,12 +388,13 @@
   color: #94a3b8;
 }
 
-/* ---- Paso 2: ordenamiento (drag & drop) ---- */
+/* ---- Paso 2: ordenamiento por selección ---- */
 .nuc-orden-row {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  cursor: default;
 }
 
 .nuc-orden-item {
@@ -415,20 +416,39 @@
   font-size: 15px;
   font-weight: 900;
   color: #0b1b34;
+  appearance: none;
+  font-family: inherit;
   cursor: grab;
+  touch-action: manipulation;
+  user-select: none;
   transition: all 0.15s ease;
 }
 
-.nuc-orden-chip:active { cursor: grabbing; }
-
-.nuc-orden-drag-icono {
-  font-size: 12px;
-  color: #94a3b8;
+.nuc-orden-chip:active:not(:disabled) {
+  cursor: grabbing;
 }
 
-.nuc-orden-chip-sobre {
+.nuc-orden-chip:hover:not(:disabled) {
+  border-color: #60a5fa;
+  transform: translateY(-1px);
+}
+
+.nuc-orden-chip:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.28);
+  outline-offset: 2px;
+}
+
+.nuc-orden-chip:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.nuc-orden-chip-seleccionado {
   border-color: #0058ff;
-  box-shadow: 0 0 0 3px rgba(0, 88, 255, 0.15);
+  background: #dbeafe;
+  color: #1d4ed8;
+  box-shadow: 0 0 0 4px rgba(0, 88, 255, 0.18);
+  transform: translateY(-2px);
 }
 
 .nuc-orden-chip-correcto {
@@ -900,17 +920,302 @@
   .nuc-nav-item span { display: none; }
   .nuc-progreso-card,
   .nuc-xp-card { margin-top: 0; width: 200px; }
+  .nuc-tiempo-card { width: 180px; }
   .nuc-page { flex-direction: column; }
   .nuc-stats-row { flex-wrap: wrap; }
   .nuc-stat-card { min-width: 45%; }
 }
 
 @media (max-width: 720px) {
+  .nuc-sidebar {
+    padding: 10px 12px;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    flex-wrap: nowrap;
+    border-right: 0;
+    border-bottom: 1px solid #dbe3ee;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.1);
+  }
+  .nuc-logo-img { width: 90px; margin: 0; }
+  .nuc-nav,
+  .nuc-progreso-card,
+  .nuc-xp-card { display: none; }
+  .nuc-tiempo-card {
+    width: auto;
+    min-width: 96px;
+    margin-left: auto;
+    padding: 7px 10px;
+  }
+  .nuc-tiempo-card small { display: none; }
+  .nuc-sidebar-actions { margin: 0; }
+  .nuc-sidebar-actions button span { display: none; }
   .nuc-main { padding: 16px 16px 30px; }
+  .nuc-header { gap: 10px; }
+  .nuc-volver { padding: 9px 12px; }
   .nuc-titulo-bloque h1 { font-size: 22px; }
+  .nuc-titulo-bloque,
+  .nuc-objetivo-card,
+  .nuc-explica-fila { min-width: 0; width: 100%; }
+  .nuc-paso-card { padding: 14px; }
+  .nuc-expediciones-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .nuc-orden-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .nuc-orden-item { display: contents; }
+  .nuc-orden-chip { width: 100%; min-width: 0; justify-content: center; }
+  .nuc-orden-flecha,
+  .nuc-orden-unidad { display: none; }
   .nuc-stat-card { min-width: 100%; }
   .nuc-col-derecha { flex-direction: column; }
   .nuc-bottom-row { flex-direction: column; align-items: stretch; }
+  .nuc-explica-fila { padding: 10px; }
+  .nuc-bait-avatar-img { width: 48px; }
+  .nuc-bitacora-card { padding: 15px; }
+}
+
+@media (max-width: 420px) {
+  .nuc-main { padding-inline: 10px; }
+  .nuc-header .nuc-volver { font-size: 12px; }
+  .nuc-expediciones-row { gap: 8px; }
+  .nuc-orden-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .nuc-explica-fila { flex-direction: column; }
+}
+
+/* Acciones inferiores del sidebar */
+.nuc-sidebar-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.nuc-sidebar-actions button {
+  flex: 1;
+  min-height: 42px;
+  border: 1px solid #dbe3ee;
+  border-radius: 12px;
+  background: #fff;
+  color: #334155;
+  font: 800 12px/1 "Poppins", Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  cursor: pointer;
+}
+
+.nuc-sidebar-actions button:hover {
+  border-color: #2563eb;
+  color: #1d4ed8;
+  background: #eff6ff;
+}
+
+/* Contexto de la actividad */
+.nuc-contexto-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  padding: 20px;
+  display: grid;
+  place-items: center;
+  background: rgba(2, 8, 23, 0.76);
+  backdrop-filter: blur(5px);
+}
+
+.nuc-contexto-modal {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: min(720px, calc(100dvh - 32px));
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 24px;
+  align-items: center;
+  padding: 28px;
+  border: 2px solid #93c5fd;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.38);
+  font-family: "Poppins", Arial, sans-serif;
+}
+
+.nuc-contexto-modal > img {
+  width: 100%;
+  max-height: 240px;
+  object-fit: contain;
+}
+
+.nuc-contexto-modal span {
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.nuc-contexto-modal h2 {
+  margin: 5px 0 10px;
+  color: #0f172a;
+  font-size: clamp(22px, 4vw, 32px);
+}
+
+.nuc-contexto-modal p,
+.nuc-contexto-modal li {
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.nuc-contexto-modal ol { padding-left: 20px; }
+
+.nuc-contexto-modal div > button {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 12px;
+  background: #0058ff;
+  color: #fff;
+  font: 900 13px "Poppins", Arial, sans-serif;
+  cursor: pointer;
+}
+
+.nuc-contexto-cerrar {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: #1d4ed8;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+/* Pista breve al verificar una respuesta incorrecta: sin audio ni video */
+.nuc-pista-compacta-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10020;
+  padding: 16px;
+  display: grid;
+  place-items: center;
+  background: rgba(2, 8, 23, 0.58);
+  backdrop-filter: blur(3px);
+}
+
+.nuc-pista-compacta {
+  position: relative;
+  width: min(460px, 100%);
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  padding: 20px;
+  border: 2px solid #93c5fd;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 24px 60px rgba(2, 8, 23, 0.32);
+  font-family: "Poppins", Arial, sans-serif;
+}
+
+.nuc-pista-compacta > img {
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+}
+
+.nuc-pista-compacta span {
+  color: #2563eb;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nuc-pista-compacta h2 {
+  margin: 3px 34px 6px 0;
+  color: #0f172a;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.nuc-pista-compacta p {
+  margin: 0 0 12px;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.nuc-pista-compacta div > button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #fff;
+  font: 800 12px "Poppins", Arial, sans-serif;
+  cursor: pointer;
+}
+
+.nuc-pista-compacta-cerrar {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #eff6ff;
+  color: #1d4ed8;
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .nuc-pista-compacta {
+    grid-template-columns: 68px minmax(0, 1fr);
+    gap: 12px;
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .nuc-pista-compacta > img {
+    width: 68px;
+    height: 68px;
+  }
+
+  .nuc-pista-compacta h2 {
+    font-size: 16px;
+  }
+
+  .nuc-pista-compacta p {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .nuc-contexto-overlay { padding: 10px; }
+  .nuc-contexto-modal {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 24px 18px 20px;
+    text-align: left;
+  }
+  .nuc-contexto-modal > img {
+    width: 105px;
+    max-height: 120px;
+    margin: 0 auto;
+  }
 }
 
 /* ============================================================= */
@@ -2747,5 +3052,141 @@
 
   .nuc-modal-action {
     min-height: 46px;
+  }
+}
+
+/* Pantalla completada adaptada a tablet y celular.
+   !important se usa aquí para superar únicamente los estilos inline del modal. */
+@media (max-width: 900px) {
+  .nuc-modal-overlay--completed {
+    padding: 14px !important;
+    align-items: flex-start !important;
+  }
+
+  .nuc-modal--completed {
+    width: 100% !important;
+    max-width: 680px !important;
+    max-height: none !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    border-radius: 22px !important;
+    overflow-y: visible !important;
+  }
+
+  .nuc-modal--completed .nuc-modal-main {
+    padding: 26px 20px 18px !important;
+  }
+
+  .nuc-modal--completed .nuc-modal-side {
+    padding: 18px 20px 22px !important;
+    gap: 14px !important;
+    border-top: 1px solid #dbeafe;
+  }
+
+  .nuc-modal--completed .nuc-modal-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .nuc-modal--completed .nuc-modal-actions {
+    margin-top: 0 !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .nuc-modal-overlay--completed {
+    padding: 8px !important;
+  }
+
+  .nuc-modal--completed {
+    border-radius: 16px !important;
+  }
+
+  .nuc-modal--completed::before,
+  .nuc-modal--completed .nuc-modal-decoration {
+    display: none;
+  }
+
+  .nuc-modal--completed .nuc-modal-main {
+    gap: 14px;
+    padding: 20px 14px 14px !important;
+  }
+
+  .nuc-modal--completed .nuc-modal-header {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .nuc-modal--completed .nuc-modal-status-icon {
+    width: 52px;
+    min-width: 52px;
+    height: 52px;
+    border-width: 6px;
+    font-size: 27px;
+  }
+
+  .nuc-modal--completed .nuc-modal-header-copy h1 {
+    font-size: clamp(1.55rem, 8vw, 2rem);
+    line-height: 1.05;
+  }
+
+  .nuc-modal--completed .nuc-modal-content {
+    grid-template-columns: 86px minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+  }
+
+  .nuc-modal--completed .nuc-modal-character {
+    height: 112px;
+    padding: 4px;
+  }
+
+  .nuc-modal--completed .nuc-modal-character img {
+    max-width: 96px !important;
+    max-height: 105px;
+  }
+
+  .nuc-modal--completed .nuc-modal-message {
+    min-height: 0;
+    padding: 13px;
+    border-radius: 16px;
+  }
+
+  .nuc-modal--completed .nuc-modal-message h2 {
+    font-size: 1rem;
+  }
+
+  .nuc-modal--completed .nuc-modal-message p {
+    font-size: 0.75rem;
+    line-height: 1.35;
+  }
+
+  .nuc-modal--completed .nuc-modal-audio {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .nuc-modal--completed .nuc-modal-audio-progress {
+    flex: 1;
+    max-width: 120px;
+  }
+
+  .nuc-modal--completed .nuc-modal-summary {
+    padding: 11px;
+  }
+
+  .nuc-modal--completed .nuc-modal-stats {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .nuc-modal--completed .nuc-modal-stat {
+    min-height: 62px;
+  }
+
+  .nuc-modal--completed .nuc-modal-side {
+    padding: 14px !important;
+  }
+
+  .nuc-modal--completed .nuc-modal-action {
+    min-height: 46px;
+    font-size: 0.8rem;
   }
 }
