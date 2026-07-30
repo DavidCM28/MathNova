@@ -14,7 +14,6 @@ import baitSaludoImg from "../../assets/bait-saludo.png";
 import baitPistaImg from "../../assets/bait-pista.png";
 import villanoTrofeoCompleto from "../../assets/villano-trofeo-completo.png";
 import villanoIntentar from "../../assets/villano-vintentar.png";
-import estrellaMision from "../../assets/estrella-mision.png";
 import iconoAciertos from "../../assets/icono-aciertos.png";
 import iconoTiempo from "../../assets/icono-tiempo.png";
 import iconoPrecision from "../../assets/icono-precision.png";
@@ -44,6 +43,8 @@ import {
   FiX,
   FiCheck,
   FiCheckCircle,
+  FiRefreshCw,
+  FiArrowRight,
   FiPercent,
   FiInfo,
   FiPlay,
@@ -421,6 +422,122 @@ function PistaBaitModal({
 }
 
 /* =========================================================
+   COMPONENTE: REPRODUCTOR DE AUDIO DEL RESULTADO
+   Se reproduce solo apenas se monta, y muestra los
+   controles normales de un reproductor de audio: retroceder
+   10s, pausar/reproducir y adelantar 10s. Mismo patrón que
+   las demás actividades.
+========================================================= */
+
+const RESULT_AUDIO_SALTO_SEGUNDOS = 10;
+
+function ResultAudioPlayer({ src }: { src?: string }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [reproduciendo, setReproduciendo] = useState(false);
+  const [progreso, setProgreso] = useState(0);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    if (!audio || !src) {
+      return;
+    }
+
+    audio.currentTime = 0;
+    audio.volume = 1;
+
+    const playPromise = audio.play();
+
+    if (playPromise !== undefined) {
+      playPromise.catch((error) => {
+        console.warn(
+          "El audio del resultado no pudo iniciarse automáticamente:",
+          error,
+        );
+      });
+    }
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, [src]);
+
+  const alternarReproduccion = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (audio.paused || audio.ended) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  };
+
+  const saltar = (segundos: number) => {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    audio.currentTime = Math.min(
+      Math.max(audio.currentTime + segundos, 0),
+      audio.duration,
+    );
+  };
+
+  const actualizarProgreso = () => {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    setProgreso((audio.currentTime / audio.duration) * 100);
+  };
+
+  if (!src) return null;
+
+  return (
+    <div className="sen-modal-audio">
+      <audio
+        ref={audioRef}
+        src={src}
+        preload="auto"
+        autoPlay
+        onPlay={() => setReproduciendo(true)}
+        onPause={() => setReproduciendo(false)}
+        onEnded={() => setReproduciendo(false)}
+        onTimeUpdate={actualizarProgreso}
+      />
+
+      <button
+        type="button"
+        className="sen-modal-audio-btn"
+        onClick={() => saltar(-RESULT_AUDIO_SALTO_SEGUNDOS)}
+        aria-label="Retroceder 10 segundos"
+      >
+        <FiRotateCcw />
+      </button>
+
+      <button
+        type="button"
+        className="sen-modal-audio-btn sen-modal-audio-btn--play"
+        onClick={alternarReproduccion}
+        aria-label={reproduciendo ? "Pausar" : "Reproducir"}
+      >
+        {reproduciendo ? <FiPause /> : <FiPlay />}
+      </button>
+
+      <button
+        type="button"
+        className="sen-modal-audio-btn"
+        onClick={() => saltar(RESULT_AUDIO_SALTO_SEGUNDOS)}
+        aria-label="Adelantar 10 segundos"
+      >
+        <FiRotateCw />
+      </button>
+
+      <div className="sen-modal-audio-progress">
+        <div style={{ width: `${progreso}%` }} />
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
    COMPONENTE PRINCIPAL
 ========================================================= */
 
@@ -475,8 +592,6 @@ export default function SensorFrecuencias() {
   const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
   const [mensajePistaBait, setMensajePistaBait] = useState("");
   const [mostrarIntroBait, setMostrarIntroBait] = useState(false);
-  const [mostrarBaitExito, setMostrarBaitExito] = useState(false);
-  const [mostrarBaitFallo, setMostrarBaitFallo] = useState(false);
 
   const [cargandoInicial, setCargandoInicial] = useState(true);
   const [cargandoAbsoluta, setCargandoAbsoluta] = useState(false);
@@ -1092,146 +1207,198 @@ export default function SensorFrecuencias() {
   // ==========================================
 
   if (resultado === "exito") return (
-    <div className="res-modal-overlay">
-      <div className="res-modal-card res-modal-exito res-modal-wide">
-        <div className="res-confetti" aria-hidden="true">
-          {Array.from({ length: 16 }).map((_, i) => (
-            <span key={i} className={`res-confetti-dot res-confetti-dot-${i % 6}`} />
-          ))}
-        </div>
+    <div
+      className="sen-modal-overlay sen-modal-overlay--completed"
+      role="presentation"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 24,
+        background: "rgba(15, 23, 42, 0.58)",
+        overflowY: "auto",
+      }}
+    >
+      <section
+        className="sen-modal sen-modal--completed"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="sen-result-title"
+        style={{
+          position: "relative",
+          width: "100%",
+          maxWidth: 960,
+          maxHeight: "90vh",
+          overflowY: "auto",
+          background: "#ffffff",
+          borderRadius: 28,
+          boxShadow: "0 40px 80px rgba(15, 23, 42, 0.35)",
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 1fr) 310px",
+        }}
+      >
+        <div className="sen-modal-decoration sen-modal-decoration--one" />
+        <div className="sen-modal-decoration sen-modal-decoration--two" />
 
-        <div className="res-titulo-row">
-          <div className="res-icono-check">✔</div>
-          <div>
-            <h1 className="res-titulo">¡Actividad completada!</h1>
-            <p className="res-subtitulo">
-              Has terminado con éxito la misión de{" "}
-              <span className="res-mathnova-color">MathData</span>.
-            </p>
+        <div className="sen-modal-main">
+          <header className="sen-modal-header">
+            <div className="sen-modal-status-icon">
+              <FiCheckCircle />
+            </div>
+
+            <div className="sen-modal-header-copy">
+              <span className="sen-modal-badge">
+                <FiCheckCircle />
+                Actividad completada
+              </span>
+
+              <h1 id="sen-result-title">¡Actividad completada!</h1>
+
+              <p>
+                Has terminado con éxito la misión de{" "}
+                <span className="sen-modal-mathnova-color">MathData</span>.
+              </p>
+            </div>
+          </header>
+
+          <div className="sen-modal-content">
+            <div className="sen-modal-character">
+              <img
+                src={villanoTrofeoCompleto}
+                alt="Villano celebrando con trofeo"
+                draggable={false}
+                style={{ maxWidth: 220, width: "100%", height: "auto", display: "block" }}
+              />
+            </div>
+
+            <article className="sen-modal-message">
+              <span className="sen-modal-message-label">Resultado de la misión</span>
+              <h2>¡Excelente trabajo, agente!</h2>
+              <p>
+                Calculaste las frecuencias correctamente y localizaste la
+                zona de origen de las señales. Sigue así y conquista la
+                siguiente misión.
+              </p>
+            </article>
           </div>
+
+          <ResultAudioPlayer src={baitAudioActividadCompletada} />
+
+          <article className="sen-modal-summary">
+            <header>
+              <FiBarChart2 />
+              <h2>Resumen de la actividad</h2>
+            </header>
+
+            <div className="sen-modal-stats">
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
+                  <img src={iconoAciertos} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Pasos correctos</span>
+                  <strong>{aciertosResultado}/4</strong>
+                  <small>¡Perfecto!</small>
+                </div>
+              </article>
+
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
+                  <img src={iconoTiempo} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Tiempo</span>
+                  <strong>{formatearTiempoSensor(tiempoResultado)}</strong>
+                  <small>min</small>
+                </div>
+              </article>
+
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
+                  <img src={iconoPrecision} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Precisión</span>
+                  <strong>{precisionResultado}%</strong>
+                  <small>¡Impecable!</small>
+                </div>
+              </article>
+
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
+                  <img src={iconoRecompensa} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Recompensa</span>
+                  <strong>+50 pts</strong>
+                  <small>Puntos ganados</small>
+                </div>
+              </article>
+
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
+                  <img src={iconoInsignia} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Insignia obtenida</span>
+                  <strong>Misión cumplida</strong>
+                  <small>¡Felicidades!</small>
+                </div>
+              </article>
+            </div>
+          </article>
         </div>
 
-        <div className="res-mensaje-box res-mensaje-verde">
-          <div className="res-icono-estrella-circle">
-            <img src={estrellaMision} alt="estrella" />
-          </div>
-          <div>
-            <strong>¡Excelente trabajo, agente!</strong>
-            <p>
-              Calculaste las frecuencias correctamente y localizaste la
-              zona de origen de las señales. Sigue así y conquista la
-              siguiente misión.
-            </p>
-          </div>
-        </div>
+        <aside className="sen-modal-side">
+          <article className="sen-modal-side-message">
+            <span>¡Misión completada!</span>
+            <strong>Sigue avanzando por MathData</strong>
+            <p>Cada actividad superada fortalece tus habilidades matemáticas.</p>
+          </article>
 
-        <button
-          type="button"
-          className="rmp-bait-mensaje-trigger res-modal-villano-trigger"
-          onClick={() => setMostrarBaitExito(true)}
-          aria-label="Abrir mensaje de Bait"
-        >
-          <span className="rmp-bait-mensaje-dot" />
-          <FiMessageSquare />
-          Bait tiene un mensaje para ti
-        </button>
-
-        <div className="res-villano-exito-group">
-          <img
-            src={villanoTrofeoCompleto}
-            alt="Villano celebrando con trofeo"
-            className="res-villano-trofeo-img"
-          />
-        </div>
-
-        <div className="res-modal-body">
-          <div className="res-modal-left">
-            <div className="res-resumen-card">
-              <div className="res-resumen-header">
-                <FiBarChart2 />
-                <span>Resumen de la actividad</span>
-              </div>
-              <div className="res-resumen-stats">
-                <div className="res-stat">
-                  <img src={iconoAciertos} alt="" className="res-stat-img" />
-                  <strong className="res-stat-num-verde">
-                    {aciertosResultado}/4
-                  </strong>
-                  <small>Pasos correctos</small>
-                  <em>¡Perfecto!</em>
-                </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoTiempo} alt="" className="res-stat-img" />
-                  <strong>
-                    {formatearTiempoSensor(
-                      tiempoResultado,
-                    )}
-                  </strong>
-                  <small>Tiempo</small>
-                  <em>min</em>
-                </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoPrecision} alt="" className="res-stat-img" />
-                  <strong className="res-stat-num-verde">
-                    {precisionResultado}%
-                  </strong>
-                  <small>Precisión</small>
-                  <em>¡Impecable!</em>
-                </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoRecompensa} alt="" className="res-stat-img" />
-                  <strong className="res-pts-naranja">+50 pts</strong>
-                  <small>Recompensa</small>
-                  <em>Puntos ganados</em>
-                </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoInsignia} alt="" className="res-stat-img" />
-                  <strong>Misión<br />cumplida</strong>
-                  <small>Insignia obtenida</small>
-                  <em>¡Felicidades!</em>
-                </div>
-              </div>
+          <div className="sen-modal-progress">
+            <div>
+              <span>Progreso del tema</span>
+              <strong>50%</strong>
+            </div>
+            <div className="sen-modal-progress-bar">
+              <span style={{ width: "50%" }} />
             </div>
           </div>
 
-          <div className="res-modal-right">
+          <div className="sen-modal-actions">
             <button
-              className="res-btn res-btn-azul"
-              onClick={() =>
-                navigate(
-                  "/actividades-math-data/nucleo-decisiones",
-                )
-              }
+              type="button"
+              className="sen-modal-action sen-modal-action--primary"
+              onClick={() => navigate("/actividades-math-data/nucleo-decisiones")}
             >
-              Siguiente actividad
+              <FiArrowRight />
+              <span>Siguiente actividad</span>
             </button>
-            <button className="res-btn res-btn-outline" onClick={handleReiniciarActividad}>
-              Repetir actividad
-            </button>
+
             <button
-              className="res-btn res-btn-outline"
+              type="button"
+              className="sen-modal-action sen-modal-action--secondary"
+              onClick={handleReiniciarActividad}
+            >
+              <FiRefreshCw />
+              <span>Repetir actividad</span>
+            </button>
+
+            <button
+              type="button"
+              className="sen-modal-action sen-modal-action--secondary"
               onClick={() => navigate("/actividades-math-data")}
             >
-              Volver a actividades
+              <FiGrid />
+              <span>Volver a actividades</span>
             </button>
           </div>
-        </div>
-      </div>
-
-      {mostrarBaitExito && (
-        <PistaBaitModal
-          titulo="Bait tiene un mensaje para ti"
-          contenido="¡Lo lograste, agente! Con la frecuencia absoluta y la frecuencia relativa pudimos calcular dónde es más probable encontrar el origen de las señales. El reporte del sensor está listo para el Centro de Mando."
-          videoSrc={baitHablandoVideo}
-          audioSrc={baitAudioActividadCompletada}
-          botonTexto="Cerrar mensaje"
-          onClose={() => setMostrarBaitExito(false)}
-        />
-      )}
+        </aside>
+      </section>
     </div>
   );
 
@@ -1240,127 +1407,198 @@ export default function SensorFrecuencias() {
   // ==========================================
 
   if (resultado === "fallo") return (
-    <div className="res-modal-overlay">
-      <div className="res-modal-card res-modal-fallo res-modal-wide">
-        <div className="res-titulo-row">
-          <div className="res-icono-retry">&#x1F504;</div>
-          <div>
-            <h1 className="res-titulo">¡Vuelve a intentarlo!</h1>
-            <p className="res-subtitulo">
-              Aún no completas con éxito la misión de{" "}
-              <span className="res-mathnova-color">MathData</span>.
-            </p>
+    <div
+      className="sen-modal-overlay sen-modal-overlay--retry"
+      role="presentation"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 24,
+        background: "rgba(15, 23, 42, 0.58)",
+        overflowY: "auto",
+      }}
+    >
+      <section
+        className="sen-modal sen-modal--retry"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="sen-result-title-fallo"
+        style={{
+          position: "relative",
+          width: "100%",
+          maxWidth: 960,
+          maxHeight: "90vh",
+          overflowY: "auto",
+          background: "#ffffff",
+          borderRadius: 28,
+          boxShadow: "0 40px 80px rgba(15, 23, 42, 0.35)",
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 1fr) 310px",
+        }}
+      >
+        <div className="sen-modal-decoration sen-modal-decoration--one" />
+        <div className="sen-modal-decoration sen-modal-decoration--two" />
+
+        <div className="sen-modal-main">
+          <header className="sen-modal-header">
+            <div className="sen-modal-status-icon">
+              <FiRefreshCw />
+            </div>
+
+            <div className="sen-modal-header-copy">
+              <span className="sen-modal-badge">
+                <FiRefreshCw />
+                Vuelve a intentarlo
+              </span>
+
+              <h1 id="sen-result-title-fallo">¡Vuelve a intentarlo!</h1>
+
+              <p>
+                Aún no completas con éxito la misión de{" "}
+                <span className="sen-modal-mathnova-color">MathData</span>.
+              </p>
+            </div>
+          </header>
+
+          <div className="sen-modal-content">
+            <div className="sen-modal-character">
+              <img
+                src={villanoIntentar}
+                alt="Villano retando"
+                draggable={false}
+                style={{ maxWidth: 220, width: "100%", height: "auto", display: "block" }}
+              />
+            </div>
+
+            <article className="sen-modal-message">
+              <span className="sen-modal-message-label">Resultado de la misión</span>
+              <h2>¡No te rindas, agente!</h2>
+              <p>
+                Revisa el conteo de cada señal en el radar y recalcula sus
+                porcentajes. Recuerda: frecuencia relativa = frecuencia
+                absoluta ÷ total × 100.
+              </p>
+            </article>
           </div>
-        </div>
 
-        <div className="res-mensaje-box res-mensaje-azul">
-          <div className="res-icono-datos">📊</div>
-          <div>
-            <strong>¡No te rindas, agente!</strong>
-            <p>
-              Revisa el conteo de cada señal en el radar y recalcula sus
-              porcentajes. Recuerda: frecuencia relativa = frecuencia
-              absoluta ÷ total × 100.
-            </p>
-          </div>
-        </div>
+          <ResultAudioPlayer src={baitAudioVuelveAIntentarlo} />
 
-        <button
-          type="button"
-          className="rmp-bait-mensaje-trigger res-modal-villano-trigger"
-          onClick={() => setMostrarBaitFallo(true)}
-          aria-label="Abrir mensaje de Bait"
-        >
-          <span className="rmp-bait-mensaje-dot" />
-          <FiMessageSquare />
-          Bait tiene un mensaje para ti
-        </button>
+          <article className="sen-modal-summary">
+            <header>
+              <FiBarChart2 />
+              <h2>Resumen de la actividad</h2>
+            </header>
 
-        <div className="res-villano-fallo-group">
-          <img src={villanoIntentar} alt="Villano retando" className="res-villano-img" />
-        </div>
+            <div className="sen-modal-stats">
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
+                  <img src={iconoAciertos} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Pasos correctos</span>
+                  <strong>{aciertosResultado}/4</strong>
+                  <small>¡Sigue así!</small>
+                </div>
+              </article>
 
-        <div className="res-modal-body">
-          <div className="res-modal-left">
-            <div className="res-resumen-card">
-              <div className="res-resumen-header">
-                <FiBarChart2 />
-                <span>Resumen de la actividad</span>
-              </div>
-              <div className="res-resumen-stats">
-                <div className="res-stat">
-                  <img src={iconoAciertos} alt="" className="res-stat-img" />
-                  <strong>
-                    {aciertosResultado}/4
-                  </strong>
-                  <small>Pasos correctos</small>
-                  <em>¡Sigue así!</em>
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
+                  <img src={iconoTiempo} alt="" aria-hidden="true" />
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoTiempo} alt="" className="res-stat-img" />
-                  <strong>
-                    {formatearTiempoSensor(
-                      tiempoResultado,
-                    )}
-                  </strong>
-                  <small>Tiempo</small>
-                  <em>min</em>
+                <div>
+                  <span>Tiempo</span>
+                  <strong>{formatearTiempoSensor(tiempoResultado)}</strong>
+                  <small>min</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoPrecision} alt="" className="res-stat-img" />
-                  <strong>
-                    {precisionResultado}%
-                  </strong>
-                  <small>Precisión</small>
-                  <em>Puedes mejorar</em>
+              </article>
+
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
+                  <img src={iconoPrecision} alt="" aria-hidden="true" />
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoRecompensa} alt="" className="res-stat-img" />
-                  <strong className="res-pts-azul">+10 pts</strong>
-                  <small>Recompensa</small>
-                  <em>Puntos ganados</em>
+                <div>
+                  <span>Precisión</span>
+                  <strong>{precisionResultado}%</strong>
+                  <small>Puedes mejorar</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoInsignia} alt="" className="res-stat-img" />
+              </article>
+
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
+                  <img src={iconoRecompensa} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Recompensa</span>
+                  <strong>+10 pts</strong>
+                  <small>Puntos ganados</small>
+                </div>
+              </article>
+
+              <article className="sen-modal-stat">
+                <div className="sen-modal-stat-icon">
+                  <img src={iconoInsignia} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Insignia obtenida</span>
                   <strong>Sigue intentando</strong>
-                  <small>Insignia obtenida</small>
-                  <em>¡No te rindas!</em>
+                  <small>¡No te rindas!</small>
                 </div>
-              </div>
+              </article>
+            </div>
+          </article>
+        </div>
+
+        <aside className="sen-modal-side">
+          <article className="sen-modal-side-message">
+            <span>¡No te rindas!</span>
+            <strong>Cada intento te ayuda a mejorar</strong>
+            <p>Usa la pista, revisa el procedimiento y vuelve a resolver la actividad.</p>
+          </article>
+
+          <div className="sen-modal-progress">
+            <div>
+              <span>Progreso del tema</span>
+              <strong>50%</strong>
+            </div>
+            <div className="sen-modal-progress-bar">
+              <span style={{ width: "50%" }} />
             </div>
           </div>
 
-          <div className="res-modal-right">
-            <button className="res-btn res-btn-azul" onClick={handleReiniciarActividad}>
-              Intentar de nuevo
-            </button>
-            <button className="res-btn res-btn-outline" onClick={() => setMostrarPistaBait(true)}>
-              Ver pista
-            </button>
+          <div className="sen-modal-actions">
             <button
-              className="res-btn res-btn-outline"
+              type="button"
+              className="sen-modal-action sen-modal-action--primary"
+              onClick={handleReiniciarActividad}
+            >
+              <FiRefreshCw />
+              <span>Intentar de nuevo</span>
+            </button>
+
+            <button
+              type="button"
+              className="sen-modal-action sen-modal-action--secondary"
+              onClick={() => setMostrarPistaBait(true)}
+            >
+              <FiTarget />
+              <span>Ver pista</span>
+            </button>
+
+            <button
+              type="button"
+              className="sen-modal-action sen-modal-action--secondary"
               onClick={() => navigate("/actividades-math-data")}
             >
-              {"<-"} Volver a actividades
+              <FiGrid />
+              <span>Volver a actividades</span>
             </button>
           </div>
-        </div>
-      </div>
-
-      {mostrarBaitFallo && (
-        <PistaBaitModal
-          titulo="Bait tiene un mensaje para ti"
-          contenido="¡Agente, aún hay esperanza! El radar sigue esperando tu análisis y la Base MathNova confía en ti. No importa cuántos intentos necesites; lo importante es seguir adelante hasta completar la misión. Analiza los datos con atención y demuestra de lo que eres capaz."
-          videoSrc={baitHablandoVideo}
-          audioSrc={baitAudioVuelveAIntentarlo}
-          botonTexto="Cerrar mensaje"
-          onClose={() => setMostrarBaitFallo(false)}
-        />
-      )}
+        </aside>
+      </section>
 
       {mostrarPistaBait && (
         <PistaBaitModal
