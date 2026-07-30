@@ -172,6 +172,8 @@ type ActividadPerfil = Partial<ProgresoActividadReal> & {
   modulo?: string;
 
   updated_at?: string | number | Date | null;
+  created_at?: string | number | Date | null;
+  fecha_creacion?: string | number | Date | null;
   fechaCompletado?: string | number | Date | null;
 
   estrellas?: number;
@@ -183,8 +185,19 @@ type ActividadPerfil = Partial<ProgresoActividadReal> & {
   actividad_codigo?: string;
 
   estrellas_obtenidas?: number;
+  tiempo_segundos?: number;
+  intentos?: number;
+  total_intentos?: number;
 
   fecha_ultimo_intento?: string | number | Date | null;
+};
+
+type MetasSemanales = {
+  inicioSemana: Date;
+  finSemana: Date;
+  leccionesCompletadas: number;
+  tiempoEstudioSegundos: number;
+  actividadesResueltas: number;
 };
 
 const convertirNumero = (
@@ -849,23 +862,171 @@ function PerfilAlumno() {
       alumno?.progreso_general
     );
 
-  const segundosEstudio =
-    convertirNumero(
-      alumno?.tiempo_estudio_segundos
+  const metasSemanales: MetasSemanales =
+    useMemo(() => {
+      const hoy = new Date();
+      const inicioSemana = new Date(hoy);
+      const diaSemana = hoy.getDay();
+
+      /*
+       * getDay() devuelve 0 para domingo. Esta
+       * operación permite que la semana siempre
+       * comience en lunes.
+       */
+      const diferenciaHastaLunes =
+        diaSemana === 0
+          ? -6
+          : 1 - diaSemana;
+
+      inicioSemana.setDate(
+        hoy.getDate() +
+          diferenciaHastaLunes
+      );
+
+      inicioSemana.setHours(
+        0,
+        0,
+        0,
+        0
+      );
+
+      const finSemana = new Date(
+        inicioSemana
+      );
+
+      finSemana.setDate(
+        inicioSemana.getDate() + 6
+      );
+
+      finSemana.setHours(
+        23,
+        59,
+        59,
+        999
+      );
+
+      const leccionesUnicas =
+        new Set<string>();
+
+      let tiempoEstudioSegundos = 0;
+      let actividadesResueltas = 0;
+
+      actividadesSeguras.forEach(
+        (actividad, index) => {
+          const fechaActividad =
+            actividad.fecha_ultimo_intento ??
+            actividad.updated_at ??
+            actividad.fechaCompletado ??
+            actividad.created_at ??
+            actividad.fecha_creacion ??
+            null;
+
+          if (!fechaActividad) {
+            return;
+          }
+
+          const fechaConvertida =
+            new Date(fechaActividad);
+
+          if (
+            Number.isNaN(
+              fechaConvertida.getTime()
+            ) ||
+            fechaConvertida < inicioSemana ||
+            fechaConvertida > finSemana
+          ) {
+            return;
+          }
+
+          const actividadCompletada =
+            actividad.completada === true ||
+            actividad.estado ===
+              "completada";
+
+          if (actividadCompletada) {
+            const codigoActividad =
+              actividad.actividad_codigo ??
+              actividad.actividadSlug ??
+              actividad.id_progreso ??
+              actividad.id ??
+              `${actividad.mundo ?? "mundo"}-${index}`;
+
+            leccionesUnicas.add(
+              String(codigoActividad)
+            );
+          }
+
+          tiempoEstudioSegundos +=
+            Math.max(
+              0,
+              convertirNumero(
+                actividad.tiempo_segundos
+              )
+            );
+
+          /*
+           * Cuando el backend incluye el número
+           * de intentos lo respetamos. Si no lo
+           * incluye, cada registro semanal cuenta
+           * como una actividad resuelta.
+           */
+          const intentosRegistrados =
+            convertirNumero(
+              actividad.total_intentos ??
+                actividad.intentos,
+              1
+            );
+
+          actividadesResueltas +=
+            Math.max(
+              1,
+              Math.floor(
+                intentosRegistrados
+              )
+            );
+        }
+      );
+
+      return {
+        inicioSemana,
+        finSemana,
+        leccionesCompletadas:
+          leccionesUnicas.size,
+        tiempoEstudioSegundos,
+        actividadesResueltas,
+      };
+    }, [actividadesSeguras]);
+
+  const progresoMetaLecciones =
+    Math.min(
+      (metasSemanales.leccionesCompletadas /
+        10) *
+        100,
+      100
     );
 
   const progresoMetaHoras =
     Math.min(
-      (segundosEstudio / 18000) *
+      (metasSemanales.tiempoEstudioSegundos /
+        18000) *
         100,
       100
     );
 
   const progresoMetaActividades =
     Math.min(
-      (leccionesCompletadas / 20) *
+      (metasSemanales.actividadesResueltas /
+        20) *
         100,
       100
+    );
+
+  const tiempoMetaSemanal =
+    formatearMinutos(
+      Math.floor(
+        metasSemanales.tiempoEstudioSegundos /
+          60
+      )
     );
 
   const actividadReciente =
@@ -1606,21 +1767,24 @@ function PerfilAlumno() {
               <div className="meta-bar">
                 <span
                   style={{
-                    width: `${Math.min(
-                      (leccionesCompletadas /
-                        10) *
-                        100,
-                      100
-                    )}%`,
+                    width: `${progresoMetaLecciones}%`,
                   }}
                 />
               </div>
 
               <strong>
-                {leccionesCompletadas}/10
+                {
+                  metasSemanales.leccionesCompletadas
+                }
+                /10
               </strong>
 
-              <b>⭐ +100</b>
+              <b>
+                {metasSemanales.leccionesCompletadas >=
+                10
+                  ? "✅ Cumplida"
+                  : "⭐ +100"}
+              </b>
             </div>
 
             <div className="meta-row">
@@ -1640,12 +1804,15 @@ function PerfilAlumno() {
               </div>
 
               <strong>
-                {alumno?.tiempo_estudio ??
-                  "0m"}{" "}
-                / 5h
+                {tiempoMetaSemanal} / 5h
               </strong>
 
-              <b>⭐ +100</b>
+              <b>
+                {metasSemanales.tiempoEstudioSegundos >=
+                18000
+                  ? "✅ Cumplida"
+                  : "⭐ +100"}
+              </b>
             </div>
 
             <div className="meta-row">
@@ -1664,14 +1831,18 @@ function PerfilAlumno() {
               </div>
 
               <strong>
-                {Math.min(
-                  leccionesCompletadas,
-                  20
-                )}
+                {
+                  metasSemanales.actividadesResueltas
+                }
                 /20
               </strong>
 
-              <b>⭐ +100</b>
+              <b>
+                {metasSemanales.actividadesResueltas >=
+                20
+                  ? "✅ Cumplida"
+                  : "⭐ +100"}
+              </b>
             </div>
 
             <button

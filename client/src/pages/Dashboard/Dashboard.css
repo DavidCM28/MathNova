@@ -1211,3 +1211,61 @@ html body #root .dashboard-page > .sidebar .sidebar-fox {
     height: 42px;
   }
 }
+
+/* =====================================================================
+   BOTÓN DISCRETO · VOLVER A VER LA INTRODUCCIÓN
+   ===================================================================== */
+
+.footer-intro-btn {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: #7891b5;
+  opacity: 0.72;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.footer-intro-btn svg {
+  font-size: 25px;
+}
+
+.footer-intro-btn:hover {
+  color: #0058ff;
+  opacity: 1;
+  background: rgba(0, 88, 255, 0.08);
+  border-color: rgba(0, 88, 255, 0.16);
+  transform: translateY(-2px);
+}
+
+.footer-intro-btn:active {
+  transform: translateY(0);
+}
+
+.footer-intro-btn:focus-visible {
+  outline: 3px solid rgba(0, 88, 255, 0.2);
+  outline-offset: 2px;
+}
+
+@media (max-width: 850px) {
+  .footer-intro-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .footer-intro-btn svg {
+    font-size: 23px;
+  }
+}

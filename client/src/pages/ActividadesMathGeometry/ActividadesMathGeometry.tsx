@@ -34,6 +34,7 @@ import {
   FiStar,
   FiTarget,
   FiBookOpen,
+  FiLock,
 } from "react-icons/fi";
 
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
@@ -318,6 +319,19 @@ function ActividadesMathGeometry() {
     ...actividadesTema2ConEstado,
   ];
 
+  const estaDesbloqueada = (codigoActividad: string): boolean => {
+    const indiceGlobal = todasLasActividades.findIndex(
+      (act) => act.codigo === codigoActividad,
+    );
+
+    // La actividad 1 siempre está accesible
+    if (indiceGlobal <= 0) return true;
+
+    // Se desbloquea si la anterior está Completada
+    const actividadAnterior = todasLasActividades[indiceGlobal - 1];
+    return actividadAnterior.estado === "Completada";
+  };
+
   const totalCompletadas = todasLasActividades.filter(
     (actividad) =>
       actividad.estado === "Completada",
@@ -524,71 +538,95 @@ function ActividadesMathGeometry() {
 
               <div className="geomx-activities-zone">
                 <div className="geomx-activities-grid">
-                  {actividadesTema1ConEstado.map((item, index) => (
-                    <article
-                      className={`geomx-activity-card geomx-card-${index + 1}`}
-                      key={item.titulo}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => irARuta(item.ruta)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault();
-                          irARuta(item.ruta);
-                        }
-                      }}
-                    >
-                      <div className="geomx-activity-image">
-                        <img src={item.img} alt={item.titulo} />
-                        <span className="geomx-card-number">{item.numero}</span>
-                      </div>
+                  {actividadesTema1ConEstado.map((item, index) => {
+    const desbloqueada = estaDesbloqueada(item.codigo);
 
-                      <div className="geomx-activity-info">
-                        <div className="geomx-card-tags">
-                          <span className="geomx-easy">{item.nivel}</span>
-                          <span
-                            className={`geomx-state geomx-state-${item.estado
-                              .toLowerCase()
-                              .replace(" ", "-")}`}
-                          >
-                            {item.estado}
-                            {item.estrellas > 0
-                              ? ` · ${item.estrellas} ★`
-                              : ""}
-                          </span>
-                        </div>
+    return (
+      <article
+        className={`geomx-activity-card geomx-card-${index + 1} ${
+          !desbloqueada ? "geomx-card-locked" : ""
+        }`}
+        key={item.titulo}
+        role="button"
+        tabIndex={desbloqueada ? 0 : -1}
+        onClick={() => {
+          if (desbloqueada) irARuta(item.ruta);
+        }}
+        onKeyDown={(event) => {
+          if (
+            desbloqueada &&
+            (event.key === "Enter" || event.key === " ")
+          ) {
+            event.preventDefault();
+            irARuta(item.ruta);
+          }
+        }}
+      >
+        <div className="geomx-activity-image">
+          <img src={item.img} alt={item.titulo} />
+          <span className="geomx-card-number">{item.numero}</span>
 
-                        <h3>{item.titulo}</h3>
-                        <p>{item.texto}</p>
+          {!desbloqueada && (
+            <div className="geomx-lock-overlay">
+              <FiLock className="geomx-lock-icon" />
+              <span>Bloqueada</span>
+            </div>
+          )}
+        </div>
 
-                        <div className="geomx-activity-bottom">
-                          <small>
-                            <FiClock />
-                            {item.tiempo}
-                          </small>
+        <div className="geomx-activity-info">
+          <div className="geomx-card-tags">
+            <span className="geomx-easy">{item.nivel}</span>
+            <span
+              className={`geomx-state geomx-state-${item.estado
+                .toLowerCase()
+                .replace(" ", "-")}`}
+            >
+              {item.estado}
+              {item.estrellas > 0 ? ` · ${item.estrellas} ★` : ""}
+            </span>
+          </div>
 
-                          <button
-                            type="button"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              irARuta(item.ruta);
-                            }}
-                          >
-                            {item.estado === "Completada" ? (
-                              <FiCheckCircle />
-                            ) : (
-                              <FiPlayCircle />
-                            )}
-                            {item.estado === "Completada"
-                              ? "Repetir"
-                              : item.estado === "En curso"
-                                ? "Continuar"
-                                : "Iniciar"}
-                          </button>
-                        </div>
-                      </div>
-                    </article>
-                  ))}
+          <h3>{item.titulo}</h3>
+          <p>{item.texto}</p>
+
+          <div className="geomx-activity-bottom">
+            <small>
+              <FiClock />
+              {item.tiempo}
+            </small>
+
+            <button
+              type="button"
+              disabled={!desbloqueada}
+              onClick={(event) => {
+                event.stopPropagation();
+                if (desbloqueada) irARuta(item.ruta);
+              }}
+            >
+              {!desbloqueada ? (
+                <>
+                  <FiLock /> Bloqueada
+                </>
+              ) : item.estado === "Completada" ? (
+                <>
+                  <FiCheckCircle /> Repetir
+                </>
+              ) : item.estado === "En curso" ? (
+                <>
+                  <FiPlayCircle /> Continuar
+                </>
+              ) : (
+                <>
+                  <FiPlayCircle /> Iniciar
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </article>
+    );
+  })}
                 </div>
               </div>
             </div>
@@ -612,71 +650,95 @@ function ActividadesMathGeometry() {
 
               <div className="geomx-activities-zone">
                 <div className="geomx-activities-grid geomx-topic-two-grid">
-                  {actividadesTema2ConEstado.map((item, index) => (
-                    <article
-                      className={`geomx-activity-card geomx-card-${index + 5}`}
-                      key={item.titulo}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => irARuta(item.ruta)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault();
-                          irARuta(item.ruta);
-                        }
-                      }}
-                    >
-                      <div className="geomx-activity-image">
-                        <img src={item.img} alt={item.titulo} />
-                        <span className="geomx-card-number">{item.numero}</span>
-                      </div>
+                 {actividadesTema2ConEstado.map((item, index) => {
+    const desbloqueada = estaDesbloqueada(item.codigo);
 
-                      <div className="geomx-activity-info">
-                        <div className="geomx-card-tags">
-                          <span className="geomx-easy">{item.nivel}</span>
-                          <span
-                            className={`geomx-state geomx-state-${item.estado
-                              .toLowerCase()
-                              .replace(" ", "-")}`}
-                          >
-                            {item.estado}
-                            {item.estrellas > 0
-                              ? ` · ${item.estrellas} ★`
-                              : ""}
-                          </span>
-                        </div>
+    return (
+      <article
+        className={`geomx-activity-card geomx-card-${index + 5} ${
+          !desbloqueada ? "geomx-card-locked" : ""
+        }`}
+        key={item.titulo}
+        role="button"
+        tabIndex={desbloqueada ? 0 : -1}
+        onClick={() => {
+          if (desbloqueada) irARuta(item.ruta);
+        }}
+        onKeyDown={(event) => {
+          if (
+            desbloqueada &&
+            (event.key === "Enter" || event.key === " ")
+          ) {
+            event.preventDefault();
+            irARuta(item.ruta);
+          }
+        }}
+      >
+        <div className="geomx-activity-image">
+          <img src={item.img} alt={item.titulo} />
+          <span className="geomx-card-number">{item.numero}</span>
 
-                        <h3>{item.titulo}</h3>
-                        <p>{item.texto}</p>
+          {!desbloqueada && (
+            <div className="geomx-lock-overlay">
+              <FiLock className="geomx-lock-icon" />
+              <span>Bloqueada</span>
+            </div>
+          )}
+        </div>
 
-                        <div className="geomx-activity-bottom">
-                          <small>
-                            <FiClock />
-                            {item.tiempo}
-                          </small>
+        <div className="geomx-activity-info">
+          <div className="geomx-card-tags">
+            <span className="geomx-easy">{item.nivel}</span>
+            <span
+              className={`geomx-state geomx-state-${item.estado
+                .toLowerCase()
+                .replace(" ", "-")}`}
+            >
+              {item.estado}
+              {item.estrellas > 0 ? ` · ${item.estrellas} ★` : ""}
+            </span>
+          </div>
 
-                          <button
-                            type="button"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              irARuta(item.ruta);
-                            }}
-                          >
-                            {item.estado === "Completada" ? (
-                              <FiCheckCircle />
-                            ) : (
-                              <FiPlayCircle />
-                            )}
-                            {item.estado === "Completada"
-                              ? "Repetir"
-                              : item.estado === "En curso"
-                                ? "Continuar"
-                                : "Iniciar"}
-                          </button>
-                        </div>
-                      </div>
-                    </article>
-                  ))}
+          <h3>{item.titulo}</h3>
+          <p>{item.texto}</p>
+
+          <div className="geomx-activity-bottom">
+            <small>
+              <FiClock />
+              {item.tiempo}
+            </small>
+
+            <button
+              type="button"
+              disabled={!desbloqueada}
+              onClick={(event) => {
+                event.stopPropagation();
+                if (desbloqueada) irARuta(item.ruta);
+              }}
+            >
+              {!desbloqueada ? (
+                <>
+                  <FiLock /> Bloqueada
+                </>
+              ) : item.estado === "Completada" ? (
+                <>
+                  <FiCheckCircle /> Repetir
+                </>
+              ) : item.estado === "En curso" ? (
+                <>
+                  <FiPlayCircle /> Continuar
+                </>
+              ) : (
+                <>
+                  <FiPlayCircle /> Iniciar
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </article>
+    );
+  })}
                 </div>
               </div>
             </div>

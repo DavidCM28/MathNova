@@ -973,3 +973,37 @@
   background: #0b753e;
   transform: translateY(-3px) scale(1.03);
 }
+
+
+/* --- Estilos para Bloqueo de Actividades en MathNumbers --- */
+.numx-card-locked {
+  opacity: 0.7;
+  cursor: not-allowed !important;
+}
+
+.numx-card-locked button {
+  background-color: #cbd5e1 !important;
+  color: #64748b !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+}
+
+.numx-lock-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 0.85rem;
+  gap: 0.25rem;
+}
+
+.numx-lock-icon {
+  font-size: 1.8rem;
+}
