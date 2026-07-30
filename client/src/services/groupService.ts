@@ -17,6 +17,7 @@ type GrupoResponse = {
   ok: boolean;
   mensaje: string;
   grupo: Grupo;
+  alumnos?: AlumnoGrupo[];
 };
 
 type ObtenerGruposResponse = {
@@ -92,6 +93,13 @@ export async function obtenerGrupos(): Promise<Grupo[]> {
 }
 
 export async function crearGrupo(nombreGrupo: string): Promise<GrupoResponse> {
+  return crearGrupoConAlumnos(nombreGrupo, []);
+}
+
+export async function crearGrupoConAlumnos(
+  nombreGrupo: string,
+  idsAlumnos: number[] = [],
+): Promise<GrupoResponse> {
   const token = obtenerToken();
 
   const response = await fetch(API_GRUPOS, {
@@ -102,10 +110,40 @@ export async function crearGrupo(nombreGrupo: string): Promise<GrupoResponse> {
     },
     body: JSON.stringify({
       nombre_grupo: nombreGrupo,
+      id_alumnos: idsAlumnos,
     }),
   });
 
   return leerJson<GrupoResponse>(response, "No se pudo crear el grupo.");
+}
+
+export async function obtenerAlumnosParaCrearGrupo(
+  buscar = "",
+): Promise<AlumnoGrupo[]> {
+  const token = obtenerToken();
+
+  const params = new URLSearchParams();
+
+  if (buscar.trim()) {
+    params.set("buscar", buscar.trim());
+  }
+
+  const url = params.toString()
+    ? `${API_GRUPOS}/alumnos-disponibles-crear?${params.toString()}`
+    : `${API_GRUPOS}/alumnos-disponibles-crear`;
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await leerJson<ObtenerAlumnosGrupoResponse>(
+    response,
+    "No se pudieron obtener los alumnos.",
+  );
+
+  return data.alumnos || [];
 }
 
 export async function actualizarGrupo(

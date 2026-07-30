@@ -164,6 +164,16 @@ function normalizarTexto(texto: string) {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
+function normalizarFiltro(texto: string) {
+  return normalizarTexto(texto).replace(/[\s_-]+/g, "");
+}
+
+function coincideFiltro(valor: string, filtro: string) {
+  if (filtro === "Todos") return true;
+
+  return normalizarFiltro(valor) === normalizarFiltro(filtro);
+}
+
 function formatearPromedio(valor: number | null | undefined) {
   if (valor === null || valor === undefined || Number.isNaN(Number(valor))) {
     return "—";
@@ -338,21 +348,30 @@ function ActividadesDocente() {
 
   const temas = useMemo(() => {
     const temasUnicos = Array.from(
-      new Set(datos.actividades.map((actividad) => actividad.tema)),
+      new Set(
+        datos.actividades
+          .filter((actividad) =>
+            coincideFiltro(String(actividad.mundo), mundoFiltro),
+          )
+          .map((actividad) => actividad.tema),
+      ),
     ).filter(Boolean);
 
     return ["Todos", ...temasUnicos];
-  }, [datos.actividades]);
+  }, [datos.actividades, mundoFiltro]);
+
+  useEffect(() => {
+    if (!temas.includes(temaFiltro)) {
+      setTemaFiltro("Todos");
+    }
+  }, [temaFiltro, temas]);
 
   const actividadesFiltradas = useMemo(() => {
     const busquedaNormalizada = normalizarTexto(busqueda);
 
     return datos.actividades.filter((actividad) => {
-      const coincideMundo =
-        mundoFiltro === "Todos" || actividad.mundo === mundoFiltro;
-
-      const coincideTema =
-        temaFiltro === "Todos" || actividad.tema === temaFiltro;
+      const coincideMundo = coincideFiltro(String(actividad.mundo), mundoFiltro);
+      const coincideTema = coincideFiltro(String(actividad.tema), temaFiltro);
 
       const textoActividad = normalizarTexto(
         `${actividad.titulo} ${actividad.descripcion} ${actividad.tema} ${actividad.mundo}`,

@@ -411,6 +411,141 @@
   font-weight: 600;
 }
 
+.crear-students-list {
+  margin-top: 12px;
+  max-height: 190px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 4px 4px 8px;
+}
+
+.crear-students-list::-webkit-scrollbar {
+  width: 7px;
+}
+
+.crear-students-list::-webkit-scrollbar-track {
+  background: #eef5ff;
+  border-radius: 999px;
+}
+
+.crear-students-list::-webkit-scrollbar-thumb {
+  background: #9fbcf2;
+  border-radius: 999px;
+}
+
+.crear-student-option {
+  min-width: 0;
+  border: 1px solid #d8e4f4;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  cursor: pointer;
+  color: #1f2a44;
+  font-family: "Poppins", Arial, sans-serif;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    background 0.25s ease;
+}
+
+.crear-student-option:hover:not(:disabled) {
+  transform: translateY(-3px);
+  border-color: #9fc0ff;
+  background: #f8fbff;
+  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.08);
+}
+
+.crear-student-option:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.crear-student-option b {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #0058ff;
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 900;
+  box-shadow: 0 8px 16px rgba(0, 88, 255, 0.15);
+}
+
+.crear-student-option b.purple {
+  background: #7c3aed;
+}
+
+.crear-student-option b.dark {
+  background: #334155;
+}
+
+.crear-student-option b.green {
+  background: #16a34a;
+}
+
+.crear-student-option b.orange {
+  background: #f59e0b;
+}
+
+.crear-student-option span {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.crear-student-option strong,
+.crear-student-option small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.crear-student-option strong {
+  color: #1f2a44;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.crear-student-option small {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.crear-student-option svg {
+  color: #0058ff;
+  font-size: 17px;
+}
+
+.crear-students-empty {
+  grid-column: 1 / -1;
+  margin: 10px 0 0;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.crear-students-empty.selected-empty {
+  margin-top: 4px;
+  padding: 12px 14px;
+  border: 1px dashed #bcd3ff;
+  border-radius: 12px;
+  background: #f8fbff;
+  color: #52617a;
+}
+
 .student-tags {
   display: flex;
   align-items: center;

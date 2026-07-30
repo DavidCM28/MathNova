@@ -101,49 +101,91 @@ type CalificacionesResponse = {
 
 type MundoId = "MathNumbers" | "MathGeometry" | "MathData";
 
-type ActividadMundo = {
-  titulo: string;
-};
-
 type MundoDetalle = {
   id: MundoId;
   nombre: MundoId;
   imagen: string;
   clase: "numbers" | "geometry" | "data";
-  actividades: ActividadMundo[];
+  actividades_realizadas: number;
+  actividades_completadas: number;
+  promedio: number | null;
+  intentos: number;
+  respuestas_abiertas: number;
 };
 
-const ACTIVIDADES_POR_MUNDO: Record<MundoId, ActividadMundo[]> = {
-  MathNumbers: [
-    { titulo: "El Cofre de Bienvenida" },
-    { titulo: "El Radar de Supervivencia" },
-    { titulo: "El Ascensor del Búnker" },
-    { titulo: "El Escuadrón Táctico" },
-    { titulo: "Los Espejos de la Bóveda" },
-    { titulo: "El Puente de Prioridades" },
-    { titulo: "El Enigma de Variables" },
-    { titulo: "El Simulador de Códigos Algebraicos" },
-  ],
-  MathGeometry: [
-    { titulo: "El Constructor de Caminos" },
-    { titulo: "La Ruta Perdida" },
-    { titulo: "Detectores de Giro" },
-    { titulo: "Cruce de Láser" },
-    { titulo: "El Taller del Ingeniero" },
-    { titulo: "El Escudo Perfecto" },
-    { titulo: "La Fortaleza Triangular" },
-    { titulo: "El Centro de Control" },
-  ],
-  MathData: [
-    { titulo: "Generador de Energía" },
-    { titulo: "Rampas de Lanzamiento" },
-    { titulo: "Encuesta de Tripulación" },
-    { titulo: "Holograma de Reportes" },
-    { titulo: "Sensor de Frecuencias" },
-    { titulo: "Núcleo de Decisiones" },
-    { titulo: "Oráculo de la Estación" },
-    { titulo: "Sala de Tres Caminos" },
-  ],
+type RespuestaDetalle = {
+  campo: string;
+  etiqueta: string;
+  valor: string;
+  abierta: boolean;
+};
+
+type ActividadDetalleAlumno = {
+  codigo: string;
+  titulo: string;
+  mundo: MundoId | string;
+  tema: string;
+  aciertos: number;
+  total_preguntas: number;
+  precision: number | null;
+  calificacion: number | null;
+  estrellas: number;
+  xp: number;
+  completada: boolean;
+  intentos: number;
+  tiempo_segundos: number;
+  fecha_ultimo_intento: string | null;
+  estado: string;
+  estado_clase: "completed" | "progress" | "open" | "locked";
+  recomendacion: string;
+  respuestas_abiertas: RespuestaDetalle[];
+  respuestas_detalle: RespuestaDetalle[];
+};
+
+type DetalleAlumnoData = {
+  alumno: AlumnoCalificacion;
+  resumen: {
+    actividades_intentadas: number;
+    actividades_completadas: number;
+    actividades_calificadas: number;
+    intentos_totales: number;
+    estrellas_totales: number;
+    xp_total: number;
+    tiempo_total_segundos: number;
+    respuestas_abiertas: number;
+    promedio: number | null;
+  };
+  mundos: Omit<MundoDetalle, "imagen" | "clase">[];
+  actividades: ActividadDetalleAlumno[];
+};
+
+type DetalleAlumnoResponse = {
+  ok: boolean;
+  mensaje?: string;
+} & DetalleAlumnoData;
+
+const MUNDOS_VISUALES: Record<
+  MundoId,
+  Pick<MundoDetalle, "id" | "nombre" | "imagen" | "clase">
+> = {
+  MathNumbers: {
+    id: "MathNumbers",
+    nombre: "MathNumbers",
+    imagen: mundoMathNumbers,
+    clase: "numbers",
+  },
+  MathGeometry: {
+    id: "MathGeometry",
+    nombre: "MathGeometry",
+    imagen: mundoMathGeometry,
+    clase: "geometry",
+  },
+  MathData: {
+    id: "MathData",
+    nombre: "MathData",
+    imagen: mundoMathData,
+    clase: "data",
+  },
 };
 
 const API_CALIFICACIONES_DOCENTE =
@@ -217,6 +259,46 @@ function formatearFechaCorta(valor: string | null | undefined) {
   });
 }
 
+function formatearFechaDetalle(valor: string | null | undefined) {
+  if (!valor) return "Sin fecha";
+
+  const fecha = new Date(valor);
+
+  if (Number.isNaN(fecha.getTime())) return "Sin fecha";
+
+  return fecha.toLocaleDateString("es-MX", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function formatearTiempo(segundos: number | null | undefined) {
+  const totalSegundos = Number(segundos || 0);
+
+  if (totalSegundos <= 0) return "—";
+
+  const minutos = Math.floor(totalSegundos / 60);
+  const horas = Math.floor(minutos / 60);
+
+  if (horas > 0) {
+    return `${horas} h ${minutos % 60} min`;
+  }
+
+  return `${Math.max(1, minutos)} min`;
+}
+
+function normalizarMundoId(mundo: string | null | undefined): MundoId | string {
+  const texto = normalizarTexto(String(mundo || ""))
+    .replace(/[\s_-]+/g, "");
+
+  if (texto === "mathnumbers" || texto === "numbers") return "MathNumbers";
+  if (texto === "mathgeometry" || texto === "geometry") return "MathGeometry";
+  if (texto === "mathdata" || texto === "data") return "MathData";
+
+  return mundo || "MathNova";
+}
+
 function clasePromedio(promedio: number | null) {
   if (promedio === null) return "empty";
   if (promedio >= 8.5) return "good";
@@ -250,6 +332,11 @@ function CalificacionesDocente() {
   const [alumnoDetalle, setAlumnoDetalle] = useState<AlumnoCalificacion | null>(
     null,
   );
+  const [detalleAlumno, setDetalleAlumno] = useState<DetalleAlumnoData | null>(
+    null,
+  );
+  const [cargandoDetalle, setCargandoDetalle] = useState(false);
+  const [errorDetalle, setErrorDetalle] = useState("");
   const [mundoSeleccionado, setMundoSeleccionado] =
     useState<MundoId>("MathNumbers");
   const scrollBloqueadoRef = useRef(0);
@@ -379,6 +466,80 @@ function CalificacionesDocente() {
   }, [grupoSeleccionado]);
 
   useEffect(() => {
+    if (!alumnoDetalle) {
+      setDetalleAlumno(null);
+      setCargandoDetalle(false);
+      setErrorDetalle("");
+      return;
+    }
+
+    const controller = new AbortController();
+
+    async function cargarDetalleAlumno() {
+      try {
+        setCargandoDetalle(true);
+        setErrorDetalle("");
+
+        const token = obtenerToken();
+        const response = await fetch(
+          `${API_CALIFICACIONES_DOCENTE}/alumno/${alumnoDetalle.id}`,
+          {
+            signal: controller.signal,
+            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+          },
+        );
+
+        const data = await leerRespuesta<DetalleAlumnoResponse>(response);
+
+        if (!response.ok || data.ok === false) {
+          throw new Error(
+            data.mensaje || "No se pudo cargar el detalle del alumno.",
+          );
+        }
+
+        setDetalleAlumno({
+          alumno: data.alumno,
+          resumen: data.resumen,
+          mundos: data.mundos || [],
+          actividades: data.actividades || [],
+        });
+
+        const mundoConActividad = (data.mundos || []).find(
+          (mundo) => mundo.actividades_realizadas > 0,
+        );
+        const mundoNormalizado = normalizarMundoId(
+          mundoConActividad?.id || "",
+        );
+
+        setMundoSeleccionado(
+          mundoNormalizado === "MathNumbers" ||
+            mundoNormalizado === "MathGeometry" ||
+            mundoNormalizado === "MathData"
+            ? mundoNormalizado
+            : "MathNumbers",
+        );
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          return;
+        }
+
+        setDetalleAlumno(null);
+        setErrorDetalle(
+          err instanceof Error
+            ? err.message
+            : "No se pudo cargar el detalle del alumno.",
+        );
+      } finally {
+        setCargandoDetalle(false);
+      }
+    }
+
+    cargarDetalleAlumno();
+
+    return () => controller.abort();
+  }, [alumnoDetalle]);
+
+  useEffect(() => {
     setPaginaActual(1);
   }, [grupoSeleccionado, busqueda]);
 
@@ -406,6 +567,45 @@ function CalificacionesDocente() {
 
   const rangoInicial = alumnosFiltrados.length === 0 ? 0 : indiceInicial + 1;
   const rangoFinal = Math.min(indiceFinal, alumnosFiltrados.length);
+
+  const mundosDetalle = useMemo<MundoDetalle[]>(() => {
+    return (Object.keys(MUNDOS_VISUALES) as MundoId[]).map((id) => {
+      const datosMundo = detalleAlumno?.mundos.find(
+        (mundo) => normalizarMundoId(mundo.id) === id,
+      );
+
+      return {
+        ...MUNDOS_VISUALES[id],
+        actividades_realizadas: Number(
+          datosMundo?.actividades_realizadas || 0,
+        ),
+        actividades_completadas: Number(
+          datosMundo?.actividades_completadas || 0,
+        ),
+        promedio:
+          datosMundo?.promedio === null || datosMundo?.promedio === undefined
+            ? null
+            : Number(datosMundo.promedio),
+        intentos: Number(datosMundo?.intentos || 0),
+        respuestas_abiertas: Number(datosMundo?.respuestas_abiertas || 0),
+      };
+    });
+  }, [detalleAlumno]);
+
+  const actividadesDetalleMundo = useMemo(() => {
+    return (detalleAlumno?.actividades || [])
+      .filter((actividad) => normalizarMundoId(actividad.mundo) === mundoSeleccionado)
+      .sort((a, b) => {
+        const fechaA = a.fecha_ultimo_intento
+          ? new Date(a.fecha_ultimo_intento).getTime()
+          : 0;
+        const fechaB = b.fecha_ultimo_intento
+          ? new Date(b.fecha_ultimo_intento).getTime()
+          : 0;
+
+        return fechaB - fechaA;
+      });
+  }, [detalleAlumno, mundoSeleccionado]);
 
   return (
     <main className="docente-page">
@@ -944,208 +1144,248 @@ function CalificacionesDocente() {
                 <span
                   className={`calif-detail-active ${alumnoDetalle.estado_clase}`}
                 >
-                  Activo
+                  {detalleAlumno?.alumno.estado || alumnoDetalle.estado}
                 </span>
               </header>
 
-              <div className="calif-world-helper">
-                <FiEye />
-                <span>Selecciona un mundo para consultar sus actividades.</span>
-              </div>
-
-              <div className="calif-world-grid">
-                {(
-                  [
-                    {
-                      id: "MathNumbers",
-                      nombre: "MathNumbers",
-                      imagen: mundoMathNumbers,
-                      clase: "numbers",
-                      actividades: ACTIVIDADES_POR_MUNDO.MathNumbers,
-                    },
-                    {
-                      id: "MathGeometry",
-                      nombre: "MathGeometry",
-                      imagen: mundoMathGeometry,
-                      clase: "geometry",
-                      actividades: ACTIVIDADES_POR_MUNDO.MathGeometry,
-                    },
-                    {
-                      id: "MathData",
-                      nombre: "MathData",
-                      imagen: mundoMathData,
-                      clase: "data",
-                      actividades: ACTIVIDADES_POR_MUNDO.MathData,
-                    },
-                  ] as MundoDetalle[]
-                ).map((mundo, mundoIndex) => {
-                  const desplazamiento = mundoIndex;
-                  const completadas = Math.min(
-                    8,
-                    Math.max(
-                      0,
-                      alumnoDetalle.actividades_completadas - desplazamiento,
-                    ),
-                  );
-                  const promedio =
-                    alumnoDetalle.promedio === null
-                      ? null
-                      : Math.max(
-                          0,
-                          alumnoDetalle.promedio -
-                            (mundoIndex === 1
-                              ? 0.7
-                              : mundoIndex === 2
-                                ? 0.4
-                                : 0),
-                        );
-
-                  return (
-                    <button
-                      type="button"
-                      className={`calif-world-card ${mundo.clase} ${
-                        mundoSeleccionado === mundo.id ? "selected" : ""
-                      }`}
-                      key={mundo.id}
-                      onClick={() => setMundoSeleccionado(mundo.id)}
-                      aria-pressed={mundoSeleccionado === mundo.id}
-                    >
-                      <img src={mundo.imagen} alt={mundo.nombre} />
-                      <div>
-                        <h3>{mundo.nombre}</h3>
-                        <p>{completadas}/8 actividades</p>
-                        <span>
-                          Promedio: <b>{formatearPromedio(promedio)}</b>
-                        </span>
-                        <small>Ver actividades</small>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <section className="calif-activities-detail">
-                <div className="calif-activities-title">
-                  <div>
-                    <span>Progreso por mundo</span>
-                    <h3>Actividades - {mundoSeleccionado}</h3>
-                  </div>
-                  <b>
-                    {ACTIVIDADES_POR_MUNDO[mundoSeleccionado].length}{" "}
-                    actividades
-                  </b>
+              {cargandoDetalle ? (
+                <div className="calif-detail-state-card">
+                  <FiClock />
+                  <p>Cargando actividades reales del alumno...</p>
                 </div>
+              ) : errorDetalle ? (
+                <div className="calif-detail-state-card error">
+                  <FiX />
+                  <p>{errorDetalle}</p>
+                </div>
+              ) : detalleAlumno ? (
+                <>
+                  <div className="calif-world-helper">
+                    <FiEye />
+                    <span>
+                      Datos leídos desde el progreso real guardado por el alumno.
+                    </span>
+                  </div>
 
-                <div className="calif-detail-table-wrap">
-                  <div className="calif-detail-table">
-                    <div className="calif-detail-row calif-detail-head">
-                      <span>#</span>
-                      <span>Actividad</span>
-                      <span>Estado</span>
-                      <span>Calificación</span>
+                  <div className="calif-detail-summary-grid">
+                    <article>
+                      <span>Promedio</span>
+                      <strong>
+                        {formatearPromedio(detalleAlumno.resumen.promedio)}
+                      </strong>
+                    </article>
+                    <article>
+                      <span>Completadas</span>
+                      <strong>
+                        {detalleAlumno.resumen.actividades_completadas}
+                      </strong>
+                    </article>
+                    <article>
                       <span>Intentos</span>
-                      <span>Último intento</span>
+                      <strong>{detalleAlumno.resumen.intentos_totales}</strong>
+                    </article>
+                    <article>
+                      <span>Tiempo total</span>
+                      <strong>
+                        {formatearTiempo(
+                          detalleAlumno.resumen.tiempo_total_segundos,
+                        )}
+                      </strong>
+                    </article>
+                    <article>
+                      <span>Respuestas abiertas</span>
+                      <strong>{detalleAlumno.resumen.respuestas_abiertas}</strong>
+                    </article>
+                  </div>
+
+                  <div className="calif-world-grid">
+                    {mundosDetalle.map((mundo) => (
+                      <button
+                        type="button"
+                        className={`calif-world-card ${mundo.clase} ${
+                          mundoSeleccionado === mundo.id ? "selected" : ""
+                        }`}
+                        key={mundo.id}
+                        onClick={() => setMundoSeleccionado(mundo.id)}
+                        aria-pressed={mundoSeleccionado === mundo.id}
+                      >
+                        <img src={mundo.imagen} alt={mundo.nombre} />
+                        <div>
+                          <h3>{mundo.nombre}</h3>
+                          <p>
+                            {mundo.actividades_completadas}/
+                            {mundo.actividades_realizadas} realizadas
+                          </p>
+                          <span>
+                            Promedio:{" "}
+                            <b>{formatearPromedio(mundo.promedio)}</b>
+                          </span>
+                          <small>
+                            {mundo.intentos} intentos ·{" "}
+                            {mundo.respuestas_abiertas} abiertas
+                          </small>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+
+                  <section className="calif-activities-detail">
+                    <div className="calif-activities-title">
+                      <div>
+                        <span>Actividades realizadas</span>
+                        <h3>Detalle - {mundoSeleccionado}</h3>
+                      </div>
+                      <b>{actividadesDetalleMundo.length} registros</b>
                     </div>
 
-                    {ACTIVIDADES_POR_MUNDO[mundoSeleccionado].map(
-                      (actividad, index) => {
-                        const numero = index + 1;
-                        const ajusteMundo =
-                          mundoSeleccionado === "MathNumbers"
-                            ? 0
-                            : mundoSeleccionado === "MathGeometry"
-                              ? 1
-                              : 2;
-                        const completadasMundo = Math.min(
-                          8,
-                          Math.max(
-                            0,
-                            alumnoDetalle.actividades_completadas - ajusteMundo,
-                          ),
-                        );
-                        const completada =
-                          numero <= Math.min(4, completadasMundo);
-                        const enProgreso =
-                          !completada &&
-                          numero === Math.min(8, completadasMundo + 1);
-                        const abierta =
-                          !completada &&
-                          !enProgreso &&
-                          numero === Math.min(8, completadasMundo + 2);
-                        const estado = completada
-                          ? "Completada"
-                          : enProgreso
-                            ? "En progreso"
-                            : abierta
-                              ? "Abierta"
-                              : "No iniciada";
-                        const estadoClase = completada
-                          ? "completed"
-                          : enProgreso
-                            ? "progress"
-                            : abierta
-                              ? "open"
-                              : "locked";
-                        const basePromedio = Number(
-                          alumnoDetalle.promedio || 8,
-                        );
-                        const calificacion = completada
-                          ? Math.max(
-                              7,
-                              basePromedio -
-                                ajusteMundo * 0.3 -
-                                (index % 3) * 0.3,
-                            )
-                          : enProgreso
-                            ? Math.max(
-                                7,
-                                basePromedio - ajusteMundo * 0.3 - 1.1,
-                              )
-                            : null;
-                        const intentos =
-                          completada || enProgreso ? 1 + (index % 2) : 0;
+                    <div className="calif-detail-table-wrap">
+                      <div className="calif-detail-table">
+                        <div className="calif-detail-row calif-detail-head">
+                          <span>#</span>
+                          <span>Actividad</span>
+                          <span>Estado</span>
+                          <span>Calificación</span>
+                          <span>Aciertos</span>
+                          <span>Intentos</span>
+                          <span>Último intento</span>
+                        </div>
 
-                        return (
-                          <div
-                            className="calif-detail-row"
-                            key={`${mundoSeleccionado}-${actividad.titulo}`}
-                          >
-                            <span>{numero}</span>
-                            <span className="calif-detail-activity-name">
-                              {actividad.titulo}
-                            </span>
-                            <span>
-                              <b
-                                className={`calif-detail-status ${estadoClase}`}
-                              >
-                                {completada ? (
-                                  <FiCheckCircle />
-                                ) : enProgreso ? (
-                                  <FiClock />
-                                ) : (
-                                  <FiLock />
-                                )}
-                                {estado}
-                              </b>
-                            </span>
-                            <span className="calif-detail-grade">
-                              {calificacion === null
-                                ? "—"
-                                : calificacion.toFixed(1)}
-                            </span>
-                            <span>{intentos}</span>
-                            <span>
-                              {completada || enProgreso
-                                ? `${15 + index}/06/2026`
-                                : "—"}
-                            </span>
+                        {actividadesDetalleMundo.length === 0 ? (
+                          <div className="calif-detail-empty">
+                            <FiLock />
+                            <p>
+                              Este alumno todavía no tiene actividades guardadas
+                              en {mundoSeleccionado}.
+                            </p>
                           </div>
-                        );
-                      },
-                    )}
-                  </div>
+                        ) : (
+                          actividadesDetalleMundo.map((actividad, index) => (
+                            <div
+                              className="calif-activity-detail-block"
+                              key={`${actividad.codigo}-${actividad.fecha_ultimo_intento || index}`}
+                            >
+                              <div className="calif-detail-row">
+                                <span>{index + 1}</span>
+                                <span className="calif-detail-activity-name">
+                                  {actividad.titulo}
+                                  <small>{actividad.tema}</small>
+                                </span>
+                                <span>
+                                  <b
+                                    className={`calif-detail-status ${actividad.estado_clase}`}
+                                  >
+                                    {actividad.completada ? (
+                                      <FiCheckCircle />
+                                    ) : (
+                                      <FiClock />
+                                    )}
+                                    {actividad.estado}
+                                  </b>
+                                </span>
+                                <span className="calif-detail-grade">
+                                  {formatearPromedio(actividad.calificacion)}
+                                </span>
+                                <span>
+                                  {actividad.aciertos}/
+                                  {actividad.total_preguntas}
+                                </span>
+                                <span>{actividad.intentos}</span>
+                                <span>
+                                  {formatearFechaDetalle(
+                                    actividad.fecha_ultimo_intento,
+                                  )}
+                                </span>
+                              </div>
+
+                              <div className="calif-activity-evidence">
+                                <div className="calif-activity-mini-metrics">
+                                  <span>
+                                    Precisión:{" "}
+                                    <b>
+                                      {actividad.precision === null
+                                        ? "—"
+                                        : `${actividad.precision.toFixed(1)}%`}
+                                    </b>
+                                  </span>
+                                  <span>
+                                    Estrellas: <b>{actividad.estrellas}</b>
+                                  </span>
+                                  <span>
+                                    XP: <b>{actividad.xp}</b>
+                                  </span>
+                                  <span>
+                                    Tiempo:{" "}
+                                    <b>
+                                      {formatearTiempo(
+                                        actividad.tiempo_segundos,
+                                      )}
+                                    </b>
+                                  </span>
+                                </div>
+
+                                <p className="calif-activity-recommendation">
+                                  {actividad.recomendacion}
+                                </p>
+
+                                <div className="calif-answer-section">
+                                  <h4>Respuestas abiertas</h4>
+                                  {actividad.respuestas_abiertas.length > 0 ? (
+                                    actividad.respuestas_abiertas.map(
+                                      (respuesta) => (
+                                        <article
+                                          className="calif-answer-card open"
+                                          key={`${actividad.codigo}-${respuesta.campo}`}
+                                        >
+                                          <span>{respuesta.etiqueta}</span>
+                                          <p>{respuesta.valor}</p>
+                                        </article>
+                                      ),
+                                    )
+                                  ) : (
+                                    <p className="calif-answer-empty">
+                                      Esta actividad no tiene respuestas abiertas
+                                      guardadas.
+                                    </p>
+                                  )}
+                                </div>
+
+                                <div className="calif-answer-section compact">
+                                  <h4>Respuestas guardadas</h4>
+                                  {actividad.respuestas_detalle.length > 0 ? (
+                                    <div className="calif-answer-grid">
+                                      {actividad.respuestas_detalle.map(
+                                        (respuesta) => (
+                                          <article
+                                            className="calif-answer-card"
+                                            key={`${actividad.codigo}-${respuesta.campo}-${respuesta.valor}`}
+                                          >
+                                            <span>{respuesta.etiqueta}</span>
+                                            <p>{respuesta.valor}</p>
+                                          </article>
+                                        ),
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <p className="calif-answer-empty">
+                                      No se guardaron respuestas detalladas para
+                                      esta actividad.
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </section>
+                </>
+              ) : (
+                <div className="calif-detail-state-card">
+                  <FiEye />
+                  <p>Selecciona un alumno para consultar sus actividades.</p>
                 </div>
-              </section>
+              )}
 
               <footer className="calif-detail-footer">
                 <div className="calif-detail-legend">
@@ -1153,25 +1393,19 @@ function CalificacionesDocente() {
                     <i className="completed">
                       <FiCheckCircle />
                     </i>
-                    Completada
+                    Buen resultado
                   </span>
                   <span>
                     <i className="progress">
                       <FiClock />
                     </i>
-                    En progreso
-                  </span>
-                  <span>
-                    <i className="open">
-                      <FiLock />
-                    </i>
-                    Abierta
+                    En proceso
                   </span>
                   <span>
                     <i className="locked">
                       <FiLock />
                     </i>
-                    No iniciada
+                    Requiere apoyo
                   </span>
                 </div>
 

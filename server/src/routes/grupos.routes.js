@@ -9,6 +9,18 @@ function validarId(valor) {
   return Number.isSafeInteger(id) && id > 0 ? id : null;
 }
 
+function obtenerIdsAlumnos(valor) {
+  if (!Array.isArray(valor)) return [];
+
+  return Array.from(
+    new Set(
+      valor
+        .map((id) => validarId(id))
+        .filter((id) => id !== null)
+    )
+  );
+}
+
 async function obtenerGrupoDelDocente(idGrupo) {
   const resultado = await pool.query(
     `
@@ -54,10 +66,54 @@ router.get("/", verificarToken, async (req, res) => {
   }
 });
 
+router.get("/alumnos-disponibles-crear", verificarToken, async (req, res) => {
+  try {
+    const buscar = String(req.query.buscar || "").trim();
+
+    const resultado = await pool.query(
+      `
+      SELECT
+        0::bigint AS id_grupo,
+        r.id_usuario AS id_alumno,
+        r.nombre_completo AS nombre,
+        r.correo,
+        r.usuario
+      FROM public.registro r
+      WHERE LOWER(COALESCE(r.rol, '')) = 'estudiante'
+        AND r.estado = true
+        AND (
+          $1 = ''
+          OR LOWER(r.nombre_completo) LIKE LOWER('%' || $1 || '%')
+          OR LOWER(r.correo) LIKE LOWER('%' || $1 || '%')
+          OR LOWER(COALESCE(r.usuario, '')) LIKE LOWER('%' || $1 || '%')
+        )
+      ORDER BY r.nombre_completo ASC
+      LIMIT 80
+      `,
+      [buscar]
+    );
+
+    return res.json({
+      ok: true,
+      alumnos: resultado.rows,
+    });
+  } catch (error) {
+    console.error("Error al obtener alumnos para crear grupo:", error);
+
+    return res.status(500).json({
+      ok: false,
+      mensaje: "No se pudieron obtener los alumnos.",
+    });
+  }
+});
+
 router.post("/", verificarToken, async (req, res) => {
+  const client = await pool.connect();
+
   try {
     const nombreGrupo = req.body.nombre_grupo?.trim();
     const idProfesor = req.usuario.id_usuario;
+    const idsAlumnos = obtenerIdsAlumnos(req.body.id_alumnos);
 
     if (!nombreGrupo) {
       return res.status(400).json({
@@ -73,7 +129,31 @@ router.post("/", verificarToken, async (req, res) => {
       });
     }
 
-    const resultado = await pool.query(
+    await client.query("BEGIN");
+
+    if (idsAlumnos.length > 0) {
+      const alumnosValidos = await client.query(
+        `
+        SELECT id_usuario
+        FROM public.registro
+        WHERE id_usuario = ANY($1::bigint[])
+          AND estado = true
+          AND LOWER(COALESCE(rol, '')) = 'estudiante'
+        `,
+        [idsAlumnos]
+      );
+
+      if (alumnosValidos.rowCount !== idsAlumnos.length) {
+        await client.query("ROLLBACK");
+
+        return res.status(400).json({
+          ok: false,
+          mensaje: "Uno o más alumnos no existen o no están activos.",
+        });
+      }
+    }
+
+    const resultado = await client.query(
       `
       INSERT INTO public.grupos (nombre_grupo, id_profesor)
       VALUES ($1, $2)
@@ -82,18 +162,62 @@ router.post("/", verificarToken, async (req, res) => {
       [nombreGrupo, idProfesor]
     );
 
+    const grupo = resultado.rows[0];
+
+    if (idsAlumnos.length > 0) {
+      await client.query(
+        `
+        INSERT INTO public.grupo_alumnos (id_grupo, id_alumno, estado)
+        SELECT $1::bigint, alumno_id, true
+        FROM UNNEST($2::bigint[]) AS alumno_id
+        `,
+        [grupo.id_grupo, idsAlumnos]
+      );
+    }
+
+    const alumnosResultado =
+      idsAlumnos.length > 0
+        ? await client.query(
+            `
+            SELECT
+              $1::bigint AS id_grupo,
+              r.id_usuario AS id_alumno,
+              r.nombre_completo AS nombre,
+              r.correo,
+              r.usuario
+            FROM public.registro r
+            WHERE r.id_usuario = ANY($2::bigint[])
+            ORDER BY r.nombre_completo ASC
+            `,
+            [grupo.id_grupo, idsAlumnos]
+          )
+        : { rows: [] };
+
+    await client.query("COMMIT");
+
     return res.status(201).json({
       ok: true,
-      mensaje: "Grupo creado correctamente.",
-      grupo: resultado.rows[0],
+      mensaje:
+        idsAlumnos.length > 0
+          ? "Grupo creado correctamente con alumnos asignados."
+          : "Grupo creado correctamente.",
+      grupo: {
+        ...grupo,
+        total_alumnos: idsAlumnos.length,
+      },
+      alumnos: alumnosResultado.rows,
     });
   } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
+
     console.error("Error al crear grupo:", error);
 
     return res.status(500).json({
       ok: false,
       mensaje: "No se pudo crear el grupo.",
     });
+  } finally {
+    client.release();
   }
 });
 

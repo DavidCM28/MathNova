@@ -230,11 +230,16 @@ function normalizarCodigo(codigo = "") {
 }
 
 function normalizarMundo(mundo = "") {
-  const texto = mundo.trim().toLowerCase();
+  const texto = mundo
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[\s_-]+/g, "");
 
-  if (texto === "mathnumbers") return "MathNumbers";
-  if (texto === "mathdata") return "MathData";
-  if (texto === "mathgeometry") return "MathGeometry";
+  if (texto === "mathnumbers" || texto === "numbers") return "MathNumbers";
+  if (texto === "mathdata" || texto === "data") return "MathData";
+  if (texto === "mathgeometry" || texto === "geometry") return "MathGeometry";
 
   return mundo || "MathNova";
 }

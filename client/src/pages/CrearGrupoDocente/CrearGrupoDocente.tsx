@@ -1,8 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CrearGrupoDocente.css";
 
-import { crearGrupo } from "../../services/groupService";
+import {
+  crearGrupoConAlumnos,
+  obtenerAlumnosParaCrearGrupo,
+  type AlumnoGrupo,
+} from "../../services/groupService";
 
 import logo from "../../assets/logo_MathNova.png";
 import menuHamburguesa from "../../assets/menu-hamburguesa.png";
@@ -28,6 +32,22 @@ import {
   FiStar,
 } from "react-icons/fi";
 
+function obtenerIniciales(nombre = "") {
+  const partes = nombre.trim().split(/\s+/).filter(Boolean);
+
+  if (partes.length === 0) return "AL";
+
+  return partes
+    .slice(0, 2)
+    .map((parte) => parte[0]?.toUpperCase() || "")
+    .join("");
+}
+
+function obtenerClaseInicial(idAlumno: number) {
+  const clases = ["", "purple", "dark", "green", "orange"];
+  return clases[Math.abs(idAlumno) % clases.length];
+}
+
 function CrearGrupoDocente() {
   const navigate = useNavigate();
 
@@ -36,6 +56,16 @@ function CrearGrupoDocente() {
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
+  const [busquedaAlumnos, setBusquedaAlumnos] = useState("");
+  const [alumnosDisponibles, setAlumnosDisponibles] = useState<AlumnoGrupo[]>(
+    [],
+  );
+  const [alumnosSeleccionados, setAlumnosSeleccionados] = useState<
+    AlumnoGrupo[]
+  >([]);
+  const [cargandoAlumnos, setCargandoAlumnos] = useState(false);
+  const [errorAlumnos, setErrorAlumnos] = useState("");
+  const [mostrarListaAlumnos, setMostrarListaAlumnos] = useState(true);
 
   const [gruposOpen, setGruposOpen] = useState(() => {
     return localStorage.getItem("docente-grupos-open") !== "false";
@@ -63,9 +93,72 @@ function CrearGrupoDocente() {
     localStorage.setItem("docente-alumnos-open", String(alumnosOpen));
   }, [alumnosOpen]);
 
+  useEffect(() => {
+    let activo = true;
+
+    const temporizador = window.setTimeout(async () => {
+      try {
+        setCargandoAlumnos(true);
+        setErrorAlumnos("");
+
+        const alumnos = await obtenerAlumnosParaCrearGrupo(busquedaAlumnos);
+
+        if (activo) {
+          setAlumnosDisponibles(alumnos);
+        }
+      } catch (err) {
+        if (activo) {
+          setAlumnosDisponibles([]);
+          setErrorAlumnos(
+            err instanceof Error
+              ? err.message
+              : "No se pudieron cargar los alumnos.",
+          );
+        }
+      } finally {
+        if (activo) {
+          setCargandoAlumnos(false);
+        }
+      }
+    }, 250);
+
+    return () => {
+      activo = false;
+      window.clearTimeout(temporizador);
+    };
+  }, [busquedaAlumnos]);
+
+  const idsSeleccionados = useMemo(() => {
+    return new Set(alumnosSeleccionados.map((alumno) => alumno.id_alumno));
+  }, [alumnosSeleccionados]);
+
+  const alumnosParaMostrar = useMemo(() => {
+    return alumnosDisponibles.filter(
+      (alumno) => !idsSeleccionados.has(alumno.id_alumno),
+    );
+  }, [alumnosDisponibles, idsSeleccionados]);
+
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
     navigate(ruta);
+  };
+
+  const agregarAlumno = (alumno: AlumnoGrupo) => {
+    setAlumnosSeleccionados((actuales) => {
+      if (actuales.some((item) => item.id_alumno === alumno.id_alumno)) {
+        return actuales;
+      }
+
+      return [...actuales, alumno];
+    });
+    setMensaje("");
+    setError("");
+  };
+
+  const quitarAlumno = (idAlumno: number) => {
+    setAlumnosSeleccionados((actuales) =>
+      actuales.filter((alumno) => alumno.id_alumno !== idAlumno),
+    );
   };
 
   const handleCrearGrupo = async () => {
@@ -94,13 +187,20 @@ function CrearGrupoDocente() {
       setError("");
       setMensaje("");
 
-      const resultado = await crearGrupo(nombreLimpio);
+      const resultado = await crearGrupoConAlumnos(
+        nombreLimpio,
+        alumnosSeleccionados.map((alumno) => alumno.id_alumno),
+      );
 
       setMensaje(
-        `${resultado.mensaje} Identificador: ${resultado.grupo.id_grupo}.`,
+        `${resultado.mensaje} Identificador: ${
+          resultado.grupo.id_grupo
+        }. Alumnos asignados: ${alumnosSeleccionados.length}.`,
       );
 
       setNombreGrupo("");
+      setBusquedaAlumnos("");
+      setAlumnosSeleccionados([]);
 
       setTimeout(() => {
         navigate("/mis-grupos-docente");
@@ -393,21 +493,108 @@ function CrearGrupoDocente() {
                   <p>Busca y agrega alumnos para incluirlos en el grupo.</p>
                 </div>
 
-                <button type="button" className="add-student-btn">
+                <button
+                  type="button"
+                  className="add-student-btn"
+                  disabled={guardando}
+                  onClick={() => setMostrarListaAlumnos((valor) => !valor)}
+                >
                   <FiPlus />
-                  Agregar alumnos
+                  {mostrarListaAlumnos ? "Ocultar lista" : "Agregar alumnos"}
                 </button>
               </div>
 
               <div className="crear-search-box">
                 <FiSearch />
 
-                <input type="text" placeholder="Buscar alumnos por nombre" />
+                <input
+                  type="text"
+                  placeholder="Buscar alumnos por nombre, correo o usuario"
+                  value={busquedaAlumnos}
+                  disabled={guardando}
+                  onChange={(event) => {
+                    setBusquedaAlumnos(event.target.value);
+                    setMostrarListaAlumnos(true);
+                  }}
+                />
               </div>
 
-              <p className="selected-count">5 alumnos seleccionados</p>
+              {errorAlumnos && (
+                <div role="alert" className="crear-alert crear-alert-error">
+                  {errorAlumnos}
+                </div>
+              )}
 
-              <div className="student-tags">
+              {mostrarListaAlumnos && (
+                <div className="crear-students-list">
+                  {cargandoAlumnos ? (
+                    <p className="crear-students-empty">Cargando alumnos...</p>
+                  ) : alumnosParaMostrar.length > 0 ? (
+                    alumnosParaMostrar.map((alumno) => {
+                      const claseInicial = obtenerClaseInicial(
+                        alumno.id_alumno,
+                      );
+
+                      return (
+                        <button
+                          type="button"
+                          key={alumno.id_alumno}
+                          className="crear-student-option"
+                          disabled={guardando}
+                          onClick={() => agregarAlumno(alumno)}
+                        >
+                          <b className={claseInicial}>
+                            {obtenerIniciales(alumno.nombre)}
+                          </b>
+
+                          <span>
+                            <strong>{alumno.nombre}</strong>
+                            <small>{alumno.correo}</small>
+                          </span>
+
+                          <FiPlus />
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <p className="crear-students-empty">
+                      No hay alumnos disponibles con esa bÃºsqueda.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <p className="selected-count">
+                {alumnosSeleccionados.length}{" "}
+                {alumnosSeleccionados.length === 1
+                  ? "alumno seleccionado"
+                  : "alumnos seleccionados"}
+              </p>
+
+              {alumnosSeleccionados.length > 0 ? (
+                <div className="student-tags">
+                  {alumnosSeleccionados.map((alumno) => {
+                    const claseInicial = obtenerClaseInicial(alumno.id_alumno);
+
+                    return (
+                      <span key={alumno.id_alumno}>
+                        <b className={claseInicial}>
+                          {obtenerIniciales(alumno.nombre)}
+                        </b>
+                        {alumno.nombre}
+                        <button
+                          type="button"
+                          disabled={guardando}
+                          onClick={() => quitarAlumno(alumno.id_alumno)}
+                          aria-label={`Quitar a ${alumno.nombre}`}
+                        >
+                          Ã—
+                        </button>
+                      </span>
+                    );
+                  })}
+                  {false && (
+                    <>
                 <span>
                   <b>OM</b>
                   Orelana Martínez
@@ -437,7 +624,15 @@ function CrearGrupoDocente() {
                   Óscar López
                   <button type="button">×</button>
                 </span>
-              </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <p className="crear-students-empty selected-empty">
+                  Puedes crear el grupo sin alumnos o agregarlos desde esta
+                  lista.
+                </p>
+              )}
             </section>
 
             <div className="crear-actions-bar">
