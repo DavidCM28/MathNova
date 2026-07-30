@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import "./GeneradorEnergiaInversa.css";
@@ -249,11 +249,39 @@ function PistaBaitModal({
   const [reproduciendo, setReproduciendo] = useState(false);
   const [progreso, setProgreso] = useState(0);
 
-  const sincronizarVideoConAudio = () => {
+  const asignarAudioRef = useCallback((audio: HTMLAudioElement | null) => {
+    audioRef.current = audio;
+    if (!audio) return;
+
+    audio.currentTime = 0;
+    const reproduccion = audio.play();
+
+    if (reproduccion !== undefined) {
+      reproduccion.catch((error: DOMException) => {
+        if (error.name !== "AbortError") {
+          console.warn("El navegador bloqueó el audio automático:", error);
+        }
+      });
+    }
+  }, []);
+
+  const actualizarReproduccion = () => {
     const audio = audioRef.current;
     const video = videoRef.current;
-    if (!audio || !video) return;
-    if (Math.abs(video.currentTime - audio.currentTime) > 0.35) {
+    if (!audio) return;
+
+    if (audio.duration) {
+      setProgreso((audio.currentTime / audio.duration) * 100);
+    }
+
+    // El audio dirige la sincronización solamente cuando realmente está
+    // reproduciéndose. Así, si el navegador bloquea el audio automático,
+    // el video puede seguir avanzando y no vuelve continuamente al segundo 0.
+    if (
+      video &&
+      !audio.paused &&
+      Math.abs(video.currentTime - audio.currentTime) > 0.35
+    ) {
       video.currentTime = audio.currentTime;
     }
   };
@@ -281,12 +309,6 @@ function PistaBaitModal({
     if (video) video.currentTime = nuevoTiempo;
   };
 
-  const actualizarProgreso = () => {
-    const audio = audioRef.current;
-    if (!audio || !audio.duration) return;
-    setProgreso((audio.currentTime / audio.duration) * 100);
-  };
-
   return createPortal(
     <div className="pb-overlay" role="dialog" aria-modal="true" aria-label={titulo}>
       <div className={`pb-modal pb-modal-${tema}`}>
@@ -304,10 +326,11 @@ function PistaBaitModal({
             ref={videoRef}
             src={videoSrc}
             className="pb-video"
+            autoPlay
+            loop
             muted
             playsInline
             preload="auto"
-            onTimeUpdate={sincronizarVideoConAudio}
             aria-hidden="true"
           />
         </div>
@@ -350,12 +373,21 @@ function PistaBaitModal({
         </div>
 
         <audio
-          ref={audioRef}
+          ref={asignarAudioRef}
           src={audioSrc}
-          onPlay={() => setReproduciendo(true)}
+          autoPlay
+          preload="auto"
+          onPlay={() => {
+            setReproduciendo(true);
+            const video = videoRef.current;
+            if (video) {
+              video.currentTime = audioRef.current?.currentTime ?? 0;
+              void video.play().catch(() => undefined);
+            }
+          }}
           onPause={() => setReproduciendo(false)}
           onEnded={() => setReproduciendo(false)}
-          onTimeUpdate={actualizarProgreso}
+          onTimeUpdate={actualizarReproduccion}
         />
 
         <button type="button" className={`pb-cerrar-btn pb-cerrar-btn-${tema}`} onClick={onClose}>
@@ -364,6 +396,71 @@ function PistaBaitModal({
       </div>
     </div>,
     document.body
+  );
+}
+
+type AyudaActividadModalProps = {
+  onClose: () => void;
+};
+
+function AyudaActividadModal({ onClose }: AyudaActividadModalProps) {
+  useEffect(() => {
+    const cerrarConEscape = (evento: KeyboardEvent) => {
+      if (evento.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", cerrarConEscape);
+    return () => window.removeEventListener("keydown", cerrarConEscape);
+  }, [onClose]);
+
+  return createPortal(
+    <div
+      className="gen1-ayuda-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="gen1-ayuda-titulo"
+      onMouseDown={(evento) => {
+        if (evento.target === evento.currentTarget) onClose();
+      }}
+    >
+      <article className="gen1-ayuda-modal">
+        <button
+          type="button"
+          className="gen1-ayuda-cerrar"
+          onClick={onClose}
+          aria-label="Cerrar ayuda"
+        >
+          <FiX />
+        </button>
+
+        <img
+          src={baitPistaImg}
+          alt="Bait comparte una pista para la misión"
+          className="gen1-ayuda-imagen"
+        />
+
+        <div className="gen1-ayuda-contenido">
+          <span className="gen1-ayuda-etiqueta">Ayuda de la misión</span>
+          <h2 id="gen1-ayuda-titulo">¿Cómo recuperar la energía de la base?</h2>
+          <p>
+            Observa qué sucede con el tiempo cuando aumenta la cantidad de
+            reactores. Los primeros datos de la tabla esconden una relación
+            que se mantiene en todas las filas.
+          </p>
+          <div className="gen1-ayuda-pista">
+            <FaLightbulb />
+            <p>
+              Busca una operación entre <strong>reactores</strong> y{" "}
+              <strong>horas</strong> que produzca siempre el mismo resultado.
+              Cuando descubras ese valor constante, úsalo para completar la
+              tabla; después coloca esos pares en la gráfica y analiza la
+              tendencia antes de responder la predicción.
+            </p>
+          </div>
+        </div>
+      </article>
+    </div>,
+    document.body,
   );
 }
 
@@ -513,6 +610,7 @@ function GeneradorEnergiaInversa() {
   const [resultado, setResultado] = useState<"exito" | "fallo" | "incompleto" | "pista" | null>(null);
   const [mostrarIntroVillano, setMostrarIntroVillano] = useState(false);
   const [mostrarPistaModal, setMostrarPistaModal] = useState(false);
+  const [mostrarAyudaActividad, setMostrarAyudaActividad] = useState(false);
   const [graficaCompleta, setGraficaCompleta] = useState(false);
   const [cargandoInicial, setCargandoInicial] = useState(true);
 
@@ -1956,10 +2054,17 @@ function GeneradorEnergiaInversa() {
           <button type="button" onClick={() => irARuta("/ajustes")} aria-label="Ajustes">
             <FiSettings />
           </button>
-          <button type="button" onClick={() => irARuta("/ayuda")} aria-label="Ayuda">
+          <button
+            type="button"
+            onClick={() => {
+              setMenuOpen(false);
+              setMostrarAyudaActividad(true);
+            }}
+            aria-label="Ayuda de la actividad"
+          >
             <FiHelpCircle />
           </button>
-          <button type="button" onClick={() => navigate("/login")} aria-label="Cerrar sesión">
+          <button type="button" onClick={() => irARuta("/login")} aria-label="Salir">
             <FiLogOut />
           </button>
         </div>
@@ -1980,10 +2085,19 @@ function GeneradorEnergiaInversa() {
 
           <span className="gen1-step-pill">Actividad 1 de 2</span>
 
-          <button type="button" className="gen1-help-circle" aria-label="Ayuda">
+          <button
+            type="button"
+            className="gen1-help-circle"
+            onClick={() => setMostrarAyudaActividad(true)}
+            aria-label="Ayuda de la actividad"
+          >
             <FiHelpCircle />
           </button>
         </div>
+
+        {mostrarAyudaActividad && (
+          <AyudaActividadModal onClose={() => setMostrarAyudaActividad(false)} />
+        )}
 
         <div className="gen1-hero">
           <div className="gen1-hero-text">

@@ -54,6 +54,8 @@ import {
   FiRotateCw,
   FiRefreshCw,
   FiArrowRight,
+  FiSettings,
+  FiLogOut,
 } from "react-icons/fi";
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
@@ -207,6 +209,12 @@ function palitos(n: number) {
   return "|".repeat(n);
 }
 
+function formatearTiempoEncuesta(segundos: number) {
+  const minutos = Math.floor(segundos / 60);
+  const restoSegundos = segundos % 60;
+  return `${String(minutos).padStart(2, "0")}:${String(restoSegundos).padStart(2, "0")}`;
+}
+
 type EstadoFila = "correcto" | "pendiente" | "incorrecto";
 
 /* =========================================================
@@ -241,23 +249,14 @@ function PistaBaitModal({
   const [reproduciendo, setReproduciendo] = useState(false);
   const [progreso, setProgreso] = useState(0);
 
-  const sincronizarVideoConAudio = () => {
-    const audio = audioRef.current;
-    const video = videoRef.current;
-    if (!audio || !video) return;
-    if (Math.abs(video.currentTime - audio.currentTime) > 0.35) {
-      video.currentTime = audio.currentTime;
-    }
-  };
-
   const alternarReproduccion = () => {
     const audio = audioRef.current;
     const video = videoRef.current;
     if (!audio) return;
 
     if (audio.paused || audio.ended) {
-      audio.play();
-      video?.play();
+      void audio.play();
+      void video?.play().catch(() => undefined);
     } else {
       audio.pause();
       video?.pause();
@@ -275,8 +274,16 @@ function PistaBaitModal({
 
   const actualizarProgreso = () => {
     const audio = audioRef.current;
+    const video = videoRef.current;
     if (!audio || !audio.duration) return;
     setProgreso((audio.currentTime / audio.duration) * 100);
+    if (
+      video &&
+      !audio.paused &&
+      Math.abs(video.currentTime - audio.currentTime) > 0.35
+    ) {
+      video.currentTime = audio.currentTime;
+    }
   };
 
   return createPortal(
@@ -296,10 +303,11 @@ function PistaBaitModal({
             ref={videoRef}
             src={videoSrc}
             className="pb-video"
+            autoPlay
+            loop
             muted
             playsInline
             preload="auto"
-            onTimeUpdate={sincronizarVideoConAudio}
             aria-hidden="true"
           />
         </div>
@@ -344,8 +352,16 @@ function PistaBaitModal({
         <audio
           ref={audioRef}
           src={audioSrc}
-          onPlay={() => setReproduciendo(true)}
-          onPause={() => setReproduciendo(false)}
+          autoPlay
+          preload="auto"
+          onPlay={() => {
+            setReproduciendo(true);
+            void videoRef.current?.play().catch(() => undefined);
+          }}
+          onPause={() => {
+            setReproduciendo(false);
+            videoRef.current?.pause();
+          }}
           onEnded={() => setReproduciendo(false)}
           onTimeUpdate={actualizarProgreso}
         />
@@ -356,6 +372,128 @@ function PistaBaitModal({
       </div>
     </div>,
     document.body
+  );
+}
+
+function AyudaEncuesta({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const cerrarConEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    document.addEventListener("keydown", cerrarConEscape);
+    return () => document.removeEventListener("keydown", cerrarConEscape);
+  }, [onClose]);
+
+  return createPortal(
+    <div
+      className="enc-ayuda-overlay"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section
+        className="enc-ayuda-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="enc-ayuda-titulo"
+      >
+        <button
+          type="button"
+          className="enc-ayuda-cerrar"
+          onClick={onClose}
+          aria-label="Cerrar ayuda"
+        >
+          <FiX />
+        </button>
+
+        <img
+          src={baitPistaImg}
+          alt="Bait dando una orientación para resolver la encuesta"
+          className="enc-ayuda-imagen"
+        />
+
+        <div className="enc-ayuda-contenido">
+          <span className="enc-ayuda-etiqueta">CONTEXTO DE LA MISIÓN</span>
+          <h2 id="enc-ayuda-titulo">¿Cómo interpretar la encuesta?</h2>
+          <p>
+            La tripulación registró sus preferencias usando palitos. Observa
+            cada fila por separado: cada marca representa el voto de una
+            persona y la cantidad total de marcas forma la frecuencia absoluta.
+          </p>
+          <p>
+            Primero completa las cantidades que faltan y después compara los
+            resultados. La opción con la frecuencia más alta indica el módulo
+            que la tripulación prefiere explorar.
+          </p>
+          <button type="button" className="enc-ayuda-volver" onClick={onClose}>
+            Entendido, volver a la actividad
+          </button>
+        </div>
+      </section>
+    </div>,
+    document.body,
+  );
+}
+
+function AmenazaEncuesta({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const cerrarConEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    document.addEventListener("keydown", cerrarConEscape);
+    return () => document.removeEventListener("keydown", cerrarConEscape);
+  }, [onClose]);
+
+  return createPortal(
+    <div
+      className="enc-ayuda-overlay"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section
+        className="enc-ayuda-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="enc-amenaza-titulo"
+      >
+        <button
+          type="button"
+          className="enc-ayuda-cerrar"
+          onClick={onClose}
+          aria-label="Cerrar amenaza"
+        >
+          <FiX />
+        </button>
+
+        <img
+          src={interferenciaActivaImg}
+          alt="Interferencia activa de Divide"
+          className="enc-ayuda-imagen"
+        />
+
+        <div className="enc-ayuda-contenido">
+          <span className="enc-ayuda-etiqueta">AMENAZA DETECTADA</span>
+          <h2 id="enc-amenaza-titulo">Interferencia activa</h2>
+          <p>
+            Divide intenta confundir las marcas de conteo para que las
+            frecuencias no coincidan con los votos de la tripulación.
+          </p>
+          <p>
+            Revisa cada fila por separado y recuerda que cada palito representa
+            un voto antes de enviar los resultados al Centro de Mando.
+          </p>
+          <button type="button" className="enc-ayuda-volver" onClick={onClose}>
+            Entendido, volver a la actividad
+          </button>
+        </div>
+      </section>
+    </div>,
+    document.body,
   );
 }
 
@@ -501,8 +639,21 @@ export default function EncuestaTripulacion() {
   const [resultado, setResultado] = useState<"exito" | "fallo" | null>(null);
   const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
   const [mostrarIntroBait, setMostrarIntroBait] = useState(false);
+  const [mostrarAyudaContextual, setMostrarAyudaContextual] = useState(false);
+  const [mostrarAmenaza, setMostrarAmenaza] = useState(false);
+  const [segundosTranscurridos, setSegundosTranscurridos] = useState(0);
   const [cargandoTabla, setCargandoTabla] = useState(false);
   const [cargandoEnvio, setCargandoEnvio] = useState(false);
+
+  useEffect(() => {
+    const intervalo = window.setInterval(() => {
+      setSegundosTranscurridos(
+        Math.max(0, Math.floor((Date.now() - inicioActividadRef.current) / 1000)),
+      );
+    }, 1000);
+
+    return () => window.clearInterval(intervalo);
+  }, []);
 
   // ==========================================
   // CARGAR PROGRESO GUARDADO
@@ -1208,9 +1359,30 @@ export default function EncuestaTripulacion() {
           <button
             type="button"
             className="enc-ver-amenaza-btn"
-            onClick={() => setMostrarPistaBait(true)}
+            onClick={() => setMostrarAmenaza(true)}
           >
             <FiTarget /> Ver amenaza
+          </button>
+        </div>
+
+        <div className="enc-sidebar-tiempo">
+          <span className="enc-sidebar-label">Tiempo transcurrido</span>
+          <strong>{formatearTiempoEncuesta(segundosTranscurridos)}</strong>
+        </div>
+
+        <div className="enc-sidebar-icons">
+          <button type="button" onClick={() => navigate("/ajustes")} aria-label="Ajustes">
+            <FiSettings />
+          </button>
+          <button
+            type="button"
+            onClick={() => setMostrarAyudaContextual(true)}
+            aria-label="Ayuda de la actividad"
+          >
+            <FiHelpCircle />
+          </button>
+          <button type="button" onClick={() => navigate("/login")} aria-label="Cerrar sesión">
+            <FiLogOut />
           </button>
         </div>
       </aside>
@@ -1227,7 +1399,12 @@ export default function EncuestaTripulacion() {
               <FiArrowLeft /> Volver al tema
             </button>
           </div>
-          <button type="button" className="enc-ayuda-btn" aria-label="Ayuda">
+          <button
+            type="button"
+            className="enc-ayuda-btn"
+            aria-label="Ayuda"
+            onClick={() => setMostrarAyudaContextual(true)}
+          >
             <FiHelpCircle />
           </button>
         </header>
@@ -1589,6 +1766,14 @@ export default function EncuestaTripulacion() {
           botonTexto="¡Comenzar misión! 🚀"
           onClose={() => setMostrarIntroBait(false)}
         />
+      )}
+
+      {mostrarAyudaContextual && (
+        <AyudaEncuesta onClose={() => setMostrarAyudaContextual(false)} />
+      )}
+
+      {mostrarAmenaza && (
+        <AmenazaEncuesta onClose={() => setMostrarAmenaza(false)} />
       )}
 
       {!tablaCompleta && (
