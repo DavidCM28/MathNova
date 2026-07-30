@@ -37,6 +37,7 @@ import {
   FiFilter,
   FiCheckCircle,
   FiCircle,
+  FiLock,
 } from "react-icons/fi";
 
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
@@ -269,7 +270,12 @@ function ActividadesMathNumbers() {
     navigate(ruta);
   };
 
-  const iniciarActividad = (slug: string) => {
+ const iniciarActividad = (slug: string, bloqueada: boolean) => {
+    if (bloqueada) {
+      alert("Debes completar la actividad anterior para desbloquear esta.");
+      return;
+    }
+
     if (!slug) {
       alert("Esta actividad todavía no está disponible.");
       return;
@@ -408,13 +414,11 @@ function ActividadesMathNumbers() {
     return mapa;
   }, [progresos]);
 
-  const actividadesConEstado = useMemo(
+ const actividadesConEstado = useMemo(
     () =>
-      actividades.map((item) => {
+      actividades.map((item, index) => {
         const registro = item.codigosProgreso
-          ?.map((codigo) =>
-            progresoPorCodigo.get(codigo),
-          )
+          ?.map((codigo) => progresoPorCodigo.get(codigo))
           .find(Boolean);
 
         const estado: EstadoActividadNumbers =
@@ -424,9 +428,24 @@ function ActividadesMathNumbers() {
               ? "En curso"
               : "Pendiente";
 
+        // --- LÓGICA DE DESBLOQUEO SECUENCIAL ---
+        // La primera actividad (índice 0) siempre está desbloqueada.
+        // Las siguientes requieren que la actividad anterior esté "Completada".
+        let bloqueada = false;
+        if (index > 0) {
+          const actividadAnterior = actividades[index - 1];
+          const registroAnterior = actividadAnterior.codigosProgreso
+            ?.map((codigo) => progresoPorCodigo.get(codigo))
+            .find(Boolean);
+
+          const anteriorCompletada = registroAnterior?.completada === true;
+          bloqueada = !anteriorCompletada;
+        }
+
         return {
           ...item,
           estado,
+          bloqueada,
           estrellas: numeroSeguroNumbers(
             registro?.estrellas_obtenidas,
           ),
@@ -747,12 +766,40 @@ function ActividadesMathNumbers() {
           )}
 
           {actividadesFiltradas.length > 0 ? (
-            <div className={gridClassName}>
+           <div className={gridClassName}>
               {actividadesFiltradas.map((item) => (
                 <article
-                  className="numbersx-activity-card"
-                  key={item.slug}
+                  className={`numbersx-activity-card ${
+                    item.bloqueada ? "numbersx-card-locked" : ""
+                  }`}
+                  key={item.slug || item.titulo}
+                  style={{ position: "relative", overflow: "hidden" }}
                 >
+                  {/* Overlay visual de bloqueo cuando la actividad no está disponible */}
+                  {item.bloqueada && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        backgroundColor: "rgba(15, 23, 42, 0.65)",
+                        backdropFilter: "blur(4px)",
+                        zIndex: 10,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#ffffff",
+                        fontWeight: "bold",
+                        pointerEvents: "none",
+                      }}
+                    >
+                      <FiLock style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }} />
+                      <span style={{ fontSize: "1.1rem", letterSpacing: "0.5px" }}>
+                        Bloqueada
+                      </span>
+                    </div>
+                  )}
+
                   <img
                     src={item.img}
                     alt={item.titulo}
@@ -784,15 +831,18 @@ function ActividadesMathNumbers() {
 
                       <button
                         type="button"
+                        disabled={item.bloqueada}
                         onClick={() =>
-                          iniciarActividad(item.slug)
+                          iniciarActividad(item.slug, item.bloqueada)
                         }
                       >
-                        {item.estado === "Completada"
-                          ? "Repetir"
-                          : item.estado === "En curso"
-                            ? "Continuar"
-                            : "Iniciar"}
+                        {item.bloqueada
+                          ? "Bloqueada"
+                          : item.estado === "Completada"
+                            ? "Repetir"
+                            : item.estado === "En curso"
+                              ? "Continuar"
+                              : "Iniciar"}
                       </button>
                     </div>
                   </div>
