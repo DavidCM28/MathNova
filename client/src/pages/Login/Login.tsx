@@ -1,5 +1,9 @@
 import { useState, type FormEvent } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+
 import {
   clearAuthSession,
   startGuestSession,
@@ -14,7 +18,12 @@ import logo from "../../assets/logo_MathNova.png";
 
 import { MdOutlineEmail } from "react-icons/md";
 import { LuLockKeyhole } from "react-icons/lu";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import {
+  FiAlertTriangle,
+  FiEye,
+  FiEyeOff,
+  FiX,
+} from "react-icons/fi";
 
 import RegisterForm from "./RegisterForm";
 import ForgotPassword from "./ForgotPassword";
@@ -30,134 +39,323 @@ type UsuarioLogin = {
   role_id?: number;
 };
 
+type EstadoLogin = {
+  from?: string;
+  authMessage?: string;
+};
+
 function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const state = location.state as {
-    from?: string;
-    authMessage?: string;
-  } | null;
+  const state =
+    location.state as EstadoLogin | null;
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [isRegister, setIsRegister] = useState(false);
-  const [showForgot, setShowForgot] = useState(false);
+  const [
+    showPassword,
+    setShowPassword,
+  ] = useState(false);
 
-  const [correoUsuario, setCorreoUsuario] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [
+    isRegister,
+    setIsRegister,
+  ] = useState(false);
+
+  const [
+    showForgot,
+    setShowForgot,
+  ] = useState(false);
+
+  const [
+    correoUsuario,
+    setCorreoUsuario,
+  ] = useState("");
+
+  const [
+    loginPassword,
+    setLoginPassword,
+  ] = useState("");
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [
+    mensajeError,
+    setMensajeError,
+  ] = useState<string | null>(
+    null,
+  );
 
   const limpiarSesionAnterior = () => {
     clearAuthSession();
   };
 
-  const normalizarRol = (usuario?: UsuarioLogin) => {
-    const rolTexto = String(usuario?.rol || "").toLowerCase().trim();
+  const normalizarRol = (
+    usuario?: UsuarioLogin,
+  ) => {
+    const rolTexto = String(
+      usuario?.rol || "",
+    )
+      .toLowerCase()
+      .trim();
 
-    if (["alumno", "student", "usuario", "estudiante"].includes(rolTexto)) {
+    if (
+      [
+        "alumno",
+        "student",
+        "usuario",
+        "estudiante",
+      ].includes(rolTexto)
+    ) {
       return "estudiante";
     }
 
-    if (["admin", "administrador"].includes(rolTexto)) {
+    if (
+      [
+        "admin",
+        "administrador",
+      ].includes(rolTexto)
+    ) {
       return "admin";
     }
 
-    if (["docente", "profesor", "maestro"].includes(rolTexto)) {
+    if (
+      [
+        "docente",
+        "profesor",
+        "maestro",
+      ].includes(rolTexto)
+    ) {
       return "docente";
     }
 
-    if (usuario?.role_id === 1) return "docente";
-    if (usuario?.role_id === 2) return "estudiante";
-    if (usuario?.role_id === 3) return "admin";
+    if (usuario?.role_id === 1) {
+      return "docente";
+    }
+
+    if (usuario?.role_id === 2) {
+      return "estudiante";
+    }
+
+    if (usuario?.role_id === 3) {
+      return "admin";
+    }
 
     return "estudiante";
   };
 
-  const guardarSesion = (token: string, usuario: UsuarioLogin) => {
+  const guardarSesion = (
+    token: string,
+    usuario: UsuarioLogin,
+  ) => {
     limpiarSesionAnterior();
-    saveAuthSession(token, usuario);
+
+    saveAuthSession(
+      token,
+      usuario,
+    );
   };
 
-  const obtenerRutaPorRol = (rol: string) => {
-    if (rol === "docente") return "/dashboard-docente";
-    if (rol === "admin") return "/dashboard-admin";
+  const obtenerRutaPorRol = (
+    rol: string,
+  ) => {
+    if (rol === "docente") {
+      return "/dashboard-docente";
+    }
+
+    if (rol === "admin") {
+      return "/dashboard-admin";
+    }
+
     return "/dashboard";
   };
 
-  const rutaPerteneceAlRol = (ruta: string | undefined, rol: string) => {
-    if (!ruta || ruta === "/" || ruta === "/login") return false;
+  const rutaPerteneceAlRol = (
+    ruta: string | undefined,
+    rol: string,
+  ) => {
+    if (
+      !ruta ||
+      ruta === "/" ||
+      ruta === "/login"
+    ) {
+      return false;
+    }
 
     if (rol === "docente") {
       return (
         ruta.includes("-docente") ||
-        ruta === "/dashboard-docente" ||
-        ruta === "/gestion-docentes"
+        ruta ===
+          "/dashboard-docente" ||
+        ruta ===
+          "/gestion-docentes"
       );
     }
 
     if (rol === "admin") {
-      return ruta.includes("-admin") || ruta.startsWith("/admin");
+      return (
+        ruta.includes("-admin") ||
+        ruta.startsWith("/admin")
+      );
     }
 
-    return !ruta.includes("-docente") && !ruta.includes("-admin");
+    return (
+      !ruta.includes("-docente") &&
+      !ruta.includes("-admin")
+    );
   };
 
-  const redirigirPorRol = (usuario: UsuarioLogin) => {
-    const rol = normalizarRol(usuario);
-    const rutaInicial = obtenerRutaPorRol(rol);
-    const rutaAnterior = state?.from;
+  /*
+   * Los estudiantes entran al dashboard con una señal
+   * para abrir el video emergente.
+   *
+   * Docentes y administradores conservan su
+   * redireccionamiento normal.
+   */
+  const redirigirPorRol = (
+    usuario: UsuarioLogin,
+  ) => {
+    const rol =
+      normalizarRol(usuario);
 
-    if (rutaPerteneceAlRol(rutaAnterior, rol) && rutaAnterior) {
-      navigate(rutaAnterior, { replace: true });
+    const rutaInicial =
+      obtenerRutaPorRol(rol);
+
+    const rutaAnterior =
+      state?.from;
+
+    /*
+     * Mostrar la introducción solamente
+     * para estudiantes registrados.
+     */
+    if (rol === "estudiante") {
+      navigate("/dashboard", {
+        replace: true,
+        state: {
+          mostrarIntroduccion: true,
+        },
+      });
+
       return;
     }
 
-    navigate(rutaInicial, { replace: true });
+    /*
+     * Docentes y administradores pueden volver
+     * a la ruta que intentaban visitar.
+     */
+    if (
+      rutaPerteneceAlRol(
+        rutaAnterior,
+        rol,
+      ) &&
+      rutaAnterior
+    ) {
+      navigate(rutaAnterior, {
+        replace: true,
+      });
+
+      return;
+    }
+
+    navigate(rutaInicial, {
+      replace: true,
+    });
   };
 
+  /*
+   * El espectador entra directamente al dashboard
+   * y no visualiza el video de introducción.
+   */
   const entrarComoEspectador = () => {
     limpiarSesionAnterior();
     startGuestSession();
-    navigate("/dashboard", { replace: true });
+
+    navigate("/dashboard", {
+      replace: true,
+    });
   };
 
-  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (
+    e: FormEvent<HTMLFormElement>,
+  ) => {
     e.preventDefault();
 
-    if (!correoUsuario.trim() || !loginPassword.trim()) {
-      alert("Ingresa tu correo/usuario y contraseña.");
+    if (
+      !correoUsuario.trim() ||
+      !loginPassword.trim()
+    ) {
+      setMensajeError(
+        "Ingresa tu correo/usuario y contraseña.",
+      );
+
       return;
     }
 
     try {
       setLoading(true);
 
-      const data = await iniciarSesion({
-        correoUsuario: correoUsuario.trim(),
-        password: loginPassword,
-      });
+      const data =
+        await iniciarSesion({
+          correoUsuario:
+            correoUsuario.trim(),
+
+          password:
+            loginPassword,
+        });
 
       if (!data?.token) {
-        throw new Error("El servidor no devolvió un token válido.");
+        throw new Error(
+          "El servidor no devolvió un token válido.",
+        );
       }
 
       if (!data?.usuario) {
-        throw new Error("El servidor no devolvió los datos del usuario.");
+        throw new Error(
+          "El servidor no devolvió los datos del usuario.",
+        );
       }
 
-      guardarSesion(data.token, data.usuario);
+      guardarSesion(
+        data.token,
+        data.usuario,
+      );
 
-      console.log("Usuario logueado:", data.usuario);
-      console.log("Token guardado:", localStorage.getItem("token"));
+      console.log(
+        "Usuario logueado:",
+        data.usuario,
+      );
 
-      redirigirPorRol(data.usuario);
+      console.log(
+        "Token guardado:",
+        localStorage.getItem(
+          "token",
+        ),
+      );
+
+      redirigirPorRol(
+        data.usuario,
+      );
     } catch (error) {
-      if (error instanceof Error) {
-        alert(error.message);
-        console.error("Error al iniciar sesión:", error.message);
+      if (
+        error instanceof Error
+      ) {
+        setMensajeError(
+          error.message,
+        );
+
+        console.error(
+          "Error al iniciar sesión:",
+          error.message,
+        );
       } else {
-        alert("No se pudo iniciar sesión.");
-        console.error("Error desconocido:", error);
+        setMensajeError(
+          "No se pudo iniciar sesión.",
+        );
+
+        console.error(
+          "Error desconocido:",
+          error,
+        );
       }
     } finally {
       setLoading(false);
@@ -165,20 +363,37 @@ function Login() {
   };
 
   if (showForgot) {
-    return <ForgotPassword onBack={() => setShowForgot(false)} />;
+    return (
+      <ForgotPassword
+        onBack={() =>
+          setShowForgot(false)
+        }
+      />
+    );
   }
 
   return (
     <main className="login-page">
       <div className="login-scene">
-        <div className={`login-card-flip ${isRegister ? "is-flipped" : ""}`}>
+        <div
+          className={`login-card-flip ${
+            isRegister
+              ? "is-flipped"
+              : ""
+          }`}
+        >
           <div className="login-card card-face card-front">
             <section className="login-left">
               <div className="poster">
-                <img src={logo} alt="MathNova" className="login-logo" />
+                <img
+                  src={logo}
+                  alt="MathNova"
+                  className="login-logo"
+                />
 
                 <p className="poster-text">
-                  Explorando el universo de las matemáticas
+                  Explorando el universo
+                  de las matemáticas
                 </p>
 
                 <img
@@ -190,15 +405,26 @@ function Login() {
             </section>
 
             <section className="login-right">
-              <form className="login-form" onSubmit={handleLogin}>
-                <h1>¡Bienvenido de nuevo!</h1>
+              <form
+                className="login-form"
+                onSubmit={handleLogin}
+              >
+                <h1>
+                  ¡Bienvenido de nuevo!
+                </h1>
 
                 <p className="login-subtitle">
-                  Inicia sesión para continuar aprendiendo con MathNova.
+                  Inicia sesión para
+                  continuar aprendiendo
+                  con MathNova.
                 </p>
 
                 {state?.authMessage && (
-                  <div className="login-alert">{state.authMessage}</div>
+                  <div className="login-alert">
+                    {
+                      state.authMessage
+                    }
+                  </div>
                 )}
 
                 <div className="input-box">
@@ -207,8 +433,14 @@ function Login() {
                   <input
                     type="text"
                     placeholder="Correo o usuario"
-                    value={correoUsuario}
-                    onChange={(e) => setCorreoUsuario(e.target.value)}
+                    value={
+                      correoUsuario
+                    }
+                    onChange={(e) =>
+                      setCorreoUsuario(
+                        e.target.value,
+                      )
+                    }
                   />
                 </div>
 
@@ -216,21 +448,39 @@ function Login() {
                   <LuLockKeyhole className="input-icon" />
 
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type={
+                      showPassword
+                        ? "text"
+                        : "password"
+                    }
                     placeholder="Contraseña"
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
+                    value={
+                      loginPassword
+                    }
+                    onChange={(e) =>
+                      setLoginPassword(
+                        e.target.value,
+                      )
+                    }
                   />
 
                   {showPassword ? (
                     <FiEye
                       className="input-icon eye"
-                      onClick={() => setShowPassword(false)}
+                      onClick={() =>
+                        setShowPassword(
+                          false,
+                        )
+                      }
                     />
                   ) : (
                     <FiEyeOff
                       className="input-icon eye"
-                      onClick={() => setShowPassword(true)}
+                      onClick={() =>
+                        setShowPassword(
+                          true,
+                        )
+                      }
                     />
                   )}
                 </div>
@@ -240,32 +490,50 @@ function Login() {
                   className="forgot"
                   onClick={(e) => {
                     e.preventDefault();
-                    setShowForgot(true);
+
+                    setShowForgot(
+                      true,
+                    );
                   }}
                 >
-                  ¿Olvidaste tu contraseña?
+                  ¿Olvidaste tu
+                  contraseña?
                 </a>
 
-                <button type="submit" className="login-btn" disabled={loading}>
-                  {loading ? "Iniciando sesión..." : "Iniciar sesión"}
+                <button
+                  type="submit"
+                  className="login-btn"
+                  disabled={loading}
+                >
+                  {loading
+                    ? "Iniciando sesión..."
+                    : "Iniciar sesión"}
                 </button>
 
                 <button
                   type="button"
                   className="guest-button"
-                  onClick={entrarComoEspectador}
+                  onClick={
+                    entrarComoEspectador
+                  }
                 >
                   Entrar como espectador
                 </button>
 
                 <div className="divider">
-                  <span>¿Eres nuevo aquí?</span>
+                  <span>
+                    ¿Eres nuevo aquí?
+                  </span>
                 </div>
 
                 <button
                   type="button"
                   className="create-btn"
-                  onClick={() => setIsRegister(true)}
+                  onClick={() =>
+                    setIsRegister(
+                      true,
+                    )
+                  }
                 >
                   Crear cuenta
                 </button>
@@ -276,14 +544,21 @@ function Login() {
           <div className="login-card card-face card-back">
             <section className="login-left">
               <div className="poster">
-                <img src={logo} alt="MathNova" className="login-logo" />
+                <img
+                  src={logo}
+                  alt="MathNova"
+                  className="login-logo"
+                />
 
                 <p className="poster-text">
-                  Explorando el universo de las matemáticas
+                  Explorando el universo
+                  de las matemáticas
                 </p>
 
                 <img
-                  src={zorritoCrearCuenta}
+                  src={
+                    zorritoCrearCuenta
+                  }
                   alt="Zorrito crear cuenta"
                   className="fox-img"
                 />
@@ -291,11 +566,82 @@ function Login() {
             </section>
 
             <section className="login-right">
-              <RegisterForm onBack={() => setIsRegister(false)} />
+              <RegisterForm
+                onBack={() =>
+                  setIsRegister(
+                    false,
+                  )
+                }
+              />
             </section>
           </div>
         </div>
       </div>
+
+      {mensajeError && (
+        <div
+          className="login-error-overlay"
+          onMouseDown={(event) => {
+            if (
+              event.target ===
+              event.currentTarget
+            ) {
+              setMensajeError(
+                null,
+              );
+            }
+          }}
+        >
+          <section
+            className="login-error-modal"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="login-error-title"
+          >
+            <button
+              type="button"
+              className="login-error-close"
+              onClick={() =>
+                setMensajeError(
+                  null,
+                )
+              }
+              aria-label="Cerrar mensaje"
+            >
+              <FiX />
+            </button>
+
+            <div className="login-error-icon">
+              <FiAlertTriangle />
+            </div>
+
+            <span className="login-error-label">
+              Inicio de sesión
+            </span>
+
+            <h2 id="login-error-title">
+              No pudimos iniciar sesión
+            </h2>
+
+            <p>
+              {mensajeError}
+            </p>
+
+            <button
+              type="button"
+              className="login-error-button"
+              onClick={() =>
+                setMensajeError(
+                  null,
+                )
+              }
+              autoFocus
+            >
+              Intentar de nuevo
+            </button>
+          </section>
+        </div>
+      )}
     </main>
   );
 }

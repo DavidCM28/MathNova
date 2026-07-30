@@ -18,6 +18,10 @@ import iconoPrecision from "../../assets/icono-precision.png";
 import iconoRecompensa from "../../assets/icono-recompensa.png";
 import iconoInsignia from "../../assets/icono-insignia.png";
 import iconoProgreso from "../../assets/icono-progreso.png";
+
+/* ---- Videos de cohetes con fondo verde ---- */
+import cohetePendienteAscensoVideo from "../../assets/cohete-ascenso.mp4";
+import cohetePendienteDescensoVideo from "../../assets/cohete-descenso.mp4";
 import baitHablandoVideo from "../../assets/bait-hablando.mp4";
 import introBaitAudio from "../../assets/rampas-intro-audio.mp3";
 import pistaBaitAudio from "../../assets/rampas-pista-audio.mp3";
@@ -44,6 +48,8 @@ import {
   FiCheckCircle,
   FiRefreshCw,
   FiArrowRight,
+  FiSettings,
+  FiLogOut,
 } from "react-icons/fi";
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 import "./RampasDeLanzamiento.css";
@@ -444,6 +450,7 @@ function PistaBaitModal({
         <audio
           ref={audioRef}
           src={audioSrc}
+          autoPlay
           onPlay={() => setReproduciendo(true)}
           onPause={() => setReproduciendo(false)}
           onEnded={() => setReproduciendo(false)}
@@ -456,6 +463,71 @@ function PistaBaitModal({
       </div>
     </div>,
     document.body
+  );
+}
+
+function AyudaContextualRampas({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const cerrarConEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", cerrarConEscape);
+    return () => window.removeEventListener("keydown", cerrarConEscape);
+  }, [onClose]);
+
+  return createPortal(
+    <div
+      className="rmp-ayuda-overlay"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section
+        className="rmp-ayuda-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="rmp-ayuda-titulo"
+      >
+        <button
+          type="button"
+          className="rmp-ayuda-cerrar"
+          onClick={onClose}
+          aria-label="Cerrar ayuda"
+        >
+          <FiX />
+        </button>
+
+        <img
+          src={baitPistaImg}
+          alt="Bait presenta una orientación para resolver la misión"
+          className="rmp-ayuda-imagen"
+        />
+
+        <div className="rmp-ayuda-contenido">
+          <span className="rmp-ayuda-etiqueta">CONTEXTO DE LA MISIÓN</span>
+          <h2 id="rmp-ayuda-titulo">¿Cómo calibrar las rampas?</h2>
+          <p>
+            La nave necesita dos rutas seguras: una para ascender y otra para
+            descender. Observa cómo cambia la altura cuando la distancia avanza
+            una unidad. Ese cambio constante te indica la pendiente.
+          </p>
+          <p>
+            Si la recta sube de izquierda a derecha, el signo es positivo; si
+            baja, es negativo. Después escribe la relación con la forma{" "}
+            <strong>y = mx</strong>, donde <strong>m</strong> representa ese
+            cambio. Revisa las tablas y las gráficas antes de completar la
+            bitácora final.
+          </p>
+
+          <button type="button" className="rmp-ayuda-volver" onClick={onClose}>
+            Entendido, volver a la misión
+          </button>
+        </div>
+      </section>
+    </div>,
+    document.body,
   );
 }
 
@@ -576,6 +648,87 @@ function ResultAudioPlayer({ src }: { src: string }) {
 }
 
 /* =========================================================
+   COMPONENTE: VIDEO CON CROMA (fondo verde) TRANSPARENTE
+   Dibuja el video cuadro a cuadro en un <canvas> y vuelve
+   transparente cada píxel verde, sin necesidad de recodificar
+   el archivo. Funciona en todos los navegadores.
+========================================================= */
+
+interface ChromaKeyVideoProps {
+  src?: string;
+  className?: string;
+  loop?: boolean;
+  onEnded?: () => void;
+}
+
+function ChromaKeyVideo({ src, className, loop = true, onEnded }: ChromaKeyVideoProps) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas || !src) return;
+
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return;
+
+    const dibujarCuadro = () => {
+      if (video.videoWidth && video.videoHeight) {
+        if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+        }
+
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const cuadro = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const datos = cuadro.data;
+
+        // El fondo es verde: el canal verde es notablemente más alto
+        // que el rojo y el azul. Los píxeles que cumplen esto se
+        // vuelven transparentes; el cohete queda intacto.
+        for (let i = 0; i < datos.length; i += 4) {
+          const r = datos[i];
+          const g = datos[i + 1];
+          const b = datos[i + 2];
+          if (g > 85 && g > r * 1.3 && g > b * 1.3) {
+            datos[i + 3] = 0;
+          }
+        }
+
+        ctx.putImageData(cuadro, 0, 0);
+      }
+      rafRef.current = requestAnimationFrame(dibujarCuadro);
+    };
+
+    rafRef.current = requestAnimationFrame(dibujarCuadro);
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [src]);
+
+  if (!src) return null;
+
+  return (
+    <div className={className}>
+      <video
+        ref={videoRef}
+        src={src}
+        muted
+        playsInline
+        autoPlay
+        loop={loop}
+        onEnded={onEnded}
+        style={{ display: "none" }}
+      />
+      <canvas ref={canvasRef} className="rmp-chroma-canvas" aria-hidden="true" />
+    </div>
+  );
+}
+
+/* =========================================================
    COMPONENTE PRINCIPAL
 ========================================================= */
 
@@ -604,6 +757,28 @@ export default function RampasDeLanzamiento() {
   const [resultado, setResultado] = useState<"exito" | "fallo" | null>(null);
   const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
   const [mostrarIntroBait, setMostrarIntroBait] = useState(false);
+  const [mostrarAyudaContextual, setMostrarAyudaContextual] = useState(false);
+  const [mostrarCohetesBienvenida, setMostrarCohetesBienvenida] = useState(true);
+  const [segundosTranscurridos, setSegundosTranscurridos] = useState(0);
+
+  useEffect(() => {
+    if (resultado !== null) return;
+
+    const actualizarTiempo = () => {
+      setSegundosTranscurridos(
+        Math.floor((Date.now() - inicioActividadRef.current) / 1000),
+      );
+    };
+
+    actualizarTiempo();
+    const intervalo = window.setInterval(actualizarTiempo, 1000);
+    return () => window.clearInterval(intervalo);
+  }, [resultado]);
+
+  useEffect(() => {
+    const temporizador = setTimeout(() => setMostrarCohetesBienvenida(false), 3400);
+    return () => clearTimeout(temporizador);
+  }, []);
   const [cargando, setCargando] = useState(false);
 
   const [
@@ -620,6 +795,11 @@ export default function RampasDeLanzamiento() {
     estrellasResultado,
     setEstrellasResultado,
   ] = useState(0);
+
+  // ---- Límite de intentos (validación global de la actividad) ----
+  const [intentoActual, setIntentoActual] = useState(0);
+  const [asistido, setAsistido] = useState(false);
+  const [mensajePistaBait, setMensajePistaBait] = useState("");
 
   // ==========================================
   // CARGAR PROGRESO GUARDADO
@@ -649,6 +829,13 @@ export default function RampasDeLanzamiento() {
           if (progreso.bitacora_ecuacion_ascenso) setBitEcAscenso(progreso.bitacora_ecuacion_ascenso);
           if (progreso.bitacora_pendiente_descenso) setBitPendienteDescenso(progreso.bitacora_pendiente_descenso);
           if (progreso.bitacora_ecuacion_descenso) setBitEcDescenso(progreso.bitacora_ecuacion_descenso);
+
+          if (progreso.intentos_verificacion) {
+            setIntentoActual(Number(progreso.intentos_verificacion) || 0);
+          }
+          if (progreso.asistido) {
+            setAsistido(true);
+          }
 
           if (progreso.completada) {
             const correcto =
@@ -764,6 +951,78 @@ export default function RampasDeLanzamiento() {
           Boolean(
             data.data.correcto,
           );
+
+        // ---- Límite de intentos (validación global) ----
+        // Contrato esperado del backend (pendiente de implementar en
+        // rampasService.ts / rampasController.ts):
+        //   intento: number
+        //   mostrar_pista_bait?: boolean   (true en el intento 2)
+        //   asistido?: boolean             (true en el intento 3: revela)
+        //   respuestas_correctas?: { pendiente_ascenso, pendiente_descenso,
+        //     ecuacion_ascenso, ecuacion_descenso, bitacora_pendiente_ascenso,
+        //     bitacora_ecuacion_ascenso, bitacora_pendiente_descenso,
+        //     bitacora_ecuacion_descenso }
+        //
+        // "contratoNuevoActivo" detecta si el backend YA manda este
+        // formato. Si no lo manda todavía (backend viejo), el código de
+        // abajo se salta por completo y todo se comporta exactamente
+        // igual que antes de este cambio — nada se rompe mientras tanto.
+        const contratoNuevoActivo = "intento" in data.data;
+
+        if (contratoNuevoActivo && !correcto && typeof data.data.intento === "number") {
+          setIntentoActual(data.data.intento);
+        }
+
+        if (contratoNuevoActivo && !correcto && data.data.mostrar_pista_bait && !data.data.asistido) {
+          setMensajePistaBait(
+            data.data.mensaje ||
+              "Pista: revisa si la recta sube o baja, y recuerda que la pendiente es el número que acompaña a la x.",
+          );
+          setMostrarPistaBait(true);
+          setCargando(false);
+          guardandoProgresoRef.current = false;
+          return;
+        }
+
+        // Variable LOCAL (no el state) para usar en esta misma ejecución:
+        // setAsistido(true) no se refleja de inmediato por el asincronismo
+        // de React, así que no podemos confiar en el state "asistido"
+        // unas líneas más abajo dentro de esta misma función.
+        const seReveloEnEsteIntento =
+          contratoNuevoActivo &&
+          !correcto &&
+          Boolean(data.data.asistido) &&
+          Boolean(data.data.respuestas_correctas);
+
+        if (seReveloEnEsteIntento) {
+          const revelado = data.data.respuestas_correctas;
+          setPendienteAscenso(revelado.pendiente_ascenso ?? pendienteAscenso);
+          setPendienteDescenso(revelado.pendiente_descenso ?? pendienteDescenso);
+          setEcAscenso(String(revelado.ecuacion_ascenso ?? ecAscenso));
+          setEcDescenso(String(revelado.ecuacion_descenso ?? ecDescenso));
+          setBitPendienteAscenso(String(revelado.bitacora_pendiente_ascenso ?? bitPendienteAscenso));
+          setBitEcAscenso(String(revelado.bitacora_ecuacion_ascenso ?? bitEcAscenso));
+          setBitPendienteDescenso(String(revelado.bitacora_pendiente_descenso ?? bitPendienteDescenso));
+          setBitEcDescenso(String(revelado.bitacora_ecuacion_descenso ?? bitEcDescenso));
+          setAsistido(true);
+        }
+
+        if (contratoNuevoActivo && !correcto && !seReveloEnEsteIntento) {
+          // Backend nuevo, intento 1 (todavía no toca ni Bait ni revelar):
+          // solo avisamos y dejamos que lo vuelva a intentar.
+          setCargando(false);
+          guardandoProgresoRef.current = false;
+          alert(
+            data.data.mensaje ||
+              "❌ Revisa tus respuestas, algo no está bien todavía.",
+          );
+          return;
+        }
+
+        // Si "contratoNuevoActivo" es false (backend viejo, como está
+        // ahora mismo), el flujo sigue exactamente como siempre: llega
+        // hasta acá sin haber entrado a ninguno de los bloques nuevos, y
+        // el resto del código de abajo funciona sin cambios.
 
         const pendienteAscensoFinal =
           normalizarRespuestaRampas(
@@ -892,7 +1151,7 @@ export default function RampasDeLanzamiento() {
                 tiempoSegundos,
               xp_base: 50,
               completada:
-                correcto,
+                correcto || seReveloEnEsteIntento,
             });
 
           estrellasGuardadas =
@@ -931,8 +1190,11 @@ export default function RampasDeLanzamiento() {
         inicioActividadRef.current =
           Date.now();
 
+        // ✅ "asistido" (revelado en el intento 3) también cuenta como
+        // éxito, igual que en las demás actividades — el color naranja
+        // ya deja claro que hubo ayuda del sistema.
         setResultado(
-          correcto
+          correcto || seReveloEnEsteIntento
             ? "exito"
             : "fallo",
         );
@@ -989,6 +1251,9 @@ export default function RampasDeLanzamiento() {
     setAciertosResultado(0);
     setTiempoResultado(0);
     setEstrellasResultado(0);
+    setIntentoActual(0);
+    setAsistido(false);
+    setMensajePistaBait("");
 
     guardandoProgresoRef.current =
       false;
@@ -1084,6 +1349,35 @@ export default function RampasDeLanzamiento() {
           <span className="rmp-sidebar-label">XP acumulados</span>
           <strong>⭐ 120 XP</strong>
         </div>
+
+        <div className="rmp-sidebar-tiempo">
+          <span className="rmp-sidebar-label">Tiempo transcurrido</span>
+          <strong>{formatearTiempoRampas(segundosTranscurridos)}</strong>
+        </div>
+
+        <div className="rmp-sidebar-icons">
+          <button
+            type="button"
+            onClick={() => navigate("/ajustes")}
+            aria-label="Ajustes"
+          >
+            <FiSettings />
+          </button>
+          <button
+            type="button"
+            onClick={() => setMostrarAyudaContextual(true)}
+            aria-label="Ayuda de la actividad"
+          >
+            <FiHelpCircle />
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            aria-label="Cerrar sesión"
+          >
+            <FiLogOut />
+          </button>
+        </div>
       </aside>
 
       {/* ================= CONTENIDO ================= */}
@@ -1095,13 +1389,33 @@ export default function RampasDeLanzamiento() {
         </button>
             <span className="rmp-actividad-pill">Actividad 1 de 1</span>
           </div>
-          <button className="rmp-ayuda-btn" type="button" aria-label="Ayuda">
+          <button
+            className="rmp-ayuda-btn"
+            type="button"
+            aria-label="Ayuda"
+            onClick={() => setMostrarAyudaContextual(true)}
+          >
             <FiHelpCircle />
           </button>
         </header>
 
         {/* FILA SUPERIOR */}
         <div className="rmp-top-row">
+          {mostrarCohetesBienvenida && (
+            <div className="rmp-cohetes-bienvenida" aria-hidden="true">
+              <ChromaKeyVideo
+                src={cohetePendienteAscensoVideo}
+                className="rmp-cohete-bienvenida rmp-cohete-bienvenida-ascenso"
+                loop={false}
+              />
+              <ChromaKeyVideo
+                src={cohetePendienteDescensoVideo}
+                className="rmp-cohete-bienvenida rmp-cohete-bienvenida-descenso"
+                loop={false}
+              />
+            </div>
+          )}
+
           <div className="rmp-centro-control">
             <div className="rmp-centro-control-header">
               <FiTarget /> CENTRO DE CONTROL
@@ -1181,6 +1495,10 @@ export default function RampasDeLanzamiento() {
             <div className="rmp-grafica-header">
               <span className="rmp-numero-badge rmp-numero-badge-verde">1</span>
               <h2>Rampa de ascenso</h2>
+              <ChromaKeyVideo
+                src={cohetePendienteAscensoVideo}
+                className="rmp-cohete-mini"
+              />
             </div>
 
             <div className="rmp-grafica-contenido">
@@ -1253,6 +1571,10 @@ export default function RampasDeLanzamiento() {
             <div className="rmp-grafica-header">
               <span className="rmp-numero-badge rmp-numero-badge-rojo">2</span>
               <h2>Rampa de descenso</h2>
+              <ChromaKeyVideo
+                src={cohetePendienteDescensoVideo}
+                className="rmp-cohete-mini"
+              />
             </div>
 
             <div className="rmp-grafica-contenido">
@@ -1380,10 +1702,20 @@ export default function RampasDeLanzamiento() {
               />
             </div>
 
-            <p className="rmp-bitacora-nota">
-              <FiInfo /> Completa las respuestas arriba y luego verifica tu
-              misión.
-            </p>
+            {asistido ? (
+              <p className="rmp-bitacora-nota rmp-bitacora-nota-asistida">
+                <FiInfo /> El sistema completó estas respuestas para
+                ayudarte. Revísalas con calma antes de continuar.
+              </p>
+            ) : (
+              <p className="rmp-bitacora-nota">
+                <FiInfo /> Completa las respuestas arriba y luego verifica tu
+                misión.
+                {intentoActual > 0 && (
+                  <span className="rmp-intentos-contador"> (Intento {intentoActual}/3)</span>
+                )}
+              </p>
+            )}
           </div>
 
           <div className="rmp-pista-card">
@@ -1422,7 +1754,10 @@ export default function RampasDeLanzamiento() {
       {mostrarPistaBait && (
         <PistaBaitModal
           titulo="Pista de Bait"
-          contenido="Si la recta sube de izquierda a derecha, la pendiente es positiva. Si baja, es negativa. Recuerda: pendiente = cambio vertical ÷ cambio horizontal."
+          contenido={
+            mensajePistaBait ||
+            "Si la recta sube de izquierda a derecha, la pendiente es positiva. Si baja, es negativa. Recuerda: pendiente = cambio vertical ÷ cambio horizontal."
+          }
           videoSrc={baitHablandoVideo}
           audioSrc={pistaBaitAudio}
           onClose={() => setMostrarPistaBait(false)}
@@ -1437,6 +1772,12 @@ export default function RampasDeLanzamiento() {
           audioSrc={introBaitAudio}
           botonTexto="¡Comenzar misión! 🚀"
           onClose={() => setMostrarIntroBait(false)}
+        />
+      )}
+
+      {mostrarAyudaContextual && (
+        <AyudaContextualRampas
+          onClose={() => setMostrarAyudaContextual(false)}
         />
       )}
 

@@ -15,7 +15,6 @@ import baitSaludoImg from "../../assets/bait-saludo.png";
 import baitPistaImg from "../../assets/bait-pista.png";
 import villanoTrofeoCompleto from "../../assets/villano-trofeo-completo.png";
 import villanoIntentar from "../../assets/villano-vintentar.png";
-import estrellaMision from "../../assets/estrella-mision.png";
 import iconoAciertos from "../../assets/icono-aciertos.png";
 import iconoTiempo from "../../assets/icono-tiempo.png";
 import iconoPrecision from "../../assets/icono-precision.png";
@@ -31,6 +30,10 @@ import iconoGraficaCircularImg from "../../assets/icono-grafica-circular.png";
 /* ---- Audios ---- */
 import introBaitAudioHolograma from "../../assets/intro_bit.mp3";
 import pistaBaitAudioHolograma from "../../assets/pista_bit.mp3";
+
+/* ---- Audios de resultado ---- */
+import audioActividadCompletadaHolograma from "../../assets/actividad_completada_bit.mp3";
+import audioVuelveAIntentarloHolograma from "../../assets/vuelve_a_intentarlo_bit.mp3";
 
 import {
   FiGrid,
@@ -52,6 +55,11 @@ import {
   FiRotateCcw,
   FiRotateCw,
   FiZap,
+  FiRefreshCw,
+  FiArrowRight,
+  FiSettings,
+  FiLogOut,
+  FiClock,
 } from "react-icons/fi";
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
@@ -215,6 +223,15 @@ const COLOR_MODULO: Record<Modulo, string> = {
 
 const TOTAL_VOTOS = 10;
 
+const formatearTiempoHolograma = (segundos: number): string => {
+  const minutos = Math.floor(segundos / 60);
+  const segundosRestantes = segundos % 60;
+
+  return `${String(minutos).padStart(2, "0")}:${String(
+    segundosRestantes,
+  ).padStart(2, "0")}`;
+};
+
 /* =========================================================
    COMPONENTE: PISTA DE BAIT (modal con video real)
 ========================================================= */
@@ -295,6 +312,8 @@ function PistaBaitModal({
             ref={videoRef}
             src={videoSrc}
             className="pb-video"
+            autoPlay
+            loop
             muted
             playsInline
             preload="auto"
@@ -344,6 +363,8 @@ function PistaBaitModal({
           <audio
             ref={audioRef}
             src={audioSrc}
+            autoPlay
+            preload="auto"
             onPlay={() => setReproduciendo(true)}
             onPause={() => setReproduciendo(false)}
             onEnded={() => setReproduciendo(false)}
@@ -357,6 +378,187 @@ function PistaBaitModal({
       </div>
     </div>,
     document.body
+  );
+}
+
+function AyudaContextualHolograma({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const cerrarConEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", cerrarConEscape);
+    return () => window.removeEventListener("keydown", cerrarConEscape);
+  }, [onClose]);
+
+  return createPortal(
+    <div
+      className="hol-ayuda-overlay"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section
+        className="hol-ayuda-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="hol-ayuda-titulo"
+      >
+        <button
+          type="button"
+          className="hol-ayuda-cerrar"
+          onClick={onClose}
+          aria-label="Cerrar ayuda"
+        >
+          <FiX />
+        </button>
+
+        <img
+          src={baitPistaImg}
+          alt="BIT presenta una orientación para resolver la misión"
+          className="hol-ayuda-imagen"
+        />
+
+        <div className="hol-ayuda-contenido">
+          <span className="hol-ayuda-etiqueta">CONTEXTO DE LA MISIÓN</span>
+          <h2 id="hol-ayuda-titulo">¿Cómo activar el holograma?</h2>
+          <p>
+            El Centro de Mando necesita convertir los resultados de la encuesta
+            en representaciones visuales. Primero observa la frecuencia de cada
+            módulo y decide qué gráfica permite comparar cantidades exactas.
+          </p>
+          <p>
+            Para construir las barras usa los votos como altura. En la gráfica
+            circular piensa qué parte del total representa cada módulo:
+            frecuencia ÷ total × 100. Al final compara ambas gráficas para
+            identificar cuál categoría ocupa la mayor proporción.
+          </p>
+
+          <button type="button" className="hol-ayuda-volver" onClick={onClose}>
+            Entendido, volver a la misión
+          </button>
+        </div>
+      </section>
+    </div>,
+    document.body,
+  );
+}
+
+/* =========================================================
+   COMPONENTE: REPRODUCTOR DE AUDIO DEL RESULTADO
+   Se reproduce solo apenas se monta, y muestra los
+   controles normales de un reproductor de audio: retroceder
+   10s, pausar/reproducir y adelantar 10s. Mismo patrón que
+   las demás actividades. Si no se le pasa src (audio aún
+   pendiente), no muestra nada.
+========================================================= */
+
+const RESULT_AUDIO_SALTO_SEGUNDOS = 10;
+
+function ResultAudioPlayer({ src }: { src?: string }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [reproduciendo, setReproduciendo] = useState(false);
+  const [progreso, setProgreso] = useState(0);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    if (!audio || !src) {
+      return;
+    }
+
+    audio.currentTime = 0;
+    audio.volume = 1;
+
+    const playPromise = audio.play();
+
+    if (playPromise !== undefined) {
+      playPromise.catch((error) => {
+        console.warn(
+          "El audio del resultado no pudo iniciarse automáticamente:",
+          error,
+        );
+      });
+    }
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, [src]);
+
+  const alternarReproduccion = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (audio.paused || audio.ended) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  };
+
+  const saltar = (segundos: number) => {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    audio.currentTime = Math.min(
+      Math.max(audio.currentTime + segundos, 0),
+      audio.duration,
+    );
+  };
+
+  const actualizarProgreso = () => {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    setProgreso((audio.currentTime / audio.duration) * 100);
+  };
+
+  if (!src) return null;
+
+  return (
+    <div className="hol-modal-audio">
+      <audio
+        ref={audioRef}
+        src={src}
+        preload="auto"
+        autoPlay
+        onPlay={() => setReproduciendo(true)}
+        onPause={() => setReproduciendo(false)}
+        onEnded={() => setReproduciendo(false)}
+        onTimeUpdate={actualizarProgreso}
+      />
+
+      <button
+        type="button"
+        className="hol-modal-audio-btn"
+        onClick={() => saltar(-RESULT_AUDIO_SALTO_SEGUNDOS)}
+        aria-label="Retroceder 10 segundos"
+      >
+        <FiRotateCcw />
+      </button>
+
+      <button
+        type="button"
+        className="hol-modal-audio-btn hol-modal-audio-btn--play"
+        onClick={alternarReproduccion}
+        aria-label={reproduciendo ? "Pausar" : "Reproducir"}
+      >
+        {reproduciendo ? <FiPause /> : <FiPlay />}
+      </button>
+
+      <button
+        type="button"
+        className="hol-modal-audio-btn"
+        onClick={() => saltar(RESULT_AUDIO_SALTO_SEGUNDOS)}
+        aria-label="Adelantar 10 segundos"
+      >
+        <FiRotateCw />
+      </button>
+
+      <div className="hol-modal-audio-progress">
+        <div style={{ width: `${progreso}%` }} />
+      </div>
+    </div>
   );
 }
 
@@ -416,12 +618,27 @@ export default function HologramaReportes() {
   const [resultado, setResultado] = useState<"exito" | "fallo" | null>(null);
   const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
   const [mostrarIntroBait, setMostrarIntroBait] = useState(false);
-  const [mostrarBaitExito, setMostrarBaitExito] = useState(false);
-  const [mostrarBaitFallo, setMostrarBaitFallo] = useState(false);
+  const [mostrarAyudaContextual, setMostrarAyudaContextual] = useState(false);
+  const [segundosTranscurridos, setSegundosTranscurridos] = useState(0);
 
   const [cargandoBarras, setCargandoBarras] = useState(false);
   const [cargandoCirculo, setCargandoCirculo] = useState(false);
   const [cargandoActivar, setCargandoActivar] = useState(false);
+
+  useEffect(() => {
+    const actualizarTiempo = () => {
+      setSegundosTranscurridos(
+        Math.max(
+          0,
+          Math.floor((Date.now() - inicioActividadRef.current) / 1000),
+        ),
+      );
+    };
+
+    actualizarTiempo();
+    const intervalo = window.setInterval(actualizarTiempo, 1000);
+    return () => window.clearInterval(intervalo);
+  }, []);
 
   // ==========================================
   // CARGAR PROGRESO GUARDADO
@@ -888,137 +1105,171 @@ export default function HologramaReportes() {
   // ==========================================
 
   if (resultado === "exito") return (
-    <div className="res-modal-overlay">
-      <div className="res-modal-card res-modal-exito res-modal-wide">
-        <div className="res-confetti" aria-hidden="true">
-          {Array.from({ length: 16 }).map((_, i) => (
-            <span key={i} className={`res-confetti-dot res-confetti-dot-${i % 6}`} />
-          ))}
-        </div>
+    <div className="hol-modal-overlay hol-modal-overlay--completed" role="presentation">
+      <section
+        className="hol-modal hol-modal--completed"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="hol-result-title"
+      >
+        <div className="hol-modal-decoration hol-modal-decoration--one" />
+        <div className="hol-modal-decoration hol-modal-decoration--two" />
 
-        <div className="res-titulo-row">
-          <div className="res-icono-check">✔</div>
-          <div>
-            <h1 className="res-titulo">¡Actividad completada!</h1>
-            <p className="res-subtitulo">
-              Has terminado con éxito la misión de{" "}
-              <span className="res-mathnova-color">MathData</span>.
-            </p>
+        <div className="hol-modal-main">
+          <header className="hol-modal-header">
+            <div className="hol-modal-status-icon">
+              <FiCheckCircle />
+            </div>
+
+            <div className="hol-modal-header-copy">
+              <span className="hol-modal-badge">
+                <FiCheckCircle />
+                Actividad completada
+              </span>
+
+              <h1 id="hol-result-title">¡Actividad completada!</h1>
+
+              <p>
+                Has terminado con éxito la misión de{" "}
+                <span className="hol-modal-mathnova-color">MathData</span>.
+              </p>
+            </div>
+          </header>
+
+          <div className="hol-modal-content">
+            <div className="hol-modal-character">
+              <img
+                src={villanoTrofeoCompleto}
+                alt="Villano celebrando con trofeo"
+                draggable={false}
+              />
+            </div>
+
+            <article className="hol-modal-message">
+              <span className="hol-modal-message-label">Resultado de la misión</span>
+              <h2>¡Lo lograste, agente!</h2>
+              <p>
+                El holograma está proyectado sobre la mesa de mando. El
+                centro tiene su reporte visual completo. El mago no pudo
+                detenernos.
+              </p>
+            </article>
           </div>
-        </div>
 
-        <div className="res-mensaje-box res-mensaje-verde">
-          <div className="res-icono-estrella-circle">
-            <img src={estrellaMision} alt="estrella" />
-          </div>
-          <div>
-            <strong>¡Excelente trabajo, piloto!</strong>
-            <p>
-              Construiste las gráficas correctamente e interpretaste los
-              datos para activar el holograma. Sigue así y conquista la
-              siguiente misión.
-            </p>
-          </div>
-        </div>
+          <ResultAudioPlayer src={audioActividadCompletadaHolograma} />
 
-        <button
-          type="button"
-          className="rmp-bait-mensaje-trigger res-modal-villano-trigger"
-          onClick={() => setMostrarBaitExito(true)}
-          aria-label="Abrir mensaje de Bait"
-        >
-          <span className="rmp-bait-mensaje-dot" />
-          <FiMessageSquare />
-          Bait tiene un mensaje para ti
-        </button>
+          <article className="hol-modal-summary">
+            <header>
+              <FiBarChart2 />
+              <h2>Resumen de la actividad</h2>
+            </header>
 
-        <div className="res-villano-exito-group">
-          <img
-            src={villanoTrofeoCompleto}
-            alt="Villano celebrando con trofeo"
-            className="res-villano-trofeo-img"
-          />
-        </div>
-
-        <div className="res-modal-body">
-          <div className="res-modal-left">
-            <div className="res-resumen-card">
-              <div className="res-resumen-header">
-                <FiBarChart2 />
-                <span>Resumen de la actividad</span>
-              </div>
-              <div className="res-resumen-stats">
-                <div className="res-stat">
-                  <img src={iconoAciertos} alt="" className="res-stat-img" />
-                  <strong className="res-stat-num-verde">4/4</strong>
-                  <small>Pasos correctos</small>
-                  <em>¡Perfecto!</em>
+            <div className="hol-modal-stats">
+              <article className="hol-modal-stat">
+                <div className="hol-modal-stat-icon">
+                  <img src={iconoAciertos} alt="" aria-hidden="true" />
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoTiempo} alt="" className="res-stat-img" />
+                <div>
+                  <span>Pasos correctos</span>
+                  <strong>4/4</strong>
+                  <small>¡Perfecto!</small>
+                </div>
+              </article>
+
+              <article className="hol-modal-stat">
+                <div className="hol-modal-stat-icon">
+                  <img src={iconoTiempo} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Tiempo</span>
                   <strong>—</strong>
-                  <small>Tiempo</small>
-                  <em>min</em>
+                  <small>min</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoPrecision} alt="" className="res-stat-img" />
-                  <strong className="res-stat-num-verde">100%</strong>
-                  <small>Precisión</small>
-                  <em>¡Impecable!</em>
+              </article>
+
+              <article className="hol-modal-stat">
+                <div className="hol-modal-stat-icon">
+                  <img src={iconoPrecision} alt="" aria-hidden="true" />
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoRecompensa} alt="" className="res-stat-img" />
-                  <strong className="res-pts-naranja">+50 pts</strong>
-                  <small>Recompensa</small>
-                  <em>Puntos ganados</em>
+                <div>
+                  <span>Precisión</span>
+                  <strong>100%</strong>
+                  <small>¡Impecable!</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoInsignia} alt="" className="res-stat-img" />
-                  <strong>Misión<br />cumplida</strong>
-                  <small>Insignia obtenida</small>
-                  <em>¡Felicidades!</em>
+              </article>
+
+              <article className="hol-modal-stat">
+                <div className="hol-modal-stat-icon">
+                  <img src={iconoRecompensa} alt="" aria-hidden="true" />
                 </div>
-              </div>
+                <div>
+                  <span>Recompensa</span>
+                  <strong>+50 pts</strong>
+                  <small>Puntos ganados</small>
+                </div>
+              </article>
+
+              <article className="hol-modal-stat">
+                <div className="hol-modal-stat-icon">
+                  <img src={iconoInsignia} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Insignia obtenida</span>
+                  <strong>Misión cumplida</strong>
+                  <small>¡Felicidades!</small>
+                </div>
+              </article>
+            </div>
+          </article>
+        </div>
+
+        <aside className="hol-modal-side">
+          <article className="hol-modal-side-message">
+            <span>¡Misión completada!</span>
+            <strong>Sigue avanzando por MathData</strong>
+            <p>Cada actividad superada fortalece tus habilidades matemáticas.</p>
+          </article>
+
+          <div className="hol-modal-progress">
+            <div>
+              <span>Progreso del tema</span>
+              <strong>40%</strong>
+            </div>
+            <div className="hol-modal-progress-bar">
+              <span style={{ width: "40%" }} />
             </div>
           </div>
 
-          <div className="res-modal-right">
+          <div className="hol-modal-actions">
             <button
-              className="res-btn res-btn-azul"
-              onClick={() =>
-                navigate(
-                  "/actividades-math-data/sensor-frecuencias",
-                )
-              }
+              type="button"
+              className="hol-modal-action hol-modal-action--primary"
+              onClick={() => navigate("/actividades-math-data/sensor-frecuencias")}
             >
-              Siguiente actividad
+              <FiArrowRight />
+              <span>Siguiente actividad</span>
             </button>
-            <button className="res-btn res-btn-outline" onClick={handleReiniciarActividad}>
-              Repetir actividad
-            </button>
+
             <button
-              className="res-btn res-btn-outline"
+              type="button"
+              className="hol-modal-action hol-modal-action--secondary"
+              onClick={handleReiniciarActividad}
+            >
+              <FiRefreshCw />
+              <span>Repetir actividad</span>
+            </button>
+
+            <button
+              type="button"
+              className="hol-modal-action hol-modal-action--secondary"
               onClick={() => navigate("/actividades-math-data")}
             >
-              Volver a actividades
+              <FiGrid />
+              <span>Volver a actividades</span>
             </button>
           </div>
-        </div>
-      </div>
-
-      {mostrarBaitExito && (
-        <PistaBaitModal
-          titulo="Bait tiene un mensaje para ti"
-          contenido="¡Excelente trabajo, piloto! Construiste las gráficas correctamente e interpretaste los datos para activar el holograma. Sigue así y conquista la siguiente misión."
-          videoSrc={baitHablandoVideo}
-          botonTexto="Cerrar mensaje"
-          onClose={() => setMostrarBaitExito(false)}
-        />
-      )}
+        </aside>
+      </section>
     </div>
   );
 
@@ -1027,117 +1278,166 @@ export default function HologramaReportes() {
   // ==========================================
 
   if (resultado === "fallo") return (
-    <div className="res-modal-overlay">
-      <div className="res-modal-card res-modal-fallo res-modal-wide">
-        <div className="res-titulo-row">
-          <div className="res-icono-retry">&#x1F504;</div>
-          <div>
-            <h1 className="res-titulo">¡Vuelve a intentarlo!</h1>
-            <p className="res-subtitulo">
-              Aún no completas con éxito la misión de{" "}
-              <span className="res-mathnova-color">MathData</span>.
-            </p>
+    <div className="hol-modal-overlay hol-modal-overlay--retry" role="presentation">
+      <section
+        className="hol-modal hol-modal--retry"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="hol-result-title-fallo"
+      >
+        <div className="hol-modal-decoration hol-modal-decoration--one" />
+        <div className="hol-modal-decoration hol-modal-decoration--two" />
+
+        <div className="hol-modal-main">
+          <header className="hol-modal-header">
+            <div className="hol-modal-status-icon">
+              <FiRefreshCw />
+            </div>
+
+            <div className="hol-modal-header-copy">
+              <span className="hol-modal-badge">
+                <FiRefreshCw />
+                Vuelve a intentarlo
+              </span>
+
+              <h1 id="hol-result-title-fallo">¡Vuelve a intentarlo!</h1>
+
+              <p>
+                Aún no completas con éxito la misión de{" "}
+                <span className="hol-modal-mathnova-color">MathData</span>.
+              </p>
+            </div>
+          </header>
+
+          <div className="hol-modal-content">
+            <div className="hol-modal-character">
+              <img src={villanoIntentar} alt="Villano retando" draggable={false} />
+            </div>
+
+            <article className="hol-modal-message">
+              <span className="hol-modal-message-label">Resultado de la misión</span>
+              <h2>¡No te rindas, piloto!</h2>
+              <p>
+                Revisa la altura de cada barra y el porcentaje de cada
+                sector. Recuerda: porcentaje = votos ÷ total × 100.
+              </p>
+            </article>
           </div>
-        </div>
 
-        <div className="res-mensaje-box res-mensaje-azul">
-          <div className="res-icono-datos">📊</div>
-          <div>
-            <strong>¡No te rindas, piloto!</strong>
-            <p>
-              Revisa la altura de cada barra y el porcentaje de cada sector.
-              Recuerda: porcentaje = votos ÷ total × 100.
-            </p>
-          </div>
-        </div>
+          <ResultAudioPlayer src={audioVuelveAIntentarloHolograma} />
 
-        <button
-          type="button"
-          className="rmp-bait-mensaje-trigger res-modal-villano-trigger"
-          onClick={() => setMostrarBaitFallo(true)}
-          aria-label="Abrir mensaje de Bait"
-        >
-          <span className="rmp-bait-mensaje-dot" />
-          <FiMessageSquare />
-          Bait tiene un mensaje para ti
-        </button>
+          <article className="hol-modal-summary">
+            <header>
+              <FiBarChart2 />
+              <h2>Resumen de la actividad</h2>
+            </header>
 
-        <div className="res-villano-fallo-group">
-          <img src={villanoIntentar} alt="Villano retando" className="res-villano-img" />
-        </div>
-
-        <div className="res-modal-body">
-          <div className="res-modal-left">
-            <div className="res-resumen-card">
-              <div className="res-resumen-header">
-                <FiBarChart2 />
-                <span>Resumen de la actividad</span>
-              </div>
-              <div className="res-resumen-stats">
-                <div className="res-stat">
-                  <img src={iconoAciertos} alt="" className="res-stat-img" />
+            <div className="hol-modal-stats">
+              <article className="hol-modal-stat">
+                <div className="hol-modal-stat-icon">
+                  <img src={iconoAciertos} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Pasos correctos</span>
                   <strong>1/4</strong>
-                  <small>Pasos correctos</small>
-                  <em>¡Sigue así!</em>
+                  <small>¡Sigue así!</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoTiempo} alt="" className="res-stat-img" />
+              </article>
+
+              <article className="hol-modal-stat">
+                <div className="hol-modal-stat-icon">
+                  <img src={iconoTiempo} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Tiempo</span>
                   <strong>—</strong>
-                  <small>Tiempo</small>
-                  <em>min</em>
+                  <small>min</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoPrecision} alt="" className="res-stat-img" />
+              </article>
+
+              <article className="hol-modal-stat">
+                <div className="hol-modal-stat-icon">
+                  <img src={iconoPrecision} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Precisión</span>
                   <strong>25%</strong>
-                  <small>Precisión</small>
-                  <em>Puedes mejorar</em>
+                  <small>Puedes mejorar</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoRecompensa} alt="" className="res-stat-img" />
-                  <strong className="res-pts-azul">+10 pts</strong>
-                  <small>Recompensa</small>
-                  <em>Puntos ganados</em>
+              </article>
+
+              <article className="hol-modal-stat">
+                <div className="hol-modal-stat-icon">
+                  <img src={iconoRecompensa} alt="" aria-hidden="true" />
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoInsignia} alt="" className="res-stat-img" />
+                <div>
+                  <span>Recompensa</span>
+                  <strong>+10 pts</strong>
+                  <small>Puntos ganados</small>
+                </div>
+              </article>
+
+              <article className="hol-modal-stat">
+                <div className="hol-modal-stat-icon">
+                  <img src={iconoInsignia} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Insignia obtenida</span>
                   <strong>Sigue intentando</strong>
-                  <small>Insignia obtenida</small>
-                  <em>¡No te rindas!</em>
+                  <small>¡No te rindas!</small>
                 </div>
-              </div>
+              </article>
+            </div>
+          </article>
+        </div>
+
+        <aside className="hol-modal-side">
+          <article className="hol-modal-side-message">
+            <span>¡No te rindas!</span>
+            <strong>Cada intento te ayuda a mejorar</strong>
+            <p>Usa la pista, revisa el procedimiento y vuelve a resolver la actividad.</p>
+          </article>
+
+          <div className="hol-modal-progress">
+            <div>
+              <span>Progreso del tema</span>
+              <strong>40%</strong>
+            </div>
+            <div className="hol-modal-progress-bar">
+              <span style={{ width: "40%" }} />
             </div>
           </div>
 
-          <div className="res-modal-right">
-            <button className="res-btn res-btn-azul" onClick={handleReiniciarActividad}>
-              Intentar de nuevo
-            </button>
-            <button className="res-btn res-btn-outline" onClick={abrirPistaBait}>
-              Ver pista
-            </button>
+          <div className="hol-modal-actions">
             <button
-              className="res-btn res-btn-outline"
+              type="button"
+              className="hol-modal-action hol-modal-action--primary"
+              onClick={handleReiniciarActividad}
+            >
+              <FiRefreshCw />
+              <span>Intentar de nuevo</span>
+            </button>
+
+            <button
+              type="button"
+              className="hol-modal-action hol-modal-action--secondary"
+              onClick={abrirPistaBait}
+            >
+              <FiTarget />
+              <span>Ver pista</span>
+            </button>
+
+            <button
+              type="button"
+              className="hol-modal-action hol-modal-action--secondary"
               onClick={() => navigate("/actividades-math-data")}
             >
-              {"<-"} Volver a actividades
+              <FiGrid />
+              <span>Volver a actividades</span>
             </button>
           </div>
-        </div>
-      </div>
-
-      {mostrarBaitFallo && (
-        <PistaBaitModal
-          titulo="Bait tiene un mensaje para ti"
-          contenido="¡No te rindas, piloto! Revisa la altura de cada barra y el porcentaje de cada sector. Recuerda: porcentaje = votos ÷ total × 100."
-          videoSrc={baitHablandoVideo}
-          botonTexto="Cerrar mensaje"
-          onClose={() => setMostrarBaitFallo(false)}
-        />
-      )}
+        </aside>
+      </section>
 
       {mostrarPistaBait && (
         <PistaBaitModal
@@ -1198,6 +1498,38 @@ export default function HologramaReportes() {
           <small>XP acumulados</small>
           <strong>180 XP ⭐</strong>
         </div>
+
+        <div className="hol-tiempo-card">
+          <div>
+            <FiClock />
+            <small>Tiempo transcurrido</small>
+          </div>
+          <strong>{formatearTiempoHolograma(segundosTranscurridos)}</strong>
+        </div>
+
+        <div className="hol-sidebar-icons">
+          <button
+            type="button"
+            onClick={() => navigate("/ajustes")}
+            aria-label="Ajustes"
+          >
+            <FiSettings />
+          </button>
+          <button
+            type="button"
+            onClick={() => setMostrarAyudaContextual(true)}
+            aria-label="Ayuda de la actividad"
+          >
+            <FiHelpCircle />
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            aria-label="Cerrar sesión"
+          >
+            <FiLogOut />
+          </button>
+        </div>
       </aside>
 
       {/* ================= CONTENIDO ================= */}
@@ -1206,7 +1538,12 @@ export default function HologramaReportes() {
           <button className="hol-volver" type="button" onClick={() => navigate("/actividades-math-data")}>
             <FiArrowLeft /> Volver al tema
           </button>
-          <button type="button" className="hol-ayuda-btn" aria-label="Ayuda">
+          <button
+            type="button"
+            className="hol-ayuda-btn"
+            aria-label="Ayuda"
+            onClick={() => setMostrarAyudaContextual(true)}
+          >
             <FiHelpCircle />
           </button>
         </header>
@@ -1578,6 +1915,12 @@ export default function HologramaReportes() {
           videoSrc={baitHablandoVideo}
           audioSrc={pistaBaitAudioHolograma}
           onClose={() => setMostrarPistaBait(false)}
+        />
+      )}
+
+      {mostrarAyudaContextual && (
+        <AyudaContextualHolograma
+          onClose={() => setMostrarAyudaContextual(false)}
         />
       )}
     </div>

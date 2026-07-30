@@ -388,12 +388,13 @@
   color: #94a3b8;
 }
 
-/* ---- Paso 2: ordenamiento (drag & drop) ---- */
+/* ---- Paso 2: ordenamiento por selección ---- */
 .nuc-orden-row {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  cursor: default;
 }
 
 .nuc-orden-item {
@@ -415,20 +416,39 @@
   font-size: 15px;
   font-weight: 900;
   color: #0b1b34;
+  appearance: none;
+  font-family: inherit;
   cursor: grab;
+  touch-action: manipulation;
+  user-select: none;
   transition: all 0.15s ease;
 }
 
-.nuc-orden-chip:active { cursor: grabbing; }
-
-.nuc-orden-drag-icono {
-  font-size: 12px;
-  color: #94a3b8;
+.nuc-orden-chip:active:not(:disabled) {
+  cursor: grabbing;
 }
 
-.nuc-orden-chip-sobre {
+.nuc-orden-chip:hover:not(:disabled) {
+  border-color: #60a5fa;
+  transform: translateY(-1px);
+}
+
+.nuc-orden-chip:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.28);
+  outline-offset: 2px;
+}
+
+.nuc-orden-chip:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.nuc-orden-chip-seleccionado {
   border-color: #0058ff;
-  box-shadow: 0 0 0 3px rgba(0, 88, 255, 0.15);
+  background: #dbeafe;
+  color: #1d4ed8;
+  box-shadow: 0 0 0 4px rgba(0, 88, 255, 0.18);
+  transform: translateY(-2px);
 }
 
 .nuc-orden-chip-correcto {
@@ -900,17 +920,302 @@
   .nuc-nav-item span { display: none; }
   .nuc-progreso-card,
   .nuc-xp-card { margin-top: 0; width: 200px; }
+  .nuc-tiempo-card { width: 180px; }
   .nuc-page { flex-direction: column; }
   .nuc-stats-row { flex-wrap: wrap; }
   .nuc-stat-card { min-width: 45%; }
 }
 
 @media (max-width: 720px) {
+  .nuc-sidebar {
+    padding: 10px 12px;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    flex-wrap: nowrap;
+    border-right: 0;
+    border-bottom: 1px solid #dbe3ee;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.1);
+  }
+  .nuc-logo-img { width: 90px; margin: 0; }
+  .nuc-nav,
+  .nuc-progreso-card,
+  .nuc-xp-card { display: none; }
+  .nuc-tiempo-card {
+    width: auto;
+    min-width: 96px;
+    margin-left: auto;
+    padding: 7px 10px;
+  }
+  .nuc-tiempo-card small { display: none; }
+  .nuc-sidebar-actions { margin: 0; }
+  .nuc-sidebar-actions button span { display: none; }
   .nuc-main { padding: 16px 16px 30px; }
+  .nuc-header { gap: 10px; }
+  .nuc-volver { padding: 9px 12px; }
   .nuc-titulo-bloque h1 { font-size: 22px; }
+  .nuc-titulo-bloque,
+  .nuc-objetivo-card,
+  .nuc-explica-fila { min-width: 0; width: 100%; }
+  .nuc-paso-card { padding: 14px; }
+  .nuc-expediciones-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .nuc-orden-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .nuc-orden-item { display: contents; }
+  .nuc-orden-chip { width: 100%; min-width: 0; justify-content: center; }
+  .nuc-orden-flecha,
+  .nuc-orden-unidad { display: none; }
   .nuc-stat-card { min-width: 100%; }
   .nuc-col-derecha { flex-direction: column; }
   .nuc-bottom-row { flex-direction: column; align-items: stretch; }
+  .nuc-explica-fila { padding: 10px; }
+  .nuc-bait-avatar-img { width: 48px; }
+  .nuc-bitacora-card { padding: 15px; }
+}
+
+@media (max-width: 420px) {
+  .nuc-main { padding-inline: 10px; }
+  .nuc-header .nuc-volver { font-size: 12px; }
+  .nuc-expediciones-row { gap: 8px; }
+  .nuc-orden-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .nuc-explica-fila { flex-direction: column; }
+}
+
+/* Acciones inferiores del sidebar */
+.nuc-sidebar-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.nuc-sidebar-actions button {
+  flex: 1;
+  min-height: 42px;
+  border: 1px solid #dbe3ee;
+  border-radius: 12px;
+  background: #fff;
+  color: #334155;
+  font: 800 12px/1 "Poppins", Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  cursor: pointer;
+}
+
+.nuc-sidebar-actions button:hover {
+  border-color: #2563eb;
+  color: #1d4ed8;
+  background: #eff6ff;
+}
+
+/* Contexto de la actividad */
+.nuc-contexto-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  padding: 20px;
+  display: grid;
+  place-items: center;
+  background: rgba(2, 8, 23, 0.76);
+  backdrop-filter: blur(5px);
+}
+
+.nuc-contexto-modal {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: min(720px, calc(100dvh - 32px));
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 24px;
+  align-items: center;
+  padding: 28px;
+  border: 2px solid #93c5fd;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.38);
+  font-family: "Poppins", Arial, sans-serif;
+}
+
+.nuc-contexto-modal > img {
+  width: 100%;
+  max-height: 240px;
+  object-fit: contain;
+}
+
+.nuc-contexto-modal span {
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.nuc-contexto-modal h2 {
+  margin: 5px 0 10px;
+  color: #0f172a;
+  font-size: clamp(22px, 4vw, 32px);
+}
+
+.nuc-contexto-modal p,
+.nuc-contexto-modal li {
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.nuc-contexto-modal ol { padding-left: 20px; }
+
+.nuc-contexto-modal div > button {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 12px;
+  background: #0058ff;
+  color: #fff;
+  font: 900 13px "Poppins", Arial, sans-serif;
+  cursor: pointer;
+}
+
+.nuc-contexto-cerrar {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: #1d4ed8;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+/* Pista breve al verificar una respuesta incorrecta: sin audio ni video */
+.nuc-pista-compacta-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10020;
+  padding: 16px;
+  display: grid;
+  place-items: center;
+  background: rgba(2, 8, 23, 0.58);
+  backdrop-filter: blur(3px);
+}
+
+.nuc-pista-compacta {
+  position: relative;
+  width: min(460px, 100%);
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  padding: 20px;
+  border: 2px solid #93c5fd;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 24px 60px rgba(2, 8, 23, 0.32);
+  font-family: "Poppins", Arial, sans-serif;
+}
+
+.nuc-pista-compacta > img {
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+}
+
+.nuc-pista-compacta span {
+  color: #2563eb;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nuc-pista-compacta h2 {
+  margin: 3px 34px 6px 0;
+  color: #0f172a;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.nuc-pista-compacta p {
+  margin: 0 0 12px;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.nuc-pista-compacta div > button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #fff;
+  font: 800 12px "Poppins", Arial, sans-serif;
+  cursor: pointer;
+}
+
+.nuc-pista-compacta-cerrar {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #eff6ff;
+  color: #1d4ed8;
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .nuc-pista-compacta {
+    grid-template-columns: 68px minmax(0, 1fr);
+    gap: 12px;
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .nuc-pista-compacta > img {
+    width: 68px;
+    height: 68px;
+  }
+
+  .nuc-pista-compacta h2 {
+    font-size: 16px;
+  }
+
+  .nuc-pista-compacta p {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .nuc-contexto-overlay { padding: 10px; }
+  .nuc-contexto-modal {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 24px 18px 20px;
+    text-align: left;
+  }
+  .nuc-contexto-modal > img {
+    width: 105px;
+    max-height: 120px;
+    margin: 0 auto;
+  }
 }
 
 /* ============================================================= */
@@ -1637,5 +1942,1251 @@
   50% {
     opacity: 0.55;
     transform: scale(0.96);
+  }
+}/* ============================================================= */
+/* ESTILOS DE RESULTADO (mismo diseno azul que Generador de Energia) */
+/* ============================================================= */
+
+.nuc-modal-overlay,
+.nuc-modal-overlay *,
+.nuc-modal-overlay *::before,
+.nuc-modal-overlay *::after {
+  box-sizing: border-box;
+}
+
+.nuc-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: grid;
+  place-items: center;
+
+  padding: 24px;
+
+  background: rgba(15, 23, 42, 0.58);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  animation: resultModalFadeIn 180ms ease-out;
+}
+
+.nuc-modal {
+  position: relative;
+
+  width: min(1220px, 96vw);
+  max-height: min(760px, 92vh);
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 310px;
+
+  overflow: hidden;
+
+  border: 2px solid #38bdf8;
+  border-radius: 34px;
+
+  background:
+    radial-gradient(
+      circle at 40% 35%,
+      rgba(56, 189, 248, 0.24),
+      transparent 38%
+    ),
+    linear-gradient(
+      145deg,
+      #ffffff 0%,
+      #fbfeff 55%,
+      #eaf5ff 100%
+    );
+
+  box-shadow:
+    0 35px 90px rgba(15, 23, 42, 0.35),
+    0 0 0 8px rgba(255, 255, 255, 0.2);
+
+  animation: resultModalOpen 220ms ease-out;
+}
+
+.nuc-modal::before {
+  content: "";
+
+  position: absolute;
+  inset: 16px;
+
+  pointer-events: none;
+
+  border: 1px dashed rgba(37, 99, 235, 0.5);
+  border-radius: 26px;
+}
+
+.nuc-modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 10;
+
+  width: 48px;
+  height: 48px;
+
+  display: grid;
+  place-items: center;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: #ffffff;
+  color: #0f172a;
+
+  font-size: 28px;
+  cursor: pointer;
+
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+
+  transition:
+    transform 160ms ease,
+    color 160ms ease,
+    background-color 160ms ease;
+}
+
+.nuc-modal-close:hover {
+  transform: rotate(7deg) scale(1.05);
+  background: #eff6ff;
+  color: #075bf6;
+}
+
+.nuc-modal-mathnova-color { color: #0058ff; font-weight: 900; }
+
+/* ---- Reproductor de audio del resultado (dentro del header) ---- */
+.nuc-modal-header {
+  flex-wrap: wrap;
+}
+
+.nuc-modal-audio {
+  width: fit-content;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 12px;
+  border-radius: 999px;
+
+  background: #f8fafc;
+  border: 1.5px solid #bfdbfe;
+}
+
+.nuc-modal-audio-btn {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.nuc-modal-audio-btn:hover {
+  background: #dbeafe;
+}
+
+.nuc-modal-audio-btn--play {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  background: #0058ff;
+  color: #ffffff;
+  font-size: 15px;
+}
+
+.nuc-modal-audio-btn--play:hover {
+  background: #0046cc;
+}
+
+.nuc-modal-audio-progress {
+  width: 64px;
+  height: 5px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.nuc-modal-audio-progress > div {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #0058ff);
+  border-radius: 999px;
+  transition: width 0.15s linear;
+}
+
+@media (max-width: 640px) {
+  .nuc-modal-audio {
+    padding: 6px 10px;
+    gap: 6px;
+  }
+  .nuc-modal-audio-progress { width: 40px; }
+}
+
+.nuc-modal-main {
+  position: relative;
+  z-index: 2;
+
+  min-width: 0;
+
+  display: grid;
+  align-content: start;
+  gap: 20px;
+
+  padding: 42px 26px 28px 38px;
+}
+
+.nuc-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nuc-modal-status-icon {
+  width: 84px;
+  min-width: 84px;
+  height: 84px;
+
+  display: grid;
+  place-items: center;
+
+  border: 10px solid rgba(34, 197, 94, 0.16);
+  border-radius: 50%;
+
+  background: #22c55e;
+  color: #ffffff;
+
+  font-size: 46px;
+
+  box-shadow: 0 14px 30px rgba(34, 197, 94, 0.22);
+}
+
+.nuc-modal-header-copy {
+  min-width: 0;
+}
+
+.nuc-modal-badge {
+  width: fit-content;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 10px;
+  padding: 8px 16px;
+
+  border-radius: 999px;
+
+  background: #dbeafe;
+  color: #1d4ed8;
+
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.nuc-modal-header-copy h1 {
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: clamp(2.1rem, 4vw, 3.7rem);
+  font-weight: 950;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.nuc-modal-header-copy p {
+  margin: 10px 0 0;
+
+  color: #475569;
+
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.nuc-modal-content {
+  display: grid;
+  grid-template-columns: 235px minmax(0, 1fr);
+  align-items: center;
+  gap: 22px;
+}
+
+.nuc-modal-character {
+  height: 245px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 28px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(37, 99, 235, 0.14),
+      transparent 68%
+    );
+}
+
+.nuc-modal-character img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+
+  filter: drop-shadow(
+    0 18px 16px rgba(15, 23, 42, 0.18)
+  );
+}
+
+.nuc-modal-message {
+  min-height: 190px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 26px 28px;
+
+  border: 2px solid #93c5fd;
+  border-radius: 30px;
+
+  background: rgba(255, 255, 255, 0.9);
+
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.14);
+}
+
+.nuc-modal-message-label {
+  width: fit-content;
+
+  margin-bottom: 10px;
+  padding: 6px 12px;
+
+  border-radius: 999px;
+
+  background: #eff6ff;
+  color: #075bf6;
+
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.nuc-modal-message h2 {
+  margin: 0 0 10px;
+
+  color: #075bf6;
+
+  font-size: clamp(1.4rem, 2.4vw, 2rem);
+  font-weight: 950;
+  line-height: 1.1;
+}
+
+.nuc-modal-message p {
+  margin: 0;
+
+  color: #334155;
+
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+.nuc-modal-summary {
+  padding: 20px;
+
+  border: 1px solid #dbeafe;
+  border-radius: 24px;
+
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.nuc-modal-summary > header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 16px;
+
+  color: #075bf6;
+}
+
+.nuc-modal-summary > header svg {
+  font-size: 27px;
+}
+
+.nuc-modal-summary h2 {
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 1.35rem;
+  font-weight: 950;
+}
+
+.nuc-modal-stats {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(150px, 1fr)
+  );
+  gap: 12px;
+}
+
+.nuc-modal-stat {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 14px;
+
+  border: 1px solid #dbeafe;
+  border-radius: 18px;
+
+  background: #ffffff;
+}
+
+.nuc-modal-stat-icon {
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 14px;
+
+  background: #eff6ff;
+}
+
+.nuc-modal-stat-icon img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.nuc-modal-stat > div:last-child {
+  min-width: 0;
+
+  display: grid;
+  gap: 2px;
+}
+
+.nuc-modal-stat span {
+  overflow: hidden;
+
+  color: #64748b;
+
+  font-size: 0.75rem;
+  font-weight: 800;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nuc-modal-stat strong {
+  color: #0f172a;
+
+  font-size: 1.3rem;
+  font-weight: 950;
+}
+
+.nuc-modal-stat small {
+  color: #16a34a;
+
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.nuc-modal-side {
+  position: relative;
+  z-index: 3;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 74px 24px 28px;
+
+  border-left: 1px solid rgba(37, 99, 235, 0.28);
+
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.nuc-modal-side-message {
+  padding: 20px;
+
+  border: 1px solid #bfdbfe;
+  border-radius: 22px;
+
+  background: linear-gradient(
+    145deg,
+    #eff6ff,
+    #ffffff
+  );
+}
+
+.nuc-modal-side-message span {
+  display: block;
+
+  margin-bottom: 10px;
+
+  color: #1d4ed8;
+
+  font-size: 0.85rem;
+  font-weight: 950;
+}
+
+.nuc-modal-side-message strong {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #075bf6;
+
+  font-size: 1.15rem;
+  font-weight: 950;
+  line-height: 1.2;
+}
+
+.nuc-modal-side-message p {
+  margin: 0;
+
+  color: #475569;
+
+  font-size: 0.86rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.nuc-modal-progress {
+  margin-top: 18px;
+  padding: 16px;
+
+  border: 1px solid #dbeafe;
+  border-radius: 20px;
+
+  background: #ffffff;
+}
+
+.nuc-modal-progress > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+
+  margin-bottom: 10px;
+}
+
+.nuc-modal-progress span {
+  color: #475569;
+
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.nuc-modal-progress strong {
+  color: #075bf6;
+
+  font-size: 0.95rem;
+  font-weight: 950;
+}
+
+.nuc-modal-progress-bar {
+  overflow: hidden;
+
+  height: 12px;
+
+  border-radius: 999px;
+
+  background: #dbe3ef;
+}
+
+.nuc-modal-progress-bar span {
+  display: block;
+
+  height: 100%;
+
+  border-radius: inherit;
+
+  background: linear-gradient(
+    90deg,
+    #075bf6,
+    #18b66a
+  );
+}
+
+.nuc-modal-actions {
+  display: grid;
+  gap: 12px;
+
+  margin-top: auto;
+  padding-top: 22px;
+}
+
+.nuc-modal-action {
+  width: 100%;
+  min-height: 62px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  padding: 12px 16px;
+
+  border-radius: 17px;
+
+  font-family: inherit;
+  font-size: 0.98rem;
+  font-weight: 950;
+
+  cursor: pointer;
+
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.nuc-modal-action:hover {
+  transform: translateY(-2px);
+}
+
+.nuc-modal-action svg {
+  width: 21px;
+  height: 21px;
+}
+
+.nuc-modal-action--primary {
+  border: 2px solid #075bf6;
+
+  background: linear-gradient(
+    135deg,
+    #075bf6,
+    #2563eb
+  );
+
+  color: #ffffff;
+
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.2);
+}
+
+.nuc-modal-action--secondary {
+  border: 2px solid #075bf6;
+
+  background: #ffffff;
+  color: #075bf6;
+}
+
+.nuc-modal-action--secondary:hover {
+  background: #eff6ff;
+}
+
+.nuc-modal-decoration {
+  position: absolute;
+  z-index: 1;
+
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+.nuc-modal-decoration--one {
+  right: 25%;
+  bottom: 0px;
+
+  width: 390px;
+  height: 390px;
+
+  background: rgba(56, 189, 248, 0.18);
+}
+
+.nuc-modal-decoration--two {
+  left: -90px;
+  bottom: 0px;
+
+  width: 220px;
+  height: 220px;
+
+  background: rgba(37, 99, 235, 0.08);
+}
+
+@keyframes resultModalFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes resultModalOpen {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 1000px) {
+  .nuc-modal {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+
+  .nuc-modal-main {
+    overflow: visible;
+    padding: 34px 28px 20px;
+  }
+
+  .nuc-modal-side {
+    padding: 20px 28px 28px;
+
+    border-top: 1px solid rgba(37, 99, 235, 0.28);
+    border-left: 0;
+  }
+
+  .nuc-modal-actions {
+    grid-template-columns: repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .nuc-modal-overlay {
+    padding: 10px;
+  }
+
+  .nuc-modal {
+    width: 100%;
+    max-height: 96vh;
+
+    border-radius: 24px;
+  }
+
+  .nuc-modal-main {
+    padding: 66px 18px 18px;
+  }
+
+  .nuc-modal-header {
+    align-items: flex-start;
+  }
+
+  .nuc-modal-status-icon {
+    width: 62px;
+    min-width: 62px;
+    height: 62px;
+
+    border-width: 7px;
+
+    font-size: 34px;
+  }
+
+  .nuc-modal-content {
+    grid-template-columns: 1fr;
+  }
+
+  .nuc-modal-character {
+    height: 190px;
+  }
+
+  .nuc-modal-message {
+    min-height: auto;
+  }
+
+  .nuc-modal-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .nuc-modal-header {
+    flex-direction: column;
+    align-items: center;
+
+    text-align: center;
+  }
+
+  .nuc-modal-badge {
+    margin-inline: auto;
+  }
+
+  .nuc-modal-header-copy h1 {
+    font-size: 2.2rem;
+  }
+
+  .nuc-modal-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .nuc-modal-side {
+    padding-inline: 18px;
+  }
+}
+/* =====================================================
+   MODAL COMPACTO
+   Agregar al final de ResultModal.css
+===================================================== */
+
+.nuc-modal {
+  width: min(1120px, 93vw);
+  max-height: 88vh;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  border-radius: 28px;
+}
+
+.nuc-modal::before {
+  inset: 12px;
+  border-radius: 21px;
+}
+
+/* Botón cerrar más pequeño */
+
+.nuc-modal-close {
+  top: 14px;
+  right: 14px;
+
+  width: 42px;
+  height: 42px;
+
+  font-size: 24px;
+}
+
+/* Contenido principal más compacto */
+
+.nuc-modal-main {
+  gap: 13px;
+  padding: 25px 20px 20px 28px;
+}
+
+/* Encabezado */
+
+.nuc-modal-header {
+  gap: 14px;
+}
+
+.nuc-modal-status-icon {
+  width: 64px;
+  min-width: 64px;
+  height: 64px;
+
+  border-width: 7px;
+  font-size: 34px;
+}
+
+.nuc-modal-badge {
+  margin-bottom: 6px;
+  padding: 6px 13px;
+
+  font-size: 0.78rem;
+}
+
+.nuc-modal-header-copy h1 {
+  font-size: clamp(2rem, 3.5vw, 3.05rem);
+  line-height: 0.98;
+}
+
+.nuc-modal-header-copy p {
+  margin-top: 7px;
+
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+/* Personaje y mensaje */
+
+.nuc-modal-content {
+  grid-template-columns: 185px minmax(0, 1fr);
+  gap: 16px;
+}
+
+.nuc-modal-character {
+  height: 170px;
+  border-radius: 22px;
+}
+
+.nuc-modal-character img {
+  max-width: 175px;
+  max-height: 165px;
+}
+
+.nuc-modal-message {
+  min-height: 145px;
+  padding: 18px 21px;
+  border-radius: 24px;
+}
+
+.nuc-modal-message-label {
+  margin-bottom: 7px;
+  padding: 5px 10px;
+
+  font-size: 0.68rem;
+}
+
+.nuc-modal-message h2 {
+  margin-bottom: 7px;
+
+  font-size: clamp(1.25rem, 2vw, 1.7rem);
+}
+
+.nuc-modal-message p {
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+/* Resumen más pequeño */
+
+.nuc-modal-summary {
+  padding: 14px;
+  border-radius: 20px;
+}
+
+.nuc-modal-summary > header {
+  gap: 8px;
+  margin-bottom: 11px;
+}
+
+.nuc-modal-summary > header svg {
+  font-size: 22px;
+}
+
+.nuc-modal-summary h2 {
+  font-size: 1.15rem;
+}
+
+.nuc-modal-stats {
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(120px, 1fr)
+  );
+  gap: 8px;
+}
+
+.nuc-modal-stat {
+  gap: 8px;
+  min-height: 78px;
+  padding: 9px;
+  border-radius: 15px;
+}
+
+.nuc-modal-stat-icon {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+
+  border-radius: 12px;
+}
+
+.nuc-modal-stat-icon img {
+  width: 29px;
+  height: 29px;
+}
+
+.nuc-modal-stat span {
+  font-size: 0.65rem;
+}
+
+.nuc-modal-stat strong {
+  font-size: 1.05rem;
+}
+
+.nuc-modal-stat small {
+  font-size: 0.62rem;
+}
+
+/* Columna derecha */
+
+.nuc-modal-side {
+  padding: 58px 17px 20px;
+}
+
+.nuc-modal-side-message {
+  padding: 15px;
+  border-radius: 18px;
+}
+
+.nuc-modal-side-message span {
+  margin-bottom: 7px;
+  font-size: 0.75rem;
+}
+
+.nuc-modal-side-message strong {
+  margin-bottom: 6px;
+  font-size: 1rem;
+}
+
+.nuc-modal-side-message p {
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+/* Progreso */
+
+.nuc-modal-progress {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 16px;
+}
+
+.nuc-modal-progress > div:first-child {
+  margin-bottom: 7px;
+}
+
+.nuc-modal-progress span {
+  font-size: 0.73rem;
+}
+
+.nuc-modal-progress strong {
+  font-size: 0.85rem;
+}
+
+
+/* ============================================================= */
+/* AJUSTES FINALES (idénticos a Generador de Energía)             */
+/* ============================================================= */
+
+.nuc-modal-progress span {
+  font-size: 0.73rem;
+}
+
+.nuc-modal-progress strong {
+  font-size: 0.85rem;
+}
+
+.nuc-modal-progress-bar {
+  height: 9px;
+}
+
+/* Botones */
+
+.nuc-modal-actions {
+  gap: 9px;
+  padding-top: 15px;
+}
+
+.nuc-modal-action {
+  min-height: 50px;
+  gap: 9px;
+  padding: 9px 12px;
+
+  border-radius: 14px;
+
+  font-size: 0.85rem;
+}
+
+.nuc-modal-action svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Ajuste para pantallas con poca altura */
+
+@media (max-height: 780px) and (min-width: 1001px) {
+  .nuc-modal {
+    max-height: 94vh;
+  }
+
+  .nuc-modal-main {
+    gap: 9px;
+    padding-top: 18px;
+    padding-bottom: 14px;
+  }
+
+  .nuc-modal-status-icon {
+    width: 56px;
+    min-width: 56px;
+    height: 56px;
+
+    font-size: 29px;
+  }
+
+  .nuc-modal-header-copy h1 {
+    font-size: 2.45rem;
+  }
+
+  .nuc-modal-character {
+    height: 145px;
+  }
+
+  .nuc-modal-character img {
+    max-height: 140px;
+  }
+
+  .nuc-modal-message {
+    min-height: 125px;
+    padding: 15px 18px;
+  }
+
+  .nuc-modal-summary {
+    padding: 11px;
+  }
+
+  .nuc-modal-stat {
+    min-height: 68px;
+    padding: 7px;
+  }
+
+  .nuc-modal-side {
+    padding-top: 52px;
+  }
+
+  .nuc-modal-action {
+    min-height: 46px;
+  }
+}
+
+/* Pantalla completada adaptada a tablet y celular.
+   !important se usa aquí para superar únicamente los estilos inline del modal. */
+@media (max-width: 900px) {
+  .nuc-modal-overlay--completed {
+    padding: 14px !important;
+    align-items: flex-start !important;
+  }
+
+  .nuc-modal--completed {
+    width: 100% !important;
+    max-width: 680px !important;
+    max-height: none !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    border-radius: 22px !important;
+    overflow-y: visible !important;
+  }
+
+  .nuc-modal--completed .nuc-modal-main {
+    padding: 26px 20px 18px !important;
+  }
+
+  .nuc-modal--completed .nuc-modal-side {
+    padding: 18px 20px 22px !important;
+    gap: 14px !important;
+    border-top: 1px solid #dbeafe;
+  }
+
+  .nuc-modal--completed .nuc-modal-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .nuc-modal--completed .nuc-modal-actions {
+    margin-top: 0 !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .nuc-modal-overlay--completed {
+    padding: 8px !important;
+  }
+
+  .nuc-modal--completed {
+    border-radius: 16px !important;
+  }
+
+  .nuc-modal--completed::before,
+  .nuc-modal--completed .nuc-modal-decoration {
+    display: none;
+  }
+
+  .nuc-modal--completed .nuc-modal-main {
+    gap: 14px;
+    padding: 20px 14px 14px !important;
+  }
+
+  .nuc-modal--completed .nuc-modal-header {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .nuc-modal--completed .nuc-modal-status-icon {
+    width: 52px;
+    min-width: 52px;
+    height: 52px;
+    border-width: 6px;
+    font-size: 27px;
+  }
+
+  .nuc-modal--completed .nuc-modal-header-copy h1 {
+    font-size: clamp(1.55rem, 8vw, 2rem);
+    line-height: 1.05;
+  }
+
+  .nuc-modal--completed .nuc-modal-content {
+    grid-template-columns: 86px minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+  }
+
+  .nuc-modal--completed .nuc-modal-character {
+    height: 112px;
+    padding: 4px;
+  }
+
+  .nuc-modal--completed .nuc-modal-character img {
+    max-width: 96px !important;
+    max-height: 105px;
+  }
+
+  .nuc-modal--completed .nuc-modal-message {
+    min-height: 0;
+    padding: 13px;
+    border-radius: 16px;
+  }
+
+  .nuc-modal--completed .nuc-modal-message h2 {
+    font-size: 1rem;
+  }
+
+  .nuc-modal--completed .nuc-modal-message p {
+    font-size: 0.75rem;
+    line-height: 1.35;
+  }
+
+  .nuc-modal--completed .nuc-modal-audio {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .nuc-modal--completed .nuc-modal-audio-progress {
+    flex: 1;
+    max-width: 120px;
+  }
+
+  .nuc-modal--completed .nuc-modal-summary {
+    padding: 11px;
+  }
+
+  .nuc-modal--completed .nuc-modal-stats {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .nuc-modal--completed .nuc-modal-stat {
+    min-height: 62px;
+  }
+
+  .nuc-modal--completed .nuc-modal-side {
+    padding: 14px !important;
+  }
+
+  .nuc-modal--completed .nuc-modal-action {
+    min-height: 46px;
+    font-size: 0.8rem;
   }
 }

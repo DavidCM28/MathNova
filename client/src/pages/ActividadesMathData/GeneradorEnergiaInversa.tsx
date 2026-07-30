@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import "./GeneradorEnergiaInversa.css";
@@ -200,12 +200,12 @@ const obtenerIdEstudianteActual = (): number => {
 // ============================================
 
 const filasIniciales = [
-  { x: 1, y: "12", editable: false, correcto: true, bloqueada: false },
-  { x: 2, y: "6", editable: false, correcto: true, bloqueada: false },
-  { x: 3, y: "4", editable: false, correcto: true, bloqueada: false },
-  { x: 4, y: "", editable: true, correcto: null, bloqueada: false },
-  { x: 6, y: "", editable: true, correcto: null, bloqueada: false },
-  { x: 12, y: "", editable: true, correcto: null, bloqueada: false },
+  { x: 1, y: "12", editable: false, correcto: true, bloqueada: false, asistida: false },
+  { x: 2, y: "6", editable: false, correcto: true, bloqueada: false, asistida: false },
+  { x: 3, y: "4", editable: false, correcto: true, bloqueada: false, asistida: false },
+  { x: 4, y: "", editable: true, correcto: null, bloqueada: false, asistida: false },
+  { x: 6, y: "", editable: true, correcto: null, bloqueada: false, asistida: false },
+  { x: 12, y: "", editable: true, correcto: null, bloqueada: false, asistida: false },
 ];
 
 const puntosIniciales = [
@@ -249,11 +249,39 @@ function PistaBaitModal({
   const [reproduciendo, setReproduciendo] = useState(false);
   const [progreso, setProgreso] = useState(0);
 
-  const sincronizarVideoConAudio = () => {
+  const asignarAudioRef = useCallback((audio: HTMLAudioElement | null) => {
+    audioRef.current = audio;
+    if (!audio) return;
+
+    audio.currentTime = 0;
+    const reproduccion = audio.play();
+
+    if (reproduccion !== undefined) {
+      reproduccion.catch((error: DOMException) => {
+        if (error.name !== "AbortError") {
+          console.warn("El navegador bloqueó el audio automático:", error);
+        }
+      });
+    }
+  }, []);
+
+  const actualizarReproduccion = () => {
     const audio = audioRef.current;
     const video = videoRef.current;
-    if (!audio || !video) return;
-    if (Math.abs(video.currentTime - audio.currentTime) > 0.35) {
+    if (!audio) return;
+
+    if (audio.duration) {
+      setProgreso((audio.currentTime / audio.duration) * 100);
+    }
+
+    // El audio dirige la sincronización solamente cuando realmente está
+    // reproduciéndose. Así, si el navegador bloquea el audio automático,
+    // el video puede seguir avanzando y no vuelve continuamente al segundo 0.
+    if (
+      video &&
+      !audio.paused &&
+      Math.abs(video.currentTime - audio.currentTime) > 0.35
+    ) {
       video.currentTime = audio.currentTime;
     }
   };
@@ -281,12 +309,6 @@ function PistaBaitModal({
     if (video) video.currentTime = nuevoTiempo;
   };
 
-  const actualizarProgreso = () => {
-    const audio = audioRef.current;
-    if (!audio || !audio.duration) return;
-    setProgreso((audio.currentTime / audio.duration) * 100);
-  };
-
   return createPortal(
     <div className="pb-overlay" role="dialog" aria-modal="true" aria-label={titulo}>
       <div className={`pb-modal pb-modal-${tema}`}>
@@ -304,10 +326,11 @@ function PistaBaitModal({
             ref={videoRef}
             src={videoSrc}
             className="pb-video"
+            autoPlay
+            loop
             muted
             playsInline
             preload="auto"
-            onTimeUpdate={sincronizarVideoConAudio}
             aria-hidden="true"
           />
         </div>
@@ -350,12 +373,21 @@ function PistaBaitModal({
         </div>
 
         <audio
-          ref={audioRef}
+          ref={asignarAudioRef}
           src={audioSrc}
-          onPlay={() => setReproduciendo(true)}
+          autoPlay
+          preload="auto"
+          onPlay={() => {
+            setReproduciendo(true);
+            const video = videoRef.current;
+            if (video) {
+              video.currentTime = audioRef.current?.currentTime ?? 0;
+              void video.play().catch(() => undefined);
+            }
+          }}
           onPause={() => setReproduciendo(false)}
           onEnded={() => setReproduciendo(false)}
-          onTimeUpdate={actualizarProgreso}
+          onTimeUpdate={actualizarReproduccion}
         />
 
         <button type="button" className={`pb-cerrar-btn pb-cerrar-btn-${tema}`} onClick={onClose}>
@@ -364,6 +396,71 @@ function PistaBaitModal({
       </div>
     </div>,
     document.body
+  );
+}
+
+type AyudaActividadModalProps = {
+  onClose: () => void;
+};
+
+function AyudaActividadModal({ onClose }: AyudaActividadModalProps) {
+  useEffect(() => {
+    const cerrarConEscape = (evento: KeyboardEvent) => {
+      if (evento.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", cerrarConEscape);
+    return () => window.removeEventListener("keydown", cerrarConEscape);
+  }, [onClose]);
+
+  return createPortal(
+    <div
+      className="gen1-ayuda-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="gen1-ayuda-titulo"
+      onMouseDown={(evento) => {
+        if (evento.target === evento.currentTarget) onClose();
+      }}
+    >
+      <article className="gen1-ayuda-modal">
+        <button
+          type="button"
+          className="gen1-ayuda-cerrar"
+          onClick={onClose}
+          aria-label="Cerrar ayuda"
+        >
+          <FiX />
+        </button>
+
+        <img
+          src={baitPistaImg}
+          alt="Bait comparte una pista para la misión"
+          className="gen1-ayuda-imagen"
+        />
+
+        <div className="gen1-ayuda-contenido">
+          <span className="gen1-ayuda-etiqueta">Ayuda de la misión</span>
+          <h2 id="gen1-ayuda-titulo">¿Cómo recuperar la energía de la base?</h2>
+          <p>
+            Observa qué sucede con el tiempo cuando aumenta la cantidad de
+            reactores. Los primeros datos de la tabla esconden una relación
+            que se mantiene en todas las filas.
+          </p>
+          <div className="gen1-ayuda-pista">
+            <FaLightbulb />
+            <p>
+              Busca una operación entre <strong>reactores</strong> y{" "}
+              <strong>horas</strong> que produzca siempre el mismo resultado.
+              Cuando descubras ese valor constante, úsalo para completar la
+              tabla; después coloca esos pares en la gráfica y analiza la
+              tendencia antes de responder la predicción.
+            </p>
+          </div>
+        </div>
+      </article>
+    </div>,
+    document.body,
   );
 }
 
@@ -503,6 +600,7 @@ function GeneradorEnergiaInversa() {
   const [filas, setFilas] = useState(filasIniciales);
   const [puntos, setPuntos] = useState(puntosIniciales);
   const [puntosIncorrectos, setPuntosIncorrectos] = useState<{ x: number; y: number }[]>([]);
+  const [puntosAsistidos, setPuntosAsistidos] = useState<{ x: number; y: number }[]>([]);
   const [respuesta, setRespuesta] = useState("");
   const [mensajeFeedback, setMensajeFeedback] = useState("");
   const [actividadCompletada, setActividadCompletada] = useState(false);
@@ -512,7 +610,29 @@ function GeneradorEnergiaInversa() {
   const [resultado, setResultado] = useState<"exito" | "fallo" | "incompleto" | "pista" | null>(null);
   const [mostrarIntroVillano, setMostrarIntroVillano] = useState(false);
   const [mostrarPistaModal, setMostrarPistaModal] = useState(false);
+  const [mostrarAyudaActividad, setMostrarAyudaActividad] = useState(false);
   const [graficaCompleta, setGraficaCompleta] = useState(false);
+  const [cargandoInicial, setCargandoInicial] = useState(true);
+
+  // ---- Temporizador ----
+  const tiempoInicioRef = useRef<number>(Date.now());
+  const [segundosTranscurridos, setSegundosTranscurridos] = useState(0);
+
+  useEffect(() => {
+    if (cargandoInicial || resultado !== null) return;
+
+    const intervalo = setInterval(() => {
+      setSegundosTranscurridos(Math.floor((Date.now() - tiempoInicioRef.current) / 1000));
+    }, 1000);
+
+    return () => clearInterval(intervalo);
+  }, [cargandoInicial, resultado]);
+
+  const formatearTiempo = (segundos: number) => {
+    const m = Math.floor(segundos / 60);
+    const s = segundos % 60;
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  };
 
   const irARuta = (ruta: string) => {
     setMenuOpen(false);
@@ -529,6 +649,7 @@ function GeneradorEnergiaInversa() {
         console.warn(
           "No se encontró el estudiante autenticado para cargar Generador de Energía Inversa.",
         );
+        setCargandoInicial(false);
         return;
       }
 
@@ -538,26 +659,45 @@ function GeneradorEnergiaInversa() {
 
         if (data.success && data.data) {
           const progreso = data.data;
+          const celdasAsistidas = (progreso.celdas_asistidas || {}) as Record<string, boolean>;
 
           if (progreso.valores_tabla) {
             const nuevosValores = filasIniciales.map((fila) => {
               const valorGuardado = (progreso.valores_tabla as Record<string, number>)[String(fila.x)];
               if (valorGuardado !== undefined) {
-                return { ...fila, y: String(valorGuardado), correcto: true, bloqueada: true };
+                const esAsistida = !!celdasAsistidas[String(fila.x)];
+                return {
+                  ...fila,
+                  y: String(valorGuardado),
+                  correcto: esAsistida ? null : true,
+                  bloqueada: true,
+                  asistida: esAsistida,
+                };
               }
               return fila;
             });
             setFilas(nuevosValores);
+
+            const puntosAsistidosRestaurados = nuevosValores
+              .filter((f) => f.asistida)
+              .map((f) => ({ x: f.x, y: Number(f.y) }));
+            if (puntosAsistidosRestaurados.length > 0) {
+              setPuntosAsistidos(puntosAsistidosRestaurados);
+            }
           }
 
+          // ✅ "completada" (con o sin ayuda) siempre manda a éxito; el
+          // color naranja ya indica que hubo asistencia.
           if (progreso.completada) {
             setActividadCompletada(true);
             setXpGanado(progreso.xp_obtenido || 0);
-            setResultado(progreso.prediccion_correcta ? "exito" : "fallo");
+            setResultado("exito");
           }
         }
       } catch (error) {
         console.error("Error al cargar progreso:", error);
+      } finally {
+        setCargandoInicial(false);
       }
     };
 
@@ -609,6 +749,7 @@ function GeneradorEnergiaInversa() {
     setFilas(filasIniciales);
     setPuntos(puntosIniciales);
     setPuntosIncorrectos([]);
+    setPuntosAsistidos([]);
     setMensajeFeedback("");
     setProgresoPorcentaje(0);
     setRespuesta("");
@@ -620,6 +761,9 @@ function GeneradorEnergiaInversa() {
 
     inicioActividadRef.current =
       Date.now();
+
+    tiempoInicioRef.current = Date.now();
+    setSegundosTranscurridos(0);
   };
 
   // ==========================================
@@ -665,16 +809,19 @@ function GeneradorEnergiaInversa() {
             if (i !== index) return f;
 
             if (resultado.celda_completada && !resultado.correcto) {
-              // Se agotaron los intentos: se revela la respuesta y se bloquea
+              // Se agotaron los intentos: se revela la respuesta. Ya NO se
+              // marca como "incorrecta" (rojo) — se marca "asistida"
+              // (naranja fijo), porque quedó resuelta con ayuda.
               return {
                 ...f,
                 y: String(resultado.respuesta_correcta),
-                correcto: false,
+                correcto: null,
                 bloqueada: true,
+                asistida: true,
               };
             }
 
-            return { ...f, correcto: resultado.correcto };
+            return { ...f, correcto: resultado.correcto, asistida: false };
           })
         );
 
@@ -686,9 +833,18 @@ function GeneradorEnergiaInversa() {
           }
           // Ya no está mal: si tenía un punto rojo marcado, se quita
           setPuntosIncorrectos((prev) => prev.filter((p) => p.x !== fila.x));
+        } else if (resultado.celda_completada && resultado.asistido) {
+          // Revelada: punto naranja fijo (sin parpadeo), se quita el rojo
+          setMensajeFeedback("");
+          setPuntosIncorrectos((prev) => prev.filter((p) => p.x !== fila.x));
+          setPuntosAsistidos((prev) => [
+            ...prev.filter((p) => p.x !== fila.x),
+            { x: fila.x, y: Number(resultado.respuesta_correcta) },
+          ]);
+          await guardarProgreso(4);
         } else {
-          // Incorrecto: sin mensaje de texto, solo el punto rojo parpadeante
-          // en la gráfica (la pista del asistente ya está disponible aparte)
+          // Incorrecto (aún con intentos disponibles): sin mensaje de
+          // texto, solo el punto rojo parpadeante en la gráfica
           setMensajeFeedback("");
           setPuntosIncorrectos((prev) => [
             ...prev.filter((p) => p.x !== fila.x),
@@ -872,7 +1028,7 @@ function GeneradorEnergiaInversa() {
                 tiempoSegundos,
               xp_base: 60,
               completada:
-                prediccionCorrecta &&
+                finalizada &&
                 tablaCompleta,
             });
 
@@ -895,15 +1051,13 @@ function GeneradorEnergiaInversa() {
         setActividadCompletada(true);
         setProgresoPorcentaje(100);
 
-        if (prediccionCorrecta) {
-          setXpGanado(100);
-          await guardarProgreso(8);
-          setResultado("exito");
-        } else {
-          setXpGanado(50);
-          await guardarProgreso(8);
-          setResultado("fallo");
-        }
+        // ✅ CORREGIDO: "finalizada" (correcto O completada con ayuda en
+        // el 3er intento) siempre manda a éxito — el color naranja en la
+        // tabla/gráfica ya deja claro que hubo asistencia, no hace falta
+        // una pantalla de "fallo" por eso.
+        setXpGanado(100);
+        await guardarProgreso(8);
+        setResultado("exito");
       } else if (
         data.success === false
       ) {
@@ -955,7 +1109,8 @@ function GeneradorEnergiaInversa() {
     ];
 
     const todosLosPuntos = puntosEsperados.every(pEsperado =>
-      puntos.some(p => p.x === pEsperado.x && p.y === pEsperado.y)
+      puntos.some(p => p.x === pEsperado.x && p.y === pEsperado.y) ||
+      puntosAsistidos.some(p => p.x === pEsperado.x && p.y === pEsperado.y)
     );
 
     if (todosLosPuntos) {
@@ -1121,7 +1276,7 @@ function GeneradorEnergiaInversa() {
 
               <div className="pista-stat">
                 <img src={iconoTiempo} alt="" className="pista-stat-img" />
-                <strong>04:28</strong>
+                <strong>{formatearTiempo(segundosTranscurridos)}</strong>
                 <small>Tiempo</small>
                 <em>Sigue practicando</em>
               </div>
@@ -1419,6 +1574,20 @@ function GeneradorEnergiaInversa() {
   );
 
   // ==========================================
+  // PANTALLA DE CARGA INICIAL (evita mostrar el
+  // tablero antes de saber si ya estaba completada)
+  // ==========================================
+
+  if (cargandoInicial) {
+    return (
+      <div className="gen1-loading-screen">
+        <img src={logo} alt="MathNova" className="gen1-loading-logo" />
+        <p>Cargando actividad...</p>
+      </div>
+    );
+  }
+
+  // ==========================================
   // RENDER (NO MODIFICAR ESTRUCTURA)
   // ==========================================
 
@@ -1525,7 +1694,7 @@ function GeneradorEnergiaInversa() {
                     </div>
                     <div>
                       <span>Tiempo</span>
-                      <strong>04:28</strong>
+                      <strong>{formatearTiempo(segundosTranscurridos)}</strong>
                       <small>min</small>
                     </div>
                   </article>
@@ -1691,7 +1860,7 @@ function GeneradorEnergiaInversa() {
                     </div>
                     <div>
                       <span>Tiempo</span>
-                      <strong>04:28</strong>
+                      <strong>{formatearTiempo(segundosTranscurridos)}</strong>
                       <small>min</small>
                     </div>
                   </article>
@@ -1868,6 +2037,11 @@ function GeneradorEnergiaInversa() {
             </div>
           </div>
 
+          <div className="gen1-tiempo-box">
+            <span>Tiempo transcurrido</span>
+            <strong>{formatearTiempo(segundosTranscurridos)}</strong>
+          </div>
+
           <div className="gen1-xp-box">
             <span>XP acumulados</span>
             <strong>
@@ -1880,10 +2054,17 @@ function GeneradorEnergiaInversa() {
           <button type="button" onClick={() => irARuta("/ajustes")} aria-label="Ajustes">
             <FiSettings />
           </button>
-          <button type="button" onClick={() => irARuta("/ayuda")} aria-label="Ayuda">
+          <button
+            type="button"
+            onClick={() => {
+              setMenuOpen(false);
+              setMostrarAyudaActividad(true);
+            }}
+            aria-label="Ayuda de la actividad"
+          >
             <FiHelpCircle />
           </button>
-          <button type="button" onClick={() => navigate("/login")} aria-label="Cerrar sesión">
+          <button type="button" onClick={() => irARuta("/login")} aria-label="Salir">
             <FiLogOut />
           </button>
         </div>
@@ -1904,10 +2085,19 @@ function GeneradorEnergiaInversa() {
 
           <span className="gen1-step-pill">Actividad 1 de 2</span>
 
-          <button type="button" className="gen1-help-circle" aria-label="Ayuda">
+          <button
+            type="button"
+            className="gen1-help-circle"
+            onClick={() => setMostrarAyudaActividad(true)}
+            aria-label="Ayuda de la actividad"
+          >
             <FiHelpCircle />
           </button>
         </div>
+
+        {mostrarAyudaActividad && (
+          <AyudaActividadModal onClose={() => setMostrarAyudaActividad(false)} />
+        )}
 
         <div className="gen1-hero">
           <div className="gen1-hero-text">
@@ -1988,8 +2178,8 @@ function GeneradorEnergiaInversa() {
                           aria-label={`Tiempo para ${fila.x} reactores`}
                           onChange={(e) => actualizarFila(index, e.target.value)}
                           style={{
-                            borderColor: fila.correcto === true ? "#28a745" : fila.correcto === false ? "#dc3545" : undefined,
-                            backgroundColor: fila.correcto === true ? "#d4edda" : fila.correcto === false ? "#f8d7da" : undefined
+                            borderColor: fila.asistida ? "#fd7e14" : fila.correcto === true ? "#28a745" : fila.correcto === false ? "#dc3545" : undefined,
+                            backgroundColor: fila.asistida ? "#fff3e0" : fila.correcto === true ? "#d4edda" : fila.correcto === false ? "#f8d7da" : undefined
                           }}
                           disabled={cargando || fila.correcto === true || fila.bloqueada || actividadCompletada}
                         />
@@ -2073,6 +2263,17 @@ function GeneradorEnergiaInversa() {
                 <span
                   key={`err-${i}`}
                   className="gen1-graph-point gen1-graph-point-error"
+                  style={{
+                    left: `${(p.x / EJE_X_MAX) * 100}%`,
+                    bottom: `${(p.y / EJE_Y_MAX) * 100}%`,
+                  }}
+                />
+              ))}
+
+              {puntosAsistidos.map((p, i) => (
+                <span
+                  key={`asist-${i}`}
+                  className="gen1-graph-point gen1-graph-point-asistido"
                   style={{
                     left: `${(p.x / EJE_X_MAX) * 100}%`,
                     bottom: `${(p.y / EJE_Y_MAX) * 100}%`,

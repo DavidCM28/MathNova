@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import type { DragEvent } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { getSessionUser } from "../../utils/authSession";
@@ -15,7 +14,6 @@ import baitSaludoImg from "../../assets/bait-saludo.png";
 import baitPistaImg from "../../assets/bait-pista.png";
 import villanoTrofeoCompleto from "../../assets/villano-trofeo-completo.png";
 import villanoIntentar from "../../assets/villano-vintentar.png";
-import estrellaMision from "../../assets/estrella-mision.png";
 import iconoAciertos from "../../assets/icono-aciertos.png";
 import iconoTiempo from "../../assets/icono-tiempo.png";
 import iconoPrecision from "../../assets/icono-precision.png";
@@ -29,7 +27,6 @@ import villanoDivideImg from "../../assets/villano-divide.png";
 
 /* ---- Audios ---- */
 import introBaitAudioNucleo from "../../assets/intro_act6.mp3";
-import pistaBaitAudioNucleo from "../../assets/pista_act6.mp3";
 import baitAudioActividadCompletada from "../../assets/actividad_completada_act6.mp3";
 import baitAudioVuelveAIntentarlo from "../../assets/volver_intentarlo_act6.mp3";
 
@@ -44,6 +41,7 @@ import {
   FiX,
   FiCheck,
   FiCheckCircle,
+  FiArrowRight,
   FiInfo,
   FiPlay,
   FiPause,
@@ -54,7 +52,6 @@ import {
   FiClipboard,
   FiRefreshCw,
   FiAlertTriangle,
-  FiMove,
 } from "react-icons/fi";
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
@@ -218,6 +215,21 @@ const CAPACIDAD_CORRECTA = Number(MEDIA_CORRECTA) + Number(RANGO_CORRECTA); // 6
 type EstadoCampo = "correcto" | "pendiente" | "incorrecto";
 type Pantalla = "orden" | "media" | "mediana" | "moda" | "rango" | "decision";
 
+const PISTAS_POR_TEMA: Record<Pantalla, string> = {
+  orden:
+    "Ordena los tiempos del menor al mayor. Toca un número y después toca otro para intercambiar sus posiciones.",
+  media:
+    "La media se obtiene sumando todos los tiempos y dividiendo el total entre la cantidad de expediciones.",
+  mediana:
+    "Con seis datos ordenados, la mediana es el promedio de los dos valores que quedan en el centro.",
+  moda:
+    "La moda es el valor que aparece más veces dentro del conjunto de datos.",
+  rango:
+    "El rango se calcula restando el valor menor al valor mayor.",
+  decision:
+    "Combina la estimación general de la media con la reserva adicional indicada por el rango.",
+};
+
 // Reconstruye un arreglo de IDs de expedición que coincida con la
 // secuencia de valores dada (necesario porque el 44 aparece dos veces).
 function construirOrdenDesdeValores(valores: number[]): number[] {
@@ -266,6 +278,23 @@ function PistaBaitModal({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [reproduciendo, setReproduciendo] = useState(false);
   const [progreso, setProgreso] = useState(0);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    const video = videoRef.current;
+
+    video?.play().catch(() => {
+      // El video es decorativo; la actividad continúa si el navegador lo bloquea.
+    });
+
+    if (audioSrc && audio) {
+      audio.currentTime = 0;
+      const intento = audio.play();
+      intento?.catch(() => {
+        // Los controles manuales permanecen disponibles si el navegador bloquea autoplay.
+      });
+    }
+  }, [audioSrc]);
 
   const sincronizarVideoConAudio = () => {
     const audio = audioRef.current;
@@ -316,6 +345,8 @@ function PistaBaitModal({
             ref={videoRef}
             src={videoSrc}
             className="pb-video"
+            autoPlay
+            loop
             muted
             playsInline
             preload="auto"
@@ -365,6 +396,8 @@ function PistaBaitModal({
           <audio
             ref={audioRef}
             src={audioSrc}
+            autoPlay
+            preload="auto"
             onPlay={() => setReproduciendo(true)}
             onPause={() => setReproduciendo(false)}
             onEnded={() => setReproduciendo(false)}
@@ -381,6 +414,224 @@ function PistaBaitModal({
   );
 }
 
+function PistaCompacta({
+  contenido,
+  onClose,
+}: {
+  contenido: string;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const cerrarConEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", cerrarConEscape);
+    return () => window.removeEventListener("keydown", cerrarConEscape);
+  }, [onClose]);
+
+  return createPortal(
+    <div
+      className="nuc-pista-compacta-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="nuc-pista-compacta-titulo"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <article className="nuc-pista-compacta">
+        <button
+          type="button"
+          className="nuc-pista-compacta-cerrar"
+          onClick={onClose}
+          aria-label="Cerrar pista"
+        >
+          <FiX />
+        </button>
+        <img src={baitPistaImg} alt="Bait dando una pista" />
+        <div>
+          <span>Pista rápida</span>
+          <h2 id="nuc-pista-compacta-titulo">Revisa este concepto</h2>
+          <p>{contenido}</p>
+          <button type="button" onClick={onClose}>
+            Continuar
+          </button>
+        </div>
+      </article>
+    </div>,
+    document.body,
+  );
+}
+
+function AyudaContextual({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const cerrarConEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", cerrarConEscape);
+    return () => window.removeEventListener("keydown", cerrarConEscape);
+  }, [onClose]);
+
+  return createPortal(
+    <div
+      className="nuc-contexto-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="nuc-contexto-titulo"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <article className="nuc-contexto-modal">
+        <button
+          type="button"
+          className="nuc-contexto-cerrar"
+          onClick={onClose}
+          aria-label="Cerrar contexto"
+        >
+          <FiX />
+        </button>
+        <img src={baitPistaImg} alt="Bait orientando la misión" />
+        <div>
+          <span>Contexto de la actividad 6</span>
+          <h2 id="nuc-contexto-titulo">El Núcleo de Decisiones</h2>
+          <p>
+            DIVIDE mezcló los tiempos de seis expediciones. Tu misión es
+            ordenarlos y analizar la media, mediana, moda y rango para decidir
+            cuánta energía necesita la nave.
+          </p>
+          <ol>
+            <li>Ordena los tiempos de menor a mayor.</li>
+            <li>Calcula y verifica cada medida estadística.</li>
+            <li>Usa la media y el rango para enviar la decisión final.</li>
+          </ol>
+          <button type="button" onClick={onClose}>
+            Entendido, continuar
+          </button>
+        </div>
+      </article>
+    </div>,
+    document.body,
+  );
+}
+
+/* =========================================================
+   COMPONENTE: REPRODUCTOR DE AUDIO DEL RESULTADO
+   Se reproduce solo apenas se monta, y muestra los
+   controles normales de un reproductor de audio: retroceder
+   10s, pausar/reproducir y adelantar 10s. Mismo patrón que
+   las demás actividades.
+========================================================= */
+
+const RESULT_AUDIO_SALTO_SEGUNDOS = 10;
+
+function ResultAudioPlayer({ src }: { src?: string }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [reproduciendo, setReproduciendo] = useState(false);
+  const [progreso, setProgreso] = useState(0);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    if (!audio || !src) {
+      return;
+    }
+
+    audio.currentTime = 0;
+    audio.volume = 1;
+
+    const playPromise = audio.play();
+
+    if (playPromise !== undefined) {
+      playPromise.catch((error) => {
+        console.warn(
+          "El audio del resultado no pudo iniciarse automáticamente:",
+          error,
+        );
+      });
+    }
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, [src]);
+
+  const alternarReproduccion = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (audio.paused || audio.ended) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  };
+
+  const saltar = (segundos: number) => {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    audio.currentTime = Math.min(
+      Math.max(audio.currentTime + segundos, 0),
+      audio.duration,
+    );
+  };
+
+  const actualizarProgreso = () => {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    setProgreso((audio.currentTime / audio.duration) * 100);
+  };
+
+  if (!src) return null;
+
+  return (
+    <div className="nuc-modal-audio">
+      <audio
+        ref={audioRef}
+        src={src}
+        preload="auto"
+        autoPlay
+        onPlay={() => setReproduciendo(true)}
+        onPause={() => setReproduciendo(false)}
+        onEnded={() => setReproduciendo(false)}
+        onTimeUpdate={actualizarProgreso}
+      />
+
+      <button
+        type="button"
+        className="nuc-modal-audio-btn"
+        onClick={() => saltar(-RESULT_AUDIO_SALTO_SEGUNDOS)}
+        aria-label="Retroceder 10 segundos"
+      >
+        <FiRotateCcw />
+      </button>
+
+      <button
+        type="button"
+        className="nuc-modal-audio-btn nuc-modal-audio-btn--play"
+        onClick={alternarReproduccion}
+        aria-label={reproduciendo ? "Pausar" : "Reproducir"}
+      >
+        {reproduciendo ? <FiPause /> : <FiPlay />}
+      </button>
+
+      <button
+        type="button"
+        className="nuc-modal-audio-btn"
+        onClick={() => saltar(RESULT_AUDIO_SALTO_SEGUNDOS)}
+        aria-label="Adelantar 10 segundos"
+      >
+        <FiRotateCw />
+      </button>
+
+      <div className="nuc-modal-audio-progress">
+        <div style={{ width: `${progreso}%` }} />
+      </div>
+    </div>
+  );
+}
+
 /* =========================================================
    COMPONENTE PRINCIPAL
 ========================================================= */
@@ -394,14 +645,13 @@ export default function NucleoDecisiones() {
   const guardandoProgresoRef =
     useRef(false);
 
-  /* ---- Paso 2: ordenamiento (drag & drop) ---- */
+  /* ---- Paso 2: ordenamiento por selección ---- */
   const [orden, setOrden] = useState<number[]>(ORDEN_INICIAL);
   const [posicionesCorrectas, setPosicionesCorrectas] = useState<boolean[]>([false, false, false, false, false, false]);
   const [posicionesPista, setPosicionesPista] = useState<boolean[]>([false, false, false, false, false, false]);
   const [ordenVerificadoAlMenos1Vez, setOrdenVerificadoAlMenos1Vez] = useState(false);
   const [pasosDesbloqueados, setPasosDesbloqueados] = useState(false);
-  const dragIndexRef = useRef<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [indiceSeleccionado, setIndiceSeleccionado] = useState<number | null>(null);
 
   /* ---- Pasos 3 a 6: medidas estadísticas ---- */
   const [media, setMedia] = useState("");
@@ -424,8 +674,7 @@ export default function NucleoDecisiones() {
   const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
   const [mensajePistaBait, setMensajePistaBait] = useState("");
   const [mostrarIntroBait, setMostrarIntroBait] = useState(false);
-  const [mostrarBaitExito, setMostrarBaitExito] = useState(false);
-  const [mostrarBaitFallo, setMostrarBaitFallo] = useState(false);
+  const [mostrarContexto, setMostrarContexto] = useState(false);
 
   const [cargandoInicial, setCargandoInicial] = useState(true);
   const [cargandoOrden, setCargandoOrden] = useState(false);
@@ -458,31 +707,6 @@ export default function NucleoDecisiones() {
 
   const capacidadTotal = mediaValida && rangoValido ? Number(media) + Number(rango) : null;
   const capacidadCorrecta = capacidadTotal === CAPACIDAD_CORRECTA;
-
-  // ¿Desde qué pantalla debe registrarse la próxima consulta de "Ver Pista"?
-  const pantallaActual = (): Pantalla => {
-    if (!ordenResuelto) return "orden";
-    if (!mediaValida) return "media";
-    if (!medianaValida) return "mediana";
-    if (!modaValida) return "moda";
-    if (!rangoValido) return "rango";
-    return "decision";
-  };
-
-  const abrirPistaManual = () => {
-    setMensajePistaBait("");
-    setMostrarPistaBait(true);
-
-    if (!ID_ESTUDIANTE) {
-      return;
-    }
-
-    fetch(`${API_URL}/nucleo/pista-consultada`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id_estudiante: ID_ESTUDIANTE, pantalla: pantallaActual() }),
-    }).catch((error) => console.error("Error al registrar consulta de pista:", error));
-  };
 
   // ==========================================
   // CARGAR PROGRESO GUARDADO
@@ -551,35 +775,34 @@ export default function NucleoDecisiones() {
     void cargarProgreso();
   }, [ID_ESTUDIANTE]);
 
-  /* ---- Drag & drop del paso 2 ---- */
-  const manejarDragStart = (index: number) => (e: DragEvent<HTMLDivElement>) => {
-    if (posicionesCorrectas[index]) return; // no se puede mover una posición ya correcta
-    dragIndexRef.current = index;
-    e.dataTransfer.effectAllowed = "move";
-  };
+  /* ---- Intercambio por clic o toque: funciona con mouse y pantalla táctil ---- */
+  const seleccionarPosicion = (index: number) => {
+    if (posicionesCorrectas[index] || cargandoEnvio || ordenResuelto) return;
 
-  const manejarDragOver = (index: number) => (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (posicionesCorrectas[index]) return;
-    setDragOverIndex(index);
-  };
+    if (indiceSeleccionado === null) {
+      setIndiceSeleccionado(index);
+      return;
+    }
 
-  const manejarDrop = (index: number) => (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const origen = dragIndexRef.current;
-    setDragOverIndex(null);
-    if (origen === null || origen === index) return;
-    if (posicionesCorrectas[index] || posicionesCorrectas[origen]) return;
+    if (indiceSeleccionado === index) {
+      setIndiceSeleccionado(null);
+      return;
+    }
+
+    const origen = indiceSeleccionado;
+    if (posicionesCorrectas[origen]) {
+      setIndiceSeleccionado(index);
+      return;
+    }
+
     setOrden((prev) => {
-      // Intercambio directo entre las 2 posiciones (nunca desplaza a las
-      // demás tarjetas, ni siquiera a las que ya están bloqueadas en verde).
       const copia = [...prev];
       const temporal = copia[origen];
       copia[origen] = copia[index];
       copia[index] = temporal;
       return copia;
     });
-    dragIndexRef.current = null;
+    setIndiceSeleccionado(null);
     setPosicionesPista([false, false, false, false, false, false]);
   };
 
@@ -640,6 +863,9 @@ export default function NucleoDecisiones() {
 
         if (r.correcto) {
           setPasosDesbloqueados(true);
+        } else {
+          setMensajePistaBait(PISTAS_POR_TEMA.orden);
+          setMostrarPistaBait(true);
         }
       }
     } catch (error) {
@@ -711,6 +937,11 @@ export default function NucleoDecisiones() {
           setEstado("correcto");
         } else {
           setEstado("incorrecto");
+        }
+
+        if (!r.correcto) {
+          setMensajePistaBait(PISTAS_POR_TEMA[pantalla]);
+          setMostrarPistaBait(true);
         }
       }
     } catch (error) {
@@ -931,6 +1162,7 @@ export default function NucleoDecisiones() {
     }
 
     setOrden(ORDEN_INICIAL);
+    setIndiceSeleccionado(null);
     setPosicionesCorrectas([false, false, false, false, false, false]);
     setPosicionesPista([false, false, false, false, false, false]);
     setOrdenVerificadoAlMenos1Vez(false);
@@ -947,6 +1179,10 @@ export default function NucleoDecisiones() {
     setRango("");
     setRangoEstado("pendiente");
     setRangoAsistida(false);
+    setMostrarPistaBait(false);
+    setMensajePistaBait("");
+    setMostrarIntroBait(false);
+    setMostrarContexto(false);
     setResultado(null);
     tiempoInicioRef.current = Date.now();
     setSegundosTranscurridos(0);
@@ -979,138 +1215,214 @@ export default function NucleoDecisiones() {
   // ==========================================
 
   if (resultado === "exito") return (
-    <div className="res-modal-overlay">
-      <div className="res-modal-card res-modal-exito res-modal-wide">
-        <div className="res-confetti" aria-hidden="true">
-          {Array.from({ length: 16 }).map((_, i) => (
-            <span key={i} className={`res-confetti-dot res-confetti-dot-${i % 6}`} />
-          ))}
-        </div>
+    <div
+      className="nuc-modal-overlay nuc-modal-overlay--completed"
+      role="presentation"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "center",
+        padding: 24,
+        background: "rgba(15, 23, 42, 0.58)",
+        overflowY: "auto",
+        overflowX: "hidden",
+      }}
+    >
+      <section
+        className="nuc-modal nuc-modal--completed"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="nuc-result-title"
+        style={{
+          position: "relative",
+          width: "100%",
+          minWidth: 0,
+          maxWidth: 1120,
+          maxHeight: "calc(100vh - 48px)",
+          overflowY: "auto",
+          background: "#ffffff",
+          borderRadius: 28,
+          boxShadow: "0 40px 80px rgba(15, 23, 42, 0.35)",
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 1fr) 310px",
+          overflowX: "hidden",
+        }}
+      >
+        <div className="nuc-modal-decoration nuc-modal-decoration--one" />
+        <div className="nuc-modal-decoration nuc-modal-decoration--two" />
 
-        <div className="res-titulo-row">
-          <div className="res-icono-check">✔</div>
-          <div>
-            <h1 className="res-titulo">¡Actividad completada!</h1>
-            <p className="res-subtitulo">
-              Has terminado con éxito la misión de{" "}
-              <span className="res-mathnova-color">MathData</span>.
-            </p>
+        <div className="nuc-modal-main" style={{ minWidth: 0, overflowX: "hidden" }}>
+          <header className="nuc-modal-header">
+            <div className="nuc-modal-status-icon">
+              <FiCheckCircle />
+            </div>
+
+            <div className="nuc-modal-header-copy">
+              <span className="nuc-modal-badge">
+                <FiCheckCircle />
+                Actividad completada
+              </span>
+
+              <h1 id="nuc-result-title">¡Actividad completada!</h1>
+
+              <p>
+                Has terminado con éxito la misión de{" "}
+                <span className="nuc-modal-mathnova-color">MathData</span>.
+              </p>
+            </div>
+          </header>
+
+          <div className="nuc-modal-content">
+            <div className="nuc-modal-character">
+              <img
+                src={villanoTrofeoCompleto}
+                alt="Villano celebrando con trofeo"
+                draggable={false}
+                style={{ maxWidth: 220, width: "100%", height: "auto", display: "block" }}
+              />
+            </div>
+
+            <article className="nuc-modal-message">
+              <span className="nuc-modal-message-label">Resultado de la misión</span>
+              <h2>¡Excelente trabajo, agente!</h2>
+              <p>
+Decisión autorizada agente estimamos una misión de 51 minutos y cargamos 16 minutos adicionales de Reserva la nave está preparada para operar durante 67 minutos el núcleo de decisiones queda restaurado
+              </p>
+            </article>
           </div>
-        </div>
 
-        <div className="res-mensaje-box res-mensaje-verde">
-          <div className="res-icono-estrella-circle">
-            <img src={estrellaMision} alt="estrella" />
-          </div>
-          <div>
-            <strong>¡Excelente trabajo, agente!</strong>
-            <p>
-              Ordenaste los tiempos y calculaste correctamente la media, la
-              mediana, la moda y el rango. El Núcleo de Decisiones aprobó tu
-              análisis y liberó la energía segura para la nave.
-            </p>
-          </div>
-        </div>
+          <ResultAudioPlayer src={baitAudioActividadCompletada} />
 
-        <button
-          type="button"
-          className="rmp-bait-mensaje-trigger res-modal-villano-trigger"
-          onClick={() => setMostrarBaitExito(true)}
-          aria-label="Abrir mensaje de Bait"
-        >
-          <span className="rmp-bait-mensaje-dot" />
-          <FiMessageSquare />
-          Bait tiene un mensaje para ti
-        </button>
+          <article className="nuc-modal-summary">
+            <header>
+              <FiBarChart2 />
+              <h2>Resumen de la actividad</h2>
+            </header>
 
-        <div className="res-villano-exito-group">
-          <img
-            src={villanoTrofeoCompleto}
-            alt="Villano celebrando con trofeo"
-            className="res-villano-trofeo-img"
-          />
-        </div>
-
-        <div className="res-modal-body">
-          <div className="res-modal-left">
-            <div className="res-resumen-card">
-              <div className="res-resumen-header">
-                <FiBarChart2 />
-                <span>Resumen de la actividad</span>
-              </div>
-              <div className="res-resumen-stats">
-                <div className="res-stat">
-                  <img src={iconoAciertos} alt="" className="res-stat-img" />
-                  <strong className="res-stat-num-verde">{aciertos}/{totalPasos}</strong>
-                  <small>Pasos correctos</small>
-                  <em>¡Perfecto!</em>
+            <div
+              className="nuc-modal-stats"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+                gap: 10,
+                minWidth: 0,
+                width: "100%",
+              }}
+            >
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoAciertos} alt="" aria-hidden="true" />
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoTiempo} alt="" className="res-stat-img" />
+                <div>
+                  <span>Pasos correctos</span>
+                  <strong>{aciertos}/{totalPasos}</strong>
+                  <small>¡Perfecto!</small>
+                </div>
+              </article>
+
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoTiempo} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Tiempo</span>
                   <strong>{formatearTiempo(segundosTranscurridos)}</strong>
-                  <small>Tiempo</small>
-                  <em>min</em>
+                  <small>min</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoPrecision} alt="" className="res-stat-img" />
-                  <strong className="res-stat-num-verde">{precision}%</strong>
-                  <small>Precisión</small>
-                  <em>¡Impecable!</em>
+              </article>
+
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoPrecision} alt="" aria-hidden="true" />
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoRecompensa} alt="" className="res-stat-img" />
-                  <strong className="res-pts-naranja">+{puntosGanados} pts</strong>
-                  <small>Recompensa</small>
-                  <em>Puntos ganados</em>
+                <div>
+                  <span>Precisión</span>
+                  <strong>{precision}%</strong>
+                  <small>¡Impecable!</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoInsignia} alt="" className="res-stat-img" />
-                  <strong>Misión<br />cumplida</strong>
-                  <small>Insignia obtenida</small>
-                  <em>¡Felicidades!</em>
+              </article>
+
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoRecompensa} alt="" aria-hidden="true" />
                 </div>
-              </div>
+                <div>
+                  <span>Recompensa</span>
+                  <strong>+{puntosGanados} pts</strong>
+                  <small>Puntos ganados</small>
+                </div>
+              </article>
+
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoInsignia} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Insignia obtenida</span>
+                  <strong>Misión cumplida</strong>
+                  <small>¡Felicidades!</small>
+                </div>
+              </article>
+            </div>
+          </article>
+        </div>
+
+        <aside
+          className="nuc-modal-side"
+          style={{ display: "flex", flexDirection: "column", gap: 20 }}
+        >
+          <article className="nuc-modal-side-message">
+            <span>¡Misión completada!</span>
+            <strong>Sigue avanzando por MathData</strong>
+            <p>Cada actividad superada fortalece tus habilidades matemáticas.</p>
+          </article>
+
+          <div className="nuc-modal-progress">
+            <div>
+              <span>Progreso del tema</span>
+              <strong>60%</strong>
+            </div>
+            <div className="nuc-modal-progress-bar">
+              <span style={{ width: "60%" }} />
             </div>
           </div>
 
-          <div className="res-modal-right">
+          <div
+            className="nuc-modal-actions"
+            style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 12 }}
+          >
             <button
-              className="res-btn res-btn-azul"
-              onClick={() =>
-                navigate(
-                  "/actividades-math-data/oraculo-estacion",
-                )
-              }
+              type="button"
+              className="nuc-modal-action nuc-modal-action--primary"
+              onClick={() => navigate("/actividades-math-data/oraculo-estacion")}
             >
-              Siguiente actividad
+              <FiArrowRight />
+              <span>Siguiente actividad</span>
             </button>
-            <button className="res-btn res-btn-outline" onClick={handleReiniciarActividad}>
-              Repetir actividad
-            </button>
+
             <button
-              className="res-btn res-btn-outline"
+              type="button"
+              className="nuc-modal-action nuc-modal-action--secondary"
+              onClick={handleReiniciarActividad}
+            >
+              <FiRefreshCw />
+              <span>Repetir actividad</span>
+            </button>
+
+            <button
+              type="button"
+              className="nuc-modal-action nuc-modal-action--secondary"
               onClick={() => navigate("/actividades-math-data")}
             >
-              Volver a actividades
+              <FiGrid />
+              <span>Volver a actividades</span>
             </button>
           </div>
-        </div>
-      </div>
-
-      {mostrarBaitExito && (
-        <PistaBaitModal
-          titulo="Bait tiene un mensaje para ti"
-          contenido="¡Decisión autorizada, agente! Estimamos una misión de 51 minutos y cargamos 16 minutos adicionales de reserva. La nave está preparada para operar durante 67 minutos. El Núcleo de Decisiones queda restaurado."
-          videoSrc={baitHablandoVideo}
-          audioSrc={baitAudioActividadCompletada}
-          botonTexto="Cerrar mensaje"
-          onClose={() => setMostrarBaitExito(false)}
-        />
-      )}
+        </aside>
+      </section>
     </div>
   );
 
@@ -1119,129 +1431,214 @@ export default function NucleoDecisiones() {
   // ==========================================
 
   if (resultado === "fallo") return (
-    <div className="res-modal-overlay">
-      <div className="res-modal-card res-modal-fallo res-modal-wide">
-        <div className="res-titulo-row">
-          <div className="res-icono-retry">&#x1F504;</div>
-          <div>
-            <h1 className="res-titulo">¡Vuelve a intentarlo!</h1>
-            <p className="res-subtitulo">
-              Aún no completas con éxito la misión de{" "}
-              <span className="res-mathnova-color">MathData</span>.
-            </p>
+    <div
+      className="nuc-modal-overlay nuc-modal-overlay--retry"
+      role="presentation"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "center",
+        padding: 24,
+        background: "rgba(15, 23, 42, 0.58)",
+        overflowY: "auto",
+        overflowX: "hidden",
+      }}
+    >
+      <section
+        className="nuc-modal nuc-modal--retry"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="nuc-result-title-fallo"
+        style={{
+          position: "relative",
+          width: "100%",
+          minWidth: 0,
+          maxWidth: 1120,
+          maxHeight: "calc(100vh - 48px)",
+          overflowY: "auto",
+          background: "#ffffff",
+          borderRadius: 28,
+          boxShadow: "0 40px 80px rgba(15, 23, 42, 0.35)",
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 1fr) 310px",
+          overflowX: "hidden",
+        }}
+      >
+        <div className="nuc-modal-decoration nuc-modal-decoration--one" />
+        <div className="nuc-modal-decoration nuc-modal-decoration--two" />
+
+        <div className="nuc-modal-main" style={{ minWidth: 0, overflowX: "hidden" }}>
+          <header className="nuc-modal-header">
+            <div className="nuc-modal-status-icon">
+              <FiRefreshCw />
+            </div>
+
+            <div className="nuc-modal-header-copy">
+              <span className="nuc-modal-badge">
+                <FiRefreshCw />
+                Vuelve a intentarlo
+              </span>
+
+              <h1 id="nuc-result-title-fallo">¡Vuelve a intentarlo!</h1>
+
+              <p>
+                Aún no completas con éxito la misión de{" "}
+                <span className="nuc-modal-mathnova-color">MathData</span>.
+              </p>
+            </div>
+          </header>
+
+          <div className="nuc-modal-content">
+            <div className="nuc-modal-character">
+              <img
+                src={villanoIntentar}
+                alt="Villano retando"
+                draggable={false}
+                style={{ maxWidth: 220, width: "100%", height: "auto", display: "block" }}
+              />
+            </div>
+
+            <article className="nuc-modal-message">
+              <span className="nuc-modal-message-label">Resultado de la misión</span>
+              <h2>¡No te rindas, agente!</h2>
+              <p>
+                Revisa el orden de los tiempos y vuelve a calcular la media,
+                la mediana, la moda y el rango. Recuerda: la capacidad total
+                es la media más el rango.
+              </p>
+            </article>
           </div>
-        </div>
 
-        <div className="res-mensaje-box res-mensaje-azul">
-          <div className="res-icono-datos">📊</div>
-          <div>
-            <strong>¡No te rindas, agente!</strong>
-            <p>
-              Revisa el orden de los tiempos y vuelve a calcular la media, la
-              mediana, la moda y el rango. Recuerda: la capacidad total es la
-              media más el rango.
-            </p>
-          </div>
-        </div>
+          <ResultAudioPlayer src={baitAudioVuelveAIntentarlo} />
 
-        <button
-          type="button"
-          className="rmp-bait-mensaje-trigger res-modal-villano-trigger"
-          onClick={() => setMostrarBaitFallo(true)}
-          aria-label="Abrir mensaje de Bait"
-        >
-          <span className="rmp-bait-mensaje-dot" />
-          <FiMessageSquare />
-          Bait tiene un mensaje para ti
-        </button>
+          <article className="nuc-modal-summary">
+            <header>
+              <FiBarChart2 />
+              <h2>Resumen de la actividad</h2>
+            </header>
 
-        <div className="res-villano-fallo-group">
-          <img src={villanoIntentar} alt="Villano retando" className="res-villano-img" />
-        </div>
-
-        <div className="res-modal-body">
-          <div className="res-modal-left">
-            <div className="res-resumen-card">
-              <div className="res-resumen-header">
-                <FiBarChart2 />
-                <span>Resumen de la actividad</span>
-              </div>
-              <div className="res-resumen-stats">
-                <div className="res-stat">
-                  <img src={iconoAciertos} alt="" className="res-stat-img" />
+            <div
+              className="nuc-modal-stats"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+                gap: 10,
+                minWidth: 0,
+                width: "100%",
+              }}
+            >
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoAciertos} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Pasos correctos</span>
                   <strong>{aciertos}/{totalPasos}</strong>
-                  <small>Pasos correctos</small>
-                  <em>¡Sigue así!</em>
+                  <small>¡Sigue así!</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoTiempo} alt="" className="res-stat-img" />
+              </article>
+
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoTiempo} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Tiempo</span>
                   <strong>{formatearTiempo(segundosTranscurridos)}</strong>
-                  <small>Tiempo</small>
-                  <em>min</em>
+                  <small>min</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoPrecision} alt="" className="res-stat-img" />
+              </article>
+
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoPrecision} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Precisión</span>
                   <strong>{precision}%</strong>
-                  <small>Precisión</small>
-                  <em>Puedes mejorar</em>
+                  <small>Puedes mejorar</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoRecompensa} alt="" className="res-stat-img" />
-                  <strong className="res-pts-azul">+{puntosGanados} pts</strong>
-                  <small>Recompensa</small>
-                  <em>Puntos ganados</em>
+              </article>
+
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoRecompensa} alt="" aria-hidden="true" />
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoInsignia} alt="" className="res-stat-img" />
+                <div>
+                  <span>Recompensa</span>
+                  <strong>+{puntosGanados} pts</strong>
+                  <small>Puntos ganados</small>
+                </div>
+              </article>
+
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoInsignia} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Insignia obtenida</span>
                   <strong>Sigue intentando</strong>
-                  <small>Insignia obtenida</small>
-                  <em>¡No te rindas!</em>
+                  <small>¡No te rindas!</small>
                 </div>
-              </div>
+              </article>
+            </div>
+          </article>
+        </div>
+
+        <aside
+          className="nuc-modal-side"
+          style={{ display: "flex", flexDirection: "column", gap: 20 }}
+        >
+          <article className="nuc-modal-side-message">
+            <span>¡No te rindas!</span>
+            <strong>Cada intento te ayuda a mejorar</strong>
+            <p>Usa la pista, revisa el procedimiento y vuelve a resolver la actividad.</p>
+          </article>
+
+          <div className="nuc-modal-progress">
+            <div>
+              <span>Progreso del tema</span>
+              <strong>60%</strong>
+            </div>
+            <div className="nuc-modal-progress-bar">
+              <span style={{ width: "60%" }} />
             </div>
           </div>
 
-          <div className="res-modal-right">
-            <button className="res-btn res-btn-azul" onClick={handleReiniciarActividad}>
-              Intentar de nuevo
-            </button>
-            <button className="res-btn res-btn-outline" onClick={abrirPistaManual}>
-              Ver pista
-            </button>
+          <div
+            className="nuc-modal-actions"
+            style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 12 }}
+          >
             <button
-              className="res-btn res-btn-outline"
+              type="button"
+              className="nuc-modal-action nuc-modal-action--primary"
+              onClick={handleReiniciarActividad}
+            >
+              <FiRefreshCw />
+              <span>Intentar de nuevo</span>
+            </button>
+
+            <button
+              type="button"
+              className="nuc-modal-action nuc-modal-action--secondary"
               onClick={() => navigate("/actividades-math-data")}
             >
-              {"<-"} Volver a actividades
+              <FiGrid />
+              <span>Volver a actividades</span>
             </button>
           </div>
-        </div>
-      </div>
-
-      {mostrarBaitFallo && (
-        <PistaBaitModal
-          titulo="Bait tiene un mensaje para ti"
-          contenido="Buen intento, agente. El Núcleo guardó tu avance, pero todavía falta completar la bitácora y enviar la decisión. Puedes volver a intentarlo desde el primer paso pendiente. Cada cálculo que ya resolviste permanecerá guardado."
-          videoSrc={baitHablandoVideo}
-          audioSrc={baitAudioVuelveAIntentarlo}
-          botonTexto="Cerrar mensaje"
-          onClose={() => setMostrarBaitFallo(false)}
-        />
-      )}
+        </aside>
+      </section>
 
       {mostrarPistaBait && (
-        <PistaBaitModal
-          titulo="Pista de Bait"
+        <PistaCompacta
           contenido={
             mensajePistaBait ||
             "Revisa cada parte del análisis. Primero, ordena los tiempos de menor a mayor. Para obtener la media, suma los seis valores y divídelos entre seis. La mediana se obtiene con los dos valores centrales del conjunto ordenado. La moda es el tiempo que más se repite. El rango se calcula restando el valor menor al mayor. Finalmente, utiliza la media como estimación general y el rango como reserva adicional. ¡Tú puedes, agente!"
           }
-          videoSrc={baitHablandoVideo}
-          audioSrc={pistaBaitAudioNucleo}
           onClose={() => setMostrarPistaBait(false)}
         />
       )}
@@ -1300,6 +1697,17 @@ export default function NucleoDecisiones() {
           <small>XP acumulados</small>
           <strong>180 XP ⭐</strong>
         </div>
+
+        <div className="nuc-sidebar-actions">
+          <button type="button" onClick={() => navigate("/actividades-math-data")}>
+            <FiArrowLeft />
+            <span>Salir</span>
+          </button>
+          <button type="button" onClick={() => setMostrarContexto(true)}>
+            <FiHelpCircle />
+            <span>Contexto</span>
+          </button>
+        </div>
       </aside>
 
       {/* ================= CONTENIDO ================= */}
@@ -1308,7 +1716,12 @@ export default function NucleoDecisiones() {
           <button className="nuc-volver" type="button" onClick={() => navigate("/actividades-math-data")}>
             <FiArrowLeft /> Volver al tema
           </button>
-          <button type="button" className="nuc-ayuda-btn" aria-label="Ayuda">
+          <button
+            type="button"
+            className="nuc-ayuda-btn"
+            aria-label="Ver contexto de la actividad"
+            onClick={() => setMostrarContexto(true)}
+          >
             <FiHelpCircle />
           </button>
         </header>
@@ -1372,9 +1785,10 @@ export default function NucleoDecisiones() {
               <div className="nuc-orden-row">
                 {orden.map((id, index) => (
                   <div key={id} className="nuc-orden-item">
-                    <div
+                    <button
+                      type="button"
                       className={`nuc-orden-chip ${
-                        dragOverIndex === index ? "nuc-orden-chip-sobre" : ""
+                        indiceSeleccionado === index ? "nuc-orden-chip-seleccionado" : ""
                       } ${
                         posicionesCorrectas[index]
                           ? "nuc-orden-chip-correcto"
@@ -1384,25 +1798,24 @@ export default function NucleoDecisiones() {
                               ? "nuc-orden-chip-incorrecto"
                               : ""
                       }`}
-                      draggable={
-                        !posicionesCorrectas[index] &&
-                        !cargandoEnvio
-                      }
-                      onDragStart={manejarDragStart(index)}
-                      onDragOver={manejarDragOver(index)}
-                      onDrop={manejarDrop(index)}
-                      onDragLeave={() => setDragOverIndex(null)}
+                      onClick={() => seleccionarPosicion(index)}
+                      disabled={posicionesCorrectas[index] || cargandoEnvio}
+                      aria-pressed={indiceSeleccionado === index}
+                      aria-label={`Tiempo ${VALOR_POR_ID[id]} minutos${
+                        indiceSeleccionado === index ? ", seleccionado" : ""
+                      }`}
                     >
-                      <FiMove className="nuc-orden-drag-icono" />
                       {VALOR_POR_ID[id]}
-                    </div>
+                    </button>
                     {index < orden.length - 1 && <span className="nuc-orden-flecha">→</span>}
                   </div>
                 ))}
                 <span className="nuc-orden-unidad">minutos</span>
               </div>
 
-              <small className="nuc-orden-ayuda">Arrastra para reordenar</small>
+              <small className="nuc-orden-ayuda">
+                Toca un tiempo y después otro para intercambiarlos
+              </small>
 
               <button
                 type="button"
@@ -1581,7 +1994,7 @@ export default function NucleoDecisiones() {
               </div>
             )}
 
-            {/* FILA INFERIOR: BIT EXPLICA + VER PISTA */}
+            {/* FILA INFERIOR: BIT EXPLICA */}
             <div className="nuc-bottom-row">
               <div className="nuc-explica-fila">
                 <img src={baitSaludoImg} alt="Bait explicando" className="nuc-bait-avatar-img" />
@@ -1609,14 +2022,6 @@ export default function NucleoDecisiones() {
                 </div>
               </div>
 
-              <button
-                type="button"
-                className="nuc-pista-btn"
-                onClick={abrirPistaManual}
-              >
-                <img src={baitPistaImg} alt="" className="nuc-pista-icono" />
-                Ver pista
-              </button>
             </div>
           </div>
 
@@ -1705,15 +2110,16 @@ export default function NucleoDecisiones() {
         />
       )}
 
+      {mostrarContexto && (
+        <AyudaContextual onClose={() => setMostrarContexto(false)} />
+      )}
+
       {mostrarPistaBait && (
-        <PistaBaitModal
-          titulo="Pista de Bait"
+        <PistaCompacta
           contenido={
             mensajePistaBait ||
             "Revisa cada parte del análisis. Primero, ordena los tiempos de menor a mayor. Para obtener la media, suma los seis valores y divídelos entre seis. La mediana se obtiene con los dos valores centrales del conjunto ordenado. La moda es el tiempo que más se repite. El rango se calcula restando el valor menor al mayor. Finalmente, utiliza la media como estimación general y el rango como reserva adicional. ¡Tú puedes, agente!"
           }
-          videoSrc={baitHablandoVideo}
-          audioSrc={pistaBaitAudioNucleo}
           onClose={() => setMostrarPistaBait(false)}
         />
       )}
