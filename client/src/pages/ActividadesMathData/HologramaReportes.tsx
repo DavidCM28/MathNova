@@ -57,6 +57,9 @@ import {
   FiZap,
   FiRefreshCw,
   FiArrowRight,
+  FiSettings,
+  FiLogOut,
+  FiClock,
 } from "react-icons/fi";
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
@@ -220,6 +223,15 @@ const COLOR_MODULO: Record<Modulo, string> = {
 
 const TOTAL_VOTOS = 10;
 
+const formatearTiempoHolograma = (segundos: number): string => {
+  const minutos = Math.floor(segundos / 60);
+  const segundosRestantes = segundos % 60;
+
+  return `${String(minutos).padStart(2, "0")}:${String(
+    segundosRestantes,
+  ).padStart(2, "0")}`;
+};
+
 /* =========================================================
    COMPONENTE: PISTA DE BAIT (modal con video real)
 ========================================================= */
@@ -300,6 +312,8 @@ function PistaBaitModal({
             ref={videoRef}
             src={videoSrc}
             className="pb-video"
+            autoPlay
+            loop
             muted
             playsInline
             preload="auto"
@@ -349,6 +363,8 @@ function PistaBaitModal({
           <audio
             ref={audioRef}
             src={audioSrc}
+            autoPlay
+            preload="auto"
             onPlay={() => setReproduciendo(true)}
             onPause={() => setReproduciendo(false)}
             onEnded={() => setReproduciendo(false)}
@@ -362,6 +378,70 @@ function PistaBaitModal({
       </div>
     </div>,
     document.body
+  );
+}
+
+function AyudaContextualHolograma({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const cerrarConEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", cerrarConEscape);
+    return () => window.removeEventListener("keydown", cerrarConEscape);
+  }, [onClose]);
+
+  return createPortal(
+    <div
+      className="hol-ayuda-overlay"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section
+        className="hol-ayuda-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="hol-ayuda-titulo"
+      >
+        <button
+          type="button"
+          className="hol-ayuda-cerrar"
+          onClick={onClose}
+          aria-label="Cerrar ayuda"
+        >
+          <FiX />
+        </button>
+
+        <img
+          src={baitPistaImg}
+          alt="BIT presenta una orientación para resolver la misión"
+          className="hol-ayuda-imagen"
+        />
+
+        <div className="hol-ayuda-contenido">
+          <span className="hol-ayuda-etiqueta">CONTEXTO DE LA MISIÓN</span>
+          <h2 id="hol-ayuda-titulo">¿Cómo activar el holograma?</h2>
+          <p>
+            El Centro de Mando necesita convertir los resultados de la encuesta
+            en representaciones visuales. Primero observa la frecuencia de cada
+            módulo y decide qué gráfica permite comparar cantidades exactas.
+          </p>
+          <p>
+            Para construir las barras usa los votos como altura. En la gráfica
+            circular piensa qué parte del total representa cada módulo:
+            frecuencia ÷ total × 100. Al final compara ambas gráficas para
+            identificar cuál categoría ocupa la mayor proporción.
+          </p>
+
+          <button type="button" className="hol-ayuda-volver" onClick={onClose}>
+            Entendido, volver a la misión
+          </button>
+        </div>
+      </section>
+    </div>,
+    document.body,
   );
 }
 
@@ -538,10 +618,27 @@ export default function HologramaReportes() {
   const [resultado, setResultado] = useState<"exito" | "fallo" | null>(null);
   const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
   const [mostrarIntroBait, setMostrarIntroBait] = useState(false);
+  const [mostrarAyudaContextual, setMostrarAyudaContextual] = useState(false);
+  const [segundosTranscurridos, setSegundosTranscurridos] = useState(0);
 
   const [cargandoBarras, setCargandoBarras] = useState(false);
   const [cargandoCirculo, setCargandoCirculo] = useState(false);
   const [cargandoActivar, setCargandoActivar] = useState(false);
+
+  useEffect(() => {
+    const actualizarTiempo = () => {
+      setSegundosTranscurridos(
+        Math.max(
+          0,
+          Math.floor((Date.now() - inicioActividadRef.current) / 1000),
+        ),
+      );
+    };
+
+    actualizarTiempo();
+    const intervalo = window.setInterval(actualizarTiempo, 1000);
+    return () => window.clearInterval(intervalo);
+  }, []);
 
   // ==========================================
   // CARGAR PROGRESO GUARDADO
@@ -1401,6 +1498,38 @@ export default function HologramaReportes() {
           <small>XP acumulados</small>
           <strong>180 XP ⭐</strong>
         </div>
+
+        <div className="hol-tiempo-card">
+          <div>
+            <FiClock />
+            <small>Tiempo transcurrido</small>
+          </div>
+          <strong>{formatearTiempoHolograma(segundosTranscurridos)}</strong>
+        </div>
+
+        <div className="hol-sidebar-icons">
+          <button
+            type="button"
+            onClick={() => navigate("/ajustes")}
+            aria-label="Ajustes"
+          >
+            <FiSettings />
+          </button>
+          <button
+            type="button"
+            onClick={() => setMostrarAyudaContextual(true)}
+            aria-label="Ayuda de la actividad"
+          >
+            <FiHelpCircle />
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            aria-label="Cerrar sesión"
+          >
+            <FiLogOut />
+          </button>
+        </div>
       </aside>
 
       {/* ================= CONTENIDO ================= */}
@@ -1409,7 +1538,12 @@ export default function HologramaReportes() {
           <button className="hol-volver" type="button" onClick={() => navigate("/actividades-math-data")}>
             <FiArrowLeft /> Volver al tema
           </button>
-          <button type="button" className="hol-ayuda-btn" aria-label="Ayuda">
+          <button
+            type="button"
+            className="hol-ayuda-btn"
+            aria-label="Ayuda"
+            onClick={() => setMostrarAyudaContextual(true)}
+          >
             <FiHelpCircle />
           </button>
         </header>
@@ -1781,6 +1915,12 @@ export default function HologramaReportes() {
           videoSrc={baitHablandoVideo}
           audioSrc={pistaBaitAudioHolograma}
           onClose={() => setMostrarPistaBait(false)}
+        />
+      )}
+
+      {mostrarAyudaContextual && (
+        <AyudaContextualHolograma
+          onClose={() => setMostrarAyudaContextual(false)}
         />
       )}
     </div>

@@ -68,8 +68,6 @@ const correctAnswers: Record<QuestionKey, AnswerValue> = {
 
 const cofreRoute = "/actividades/mathnumbers/cofre-bienvenida";
 const radarRoute = "/actividades/mathnumbers/radar-supervivencia";
-const hintRoute =
-  "/actividades/mathnumbers/aqui-tienes-una-pista";
 
 /* =========================================================
    1. ANIMACIONES DEL COFRE
@@ -860,9 +858,17 @@ export function CofreBienvenida() {
   const [resultModalKind, setResultModalKind] =
     useState<ResultKind>("completed");
 
+  /*
+   * Controla el mensaje emergente del botón "Ayuda".
+   * Ya no se navega a otra ruta.
+   */
+  const [helpMessageOpen, setHelpMessageOpen] =
+    useState(false);
+
   const introAudioRef = useRef<HTMLAudioElement | null>(null);
   const inicioActividadRef = useRef<number>(Date.now());
   const resultTimerRef = useRef<number | null>(null);
+  const helpTimerRef = useRef<number | null>(null);
   const [introAudioStatus, setIntroAudioStatus] =
     useState<AudioStatus>("idle");
 
@@ -894,6 +900,10 @@ export function CofreBienvenida() {
     return () => {
       if (resultTimerRef.current !== null) {
         window.clearTimeout(resultTimerRef.current);
+      }
+
+      if (helpTimerRef.current !== null) {
+        window.clearTimeout(helpTimerRef.current);
       }
     };
   }, []);
@@ -989,6 +999,28 @@ export function CofreBienvenida() {
   const cerrarSesion = () => {
     clearAuthSession();
     navigate("/login", { replace: true });
+  };
+
+  const cerrarMensajeAyuda = () => {
+    if (helpTimerRef.current !== null) {
+      window.clearTimeout(helpTimerRef.current);
+      helpTimerRef.current = null;
+    }
+
+    setHelpMessageOpen(false);
+  };
+
+  const mostrarMensajeAyuda = () => {
+    if (helpTimerRef.current !== null) {
+      window.clearTimeout(helpTimerRef.current);
+    }
+
+    setHelpMessageOpen(true);
+
+    helpTimerRef.current = window.setTimeout(() => {
+      setHelpMessageOpen(false);
+      helpTimerRef.current = null;
+    }, 8000);
   };
 
   const selectAnswer = (
@@ -1330,7 +1362,9 @@ export function CofreBienvenida() {
           <div className="mnx-cofre-top-actions">
             <button
               type="button"
-              onClick={() => irARuta(hintRoute)}
+              onClick={mostrarMensajeAyuda}
+              aria-expanded={helpMessageOpen}
+              aria-controls="mnx-cofre-help-message"
             >
               <FiHelpCircle />
               Ayuda
@@ -1746,6 +1780,66 @@ export function CofreBienvenida() {
           onClose={cerrarResultado}
           onRetry={repetirActividad}
         />
+      )}
+
+      {helpMessageOpen && (
+        <aside
+          id="mnx-cofre-help-message"
+          role="status"
+          aria-live="polite"
+          style={{
+            position: "fixed",
+            right: "clamp(14px, 2vw, 28px)",
+            bottom: "82px",
+            zIndex: 230,
+            width: "min(475px, calc(100vw - 28px))",
+            minHeight: "112px",
+            padding: "22px 58px 22px 24px",
+            border: "2px solid rgba(255, 255, 255, 0.35)",
+            borderRadius: "24px",
+            background:
+              "linear-gradient(145deg, #1267f2 0%, #0853df 100%)",
+            color: "#ffffff",
+            boxShadow:
+              "0 22px 48px rgba(10, 82, 214, 0.34)",
+            fontSize: "clamp(15px, 1.25vw, 18px)",
+            lineHeight: 1.52,
+            fontWeight: 800,
+          }}
+        >
+          <button
+            type="button"
+            onClick={cerrarMensajeAyuda}
+            aria-label="Cerrar mensaje de ayuda"
+            style={{
+              position: "absolute",
+              top: "13px",
+              right: "13px",
+              width: "34px",
+              height: "34px",
+              padding: 0,
+              border: "1px solid rgba(255, 255, 255, 0.35)",
+              borderRadius: "11px",
+              background: "rgba(255, 255,255, 0.18)",
+              color: "#ffffff",
+              display: "grid",
+              placeItems: "center",
+              cursor: "pointer",
+              fontSize: "19px",
+            }}
+          >
+            <FiX />
+          </button>
+
+          <strong style={{ display: "block", marginBottom: "5px" }}>
+            Ayuda:
+          </strong>
+
+          Compara las cantidades de cada opción. Recuerda que una
+          fracción y un decimal pueden representar exactamente la misma
+          parte de un entero. Selecciona una respuesta en cada pregunta
+          y después presiona “Comprobar respuestas”.
+        </aside>
       )}
 
       <Toast toast={toast} />

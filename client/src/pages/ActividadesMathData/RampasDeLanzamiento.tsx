@@ -48,6 +48,8 @@ import {
   FiCheckCircle,
   FiRefreshCw,
   FiArrowRight,
+  FiSettings,
+  FiLogOut,
 } from "react-icons/fi";
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 import "./RampasDeLanzamiento.css";
@@ -448,6 +450,7 @@ function PistaBaitModal({
         <audio
           ref={audioRef}
           src={audioSrc}
+          autoPlay
           onPlay={() => setReproduciendo(true)}
           onPause={() => setReproduciendo(false)}
           onEnded={() => setReproduciendo(false)}
@@ -460,6 +463,71 @@ function PistaBaitModal({
       </div>
     </div>,
     document.body
+  );
+}
+
+function AyudaContextualRampas({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const cerrarConEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", cerrarConEscape);
+    return () => window.removeEventListener("keydown", cerrarConEscape);
+  }, [onClose]);
+
+  return createPortal(
+    <div
+      className="rmp-ayuda-overlay"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section
+        className="rmp-ayuda-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="rmp-ayuda-titulo"
+      >
+        <button
+          type="button"
+          className="rmp-ayuda-cerrar"
+          onClick={onClose}
+          aria-label="Cerrar ayuda"
+        >
+          <FiX />
+        </button>
+
+        <img
+          src={baitPistaImg}
+          alt="Bait presenta una orientación para resolver la misión"
+          className="rmp-ayuda-imagen"
+        />
+
+        <div className="rmp-ayuda-contenido">
+          <span className="rmp-ayuda-etiqueta">CONTEXTO DE LA MISIÓN</span>
+          <h2 id="rmp-ayuda-titulo">¿Cómo calibrar las rampas?</h2>
+          <p>
+            La nave necesita dos rutas seguras: una para ascender y otra para
+            descender. Observa cómo cambia la altura cuando la distancia avanza
+            una unidad. Ese cambio constante te indica la pendiente.
+          </p>
+          <p>
+            Si la recta sube de izquierda a derecha, el signo es positivo; si
+            baja, es negativo. Después escribe la relación con la forma{" "}
+            <strong>y = mx</strong>, donde <strong>m</strong> representa ese
+            cambio. Revisa las tablas y las gráficas antes de completar la
+            bitácora final.
+          </p>
+
+          <button type="button" className="rmp-ayuda-volver" onClick={onClose}>
+            Entendido, volver a la misión
+          </button>
+        </div>
+      </section>
+    </div>,
+    document.body,
   );
 }
 
@@ -689,7 +757,23 @@ export default function RampasDeLanzamiento() {
   const [resultado, setResultado] = useState<"exito" | "fallo" | null>(null);
   const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
   const [mostrarIntroBait, setMostrarIntroBait] = useState(false);
+  const [mostrarAyudaContextual, setMostrarAyudaContextual] = useState(false);
   const [mostrarCohetesBienvenida, setMostrarCohetesBienvenida] = useState(true);
+  const [segundosTranscurridos, setSegundosTranscurridos] = useState(0);
+
+  useEffect(() => {
+    if (resultado !== null) return;
+
+    const actualizarTiempo = () => {
+      setSegundosTranscurridos(
+        Math.floor((Date.now() - inicioActividadRef.current) / 1000),
+      );
+    };
+
+    actualizarTiempo();
+    const intervalo = window.setInterval(actualizarTiempo, 1000);
+    return () => window.clearInterval(intervalo);
+  }, [resultado]);
 
   useEffect(() => {
     const temporizador = setTimeout(() => setMostrarCohetesBienvenida(false), 3400);
@@ -1265,6 +1349,35 @@ export default function RampasDeLanzamiento() {
           <span className="rmp-sidebar-label">XP acumulados</span>
           <strong>⭐ 120 XP</strong>
         </div>
+
+        <div className="rmp-sidebar-tiempo">
+          <span className="rmp-sidebar-label">Tiempo transcurrido</span>
+          <strong>{formatearTiempoRampas(segundosTranscurridos)}</strong>
+        </div>
+
+        <div className="rmp-sidebar-icons">
+          <button
+            type="button"
+            onClick={() => navigate("/ajustes")}
+            aria-label="Ajustes"
+          >
+            <FiSettings />
+          </button>
+          <button
+            type="button"
+            onClick={() => setMostrarAyudaContextual(true)}
+            aria-label="Ayuda de la actividad"
+          >
+            <FiHelpCircle />
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            aria-label="Cerrar sesión"
+          >
+            <FiLogOut />
+          </button>
+        </div>
       </aside>
 
       {/* ================= CONTENIDO ================= */}
@@ -1276,7 +1389,12 @@ export default function RampasDeLanzamiento() {
         </button>
             <span className="rmp-actividad-pill">Actividad 1 de 1</span>
           </div>
-          <button className="rmp-ayuda-btn" type="button" aria-label="Ayuda">
+          <button
+            className="rmp-ayuda-btn"
+            type="button"
+            aria-label="Ayuda"
+            onClick={() => setMostrarAyudaContextual(true)}
+          >
             <FiHelpCircle />
           </button>
         </header>
@@ -1654,6 +1772,12 @@ export default function RampasDeLanzamiento() {
           audioSrc={introBaitAudio}
           botonTexto="¡Comenzar misión! 🚀"
           onClose={() => setMostrarIntroBait(false)}
+        />
+      )}
+
+      {mostrarAyudaContextual && (
+        <AyudaContextualRampas
+          onClose={() => setMostrarAyudaContextual(false)}
         />
       )}
 
