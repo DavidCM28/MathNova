@@ -15,7 +15,6 @@ import baitSaludoImg from "../../assets/bait-saludo.png";
 import baitPistaImg from "../../assets/bait-pista.png";
 import villanoTrofeoCompleto from "../../assets/villano-trofeo-completo.png";
 import villanoIntentar from "../../assets/villano-vintentar.png";
-import estrellaMision from "../../assets/estrella-mision.png";
 import iconoAciertos from "../../assets/icono-aciertos.png";
 import iconoTiempo from "../../assets/icono-tiempo.png";
 import iconoPrecision from "../../assets/icono-precision.png";
@@ -44,6 +43,8 @@ import {
   FiX,
   FiCheck,
   FiCheckCircle,
+  FiArrowRight,
+  FiTarget,
   FiInfo,
   FiPlay,
   FiPause,
@@ -382,6 +383,122 @@ function PistaBaitModal({
 }
 
 /* =========================================================
+   COMPONENTE: REPRODUCTOR DE AUDIO DEL RESULTADO
+   Se reproduce solo apenas se monta, y muestra los
+   controles normales de un reproductor de audio: retroceder
+   10s, pausar/reproducir y adelantar 10s. Mismo patrón que
+   las demás actividades.
+========================================================= */
+
+const RESULT_AUDIO_SALTO_SEGUNDOS = 10;
+
+function ResultAudioPlayer({ src }: { src?: string }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [reproduciendo, setReproduciendo] = useState(false);
+  const [progreso, setProgreso] = useState(0);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    if (!audio || !src) {
+      return;
+    }
+
+    audio.currentTime = 0;
+    audio.volume = 1;
+
+    const playPromise = audio.play();
+
+    if (playPromise !== undefined) {
+      playPromise.catch((error) => {
+        console.warn(
+          "El audio del resultado no pudo iniciarse automáticamente:",
+          error,
+        );
+      });
+    }
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, [src]);
+
+  const alternarReproduccion = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (audio.paused || audio.ended) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  };
+
+  const saltar = (segundos: number) => {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    audio.currentTime = Math.min(
+      Math.max(audio.currentTime + segundos, 0),
+      audio.duration,
+    );
+  };
+
+  const actualizarProgreso = () => {
+    const audio = audioRef.current;
+    if (!audio || !audio.duration) return;
+    setProgreso((audio.currentTime / audio.duration) * 100);
+  };
+
+  if (!src) return null;
+
+  return (
+    <div className="nuc-modal-audio">
+      <audio
+        ref={audioRef}
+        src={src}
+        preload="auto"
+        autoPlay
+        onPlay={() => setReproduciendo(true)}
+        onPause={() => setReproduciendo(false)}
+        onEnded={() => setReproduciendo(false)}
+        onTimeUpdate={actualizarProgreso}
+      />
+
+      <button
+        type="button"
+        className="nuc-modal-audio-btn"
+        onClick={() => saltar(-RESULT_AUDIO_SALTO_SEGUNDOS)}
+        aria-label="Retroceder 10 segundos"
+      >
+        <FiRotateCcw />
+      </button>
+
+      <button
+        type="button"
+        className="nuc-modal-audio-btn nuc-modal-audio-btn--play"
+        onClick={alternarReproduccion}
+        aria-label={reproduciendo ? "Pausar" : "Reproducir"}
+      >
+        {reproduciendo ? <FiPause /> : <FiPlay />}
+      </button>
+
+      <button
+        type="button"
+        className="nuc-modal-audio-btn"
+        onClick={() => saltar(RESULT_AUDIO_SALTO_SEGUNDOS)}
+        aria-label="Adelantar 10 segundos"
+      >
+        <FiRotateCw />
+      </button>
+
+      <div className="nuc-modal-audio-progress">
+        <div style={{ width: `${progreso}%` }} />
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
    COMPONENTE PRINCIPAL
 ========================================================= */
 
@@ -424,8 +541,6 @@ export default function NucleoDecisiones() {
   const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
   const [mensajePistaBait, setMensajePistaBait] = useState("");
   const [mostrarIntroBait, setMostrarIntroBait] = useState(false);
-  const [mostrarBaitExito, setMostrarBaitExito] = useState(false);
-  const [mostrarBaitFallo, setMostrarBaitFallo] = useState(false);
 
   const [cargandoInicial, setCargandoInicial] = useState(true);
   const [cargandoOrden, setCargandoOrden] = useState(false);
@@ -979,138 +1094,216 @@ export default function NucleoDecisiones() {
   // ==========================================
 
   if (resultado === "exito") return (
-    <div className="res-modal-overlay">
-      <div className="res-modal-card res-modal-exito res-modal-wide">
-        <div className="res-confetti" aria-hidden="true">
-          {Array.from({ length: 16 }).map((_, i) => (
-            <span key={i} className={`res-confetti-dot res-confetti-dot-${i % 6}`} />
-          ))}
-        </div>
+    <div
+      className="nuc-modal-overlay nuc-modal-overlay--completed"
+      role="presentation"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "center",
+        padding: 24,
+        background: "rgba(15, 23, 42, 0.58)",
+        overflowY: "auto",
+        overflowX: "hidden",
+      }}
+    >
+      <section
+        className="nuc-modal nuc-modal--completed"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="nuc-result-title"
+        style={{
+          position: "relative",
+          width: "100%",
+          minWidth: 0,
+          maxWidth: 960,
+          maxHeight: "calc(100vh - 48px)",
+          overflowY: "auto",
+          background: "#ffffff",
+          borderRadius: 28,
+          boxShadow: "0 40px 80px rgba(15, 23, 42, 0.35)",
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 1fr) 310px",
+          overflowX: "hidden",
+        }}
+      >
+        <div className="nuc-modal-decoration nuc-modal-decoration--one" />
+        <div className="nuc-modal-decoration nuc-modal-decoration--two" />
 
-        <div className="res-titulo-row">
-          <div className="res-icono-check">✔</div>
-          <div>
-            <h1 className="res-titulo">¡Actividad completada!</h1>
-            <p className="res-subtitulo">
-              Has terminado con éxito la misión de{" "}
-              <span className="res-mathnova-color">MathData</span>.
-            </p>
+        <div className="nuc-modal-main" style={{ minWidth: 0, overflowX: "hidden" }}>
+          <header className="nuc-modal-header">
+            <div className="nuc-modal-status-icon">
+              <FiCheckCircle />
+            </div>
+
+            <div className="nuc-modal-header-copy">
+              <span className="nuc-modal-badge">
+                <FiCheckCircle />
+                Actividad completada
+              </span>
+
+              <h1 id="nuc-result-title">¡Actividad completada!</h1>
+
+              <p>
+                Has terminado con éxito la misión de{" "}
+                <span className="nuc-modal-mathnova-color">MathData</span>.
+              </p>
+            </div>
+          </header>
+
+          <div className="nuc-modal-content">
+            <div className="nuc-modal-character">
+              <img
+                src={villanoTrofeoCompleto}
+                alt="Villano celebrando con trofeo"
+                draggable={false}
+                style={{ maxWidth: 220, width: "100%", height: "auto", display: "block" }}
+              />
+            </div>
+
+            <article className="nuc-modal-message">
+              <span className="nuc-modal-message-label">Resultado de la misión</span>
+              <h2>¡Excelente trabajo, agente!</h2>
+              <p>
+                Ordenaste los tiempos y calculaste correctamente la media, la
+                mediana, la moda y el rango. El Núcleo de Decisiones aprobó
+                tu análisis y liberó la energía segura para la nave.
+              </p>
+            </article>
           </div>
-        </div>
 
-        <div className="res-mensaje-box res-mensaje-verde">
-          <div className="res-icono-estrella-circle">
-            <img src={estrellaMision} alt="estrella" />
-          </div>
-          <div>
-            <strong>¡Excelente trabajo, agente!</strong>
-            <p>
-              Ordenaste los tiempos y calculaste correctamente la media, la
-              mediana, la moda y el rango. El Núcleo de Decisiones aprobó tu
-              análisis y liberó la energía segura para la nave.
-            </p>
-          </div>
-        </div>
+          <ResultAudioPlayer src={baitAudioActividadCompletada} />
 
-        <button
-          type="button"
-          className="rmp-bait-mensaje-trigger res-modal-villano-trigger"
-          onClick={() => setMostrarBaitExito(true)}
-          aria-label="Abrir mensaje de Bait"
-        >
-          <span className="rmp-bait-mensaje-dot" />
-          <FiMessageSquare />
-          Bait tiene un mensaje para ti
-        </button>
+          <article className="nuc-modal-summary">
+            <header>
+              <FiBarChart2 />
+              <h2>Resumen de la actividad</h2>
+            </header>
 
-        <div className="res-villano-exito-group">
-          <img
-            src={villanoTrofeoCompleto}
-            alt="Villano celebrando con trofeo"
-            className="res-villano-trofeo-img"
-          />
-        </div>
-
-        <div className="res-modal-body">
-          <div className="res-modal-left">
-            <div className="res-resumen-card">
-              <div className="res-resumen-header">
-                <FiBarChart2 />
-                <span>Resumen de la actividad</span>
-              </div>
-              <div className="res-resumen-stats">
-                <div className="res-stat">
-                  <img src={iconoAciertos} alt="" className="res-stat-img" />
-                  <strong className="res-stat-num-verde">{aciertos}/{totalPasos}</strong>
-                  <small>Pasos correctos</small>
-                  <em>¡Perfecto!</em>
+            <div
+              className="nuc-modal-stats"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+                gap: 10,
+                minWidth: 0,
+                width: "100%",
+              }}
+            >
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoAciertos} alt="" aria-hidden="true" />
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoTiempo} alt="" className="res-stat-img" />
+                <div>
+                  <span>Pasos correctos</span>
+                  <strong>{aciertos}/{totalPasos}</strong>
+                  <small>¡Perfecto!</small>
+                </div>
+              </article>
+
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoTiempo} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Tiempo</span>
                   <strong>{formatearTiempo(segundosTranscurridos)}</strong>
-                  <small>Tiempo</small>
-                  <em>min</em>
+                  <small>min</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoPrecision} alt="" className="res-stat-img" />
-                  <strong className="res-stat-num-verde">{precision}%</strong>
-                  <small>Precisión</small>
-                  <em>¡Impecable!</em>
+              </article>
+
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoPrecision} alt="" aria-hidden="true" />
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoRecompensa} alt="" className="res-stat-img" />
-                  <strong className="res-pts-naranja">+{puntosGanados} pts</strong>
-                  <small>Recompensa</small>
-                  <em>Puntos ganados</em>
+                <div>
+                  <span>Precisión</span>
+                  <strong>{precision}%</strong>
+                  <small>¡Impecable!</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoInsignia} alt="" className="res-stat-img" />
-                  <strong>Misión<br />cumplida</strong>
-                  <small>Insignia obtenida</small>
-                  <em>¡Felicidades!</em>
+              </article>
+
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoRecompensa} alt="" aria-hidden="true" />
                 </div>
-              </div>
+                <div>
+                  <span>Recompensa</span>
+                  <strong>+{puntosGanados} pts</strong>
+                  <small>Puntos ganados</small>
+                </div>
+              </article>
+
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoInsignia} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Insignia obtenida</span>
+                  <strong>Misión cumplida</strong>
+                  <small>¡Felicidades!</small>
+                </div>
+              </article>
+            </div>
+          </article>
+        </div>
+
+        <aside
+          className="nuc-modal-side"
+          style={{ display: "flex", flexDirection: "column", gap: 20 }}
+        >
+          <article className="nuc-modal-side-message">
+            <span>¡Misión completada!</span>
+            <strong>Sigue avanzando por MathData</strong>
+            <p>Cada actividad superada fortalece tus habilidades matemáticas.</p>
+          </article>
+
+          <div className="nuc-modal-progress">
+            <div>
+              <span>Progreso del tema</span>
+              <strong>60%</strong>
+            </div>
+            <div className="nuc-modal-progress-bar">
+              <span style={{ width: "60%" }} />
             </div>
           </div>
 
-          <div className="res-modal-right">
+          <div
+            className="nuc-modal-actions"
+            style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 12 }}
+          >
             <button
-              className="res-btn res-btn-azul"
-              onClick={() =>
-                navigate(
-                  "/actividades-math-data/oraculo-estacion",
-                )
-              }
+              type="button"
+              className="nuc-modal-action nuc-modal-action--primary"
+              onClick={() => navigate("/actividades-math-data/oraculo-estacion")}
             >
-              Siguiente actividad
+              <FiArrowRight />
+              <span>Siguiente actividad</span>
             </button>
-            <button className="res-btn res-btn-outline" onClick={handleReiniciarActividad}>
-              Repetir actividad
-            </button>
+
             <button
-              className="res-btn res-btn-outline"
+              type="button"
+              className="nuc-modal-action nuc-modal-action--secondary"
+              onClick={handleReiniciarActividad}
+            >
+              <FiRefreshCw />
+              <span>Repetir actividad</span>
+            </button>
+
+            <button
+              type="button"
+              className="nuc-modal-action nuc-modal-action--secondary"
               onClick={() => navigate("/actividades-math-data")}
             >
-              Volver a actividades
+              <FiGrid />
+              <span>Volver a actividades</span>
             </button>
           </div>
-        </div>
-      </div>
-
-      {mostrarBaitExito && (
-        <PistaBaitModal
-          titulo="Bait tiene un mensaje para ti"
-          contenido="¡Decisión autorizada, agente! Estimamos una misión de 51 minutos y cargamos 16 minutos adicionales de reserva. La nave está preparada para operar durante 67 minutos. El Núcleo de Decisiones queda restaurado."
-          videoSrc={baitHablandoVideo}
-          audioSrc={baitAudioActividadCompletada}
-          botonTexto="Cerrar mensaje"
-          onClose={() => setMostrarBaitExito(false)}
-        />
-      )}
+        </aside>
+      </section>
     </div>
   );
 
@@ -1119,119 +1312,216 @@ export default function NucleoDecisiones() {
   // ==========================================
 
   if (resultado === "fallo") return (
-    <div className="res-modal-overlay">
-      <div className="res-modal-card res-modal-fallo res-modal-wide">
-        <div className="res-titulo-row">
-          <div className="res-icono-retry">&#x1F504;</div>
-          <div>
-            <h1 className="res-titulo">¡Vuelve a intentarlo!</h1>
-            <p className="res-subtitulo">
-              Aún no completas con éxito la misión de{" "}
-              <span className="res-mathnova-color">MathData</span>.
-            </p>
+    <div
+      className="nuc-modal-overlay nuc-modal-overlay--retry"
+      role="presentation"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "center",
+        padding: 24,
+        background: "rgba(15, 23, 42, 0.58)",
+        overflowY: "auto",
+        overflowX: "hidden",
+      }}
+    >
+      <section
+        className="nuc-modal nuc-modal--retry"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="nuc-result-title-fallo"
+        style={{
+          position: "relative",
+          width: "100%",
+          minWidth: 0,
+          maxWidth: 960,
+          maxHeight: "calc(100vh - 48px)",
+          overflowY: "auto",
+          background: "#ffffff",
+          borderRadius: 28,
+          boxShadow: "0 40px 80px rgba(15, 23, 42, 0.35)",
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 1fr) 310px",
+          overflowX: "hidden",
+        }}
+      >
+        <div className="nuc-modal-decoration nuc-modal-decoration--one" />
+        <div className="nuc-modal-decoration nuc-modal-decoration--two" />
+
+        <div className="nuc-modal-main" style={{ minWidth: 0, overflowX: "hidden" }}>
+          <header className="nuc-modal-header">
+            <div className="nuc-modal-status-icon">
+              <FiRefreshCw />
+            </div>
+
+            <div className="nuc-modal-header-copy">
+              <span className="nuc-modal-badge">
+                <FiRefreshCw />
+                Vuelve a intentarlo
+              </span>
+
+              <h1 id="nuc-result-title-fallo">¡Vuelve a intentarlo!</h1>
+
+              <p>
+                Aún no completas con éxito la misión de{" "}
+                <span className="nuc-modal-mathnova-color">MathData</span>.
+              </p>
+            </div>
+          </header>
+
+          <div className="nuc-modal-content">
+            <div className="nuc-modal-character">
+              <img
+                src={villanoIntentar}
+                alt="Villano retando"
+                draggable={false}
+                style={{ maxWidth: 220, width: "100%", height: "auto", display: "block" }}
+              />
+            </div>
+
+            <article className="nuc-modal-message">
+              <span className="nuc-modal-message-label">Resultado de la misión</span>
+              <h2>¡No te rindas, agente!</h2>
+              <p>
+                Revisa el orden de los tiempos y vuelve a calcular la media,
+                la mediana, la moda y el rango. Recuerda: la capacidad total
+                es la media más el rango.
+              </p>
+            </article>
           </div>
-        </div>
 
-        <div className="res-mensaje-box res-mensaje-azul">
-          <div className="res-icono-datos">📊</div>
-          <div>
-            <strong>¡No te rindas, agente!</strong>
-            <p>
-              Revisa el orden de los tiempos y vuelve a calcular la media, la
-              mediana, la moda y el rango. Recuerda: la capacidad total es la
-              media más el rango.
-            </p>
-          </div>
-        </div>
+          <ResultAudioPlayer src={baitAudioVuelveAIntentarlo} />
 
-        <button
-          type="button"
-          className="rmp-bait-mensaje-trigger res-modal-villano-trigger"
-          onClick={() => setMostrarBaitFallo(true)}
-          aria-label="Abrir mensaje de Bait"
-        >
-          <span className="rmp-bait-mensaje-dot" />
-          <FiMessageSquare />
-          Bait tiene un mensaje para ti
-        </button>
+          <article className="nuc-modal-summary">
+            <header>
+              <FiBarChart2 />
+              <h2>Resumen de la actividad</h2>
+            </header>
 
-        <div className="res-villano-fallo-group">
-          <img src={villanoIntentar} alt="Villano retando" className="res-villano-img" />
-        </div>
-
-        <div className="res-modal-body">
-          <div className="res-modal-left">
-            <div className="res-resumen-card">
-              <div className="res-resumen-header">
-                <FiBarChart2 />
-                <span>Resumen de la actividad</span>
-              </div>
-              <div className="res-resumen-stats">
-                <div className="res-stat">
-                  <img src={iconoAciertos} alt="" className="res-stat-img" />
+            <div
+              className="nuc-modal-stats"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+                gap: 10,
+                minWidth: 0,
+                width: "100%",
+              }}
+            >
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoAciertos} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Pasos correctos</span>
                   <strong>{aciertos}/{totalPasos}</strong>
-                  <small>Pasos correctos</small>
-                  <em>¡Sigue así!</em>
+                  <small>¡Sigue así!</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoTiempo} alt="" className="res-stat-img" />
+              </article>
+
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoTiempo} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Tiempo</span>
                   <strong>{formatearTiempo(segundosTranscurridos)}</strong>
-                  <small>Tiempo</small>
-                  <em>min</em>
+                  <small>min</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoPrecision} alt="" className="res-stat-img" />
+              </article>
+
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoPrecision} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Precisión</span>
                   <strong>{precision}%</strong>
-                  <small>Precisión</small>
-                  <em>Puedes mejorar</em>
+                  <small>Puedes mejorar</small>
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoRecompensa} alt="" className="res-stat-img" />
-                  <strong className="res-pts-azul">+{puntosGanados} pts</strong>
-                  <small>Recompensa</small>
-                  <em>Puntos ganados</em>
+              </article>
+
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoRecompensa} alt="" aria-hidden="true" />
                 </div>
-                <div className="res-stat-sep" />
-                <div className="res-stat">
-                  <img src={iconoInsignia} alt="" className="res-stat-img" />
+                <div>
+                  <span>Recompensa</span>
+                  <strong>+{puntosGanados} pts</strong>
+                  <small>Puntos ganados</small>
+                </div>
+              </article>
+
+              <article className="nuc-modal-stat">
+                <div className="nuc-modal-stat-icon">
+                  <img src={iconoInsignia} alt="" aria-hidden="true" />
+                </div>
+                <div>
+                  <span>Insignia obtenida</span>
                   <strong>Sigue intentando</strong>
-                  <small>Insignia obtenida</small>
-                  <em>¡No te rindas!</em>
+                  <small>¡No te rindas!</small>
                 </div>
-              </div>
+              </article>
+            </div>
+          </article>
+        </div>
+
+        <aside
+          className="nuc-modal-side"
+          style={{ display: "flex", flexDirection: "column", gap: 20 }}
+        >
+          <article className="nuc-modal-side-message">
+            <span>¡No te rindas!</span>
+            <strong>Cada intento te ayuda a mejorar</strong>
+            <p>Usa la pista, revisa el procedimiento y vuelve a resolver la actividad.</p>
+          </article>
+
+          <div className="nuc-modal-progress">
+            <div>
+              <span>Progreso del tema</span>
+              <strong>60%</strong>
+            </div>
+            <div className="nuc-modal-progress-bar">
+              <span style={{ width: "60%" }} />
             </div>
           </div>
 
-          <div className="res-modal-right">
-            <button className="res-btn res-btn-azul" onClick={handleReiniciarActividad}>
-              Intentar de nuevo
-            </button>
-            <button className="res-btn res-btn-outline" onClick={abrirPistaManual}>
-              Ver pista
-            </button>
+          <div
+            className="nuc-modal-actions"
+            style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 12 }}
+          >
             <button
-              className="res-btn res-btn-outline"
+              type="button"
+              className="nuc-modal-action nuc-modal-action--primary"
+              onClick={handleReiniciarActividad}
+            >
+              <FiRefreshCw />
+              <span>Intentar de nuevo</span>
+            </button>
+
+            <button
+              type="button"
+              className="nuc-modal-action nuc-modal-action--secondary"
+              onClick={abrirPistaManual}
+            >
+              <FiTarget />
+              <span>Ver pista</span>
+            </button>
+
+            <button
+              type="button"
+              className="nuc-modal-action nuc-modal-action--secondary"
               onClick={() => navigate("/actividades-math-data")}
             >
-              {"<-"} Volver a actividades
+              <FiGrid />
+              <span>Volver a actividades</span>
             </button>
           </div>
-        </div>
-      </div>
-
-      {mostrarBaitFallo && (
-        <PistaBaitModal
-          titulo="Bait tiene un mensaje para ti"
-          contenido="Buen intento, agente. El Núcleo guardó tu avance, pero todavía falta completar la bitácora y enviar la decisión. Puedes volver a intentarlo desde el primer paso pendiente. Cada cálculo que ya resolviste permanecerá guardado."
-          videoSrc={baitHablandoVideo}
-          audioSrc={baitAudioVuelveAIntentarlo}
-          botonTexto="Cerrar mensaje"
-          onClose={() => setMostrarBaitFallo(false)}
-        />
-      )}
+        </aside>
+      </section>
 
       {mostrarPistaBait && (
         <PistaBaitModal

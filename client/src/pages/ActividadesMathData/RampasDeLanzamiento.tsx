@@ -18,6 +18,10 @@ import iconoPrecision from "../../assets/icono-precision.png";
 import iconoRecompensa from "../../assets/icono-recompensa.png";
 import iconoInsignia from "../../assets/icono-insignia.png";
 import iconoProgreso from "../../assets/icono-progreso.png";
+
+/* ---- Videos de cohetes con fondo verde ---- */
+import cohetePendienteAscensoVideo from "../../assets/cohete-ascenso.mp4";
+import cohetePendienteDescensoVideo from "../../assets/cohete-descenso.mp4";
 import baitHablandoVideo from "../../assets/bait-hablando.mp4";
 import introBaitAudio from "../../assets/rampas-intro-audio.mp3";
 import pistaBaitAudio from "../../assets/rampas-pista-audio.mp3";
@@ -576,6 +580,87 @@ function ResultAudioPlayer({ src }: { src: string }) {
 }
 
 /* =========================================================
+   COMPONENTE: VIDEO CON CROMA (fondo verde) TRANSPARENTE
+   Dibuja el video cuadro a cuadro en un <canvas> y vuelve
+   transparente cada píxel verde, sin necesidad de recodificar
+   el archivo. Funciona en todos los navegadores.
+========================================================= */
+
+interface ChromaKeyVideoProps {
+  src?: string;
+  className?: string;
+  loop?: boolean;
+  onEnded?: () => void;
+}
+
+function ChromaKeyVideo({ src, className, loop = true, onEnded }: ChromaKeyVideoProps) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas || !src) return;
+
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return;
+
+    const dibujarCuadro = () => {
+      if (video.videoWidth && video.videoHeight) {
+        if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+        }
+
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const cuadro = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const datos = cuadro.data;
+
+        // El fondo es verde: el canal verde es notablemente más alto
+        // que el rojo y el azul. Los píxeles que cumplen esto se
+        // vuelven transparentes; el cohete queda intacto.
+        for (let i = 0; i < datos.length; i += 4) {
+          const r = datos[i];
+          const g = datos[i + 1];
+          const b = datos[i + 2];
+          if (g > 85 && g > r * 1.3 && g > b * 1.3) {
+            datos[i + 3] = 0;
+          }
+        }
+
+        ctx.putImageData(cuadro, 0, 0);
+      }
+      rafRef.current = requestAnimationFrame(dibujarCuadro);
+    };
+
+    rafRef.current = requestAnimationFrame(dibujarCuadro);
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [src]);
+
+  if (!src) return null;
+
+  return (
+    <div className={className}>
+      <video
+        ref={videoRef}
+        src={src}
+        muted
+        playsInline
+        autoPlay
+        loop={loop}
+        onEnded={onEnded}
+        style={{ display: "none" }}
+      />
+      <canvas ref={canvasRef} className="rmp-chroma-canvas" aria-hidden="true" />
+    </div>
+  );
+}
+
+/* =========================================================
    COMPONENTE PRINCIPAL
 ========================================================= */
 
@@ -604,6 +689,12 @@ export default function RampasDeLanzamiento() {
   const [resultado, setResultado] = useState<"exito" | "fallo" | null>(null);
   const [mostrarPistaBait, setMostrarPistaBait] = useState(false);
   const [mostrarIntroBait, setMostrarIntroBait] = useState(false);
+  const [mostrarCohetesBienvenida, setMostrarCohetesBienvenida] = useState(true);
+
+  useEffect(() => {
+    const temporizador = setTimeout(() => setMostrarCohetesBienvenida(false), 3400);
+    return () => clearTimeout(temporizador);
+  }, []);
   const [cargando, setCargando] = useState(false);
 
   const [
@@ -1192,6 +1283,21 @@ export default function RampasDeLanzamiento() {
 
         {/* FILA SUPERIOR */}
         <div className="rmp-top-row">
+          {mostrarCohetesBienvenida && (
+            <div className="rmp-cohetes-bienvenida" aria-hidden="true">
+              <ChromaKeyVideo
+                src={cohetePendienteAscensoVideo}
+                className="rmp-cohete-bienvenida rmp-cohete-bienvenida-ascenso"
+                loop={false}
+              />
+              <ChromaKeyVideo
+                src={cohetePendienteDescensoVideo}
+                className="rmp-cohete-bienvenida rmp-cohete-bienvenida-descenso"
+                loop={false}
+              />
+            </div>
+          )}
+
           <div className="rmp-centro-control">
             <div className="rmp-centro-control-header">
               <FiTarget /> CENTRO DE CONTROL
@@ -1271,6 +1377,10 @@ export default function RampasDeLanzamiento() {
             <div className="rmp-grafica-header">
               <span className="rmp-numero-badge rmp-numero-badge-verde">1</span>
               <h2>Rampa de ascenso</h2>
+              <ChromaKeyVideo
+                src={cohetePendienteAscensoVideo}
+                className="rmp-cohete-mini"
+              />
             </div>
 
             <div className="rmp-grafica-contenido">
@@ -1343,6 +1453,10 @@ export default function RampasDeLanzamiento() {
             <div className="rmp-grafica-header">
               <span className="rmp-numero-badge rmp-numero-badge-rojo">2</span>
               <h2>Rampa de descenso</h2>
+              <ChromaKeyVideo
+                src={cohetePendienteDescensoVideo}
+                className="rmp-cohete-mini"
+              />
             </div>
 
             <div className="rmp-grafica-contenido">

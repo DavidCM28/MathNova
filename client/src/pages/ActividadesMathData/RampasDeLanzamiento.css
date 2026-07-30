@@ -318,6 +318,77 @@
 }
 
 /* --- Título + Hola piloto --- */
+/* ========================================================= */
+/* COHETES CON CROMA (fondo verde transparente vía canvas)    */
+/* ========================================================= */
+
+.rmp-chroma-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* ---- Animación de bienvenida (una sola vez, al cargar) ---- */
+.rmp-cohetes-bienvenida {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+  opacity: 1;
+  transition: opacity 0.6s ease;
+}
+
+.rmp-top-row {
+  position: relative;
+}
+
+.rmp-cohete-bienvenida {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+}
+
+.rmp-cohete-bienvenida-ascenso {
+  left: -40px;
+  bottom: -40px;
+  animation: rmpCoheteSube 3.2s ease-in forwards;
+}
+
+.rmp-cohete-bienvenida-descenso {
+  right: -40px;
+  top: -40px;
+  animation: rmpCoheteBaja 3.2s ease-in forwards;
+}
+
+@keyframes rmpCoheteSube {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translate(60vw, -220px) rotate(-8deg); opacity: 0; }
+}
+
+@keyframes rmpCoheteBaja {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translate(-60vw, 220px) rotate(8deg); opacity: 0; }
+}
+
+/* ---- Cohete miniatura en bucle, dentro de cada tarjeta ---- */
+.rmp-cohete-mini {
+  width: 34px;
+  height: 34px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+@media (max-width: 720px) {
+  .rmp-cohete-bienvenida { width: 100px; height: 100px; }
+  .rmp-cohete-mini { width: 26px; height: 26px; }
+}
+
 .rmp-titulo-bloque {
   flex: 1;
   min-width: 300px;
