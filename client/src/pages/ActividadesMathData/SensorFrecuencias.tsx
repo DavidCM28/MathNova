@@ -64,7 +64,7 @@ const API_URL_BASE =
       | string
       | undefined
   )?.replace(/\/+$/, "") ||
-  "http://localhost:3001";
+  "/api";
 
 const API_URL =
   API_URL_BASE.endsWith("/api")

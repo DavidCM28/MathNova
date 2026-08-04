@@ -71,7 +71,7 @@ type DashboardDocenteResponse = {
   mensaje?: string;
 } & DashboardDocenteData;
 
-const API_DASHBOARD_DOCENTE = "http://localhost:3001/api/docente/dashboard";
+const API_DASHBOARD_DOCENTE = "/api/docente/dashboard";
 
 const dashboardInicial: DashboardDocenteData = {
   resumen: {

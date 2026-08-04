@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3001/api/admin";
+const API_URL = "/api/admin";
 
 export const obtenerDashboardAdmin = async () => {
   const response = await fetch(`${API_URL}/dashboard`);

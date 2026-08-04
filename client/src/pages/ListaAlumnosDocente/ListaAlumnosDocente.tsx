@@ -68,8 +68,8 @@ type EstadoLista =
   | "En riesgo"
   | "Sin datos";
 
-const API_DOCENTE_ALUMNOS = "http://localhost:3001/api/docente/alumnos";
-const API_GRUPOS = "http://localhost:3001/api/grupos";
+const API_DOCENTE_ALUMNOS = "/api/docente/alumnos";
+const API_GRUPOS = "/api/grupos";
 
 function obtenerToken() {
   return (

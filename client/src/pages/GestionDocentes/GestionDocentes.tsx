@@ -101,7 +101,7 @@ type Mensaje = {
 };
 
 const API_GESTION_DOCENTES =
-  "http://localhost:3001/api/docente/gestion-docentes";
+  "/api/docente/gestion-docentes";
 
 const formularioVacio: FormDocente = {
   nombre: "",

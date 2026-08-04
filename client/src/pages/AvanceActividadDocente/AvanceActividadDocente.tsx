@@ -116,7 +116,7 @@ type RespuestaAvance = {
   };
 };
 
-const API_URL = "http://localhost:3001/api/docente/avance-actividad";
+const API_URL = "/api/docente/avance-actividad";
 const ALUMNOS_POR_PAGINA = 9;
 
 const datosIniciales: RespuestaAvance = {

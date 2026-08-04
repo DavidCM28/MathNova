@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import {
   FiCheckCircle,
   FiHelpCircle,
-  FiLightbulb,
+  FiZap,
   FiX,
 } from "react-icons/fi";
 
@@ -88,7 +88,7 @@ export function HintModal({
 
           <div>
             <span className="hint-modal-badge">
-              <FiLightbulb />
+              <FiZap />
               Aquí tienes una pista
             </span>
 
@@ -106,7 +106,7 @@ export function HintModal({
         <div className="hint-modal-content">
           <article className="hint-modal-message">
             <span className="hint-modal-message-icon">
-              <FiLightbulb />
+              <FiZap />
             </span>
 
             <div>

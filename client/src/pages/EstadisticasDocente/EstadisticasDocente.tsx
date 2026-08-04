@@ -90,7 +90,7 @@ type RespuestaEstadisticas = {
   };
 };
 
-const API_URL = "http://localhost:3001/api/docente/estadisticas";
+const API_URL = "/api/docente/estadisticas";
 
 const datosIniciales: RespuestaEstadisticas = {
   ok: true,

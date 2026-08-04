@@ -112,7 +112,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         pendingSyncQueue,
       );
 
-      const response = await fetch("http://localhost:5000/api/sync", {
+      const response = await fetch("/api/sync", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

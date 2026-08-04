@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3001/api/progreso";
+const API_URL = "/api/progreso";
 
 export type GuardarProgresoPayload = {
   id_usuario: number | string;

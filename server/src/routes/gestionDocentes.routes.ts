@@ -1,6 +1,6 @@
 ﻿import { Router, Request, Response } from "express";
 
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const pool = require("../db") as {
   query: <T = any>(sql: string, params?: unknown[]) => Promise<{
     rows: T[];

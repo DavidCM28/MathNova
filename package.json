@@ -1,0 +1,65 @@
+{
+  "name": "mathnova",
+  "version": "1.0.0",
+  "description": "Plataforma educativa interactiva de matemáticas para secundaria.",
+  "author": "Brayan David Casas Morales",
+  "private": true,
+  "main": "desktop/dist/main.js",
+  "scripts": {
+    "install:all": "npm --prefix client ci && npm --prefix server ci",
+    "build:client": "npm --prefix client run build",
+    "build:server": "npm --prefix server run build",
+    "build:desktop": "tsc -p desktop/tsconfig.json",
+    "build": "npm run build:client && npm run build:server && npm run build:desktop",
+    "dev:client": "npm --prefix client run dev",
+    "dev:server": "npm --prefix server run dev",
+    "start": "npm --prefix server start",
+    "desktop:dev": "npm run build && electron .",
+    "desktop:pack": "npm run build && electron-builder --dir",
+    "dist:win": "npm run build && electron-builder --win nsis --x64",
+    "dist:mac": "npm run build && electron-builder --mac dmg --x64 --arm64",
+    "verify:release": "node scripts/verify-release.js"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "electron": "^43.3.0",
+    "electron-builder": "^26.15.3",
+    "typescript": "^7.0.2"
+  },
+  "build": {
+    "appId": "com.mathnova.desktop",
+    "productName": "MathNova",
+    "copyright": "Copyright © 2026 Brayan David Casas Morales",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "desktop/dist/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      { "from": "client/dist", "to": "client/dist" },
+      { "from": "server/dist", "to": "server/dist" },
+      { "from": "server/node_modules", "to": "server/node_modules" },
+      { "from": "server/package.json", "to": "server/package.json" },
+      { "from": "server/.env", "to": "server/.env" },
+      { "from": "mathnova-icon.png", "to": "icon.png" }
+    ],
+    "win": {
+      "target": ["nsis"],
+      "icon": "mathnova-icon.png",
+      "legalTrademarks": "MathNova — Brayan David Casas Morales"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "mac": {
+      "target": ["dmg"],
+      "category": "public.app-category.education",
+      "icon": "mathnova-icon.png"
+    }
+  }
+}

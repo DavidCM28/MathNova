@@ -38,7 +38,7 @@ type AlumnoGrupoResponse = {
   alumno?: AlumnoGrupo;
 };
 
-const API_GRUPOS = "http://localhost:3001/api/grupos";
+const API_GRUPOS = "/api/grupos";
 
 function obtenerToken() {
   const token =

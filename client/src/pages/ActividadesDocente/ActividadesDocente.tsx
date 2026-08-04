@@ -117,7 +117,7 @@ type ActividadesResponse = {
 } & ActividadesData;
 
 const API_ACTIVIDADES_DOCENTE =
-  "http://localhost:3001/api/docente/actividades";
+  "/api/docente/actividades";
 
 const resumenInicial: ResumenActividades = {
   total_actividades: 0,

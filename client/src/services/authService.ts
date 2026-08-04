@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3001/api/auth";
+const API_URL = "/api/auth";
 
 type LoginData = {
   correoUsuario: string;

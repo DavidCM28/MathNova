@@ -29,7 +29,7 @@ export type EstadoAutoProgreso = {
 
 const API_URL_BASE =
   (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/+$/, "") ||
-  "http://localhost:3001";
+  "/api";
 
 const PROGRESO_ACTIVIDAD_URL = API_URL_BASE.endsWith("/api")
   ? `${API_URL_BASE}/progreso/actividad`

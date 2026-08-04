@@ -87,7 +87,7 @@ type AlertaVisual = {
   nombre?: string;
 };
 
-const API_DOCENTE_ALUMNOS = "http://localhost:3001/api/docente/alumnos";
+const API_DOCENTE_ALUMNOS = "/api/docente/alumnos";
 const ALUMNOS_POR_PAGINA = 5;
 
 const resumenInicial: Resumen = {

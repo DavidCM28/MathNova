@@ -189,7 +189,7 @@ const MUNDOS_VISUALES: Record<
 };
 
 const API_CALIFICACIONES_DOCENTE =
-  "http://localhost:3001/api/docente/calificaciones";
+  "/api/docente/calificaciones";
 
 const datosIniciales: CalificacionesData = {
   grupos: [],
@@ -474,6 +474,7 @@ function CalificacionesDocente() {
     }
 
     const controller = new AbortController();
+    const alumnoSeleccionado = alumnoDetalle;
 
     async function cargarDetalleAlumno() {
       try {
@@ -482,7 +483,7 @@ function CalificacionesDocente() {
 
         const token = obtenerToken();
         const response = await fetch(
-          `${API_CALIFICACIONES_DOCENTE}/alumno/${alumnoDetalle.id}`,
+          `${API_CALIFICACIONES_DOCENTE}/alumno/${alumnoSeleccionado.id}`,
           {
             signal: controller.signal,
             headers: token ? { Authorization: `Bearer ${token}` } : undefined,

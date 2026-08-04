@@ -40,7 +40,7 @@ import {
 
 import { GiRingedPlanet, GiTrophyCup } from "react-icons/gi";
 
-const API_URL = "http://localhost:3001/api";
+const API_URL = "/api";
 
 type EstadoActividad = "pendiente" | "en_curso" | "completada";
 type FiltroEstado = "todas" | EstadoActividad;

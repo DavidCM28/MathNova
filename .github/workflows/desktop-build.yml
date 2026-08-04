@@ -1,0 +1,71 @@
+name: Build MathNova Desktop
+
+on:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    name: Windows x64
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Crear configuración de producción
+        shell: pwsh
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        run: |
+          @"
+          DATABASE_URL=$env:DATABASE_URL
+          JWT_SECRET=$env:JWT_SECRET
+          DB_SSL=true
+          PORT=3001
+          LAN_ENABLED=true
+          NODE_ENV=production
+          "@ | Set-Content -LiteralPath server/.env
+      - run: npm ci
+      - run: npm --prefix client ci
+      - run: npm --prefix server ci
+      - run: npm run dist:win
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MathNova-Windows-x64
+          path: |
+            release/*.exe
+            release/*.blockmap
+
+  macos:
+    name: macOS Intel and Apple Silicon
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Crear configuración de producción
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        run: |
+          printf '%s\n' \
+            "DATABASE_URL=$DATABASE_URL" \
+            "JWT_SECRET=$JWT_SECRET" \
+            "DB_SSL=true" \
+            "PORT=3001" \
+            "LAN_ENABLED=true" \
+            "NODE_ENV=production" > server/.env
+      - run: npm ci
+      - run: npm --prefix client ci
+      - run: npm --prefix server ci
+      - run: npm run dist:mac
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MathNova-macOS
+          path: |
+            release/*.dmg
+            release/*.blockmap
